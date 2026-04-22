@@ -1,0 +1,31 @@
+/*
+  Copyright 2019 Google LLC, Vite PWA's Team
+
+  Use of this source code is governed by an MIT-style
+  license that can be found in the LICENSE file or at
+  https://opensource.org/licenses/MIT.
+*/
+
+import { getOrCreatePrecacheController } from './utils/getOrCreatePrecacheController'
+
+/**
+ * Helper function that calls
+ * {@link PrecacheController#matchPrecache} on the default
+ * {@link PrecacheController} instance.
+ *
+ * If you are creating your own {@link PrecacheController}, then call
+ * {@link PrecacheController#matchPrecache} on that instance,
+ * instead of using this function.
+ *
+ * @param {string|Request} request The key (without revisioning parameters)
+ * to look up in the precache.
+ * @return {Promise<Response|undefined>}
+ */
+function matchPrecache(
+  request: string | Request,
+): Promise<Response | undefined> {
+  const precacheController = getOrCreatePrecacheController()
+  return precacheController.matchPrecache(request)
+}
+
+export { matchPrecache }

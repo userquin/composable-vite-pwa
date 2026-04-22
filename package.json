@@ -1,0 +1,51 @@
+{
+  "name": "composable-vite-pwa",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "description": "Composable Vite PWA",
+  "author": "userquin <userquin@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/userquin/composable-vite-pwa#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/userquin/composable-vite-pwa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/userquin/composable-vite-pwa/issues"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "pnpm lint --fix",
+    "test:typecheck": "pnpm -r --filter=\"@composable-vite-pwa/**\" run test:typecheck",
+    "build": "pnpm -r --filter=\"./packages/**/\" run build"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "catalog:eslint",
+    "@antfu/ni": "catalog:utils",
+    "@arethetypeswrong/cli": "catalog:utils",
+    "@types/node": "catalog:types",
+    "@types/react": "catalog:react",
+    "@types/trusted-types": "catalog:types",
+    "@vitest/ui": "catalog:test",
+    "ansis": "catalog:utils",
+    "cac": "catalog:utils",
+    "colorette": "catalog:utils",
+    "consola": "catalog:utils",
+    "eslint": "catalog:eslint",
+    "eslint-plugin-antfu": "catalog:eslint",
+    "preact": "catalog:preact",
+    "publint": "catalog:utils",
+    "react": "catalog:react",
+    "semver": "catalog:utils",
+    "solid-js": "catalog:solid",
+    "svelte": "catalog:svelte",
+    "taze": "catalog:utils",
+    "tsdown": "catalog:build",
+    "typescript": "catalog:typescript",
+    "vite": "catalog:vite",
+    "vitest": "catalog:test",
+    "vue": "catalog:vue"
+  }
+}

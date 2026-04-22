@@ -1,0 +1,63 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@quini-pwa/vite": [
+        "./packages/core/vite/src/index.ts"
+      ],
+      "@quini-pwa/vite/types": [
+        "./packages/core/vite/types/index.d.ts"
+      ],
+      "@quini-pwa/vite/*": [
+        "./packages/core/vite/src/*.ts"
+      ],
+      "@quini-pwa/assets-generator": [
+        "./packages/core/assets-generator/src/index.ts"
+      ],
+      "@quini-pwa/assets-generator/api": [
+        "./packages/core/assets-generator/src/api/index.ts"
+      ],
+      "@quini-pwa/assets-generator/presets": [
+        "./packages/core/assets-generator/src/presets/index.ts"
+      ],
+      "@quini-pwa/assets-generator/*": [
+        "./packages/core/assets-generator/src/*.ts"
+      ],
+      "@quini-pwa/workbox-build": [
+        "./packages/workbox/build/src/index.ts"
+      ],
+      "@quini-pwa/workbox-build/*": [
+        "./packages/workbox/build/src/*.ts"
+      ],
+      "@quini-pwa/workbox-swkit": [
+        "./packages/workbox/swkit/src/index.ts"
+      ],
+      "@quini-pwa/workbox-swkit/*": [
+        "./packages/workbox/swkit/src/*.ts"
+      ],
+      "@quini-pwa/workbox-window": [
+        "./packages/workbox/window/src/index.ts"
+      ],
+      "@quini-pwa/workbox/window/*": [
+        "./packages/workbox-window/src/*.ts"
+      ]
+    },
+    "resolveJsonModule": true,
+    "types": [
+      "node",
+      "vitest/globals"
+    ],
+    "strict": true,
+    "strictNullChecks": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "**/dist/**",
+    "**/node_modules/**"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "workbox-build-cli",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "generate": "pnpx tsx ./generate.ts"
+  },
+  "dependencies": {
+    "@composable-vite-pwa/workbox-build": "workspace:*"
+  }
+}

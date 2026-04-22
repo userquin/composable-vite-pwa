@@ -1,0 +1,27 @@
+# Logs
+logs
+*.log
+pnpm-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# premove PWA stuff
+.github/pwa-labeler.yml
+*.md
+!README.md
+!.github/*.md
+!.changeset/*.md
