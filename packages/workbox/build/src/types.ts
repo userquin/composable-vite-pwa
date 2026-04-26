@@ -163,6 +163,12 @@ export interface BasePartial {
    */
   maximumFileSizeToCacheInBytes?: number
   /**
+   * Should `maximumFileSizeToCacheInBytes` exceeded throw an error?.
+   * @default true
+   */
+  throwMaximumFileSizeToCacheInBytes?: boolean
+
+  /**
    * An object mapping string prefixes to replacement string values. This can be
    * used to, e.g., remove or add a path prefix from a manifest entry if your
    * web hosting setup doesn't match your local filesystem setup. As an

@@ -58,7 +58,7 @@
     "@composable-vite-pwa/workbox-swkit": "workspace:*",
     "@composable-vite-pwa/workbox-window": "workspace:*",
     "magicast": "catalog:utils",
-    "pathe": "catalog:utils",
+    "picocolors": "catalog:utils",
     "pkg-types": "catalog:utils",
     "proper-tags": "catalog:utils",
     "serialize-javascript": "catalog:utils",

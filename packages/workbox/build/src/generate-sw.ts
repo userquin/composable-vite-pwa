@@ -1,20 +1,25 @@
-import type { GenerateSWOptions } from './types'
-import { deepMergeObject } from 'magicast/helpers'
-import serialize from 'serialize-javascript'
+import type { GenerateSWOptions, GetManifestResult } from './types'
 
-export async function generateSW(options: GenerateSWOptions): Promise<void> {
-  const [prepareSWCode, validateGenerateSW] = await Promise.all([
+export async function generateSW(options: GenerateSWOptions): Promise<GetManifestResult> {
+  const [
+    deepMergeObject,
+    prepareSWCode,
+    validateGenerateSW,
+  ] = await Promise.all([
+    import('magicast/helpers').then(({ deepMergeObject }) => deepMergeObject),
     import('./utils/prepare-sw-code').then(({ prepareSWCode }) => prepareSWCode),
     import('./validation/validation-helper').then(({ validateGenerateSW }) => validateGenerateSW),
   ])
 
   const optionsWithDefaults = await validateGenerateSW(options)
 
-  console.log(serialize(optionsWithDefaults, { unsafe: true }))
-
   deepMergeObject(options, optionsWithDefaults)
 
-  console.log(serialize(options, { unsafe: true }))
+  const { swCode, ...result } = await prepareSWCode(options)
 
-  console.log(await prepareSWCode(options))
+  console.log(result)
+
+  console.log(swCode)
+
+  return result
 }

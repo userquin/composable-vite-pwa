@@ -1,16 +1,15 @@
-import type { GenerateSWOptions, GetManifestResult, ManifestEntry } from '../types'
-import { createHash } from 'node:crypto'
-import { readFile, stat } from 'node:fs/promises'
-import { resolve } from 'node:path'
-import { compileFunction, createContext } from 'node:vm'
+import type { GenerateSWOptions, GetManifestResult } from '../types'
 import { builders, generateCode, parseExpression, parseModule } from 'magicast'
 import serialize from 'serialize-javascript'
-import { glob } from 'tinyglobby'
-import { migrateGlobsToPicomatch } from './migrate-globs-to-picomatch'
+import { generateManifestEntries } from './generate-manifest-entries'
+
+export interface InternalGetManifestResult extends GetManifestResult {
+  swCode: string
+}
 
 export async function prepareSWCode(
   options: GenerateSWOptions,
-): Promise<string> {
+): Promise<InternalGetManifestResult> {
   const swModule = parseModule('')
 
   const manifestEntries = await generateManifestEntries(options)
@@ -67,7 +66,6 @@ export async function prepareSWCode(
     }
   }
 
-  // --- CONSTRUCCIÓN DEL CÓDIGO ---
   const swCode: string[] = []
 
   if (options.navigationPreload) {
@@ -89,12 +87,6 @@ export async function prepareSWCode(
   }
 });`)
   }
-
-  if (options.clientsClaim) {
-    swCode.push('clientsClaim();')
-  }
-
-  console.log(manifestEntries.manifestEntries)
 
   if (manifestEntries.manifestEntries.length > 0) {
     const precacheOptions: any = {}
@@ -142,7 +134,7 @@ export async function prepareSWCode(
   }
 
   if (options.runtimeCaching) {
-    swCode.push(...getRuntimeCachingEntries(options, strategyImports))
+    swCode.push(...getRuntimeCachingEntries(options))
   }
 
   if (options.disableDevLogs) {
@@ -150,118 +142,12 @@ export async function prepareSWCode(
   }
 
   const importsCode = generateCode(swModule.imports).code
-  const finalCode = `${importsCode}\n\n${swCode.join('\n')}`
 
-  console.log('--- GENERATED SERVICE WORKER ---')
-  console.log(finalCode)
-
-  return finalCode
-}
-
-async function* hashManifestEntries(
-  assets: string[],
-  options: GenerateSWOptions,
-): AsyncGenerator<ManifestEntry & { size: number }, undefined, void> {
-  for (const asset of assets) {
-    const filePath = resolve(options.globDirectory!, asset)
-    const stats = await stat(filePath)
-    const revision = createHash('md5').update(await readFile(filePath)).digest('hex')
-    yield { url: asset, revision, size: stats.size }
-  }
-}
-
-async function _executeManifestTransforms(
-  manifestEntries: (ManifestEntry & { size: number })[],
-  options: GenerateSWOptions,
-): Promise<{ manifest: (ManifestEntry & { size: number })[], warnings: string[] }> {
-  const runnerCode = `return (async (initialManifest) => {
-const transforms = ${generateCode(options.manifestTransforms as any).code};
-let currentManifest = initialManifest;
-const warnings = [];
-for (const transform of transforms) {
-  const result = await transform(currentManifest);
-  currentManifest = result.manifest;
-  if (result.warnings) {
-    warnings.push(...result.warnings);
-  }
-}
-return { manifest: currentManifest, warnings };
-})(initialManifest);
-`
-
-  const runner = compileFunction(
-    runnerCode,
-    ['initialManifest'],
-    { parsingContext: createContext(globalThis) },
-  ) as (initialManifest: (ManifestEntry & { size: number })[]) => Promise<{ manifest: (ManifestEntry & { size: number })[], warnings: string[] }>
-
-  return await runner(manifestEntries)
-}
-
-async function generateManifestEntries(
-  options: GenerateSWOptions,
-): Promise<GetManifestResult> {
-  if (!options.globDirectory) {
-    return {
-      count: 0,
-      manifestEntries: [],
-      size: 0,
-      warnings: [],
-    }
-  }
-
-  const globPatterns = options.globPatterns!
-  const globIgnores = options.globIgnores!
-
-  const { patterns, ignore } = migrateGlobsToPicomatch({
-    globPatterns,
-    globIgnores,
+  return Object.assign({}, manifestEntries, {
+    swCode: `${importsCode}\n\n${swCode.join('\n')}`,
   })
-
-  // Make sure we leave swDest out of the precache manifest.
-  // todo: add swDest here to ignores
-
-  // If we create an extra external runtime file, ignore that, too.
-  // See https://rollupjs.org/guide/en/#outputchunkfilenames for naming.
-  // todo: add glob here for 'workbox-*.js' here to ignores (when !options.inlineWorkboxRuntime)
-
-  const assets = await glob(patterns, {
-    cwd: options.globDirectory,
-    ignore,
-    onlyFiles: true,
-    absolute: false,
-    followSymbolicLinks: options.globFollow,
-  })
-
-  let manifestEntries: (ManifestEntry & { size: number })[] = []
-  for await (const manifest of hashManifestEntries(assets, options)) {
-    manifestEntries.push(manifest)
-  }
-
-  const warnings: string[] = []
-
-  if (options.manifestTransforms) {
-    for (const mt of options.manifestTransforms) {
-      const result = await mt(manifestEntries, options)
-      manifestEntries = result.manifest
-      if (result.warnings) {
-        warnings.push(...result.warnings)
-      }
-    }
-  }
-
-  const size = manifestEntries.reduce((acc, entry) => acc + entry.size, 0)
-  const count = manifestEntries.length
-
-  return {
-    count,
-    size,
-    manifestEntries: manifestEntries.map(({ size, ...rest }) => rest),
-    warnings,
-  }
 }
 
-// Helper para capitalizar: NetworkFirst -> NetworkFirst
 function capitalize(s: string, sanitize = false) {
   const value = s.charAt(0).toUpperCase() + s.slice(1)
   return sanitize ? value.replace(/['"]/g, '') : value
@@ -269,36 +155,51 @@ function capitalize(s: string, sanitize = false) {
 
 function getRuntimeCachingEntries(
   options: GenerateSWOptions,
-  _strategyImports: Set<string>,
 ): string[] {
   const entries: string[] = []
   if (!options.runtimeCaching) {
     return entries
   }
 
-  /* for (const entry of options.runtimeCaching) {
+  for (const entry of options.runtimeCaching) {
     let handlerNode: any
 
     if (typeof entry.handler === 'string') {
       const strategyName = capitalize(entry.handler, true)
-      strategyImports.add(capitalize(strategyName, true))
-      const args = entry.options?.$ast ? [entry.options] : undefined
+
+      const args = entry.options ? [parseExpression(serialize(entry.options, { unsafe: true }))] : undefined
       handlerNode = args && args.length > 0
         ? builders.newExpression(strategyName, ...args)
         : builders.newExpression(strategyName)
     }
     else {
-      handlerNode = entry.handler
+      handlerNode = parseExpression(serialize(entry.handler, { unsafe: true }))
+    }
+
+    let urlPatternNode: any
+    if (typeof entry.urlPattern === 'string') {
+      urlPatternNode = entry.urlPattern
+    }
+    else if (entry.urlPattern instanceof RegExp) {
+      urlPatternNode = builders.newExpression('RegExp', entry.urlPattern.source, entry.urlPattern.flags)
+    }
+    else {
+      urlPatternNode = parseExpression(serialize(entry.urlPattern, { unsafe: true }))
+    }
+
+    const routeCallArgs: any[] = [urlPatternNode, handlerNode]
+
+    if (entry.method) {
+      routeCallArgs.push(entry.method)
     }
 
     const routeCallNode = builders.functionCall(
       'registerRoute',
-      entry.urlPattern,
-      handlerNode,
+      ...routeCallArgs,
     )
 
     entries.push(generateCode(routeCallNode).code)
-  } */
+  }
 
   return entries
 }

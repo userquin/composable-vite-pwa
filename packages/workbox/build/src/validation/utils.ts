@@ -1,5 +1,6 @@
 import type { Node } from '@babel/types'
 import * as v from 'valibot'
+import { DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES } from '../utils/constants'
 
 /**
  * Recursively infers the type of an AST expression node.
@@ -192,7 +193,12 @@ export const AsyncGlobOptionsSchema = v.objectAsync({
    * that might have accidentally matched one of your patterns.
    * @default 2097152 (2MiB)
    */
-  maximumFileSizeToCacheInBytes: v.optionalAsync(AsyncNumericExpressionSchema, 2097152),
+  maximumFileSizeToCacheInBytes: v.optionalAsync(AsyncNumericExpressionSchema, DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES),
+  /**
+   * Should `maximumFileSizeToCacheInBytes` exceeded throw an error?.
+   * @default true
+   */
+  throwMaximumFileSizeToCacheInBytes: v.optionalAsync(v.boolean(), true),
   /**
    * Determines whether or not symlinks are followed when generating the
    * precache manifest. For more information, see the definition of `follow` in
@@ -232,7 +238,7 @@ export const AsyncManifestOptionsSchema = v.strictObjectAsync({
   /**
    * Assets that match this will be assumed to be uniquely versioned via their
    * URL, and exempted from the normal HTTP cache-busting that's done when
-   * populating the precache. While not required, it's recommended that if your
+   * populating the pre-cache. While not required, it's recommended that if your
    * existing build process already inserts a `[hash]` value into each filename,
    * you provide a RegExp that will detect that, as it will reduce the bandwidth
    * consumed when precaching.

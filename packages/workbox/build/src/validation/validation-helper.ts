@@ -1,8 +1,9 @@
-import type { GenerateSWOptions } from '@quini-pwa/workbox-build/types'
 // import type { ArrayExpression, Program } from '@babel/types'
 import type { BaseIssue, BaseSchemaAsync, InferOutput, IssuePathItem } from 'valibot'
-import { AsyncGenerateSWOptionsSchema } from '@quini-pwa/workbox-build/validation/async-generate-sw'
+import type { GenerateSWOptions, InjectManifestOptions } from '../types'
 import { getDotPath, safeParseAsync } from 'valibot'
+import { AsyncGenerateSWOptionsSchema } from './async-generate-sw'
+import { AsyncInjectManifestOptionsSchema } from './async-inject-manifest'
 import { errors } from './errors'
 
 // This helper function traverses the issue's path to find the top-level object key
@@ -147,6 +148,10 @@ function _sanitizeMagicastOptions(options: any): any {
 
 export async function validateGenerateSW(options: GenerateSWOptions): Promise<InferOutput<typeof AsyncGenerateSWOptionsSchema>> {
   return await validateAsync(AsyncGenerateSWOptionsSchema, options, 'generateSW')
+}
+
+export async function validateInjectManifest(options: InjectManifestOptions): Promise<InferOutput<typeof AsyncInjectManifestOptionsSchema>> {
+  return await validateAsync(AsyncInjectManifestOptionsSchema, options, 'injectManifest')
 }
 
 /**
