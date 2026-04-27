@@ -1,4 +1,4 @@
-export const workboxBanner = `/*
+export const workboxBanner = `/*!
   Copyright 2019 Google LLC, Vite PWA's Team
 
   Use of this source code is governed by an MIT-style
@@ -6,7 +6,7 @@ export const workboxBanner = `/*
   https://opensource.org/licenses/MIT.
 */`
 
-export const pwaBanner = `/*
+export const pwaBanner = `/*!
   MIT License
   
   Copyright (c) 2020-PRESENT Anthony Fu <https://github.com/antfu>

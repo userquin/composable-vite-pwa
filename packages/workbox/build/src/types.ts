@@ -4,7 +4,6 @@ import type { RouteHandler, RouteMatchCallback, WorkboxPlugin } from '@composabl
 import type { ExpirationPluginOptions } from '@composable-vite-pwa/workbox-swkit/expiration/types'
 import type { HTTPMethod } from '@composable-vite-pwa/workbox-swkit/routing/types'
 import type { QueueOptions } from '@composable-vite-pwa/workbox-swkit/types'
-import type { PackageJson } from 'pkg-types'
 
 export interface ManifestEntry {
   integrity?: string
@@ -192,7 +191,15 @@ export interface BasePartial {
   }
 }
 
-export interface GeneratePartial {
+export type SWType = 'classic' | 'module' | 'classic-and-module'
+
+export interface GeneratePartial<T extends SWType> {
+  /**
+   * The type of the service worker.
+   *
+   * @default classic
+   */
+  swType?: T
   /**
    * The [targets](https://babeljs.io/docs/en/babel-preset-env#targets) to pass
    * to `babel-preset-env` when transpiling the service worker bundle.
@@ -249,14 +256,6 @@ export interface GeneratePartial {
    * @default true
    */
   cleanURLs?: boolean
-  /**
-   * A list of JavaScript files that should be passed to
-   * [`importScripts()`](https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/importScripts)
-   * inside the generated service worker file. This is  useful when you want to
-   * let Workbox create your top-level service worker file, but want to include
-   * some additional code, such as a push event listener.
-   */
-  importScripts?: Array<string>
   /**
    * Whether the runtime code for the Workbox library should be included in the
    * top-level service worker, or split into a separate file that needs to be
@@ -460,9 +459,9 @@ export interface RequiredSWDestPartial {
   swDest: string
 }
 
-export type GenerateSWOptions = BasePartial
+export type GenerateSWOptions<T> = BasePartial
   & GlobPartial
-  & GeneratePartial
+  & GeneratePartial<T>
   & RequiredSWDestPartial
   & OptionalGlobDirectoryPartial
 
@@ -485,29 +484,4 @@ export interface GetManifestResult {
 
 export type BuildResult = Omit<GetManifestResult, 'manifestEntries'> & {
   filePaths: Array<string>
-}
-
-/**
- * @private
- */
-export interface FileDetails {
-  file: string
-  hash: string
-  size: number
-}
-
-/**
- * @private
- */
-export type BuildType = 'dev' | 'prod'
-
-/**
- * @private
- */
-export interface WorkboxPackageJSON extends PackageJson {
-  workbox?: {
-    browserNamespace?: string
-    packageType?: string
-    prodOnly?: boolean
-  }
 }

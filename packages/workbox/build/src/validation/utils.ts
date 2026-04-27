@@ -165,7 +165,7 @@ export const AsyncRuntimeCachingEntrySchema = v.strictObjectAsync({
   /**
    * The HTTP method to match against. The default value of 'GET' is normally sufficient, unless you explicitly need to match 'POST', 'PUT', or another type of request.
    */
-  method: v.optional(v.picklist([
+  method: v.optionalAsync(v.picklist([
     'DELETE',
     'GET',
     'HEAD',

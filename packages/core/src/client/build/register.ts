@@ -40,7 +40,7 @@ export function registerSW(options: RegisterSWOptions = {}) {
           }
           else {
             const isAbsolute = swUrl.startsWith('/')
-            const parts = swUrl.split('/')
+            const parts = (isAbsolute ? swUrl.slice(1) : swUrl).split('/')
             const fileName = parts.pop()
             const path = parts.join('/')
             useSWURL = `${isAbsolute ? '/' : ''}${path ? `${path}/` : ''}classic-${fileName}`

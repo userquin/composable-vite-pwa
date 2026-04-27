@@ -28,6 +28,7 @@
   "sideEffects": false,
   "exports": {
     "./generate-sw": "./dist/generate-sw.mjs",
+    "./inject-manifest": "./dist/inject-manifest.mjs",
     "./types": {
       "types": "./dist/types.d.mts"
     },
@@ -38,6 +39,9 @@
     "*": {
       "generate-sw": [
         "./dist/generate-sw.d.mts"
+      ],
+      "inject-manifest": [
+        "./dist/inject-manifest.d.mts"
       ],
       "types": [
         "./dist/types.d.mts"
@@ -54,10 +58,22 @@
     "node:test": "node ./dist/generate-sw.mjs",
     "tsx:test": "tsx ./src/generate-sw.ts"
   },
+  "peerDependencies": {
+    "tsdown": "^0.21.10"
+  },
+  "peerDependenciesMeta": {
+    "tsdown": {
+      "optional": true
+    }
+  },
   "dependencies": {
+    "@babel/core": "catalog:babel",
+    "@babel/plugin-transform-modules-amd": "catalog:babel",
+    "@babel/plugin-transform-dynamic-import": "catalog:babel",
     "@composable-vite-pwa/workbox-swkit": "workspace:*",
     "@composable-vite-pwa/workbox-window": "workspace:*",
     "magicast": "catalog:utils",
+    "magic-string": "catalog:utils",
     "picocolors": "catalog:utils",
     "pkg-types": "catalog:utils",
     "proper-tags": "catalog:utils",

@@ -1,10 +1,10 @@
 declare module 'virtual:pwa-register/vue' {
-  import type { RegisterSWOptions, SWScriptURL } from '@composable-vite-pwa/core/types'
+  import type { PWATrustedScriptURL, RegisterSWOptions } from '@composable-vite-pwa/vite-plugin-pwa/types'
   // eslint-disable-next-line ts/ban-ts-comment
   // @ts-ignore ignore when vue is not installed
   import type { Ref } from 'vue'
 
-  export type { RegisterSWOptions, SWScriptURL }
+  export type { PWATrustedScriptURL, RegisterSWOptions }
 
   export function useRegisterSW(options?: RegisterSWOptions): {
     needRefresh: Ref<boolean>

@@ -1,25 +1,6 @@
-import type { GenerateSWOptions, GetManifestResult } from './types'
+import type { GenerateSWOptions, SWType } from './types'
+import type { GenerateSWResult } from './utils/types'
 
-export async function generateSW(options: GenerateSWOptions): Promise<GetManifestResult> {
-  const [
-    deepMergeObject,
-    prepareSWCode,
-    validateGenerateSW,
-  ] = await Promise.all([
-    import('magicast/helpers').then(({ deepMergeObject }) => deepMergeObject),
-    import('./utils/prepare-sw-code').then(({ prepareSWCode }) => prepareSWCode),
-    import('./validation/validation-helper').then(({ validateGenerateSW }) => validateGenerateSW),
-  ])
-
-  const optionsWithDefaults = await validateGenerateSW(options)
-
-  deepMergeObject(options, optionsWithDefaults)
-
-  const { swCode, ...result } = await prepareSWCode(options)
-
-  console.log(result)
-
-  console.log(swCode)
-
-  return result
+export async function generateSW<T extends SWType>(options: GenerateSWOptions<T>): Promise<GenerateSWResult<T>> {
+  return await import('./utils/build-generate-sw').then(({ buildGenerateSW }) => buildGenerateSW(options))
 }

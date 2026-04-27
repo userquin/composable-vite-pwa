@@ -9,6 +9,7 @@ export interface RegisterSWOptions {
    *
    * Useful to fully control the reload flow (for example, to defer reload until the next
    * SPA navigation).
+   * @since 2.0.0
    */
   onNeedReload?: () => void
   onNeedRefresh?: () => void
@@ -18,6 +19,7 @@ export interface RegisterSWOptions {
    *
    * @param classic Whether the browser is in legacy mode (i.e. not supporting ES modules in service workers).
    * @returns The service worker script url.
+   * @since 2.0.0
    */
   trustedScriptUrl?: PWATrustedScriptURL
   /**

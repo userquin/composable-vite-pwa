@@ -1,4 +1,4 @@
-import type { GenerateSWOptions, GetManifestResult } from '../types'
+import type { GenerateSWOptions, GetManifestResult, SWType } from '../types'
 import { builders, generateCode, parseExpression, parseModule } from 'magicast'
 import serialize from 'serialize-javascript'
 import { generateManifestEntries } from './generate-manifest-entries'
@@ -7,8 +7,8 @@ export interface InternalGetManifestResult extends GetManifestResult {
   swCode: string
 }
 
-export async function prepareSWCode(
-  options: GenerateSWOptions,
+export async function prepareSWCode<T extends SWType>(
+  options: GenerateSWOptions<T>,
 ): Promise<InternalGetManifestResult> {
   const swModule = parseModule('')
 
@@ -78,12 +78,12 @@ export async function prepareSWCode(
   }
 
   if (options.skipWaiting) {
-    swCode.push('globalThis.skipWaiting();')
+    swCode.push('self.skipWaiting();')
   }
   else {
     swCode.push(`self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    globalThis.skipWaiting();
+    self.skipWaiting();
   }
 });`)
   }
@@ -138,7 +138,7 @@ export async function prepareSWCode(
   }
 
   if (options.disableDevLogs) {
-    swCode.push('globalThis.__WB_DISABLE_DEV_LOGS = true;')
+    swCode.push('self.__WB_DISABLE_DEV_LOGS = true;')
   }
 
   const importsCode = generateCode(swModule.imports).code
@@ -153,8 +153,8 @@ function capitalize(s: string, sanitize = false) {
   return sanitize ? value.replace(/['"]/g, '') : value
 }
 
-function getRuntimeCachingEntries(
-  options: GenerateSWOptions,
+function getRuntimeCachingEntries<T extends SWType>(
+  options: GenerateSWOptions<T>,
 ): string[] {
   const entries: string[] = []
   if (!options.runtimeCaching) {

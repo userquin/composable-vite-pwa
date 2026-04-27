@@ -1,10 +1,12 @@
 import { defineConfig } from 'tsdown'
+import { pwaBanner as banner } from '../../tsdown-helper'
 
 export default defineConfig([{
   entry: 'src/index.ts',
   platform: 'node',
   clean: true,
   dts: true,
+  banner,
   attw: {
     profile: 'esm-only',
   },
@@ -15,6 +17,7 @@ export default defineConfig([{
   },
   platform: 'browser',
   clean: false,
+  banner,
   define: {
     'process.env.VITE_PWA_ESM_FALLBACK_SW': 'process.env.VITE_PWA_ESM_FALLBACK_SW',
     '__SW_URL__': '__SW_URL__',

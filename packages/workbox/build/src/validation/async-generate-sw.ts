@@ -7,6 +7,15 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
   v.strictObjectAsync({
     ...AsyncManifestOptionsSchema.entries,
     /**
+     * The type of the service worker.
+     * @default classic
+     */
+    swType: v.optionalAsync(v.picklist([
+      'classic',
+      'module',
+      'classic-and-module',
+    ]), 'classic'),
+    /**
      * The [targets](https://babeljs.io/docs/en/babel-preset-env#targets) to pass to `babel-preset-env` when transpiling the service worker bundle.
      */
     babelPresetEnvTargets: v.optionalAsync(v.arrayAsync(v.string()), ['chrome >= 56']),
@@ -44,10 +53,6 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
      * before it's looked up in the cache.
      */
     urlManipulation: v.optionalAsync(v.function()),
-    /**
-     * A list of JavaScript files that should be passed to [`importScripts()`](https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/importScripts) inside the generated service worker file. This is useful when you want to let Workbox create your top-level service worker file, but want to include some additional code, such as a push event listener.
-     */
-    importScripts: v.optionalAsync(v.arrayAsync(v.string())),
     /**
      * Whether the runtime code for the Workbox library should be included in the top-level service worker, or split into a separate file that needs to be deployed alongside the service worker. Keeping the runtime separate means that users will not have to re-download the Workbox code each time your top-level service worker changes.
      */

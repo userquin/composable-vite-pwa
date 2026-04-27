@@ -71,13 +71,13 @@
     "dist",
     "types"
   ],
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "build": "tsdown --config-loader unrun",
     "test:typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"
-  },
-  "engines": {
-    "node": "^20.19.0 || >=22.12.0"
   },
   "peerDependencies": {
     "@vite-pwa/assets-generator": "^1.0.0 || ^2.0.0",

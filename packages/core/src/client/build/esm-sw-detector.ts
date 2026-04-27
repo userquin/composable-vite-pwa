@@ -13,7 +13,7 @@ type Browser
     | 'firefox-android'
     | 'qq-browser'
 
-type OS = 'iOS' | 'Android' | 'Mac OS' | 'Windows'
+type OS = 'iOS' | 'Android' | 'Mac OS'
 
 type SWFeatures = (versions: number[], os?: OS) => boolean
 
@@ -51,7 +51,7 @@ const ucBrowserRegex = /UCBrowser\/([\d.]+)/
 const qqRegex = /(MQQBrowser|QQBrowser)\/([\d.]+)/i
 
 const rules: Record<Browser, Rule> = {
-  'chrome': (userAgent, os) => os && os !== 'Android' ? chromeRegex.exec(userAgent) : null,
+  'chrome': (userAgent, os) => (!os || os !== 'Android') ? chromeRegex.exec(userAgent) : null,
   'edge-chromium': userAgent => edgeRegex.exec(userAgent),
   'safari': (userAgent, os) => {
     return os === 'Mac OS' && safariRegex.test(userAgent) ? safariVersionRegex.exec(userAgent) : null
@@ -79,8 +79,6 @@ export function isSWModuleSupported(userAgent = navigator.userAgent): boolean {
     os = 'Android'
   else if (/Macintosh/.test(userAgent))
     os = 'Mac OS'
-  else if (/Windows/.test(userAgent))
-    os = 'Windows'
 
   if (os === 'iOS') {
     const match = rules['ios-safari'](userAgent, os)

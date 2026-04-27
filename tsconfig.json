@@ -4,44 +4,29 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "paths": {
-      "@quini-pwa/vite": [
+      "@composable-vite-pwa/vite-plugin-pwa": [
         "./packages/core/vite/src/index.ts"
       ],
-      "@quini-pwa/vite/types": [
-        "./packages/core/vite/types/index.d.ts"
+      "@composable-vite-pwa/vite-plugin-pwa/types": [
+        "./packages/core/types/index.d.ts"
       ],
-      "@quini-pwa/vite/*": [
-        "./packages/core/vite/src/*.ts"
-      ],
-      "@quini-pwa/assets-generator": [
-        "./packages/core/assets-generator/src/index.ts"
-      ],
-      "@quini-pwa/assets-generator/api": [
-        "./packages/core/assets-generator/src/api/index.ts"
-      ],
-      "@quini-pwa/assets-generator/presets": [
-        "./packages/core/assets-generator/src/presets/index.ts"
-      ],
-      "@quini-pwa/assets-generator/*": [
-        "./packages/core/assets-generator/src/*.ts"
-      ],
-      "@quini-pwa/workbox-build": [
+      "@composable-vite-pwa/workbox-build": [
         "./packages/workbox/build/src/index.ts"
       ],
-      "@quini-pwa/workbox-build/*": [
+      "@composable-vite-pwa/workbox-build/*": [
         "./packages/workbox/build/src/*.ts"
       ],
-      "@quini-pwa/workbox-swkit": [
+      "@composable-vite-pwa/workbox-swkit": [
         "./packages/workbox/swkit/src/index.ts"
       ],
-      "@quini-pwa/workbox-swkit/*": [
+      "@composable-vite-pwa/workbox-swkit/*": [
         "./packages/workbox/swkit/src/*.ts"
       ],
-      "@quini-pwa/workbox-window": [
+      "@composable-vite-pwa/workbox-window": [
         "./packages/workbox/window/src/index.ts"
       ],
-      "@quini-pwa/workbox/window/*": [
-        "./packages/workbox-window/src/*.ts"
+      "@composable-vite-pwa/workbox/window/*": [
+        "./packages/workbox/window/src/*.ts"
       ]
     },
     "resolveJsonModule": true,
