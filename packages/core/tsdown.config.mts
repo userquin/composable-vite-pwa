@@ -12,6 +12,14 @@ export default defineConfig([{
   },
 }, {
   entry: {
+    'client/esm-sw-detector': './src/client/esm-sw-detector.ts',
+  },
+  platform: 'browser',
+  clean: false,
+  dts: true,
+  banner,
+}, {
+  entry: {
     'client/build/*': ['./src/client/build/*.ts'],
     'client/dev/*': ['./src/client/dev/*.ts'],
   },

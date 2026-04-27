@@ -1,6 +1,6 @@
 import type { TrustedScriptURL } from 'trusted-types/lib'
 import type { PWATrustedScriptURL, RegisterSWOptions } from '../types'
-import { isSWModuleSupported } from './esm-sw-detector'
+import { isSWModuleSupported } from '../esm-sw-detector'
 
 const swUrl = __SW_URL__
 const scope = __SW_SCOPE__
