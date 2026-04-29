@@ -201,6 +201,15 @@ export interface GeneratePartial<T extends SWType> {
    */
   swType?: T
   /**
+   * When using `classic` and splitting workbox runtime (inlineWorkboxRuntime set to false), this flag controls the
+   * name of the `workbox-**.js` chunk:
+   * - when true, workbox will generate the same old asset name `workbox-<hash>.js`
+   * - when false, workbox will generate `classic-workbox-<hash>.js`.
+   *
+   * @default true
+   */
+  classicWorkboxRuntimeCompatible?: boolean
+  /**
    * The [targets](https://babeljs.io/docs/en/babel-preset-env#targets) to pass
    * to `babel-preset-env` when transpiling the service worker bundle.
    * @default ["chrome >= 56"]
@@ -459,7 +468,7 @@ export interface RequiredSWDestPartial {
   swDest: string
 }
 
-export type GenerateSWOptions<T> = BasePartial
+export type GenerateSWOptions<T extends SWType> = BasePartial
   & GlobPartial
   & GeneratePartial<T>
   & RequiredSWDestPartial

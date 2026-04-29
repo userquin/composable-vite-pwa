@@ -1,167 +1,325 @@
 import type { BuildResult, GenerateSWOptions, SWType } from '../types'
-import type { GenerateSWResult } from './types'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
+import MagicString from 'magic-string'
 import { deepMergeObject } from 'magicast/helpers'
+import { build } from 'tsdown'
 import { validateGenerateSW } from '../validation/validation-helper'
 import { prepareSWCode } from './prepare-sw-code'
 
-export async function buildGenerateSW<T extends SWType>(options: GenerateSWOptions<T>): Promise<GenerateSWResult<T>> {
+export async function buildGenerateSW<T extends SWType>(options: GenerateSWOptions<T>): Promise<BuildResult> {
   const optionsWithDefaults = await validateGenerateSW(options)
 
   deepMergeObject(options, optionsWithDefaults)
 
-  return await prepareTSDown(options).then(build => build())
+  return await buildAssets(options)
 }
 
 function prepareGlobIgnores(
   options: GenerateSWOptions<SWType>,
-): string {
-  const { swDest } = options
+): {
+  sw: string
+  swTemp: string
+  classic: string
+  classicTemp: string
+  esm: string
+  esmTemp: string
+} {
   const entry = options.swDest.replace('.js', '.temp.js')
-  const parts = swDest.split('/')
-  const fileName = parts.pop()
+  const parts = options.swDest.split('/')
+  const fileName = parts.pop()!
   const p = parts.join('/')
 
   const classic = `${p ? `${p}/` : ''}classic-${fileName}`
+  const classicTemp = `${p ? `${p}/` : ''}classic-${fileName.replace('.js', '.temp.js')}`
+  const esm = `${p ? `${p}/` : ''}esm-${fileName}`
+  const esmTemp = `${p ? `${p}/` : ''}esm-${fileName.replace('.js', '.temp.js')}`
 
   options.globIgnores ??= []
-  options.globIgnores.push(swDest)
+  options.globIgnores.push(options.swDest)
   options.globIgnores.push(classic)
+  options.globIgnores.push(esm)
   options.globIgnores.push('**/workbox-*.js')
   // add temp sw
   options.globIgnores.push(entry)
+  options.globIgnores.push(classicTemp)
+  options.globIgnores.push(esmTemp)
   if (options.sourcemap) {
-    options.globIgnores.push(`${swDest}.map`)
+    options.globIgnores.push(`${options.swDest}.map`)
     options.globIgnores.push(`${classic}.map`)
+    options.globIgnores.push(`${esm}.map`)
+    options.globIgnores.push('**/workbox-*.js.map')
     // add temp sw map
     options.globIgnores.push(`${entry}.map`)
-    options.globIgnores.push('**/workbox-*.js.map')
   }
-
-  return classic
-}
-
-const CLASSIC_SW_AMD_PREFIX = `if (!self.define) {
-  let registry = {};
-
-  // Used for \`eval\` and \`importScripts\` where we can't get script URL by other means.
-  // In both cases, it's safe to use a global var because those functions are synchronous.
-  let nextDefineUri;
-
-  const singleRequire = (uri, parentUri) => {
-    uri = new URL(uri, parentUri).href;
-    return registry[uri] || (
-      
-        new Promise(resolve => {
-          nextDefineUri = uri;
-          importScripts(uri);
-          resolve();
-        })
-      
-      .then(() => {
-        let promise = registry[uri];
-        if (!promise) {
-          throw new Error(\`Module \${uri} didn’t register its module\`);
-        }
-        return promise;
-      })
-    );
-  };
-
-  self.define = (depsNames, factory) => {
-    const uri = nextDefineUri || ("document" in self ? document.currentScript.src : "") || location.href;
-    // Module is already loading or loaded.
-    if (registry[uri]) {
-      return;
-    }
-    let exports = {};
-    const require = depUri => singleRequire(depUri, uri);
-    const specialDeps = {
-      module: { uri },
-      exports,
-      require
-    };
-    registry[uri] = Promise.all(depsNames.map(
-      depName => specialDeps[depName] || require(depName)
-    )).then(deps => {
-      factory(...deps);
-      return exports;
-    });
-  };
-}`
-
-async function prepareClassicSWCode(swCode: string, sourcemap: boolean): Promise<{
-  code: string
-  map?: string
-}> {
-  if (!sourcemap) {
-    return { code: `${CLASSIC_SW_AMD_PREFIX}\n${swCode}` }
-  }
-
-  const MagicString = await import('magic-string').then(m => m.default || m)
-  const s = new MagicString(swCode)
-  s.prepend(CLASSIC_SW_AMD_PREFIX)
 
   return {
-    code: s.toString(),
-    map: sourcemap ? s.generateMap({ hires: true }).toString() : undefined,
+    sw: options.swDest,
+    swTemp: entry,
+    classic,
+    classicTemp,
+    esm,
+    esmTemp,
   }
 }
 
-async function prepareTSDown<T extends SWType>(options: GenerateSWOptions<T>): Promise<() => Promise<GenerateSWResult<T>>> {
-  const classicSWDestName = prepareGlobIgnores(options)
-  let useMode: 'classic' | 'module' = options.swType === 'classic-and-module' ? 'classic' : options.swType
-  function resolveMode() {
-    return useMode
-  }
-  const [
-    build,
-    inputOptions,
-  ] = await Promise.all([
-    import('tsdown').then(({ build }) => build),
-    async () => {
-      if (resolveMode() === 'classic') {
-        const [babel, babelAmd, babelDynamicImport] = await Promise.all([
-          // @ts-expect-error missing types ?
-          import('@babel/core'),
-          // @ts-expect-error missing types ?
-          import('@babel/plugin-transform-modules-amd'),
-          // @ts-expect-error missing types ?
-          import('@babel/plugin-transform-dynamic-import'),
-        ])
-
-        return {
-          experimental: {
-            resolveNewUrlToAsset: true,
-          },
-          plugins: [{
-            name: 'transform-chunk-amd',
-            async renderChunk(code, { fileName }) {
-              const result = await babel.transformAsync(code, {
-                babelrc: false,
-                configFile: false,
-                sourceMaps: options.sourcemap,
-                plugins: [babelDynamicImport, babelAmd],
-              })
-
-              return fileName.startsWith('workbox')
-                ? { code: result.code, map: result.map }
-                : await prepareClassicSWCode(result.code, options.sourcemap === true)
-            },
-          }],
-        } satisfies Partial<import('tsdown').InlineConfig['inputOptions']>
+async function fixSourceMaps(
+  sourcemap: boolean,
+  swName: string,
+  swFile: string,
+  classicWorkboxRuntimeCompatible: boolean,
+  classicReplacementName?: string,
+  workbox?: {
+    tempName: string
+    name: string
+    file: string
+  },
+) {
+  await Promise.all([
+    fs.readFile(swFile, 'utf-8').then((code) => {
+      const s = new MagicString(code)
+      s.replace(
+        `//#region ${swName.replace('.js', '.temp.js')}`,
+        `//#region ${swName}`,
+      )
+      if (classicReplacementName) {
+        s.replace(
+          `importScripts("./workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}.js")`,
+          `importScripts("./${classicReplacementName}")`,
+        )
       }
+      return fs.writeFile(swFile, s.toString(), 'utf-8')
+    }),
+    sourcemap
+      ? fs.writeFile(
+          swFile.replace('.js', '.js.map'),
+          await fs.readFile(
+            swFile.replace('.js', '.js.map'),
+            'utf-8',
+          ).then((code) => {
+            return code.replace(
+              `"${swName.replace('.js', '.temp.js')}"`,
+              `"${swName}"`,
+            )
+          }),
+          'utf-8',
+        )
+      : undefined,
+    sourcemap && workbox
+      ? fs.writeFile(
+          workbox.file.replace('.js', '.js.map'),
+          await fs.readFile(
+            workbox.file.replace('.js', '.js.map'),
+            'utf-8',
+          ).then((code) => {
+            return code.replace(
+              `"${workbox.tempName}"`,
+              `"${workbox.name}"`,
+            )
+          }),
+          'utf-8',
+        )
+      : undefined,
+  ].filter(Boolean))
+}
 
-      return undefined
+async function buildClassicSW(
+  rootDir: string,
+  swName: string,
+  tempSwName: string,
+  inline: boolean,
+  sourcemap: boolean,
+  define: import('tsdown').InlineConfig['define'],
+  workboxRegex: RegExp[],
+  filePaths: string[],
+  classicWorkboxRuntimeCompatible: boolean,
+  workboxClassicFileForSourceMap?: string,
+) {
+  const workbox = path.resolve(rootDir, `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}.js`)
+  let workboxClassicFile: string | undefined
+  const tempSWFile = path.resolve(rootDir, tempSwName)
+  await build({
+    dts: false,
+    clean: false,
+    entry: inline ? tempSwName : `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}.js`,
+    platform: 'browser',
+    fromVite: false,
+    format: 'iife',
+    outDir: rootDir,
+    define,
+    sourcemap,
+    outputOptions: {
+      comments: {
+        legal: true,
+        jsdoc: false,
+        annotation: false,
+      },
+      chunkFileNames: inline ? swName : `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}-[hash].js`,
+      assetFileNames: '[name]-[hash].[ext]',
+      entryFileNames: inline ? swName : `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}-[hash].js`,
+      codeSplitting: false,
     },
-  ])
+    hooks: {
+      'build:done': async ({ chunks }) => {
+        for (const chunk of chunks) {
+          filePaths.push(path.resolve(rootDir, chunk.fileName))
+        }
+        if (inline) {
+          await fs.rm(tempSWFile, { force: true })
+          return
+        }
+        await fs.rm(workbox, { force: true })
+        workboxClassicFile = chunks.find(chunk => chunk.name === `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}`)?.fileName
+      },
+    },
+  })
 
-  const { swCode, ...entriesResult } = await prepareSWCode(options)
+  if (workboxClassicFile) {
+    await buildClassicSW(
+      rootDir,
+      swName,
+      tempSwName,
+      true,
+      sourcemap,
+      define,
+      workboxRegex,
+      filePaths,
+      classicWorkboxRuntimeCompatible,
+      workboxClassicFile,
+    )
+    return
+  }
+
+  if (!inline) {
+    throw new Error('workbox-classic-<hash>.js assets not found!')
+  }
+
+  await fixSourceMaps(
+    sourcemap,
+    swName,
+    path.resolve(rootDir, swName),
+    classicWorkboxRuntimeCompatible,
+    workboxClassicFileForSourceMap,
+    !inline && sourcemap
+      ? {
+          tempName: 'workbox-classic.js',
+          name: workboxClassicFileForSourceMap!,
+          file: path.resolve(rootDir, workboxClassicFileForSourceMap!),
+        }
+      : undefined,
+  )
+}
+
+async function buildESMSW(
+  rootDir: string,
+  swName: string,
+  tempSwName: string,
+  inline: boolean,
+  sourcemap: boolean,
+  define: import('tsdown').InlineConfig['define'],
+  workboxRegex: RegExp[],
+  filePaths: string[],
+) {
+  const swChunkName = tempSwName.replace('.js', '')
+  const tempSWFile = path.resolve(rootDir, tempSwName)
+  let workboxModuleFile: string | undefined
+  await build({
+    dts: false,
+    clean: false,
+    entry: tempSwName,
+    platform: 'browser',
+    fromVite: false,
+    format: 'esm',
+    outDir: rootDir,
+    define,
+    sourcemap,
+    outputOptions: {
+      comments: {
+        legal: true,
+        jsdoc: false,
+        annotation: false,
+      },
+      chunkFileNames: (chunk) => {
+        switch (chunk.name) {
+          case 'workbox-module':
+            return 'workbox-module-[hash].js'
+          case swChunkName:
+            return swName
+          default:
+            return '[name]-[hash].[ext]'
+        }
+      },
+      assetFileNames: '[name]-[hash].[ext]',
+      entryFileNames: (chunk) => {
+        switch (chunk.name) {
+          case 'workbox-module':
+            return 'workbox-module-[hash].js'
+          case swChunkName:
+            return swName
+          default:
+            return '[name]-[hash].js'
+        }
+      },
+      codeSplitting: inline
+        ? false
+        : {
+            groups: [
+              {
+                minSize: 0,
+                name: (moduleId) => {
+                  return workboxRegex.some(r => r.test(moduleId)) ? 'workbox-module' : undefined
+                },
+              },
+            ],
+          },
+    },
+    hooks: {
+      'build:done': async ({ chunks }) => {
+        for (const chunk of chunks) {
+          filePaths.push(path.resolve(rootDir, chunk.fileName))
+        }
+        await fs.rm(tempSWFile, { force: true })
+        if (!inline) {
+          workboxModuleFile = chunks.find(chunk => chunk.name === 'workbox-module')?.fileName
+        }
+      },
+    },
+  })
+
+  await fixSourceMaps(
+    sourcemap,
+    swName,
+    path.resolve(rootDir, swName),
+    false,
+    undefined,
+    !inline && sourcemap
+      ? {
+          tempName: 'workbox-module.js',
+          name: workboxModuleFile!,
+          file: path.resolve(rootDir, workboxModuleFile!),
+        }
+      : undefined,
+  )
+}
+
+async function buildAssets<T extends SWType>(options: GenerateSWOptions<T>): Promise<BuildResult> {
+  const {
+    sw,
+    swTemp,
+    classic,
+    classicTemp,
+    esm,
+    esmTemp,
+  } = prepareGlobIgnores(options)
+  const rootDir = options.globDirectory ? path.resolve(process.cwd(), options.globDirectory) : process.cwd()
+  const { manifestEntries, chunks } = await prepareSWCode(rootDir, options)
+  const inline = options.inlineWorkboxRuntime === true
+  const sourcemap = options.sourcemap === true
+  const workboxRegex = [/^@composable-vite-pwa\/workbox-swkit\//, /[\\/]workbox-swkit[\\/]/, /[\\/]workbox[\\/]swkit/]
+  const filePaths: string[] = []
 
   const define: import('tsdown').InlineConfig['define'] = {}
-
   if (options.mode) {
     define['process.env.NODE_ENV'] = JSON.stringify(options.mode)
   }
@@ -169,145 +327,85 @@ async function prepareTSDown<T extends SWType>(options: GenerateSWOptions<T>): P
     define.__WB_DISABLE_DEV_LOGS = 'true'
   }
 
-  const workboxRegex = [/[\\/]workbox-swkit[\\/]/, /workbox[\\/]swkit/]
-
-  // write once tsdown and babel are resolved
-  const entry = options.swDest.replace('.js', '.temp.js')
-  const tempDest = path.resolve(process.cwd(), entry)
-  await fs.mkdir(path.dirname(tempDest), { recursive: true })
-  await fs.writeFile(tempDest, swCode, 'utf-8')
-  let dest = path.resolve(process.cwd(), options.swDest)
-  const filePaths: string[] = []
-
-  let deleteTempSWFile = true
-
-  const inlineConfig: () => import('tsdown').InlineConfig = () => ({
-    dts: false,
-    clean: false,
-    entry,
-    platform: 'browser',
-    fromVite: false,
-    format: 'esm',
-    outDir: process.cwd(),
-    define,
-    sourcemap: options.sourcemap,
-    treeshake: true,
-    inputOptions,
-    outputOptions: () => ({
-      comments: {
-        legal: true,
-        jsdoc: false,
-        annotation: false,
-      },
-      hashCharacters: !options.inlineWorkboxRuntime ? 'hex' : undefined,
-      codeSplitting: !options.inlineWorkboxRuntime
-        ? {
-            groups: [
-              {
-                minSize: 0,
-                name: (moduleId) => {
-                  const match = workboxRegex.some(r => r.test(moduleId)) ? 'workbox' : undefined
-                  console.log(resolveMode(), moduleId, match)
-                  return match
-                },
-              },
-            ],
-          }
+  if ('classic' in chunks) {
+    await Promise.all([
+      fs.writeFile(path.resolve(rootDir, classicTemp), chunks.classic.swCode, 'utf8'),
+      fs.writeFile(path.resolve(rootDir, esmTemp), chunks.module.swCode, 'utf8'),
+      chunks.classic.workbox
+        ? fs.writeFile(path.resolve(rootDir, 'workbox-classic.js'), chunks.classic.workbox, 'utf8')
         : undefined,
-    }),
-    hooks: {
-      'build:done': async ({ chunks }) => {
-        filePaths.push(dest)
-        if (deleteTempSWFile) {
-          await fs.rename(tempDest, dest)
-        }
-        else {
-          await fs.cp(tempDest, dest, { force: true })
-        }
-        const tempDestMap = `${tempDest}.map`
-        const sourceMap = await fs.lstat(tempDestMap).then(s => s.isFile()).catch(() => false)
-        if (sourceMap) {
-          filePaths.push(`${dest}.map`)
-          await Promise.all([
-            fs.readFile(dest, 'utf-8').then(content => fs.writeFile(
-              dest,
-              content.replace(
-                `${entry}.map`,
-                `${options.swDest}.map`,
-              ).replace(
-                `//#region ${entry}`,
-                `//#region ${options.swDest}`,
-              ),
-              'utf-8',
-            )),
-            fs.readFile(tempDestMap, 'utf-8').then(content => fs.writeFile(
-              `${options.swDest}.map`,
-              content.replaceAll(
-                `"${entry}"`,
-                `"${options.swDest}"`,
-              ),
-            )).then(() => {
-              fs.rm(tempDestMap).catch(() => {})
-            }),
-          ])
-        }
-        for (const chunk of chunks) {
-          if (!chunk.fileName.startsWith('workbox')) {
-            continue
-          }
-          filePaths.push(path.resolve(chunk.outDir, chunk.fileName))
-        }
-      },
-    },
-  })
-
-  return async () => {
-    if (options.swType === 'classic' || options.swType === 'module') {
-      await build(inlineConfig())
-      const {
-        count,
-        size,
-        warnings,
-      } = entriesResult
-      return {
-        count,
+    ].filter(Boolean))
+    await Promise.all([
+      // classic
+      buildClassicSW(
+        rootDir,
+        classic,
+        classicTemp,
+        inline,
+        sourcemap,
+        define,
+        workboxRegex,
         filePaths,
-        size,
-        warnings,
-      } as GenerateSWResult<T>
-    }
-
-    // dual build: classic first then module
-    useMode = 'classic'
-    dest = path.resolve(process.cwd(), classicSWDestName)
-    deleteTempSWFile = false
-    await build(inlineConfig())
-    const {
-      count,
-      size,
-      warnings,
-    } = entriesResult
-    const classic: BuildResult = {
-      count,
-      filePaths: Array.from(filePaths),
-      size,
-      warnings: Array.from(warnings),
-    }
-    // reset data
-    useMode = 'module'
-    dest = path.resolve(process.cwd(), options.swDest)
-    filePaths.length = 0
-    // delete temp SW
-    deleteTempSWFile = true
-    await build(inlineConfig())
-    return {
-      classic,
-      module: {
-        count,
+        false,
+      ),
+      // module
+      buildESMSW(
+        rootDir,
+        esm,
+        esmTemp,
+        inline,
+        sourcemap,
+        define,
+        workboxRegex,
         filePaths,
-        size,
-        warnings,
-      },
-    } as GenerateSWResult<T>
+      ),
+    ])
+  }
+  else {
+    if (options.swType === 'classic') {
+      await Promise.all([
+        fs.writeFile(path.resolve(rootDir, swTemp), chunks.swCode, 'utf8'),
+        chunks.workbox
+          ? fs.writeFile(path.resolve(rootDir, 'workbox-classic.js'), chunks.workbox, 'utf8')
+          : undefined,
+      ].filter(Boolean))
+      await buildClassicSW(
+        rootDir,
+        sw,
+        swTemp,
+        inline,
+        sourcemap,
+        define,
+        workboxRegex,
+        filePaths,
+        options.classicWorkboxRuntimeCompatible === true,
+      )
+    }
+    else {
+      await fs.writeFile(path.resolve(rootDir, swTemp), chunks.swCode, 'utf8')
+      await buildESMSW(
+        rootDir,
+        sw,
+        swTemp,
+        inline,
+        sourcemap,
+        define,
+        workboxRegex,
+        filePaths,
+      )
+    }
+  }
+
+  const {
+    count,
+    size,
+    warnings,
+  } = manifestEntries
+
+  return {
+    count,
+    filePaths: filePaths.sort(),
+    size,
+    warnings,
   }
 }

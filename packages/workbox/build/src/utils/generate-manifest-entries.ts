@@ -1,4 +1,4 @@
-import type { GenerateSWOptions, GetManifestResult, InjectManifestOptions, ManifestEntry } from '../types'
+import type { GenerateSWOptions, GetManifestResult, InjectManifestOptions, ManifestEntry, SWType } from '../types'
 import type { InternalManifestEntry } from './types'
 import { createHash } from 'node:crypto'
 import { readFile, stat } from 'node:fs/promises'
@@ -9,7 +9,8 @@ import { checkMaximumFileSizeToCacheExceeded } from './log'
 import { migrateGlobsToPicomatch } from './migrate-globs-to-picomatch'
 
 export async function generateManifestEntries(
-  options: GenerateSWOptions | InjectManifestOptions,
+  globDirectory: string,
+  options: GenerateSWOptions<SWType> | InjectManifestOptions,
 ): Promise<GetManifestResult> {
   if (!options.globDirectory) {
     return {
@@ -28,18 +29,12 @@ export async function generateManifestEntries(
     globIgnores,
   })
 
-  // Make sure we leave swDest out of the precache manifest.
-  // todo: add swDest here to ignores
-
-  // If we create an extra external runtime file, ignore that, too.
-  // See https://rollupjs.org/guide/en/#outputchunkfilenames for naming.
-  // todo: add glob here for 'workbox-*.js' here to ignores (when !options.inlineWorkboxRuntime) => can be done from outside
-
   const assets = await glob(patterns, {
-    cwd: options.globDirectory,
+    cwd: globDirectory,
     ignore,
     onlyFiles: true,
     absolute: false,
+    expandDirectories: false,
     followSymbolicLinks: options.globFollow,
   })
 
@@ -47,7 +42,7 @@ export async function generateManifestEntries(
   const maxFileSizeExceeded: (ManifestEntry & { size: number })[] = []
 
   let manifestEntries: (ManifestEntry & { size: number })[] = []
-  for await (const manifest of hashManifestEntries(assets, options)) {
+  for await (const manifest of hashManifestEntries(globDirectory, assets)) {
     if (manifest.size > maxFileSize) {
       maxFileSizeExceeded.push(manifest)
     }
@@ -89,11 +84,11 @@ export async function generateManifestEntries(
 }
 
 async function* hashManifestEntries(
+  globDirectory: string,
   assets: string[],
-  options: GenerateSWOptions,
 ): AsyncGenerator<InternalManifestEntry, undefined, void> {
   for (const asset of assets) {
-    const filePath = resolve(options.globDirectory!, asset)
+    const filePath = resolve(globDirectory!, asset)
     const stats = await stat(filePath)
     const revision = createHash('md5').update(await readFile(filePath)).digest('hex')
     yield { url: asset, revision, size: stats.size }

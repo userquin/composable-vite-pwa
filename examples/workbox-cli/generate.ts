@@ -1,9 +1,29 @@
+// import { prepareSWCode } from '@composable-vite-pwa/workbox-build/utils/prepare-sw-code'
+
 import { generateSW } from '@composable-vite-pwa/workbox-build/generate-sw'
 import { runtimeCaching } from './cache'
 
-generateSW({
+/* prepareSWCode({
   globDirectory: './',
-  globPatterns: ['**/*.{js,html}'],
+  globPatterns: ['**!/!*.{js,html}'],
+  skipWaiting: true,
+  navigateFallback: 'index.html',
+  cleanupOutdatedCaches: true,
+  disableDevLogs: false,
+  sourcemap: true,
+  swType: 'classic-and-module',
+  inlineWorkboxRuntime: false,
+  urlManipulation: ({ url }) => {
+    return [url]
+  },
+  swDest: 'sw.js',
+  runtimeCaching,
+}).then((result) => {
+  console.log(result)
+}) */
+/* generateSW({
+  globDirectory: './',
+  globPatterns: ['**!/!*.{js,html}'],
   skipWaiting: true,
   navigateFallback: 'index.html',
   cleanupOutdatedCaches: true,
@@ -17,7 +37,7 @@ generateSW({
   runtimeCaching,
 }).then((result) => {
   console.log(result)
-})
+}) */
 // generateSW({
 //   globDirectory: './',
 //   globPatterns: ['**/*.{js,html}'],
@@ -35,9 +55,9 @@ generateSW({
 // }).then(result => {
 //   console.log(result)
 // })
-/* generateSW({
+generateSW({
   globDirectory: './',
-  globPatterns: ['**!/!*.{js,html}'],
+  globPatterns: ['**/*.{js,html}'],
   skipWaiting: true,
   navigateFallback: 'index.html',
   cleanupOutdatedCaches: true,
@@ -48,10 +68,8 @@ generateSW({
     return [url]
   },
   swDest: 'sw.js',
+  inlineWorkboxRuntime: false,
   runtimeCaching,
-}).then(({ classic, module }) => {
-  console.log('CLASSIC:')
-  console.log(classic)
-  console.log('MODULE:')
-  console.log(module)
-}) */
+}).then((result) => {
+  console.log(result)
+})

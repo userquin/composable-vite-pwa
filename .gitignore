@@ -29,6 +29,8 @@ dist-ssr
 # examples
 examples/workbox-cli/classic-sw*.js
 examples/workbox-cli/classic-sw*.map
+examples/workbox-cli/esm-sw*.js
+examples/workbox-cli/esm-sw*.map
 examples/workbox-cli/sw*.js
 examples/workbox-cli/sw*.map
 examples/workbox-cli/workbox-*.js
