@@ -19,7 +19,7 @@ type SWFeatures = (versions: number[], os?: OS) => boolean
 
 const chromiumCheck: SWFeatures = v => v.length > 0 && !Number.isNaN(v[0]) && v[0] >= 91
 
-// https://caniuse.com/?search=service+worker
+// https://caniuse.com/?search=service+worker => 2026-04-09
 const allowedBrowsers: Record<Browser, SWFeatures> = {
   'chrome': chromiumCheck,
   'edge-chromium': chromiumCheck,
@@ -49,6 +49,10 @@ const webviewRegex = /wv\).*Chrom(?:e|ium)\/([\d.]+)/
 const operaMobileRegex = /Mobile/
 const ucBrowserRegex = /UCBrowser\/([\d.]+)/
 const qqRegex = /(MQQBrowser|QQBrowser)\/([\d.]+)/i
+const iOSRegex = /iP(?:hone|od|ad)/
+const androidRegex = /Android/
+const macOSRegex = /Macintosh/
+const splitRegexp = /[._]/
 
 const rules: Record<Browser, Rule> = {
   'chrome': (userAgent, os) => (!os || os !== 'Android') ? chromeRegex.exec(userAgent) : null,
@@ -73,18 +77,18 @@ export function isSWModuleSupported(userAgent = navigator.userAgent): boolean {
     return false
 
   let os: OS | undefined
-  if (/iP(?:hone|od|ad)/.test(userAgent))
+  if (iOSRegex.test(userAgent))
     os = 'iOS'
-  else if (/Android/.test(userAgent))
+  else if (androidRegex.test(userAgent))
     os = 'Android'
-  else if (/Macintosh/.test(userAgent))
+  else if (macOSRegex.test(userAgent))
     os = 'Mac OS'
 
   if (os === 'iOS') {
     const match = rules['ios-safari'](userAgent, os)
     return match
       ? allowedBrowsers['ios-safari'](
-          match[1].split(/[._]/).map(v => Number.parseInt(v, 10)),
+          match[1].split(splitRegexp).map(v => Number.parseInt(v, 10)),
           os,
         )
       : false
@@ -98,7 +102,7 @@ export function isSWModuleSupported(userAgent = navigator.userAgent): boolean {
     if (match) {
       const config = allowedBrowsers[name as Browser]
       return config(
-        match[1].split(/[._]/).map(v => Number.parseInt(v, 10)),
+        match[1].split(splitRegexp).map(v => Number.parseInt(v, 10)),
         os,
       )
     }

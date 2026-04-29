@@ -1,4 +1,4 @@
-import type { GenerateSWOptions } from '../types'
+import type { GenerateSWOptions, SWType } from '../types'
 import { errors } from './errors'
 
 const DEFAULT_EXCLUDE_VALUE = [/\.map$/, /^manifest.*\.js$/]
@@ -10,7 +10,7 @@ export class WorkboxConfigError extends Error {
   }
 }
 export function ensureValidNavigationPreloadConfig(
-  options: GenerateSWOptions,
+  options: GenerateSWOptions<SWType>,
 ): void {
   if (
     options.navigationPreload
@@ -22,7 +22,7 @@ export function ensureValidNavigationPreloadConfig(
 }
 
 export function ensureValidCacheExpiration(
-  options: GenerateSWOptions,
+  options: GenerateSWOptions<SWType>,
 ): void {
   for (const runtimeCaching of options.runtimeCaching || []) {
     if (
@@ -35,7 +35,7 @@ export function ensureValidCacheExpiration(
 }
 
 export function ensureValidRuntimeCachingOrGlobDirectory(
-  options: GenerateSWOptions,
+  options: GenerateSWOptions<SWType>,
 ): void {
   if (
     !options.globDirectory

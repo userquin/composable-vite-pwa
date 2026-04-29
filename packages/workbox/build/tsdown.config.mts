@@ -1,7 +1,7 @@
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'tsdown'
-import { workboxBanner as banner, cleanupJSTypes, fixTypesVersion } from '../../../tsdown-helper'
+import { attw, workboxBanner as banner, cleanupJSTypes, fixTypesVersion, publint } from '../../../tsdown-helper'
 
 const require = createRequire(import.meta.url)
 const _packageJson = require('./package.json')
@@ -12,6 +12,8 @@ export default defineConfig({
   entry: './src/{config,index,types,generate-sw,get-manifest,inject-manifest}.ts',
   platform: 'node',
   banner,
+  attw,
+  publint,
   exports: fixTypesVersion,
   hooks: {
     'build:done': async () => {
