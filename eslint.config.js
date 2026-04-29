@@ -7,6 +7,7 @@ export default antfu({
     'examples/workbox-cli/esm-sw*.js',
     'examples/workbox-cli/classic-sw*.js',
     'examples/workbox-cli/sw*.js',
+    'examples/workbox-cli/workbox.js',
     'examples/workbox-cli/workbox*.js',
   ],
 })

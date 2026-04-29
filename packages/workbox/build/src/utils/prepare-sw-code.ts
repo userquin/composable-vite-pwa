@@ -42,7 +42,7 @@ export async function prepareSWCode<T extends SWType>(
         swCode: '',
       } as ChunksInfoData<T>
 
-  prepareWorkboxRuntime(globDirectory, options, manifestEntries, chunks)
+  prepareWorkboxRuntime(options, manifestEntries, chunks)
 
   return {
     manifestEntries,
@@ -420,7 +420,6 @@ export {${exports.join(', ')}}
 }
 
 function prepareWorkboxRuntime<T extends SWType>(
-  globDirectory: string,
   options: GenerateSWOptions<T>,
   manifestEntries: GetManifestResult,
   chunksInfoData: ChunksInfoData<T>,
@@ -515,7 +514,7 @@ function prepareWorkboxRuntime<T extends SWType>(
     }
     else {
       chunksInfoData.workbox = workboxCode
-      chunksInfoData.swCode = `importScripts("./workbox-classic.js");\n${swCode}`
+      chunksInfoData.swCode = `importScripts("./workbox${options.classicWorkboxRuntimeCompatible ? '' : '-classic'}.js");\n${swCode}`
     }
   }
 }

@@ -59,14 +59,18 @@
     "tsx:test": "tsx ./src/generate-sw.ts"
   },
   "peerDependencies": {
-    "tsdown": "^0.21.10",
     "rolldown": "^1.0.0-0"
+  },
+  "peerDependenciesMeta": {
+    "rolldown": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@composable-vite-pwa/workbox-swkit": "workspace:*",
     "@composable-vite-pwa/workbox-window": "workspace:*",
-    "magicast": "catalog:utils",
     "magic-string": "catalog:utils",
+    "magicast": "catalog:utils",
     "picocolors": "catalog:utils",
     "pkg-types": "catalog:utils",
     "proper-tags": "catalog:utils",

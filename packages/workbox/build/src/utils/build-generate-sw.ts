@@ -2,9 +2,7 @@ import type { BuildResult, GenerateSWOptions, SWType } from '../types'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-import MagicString from 'magic-string'
 import { deepMergeObject } from 'magicast/helpers'
-import { build } from 'tsdown'
 import { validateGenerateSW } from '../validation/validation-helper'
 import { prepareSWCode } from './prepare-sw-code'
 
@@ -64,247 +62,14 @@ function prepareGlobIgnores(
   }
 }
 
-async function fixSourceMaps(
-  sourcemap: boolean,
-  swName: string,
-  swFile: string,
-  classicWorkboxRuntimeCompatible: boolean,
-  classicReplacementName?: string,
-  workbox?: {
-    tempName: string
-    name: string
-    file: string
-  },
-) {
-  await Promise.all([
-    fs.readFile(swFile, 'utf-8').then((code) => {
-      const s = new MagicString(code)
-      s.replace(
-        `//#region ${swName.replace('.js', '.temp.js')}`,
-        `//#region ${swName}`,
-      )
-      if (classicReplacementName) {
-        s.replace(
-          `importScripts("./workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}.js")`,
-          `importScripts("./${classicReplacementName}")`,
-        )
-      }
-      return fs.writeFile(swFile, s.toString(), 'utf-8')
-    }),
-    sourcemap
-      ? fs.writeFile(
-          swFile.replace('.js', '.js.map'),
-          await fs.readFile(
-            swFile.replace('.js', '.js.map'),
-            'utf-8',
-          ).then((code) => {
-            return code.replace(
-              `"${swName.replace('.js', '.temp.js')}"`,
-              `"${swName}"`,
-            )
-          }),
-          'utf-8',
-        )
-      : undefined,
-    sourcemap && workbox
-      ? fs.writeFile(
-          workbox.file.replace('.js', '.js.map'),
-          await fs.readFile(
-            workbox.file.replace('.js', '.js.map'),
-            'utf-8',
-          ).then((code) => {
-            return code.replace(
-              `"${workbox.tempName}"`,
-              `"${workbox.name}"`,
-            )
-          }),
-          'utf-8',
-        )
-      : undefined,
-  ].filter(Boolean))
+function throwMissingRolldownError(error: unknown): never {
+  throw new Error('Failed to load Rolldown. Please make sure to install it as a dev dependency or enable auto install peers in your package manager settings.', { cause: error })
 }
 
-async function buildClassicSW(
-  rootDir: string,
-  swName: string,
-  tempSwName: string,
-  inline: boolean,
-  sourcemap: boolean,
-  define: import('tsdown').InlineConfig['define'],
-  workboxRegex: RegExp[],
-  filePaths: string[],
-  classicWorkboxRuntimeCompatible: boolean,
-  workboxClassicFileForSourceMap?: string,
-) {
-  const workbox = path.resolve(rootDir, `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}.js`)
-  let workboxClassicFile: string | undefined
-  const tempSWFile = path.resolve(rootDir, tempSwName)
-  await build({
-    dts: false,
-    clean: false,
-    entry: inline ? tempSwName : `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}.js`,
-    platform: 'browser',
-    fromVite: false,
-    format: 'iife',
-    outDir: rootDir,
-    define,
-    sourcemap,
-    outputOptions: {
-      comments: {
-        legal: true,
-        jsdoc: false,
-        annotation: false,
-      },
-      hashCharacters: classicWorkboxRuntimeCompatible ? 'hex' : undefined,
-      chunkFileNames: inline ? swName : `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}-[hash].js`,
-      assetFileNames: '[name]-[hash].[ext]',
-      entryFileNames: inline ? swName : `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}-[hash].js`,
-      codeSplitting: false,
-    },
-    hooks: {
-      'build:done': async ({ chunks }) => {
-        for (const chunk of chunks) {
-          filePaths.push(path.resolve(rootDir, chunk.fileName))
-        }
-        if (inline) {
-          await fs.rm(tempSWFile, { force: true })
-          return
-        }
-        await fs.rm(workbox, { force: true })
-        workboxClassicFile = chunks.find(chunk => chunk.name === `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}`)?.fileName
-      },
-    },
-  })
-
-  if (workboxClassicFile) {
-    await buildClassicSW(
-      rootDir,
-      swName,
-      tempSwName,
-      true,
-      sourcemap,
-      define,
-      workboxRegex,
-      filePaths,
-      classicWorkboxRuntimeCompatible,
-      workboxClassicFile,
-    )
-    return
-  }
-
-  if (!inline) {
-    throw new Error('workbox-classic-<hash>.js assets not found!')
-  }
-
-  await fixSourceMaps(
-    sourcemap,
-    swName,
-    path.resolve(rootDir, swName),
-    classicWorkboxRuntimeCompatible,
-    workboxClassicFileForSourceMap,
-    !inline && sourcemap
-      ? {
-          tempName: 'workbox-classic.js',
-          name: workboxClassicFileForSourceMap!,
-          file: path.resolve(rootDir, workboxClassicFileForSourceMap!),
-        }
-      : undefined,
-  )
-}
-
-async function buildESMSW(
-  rootDir: string,
-  swName: string,
-  tempSwName: string,
-  inline: boolean,
-  sourcemap: boolean,
-  define: import('tsdown').InlineConfig['define'],
-  workboxRegex: RegExp[],
-  filePaths: string[],
-) {
-  const swChunkName = tempSwName.replace('.js', '')
-  const tempSWFile = path.resolve(rootDir, tempSwName)
-  let workboxModuleFile: string | undefined
-  await build({
-    dts: false,
-    clean: false,
-    entry: tempSwName,
-    platform: 'browser',
-    fromVite: false,
-    format: 'esm',
-    outDir: rootDir,
-    define,
-    sourcemap,
-    outputOptions: {
-      comments: {
-        legal: true,
-        jsdoc: false,
-        annotation: false,
-      },
-      chunkFileNames: (chunk) => {
-        switch (chunk.name) {
-          case 'workbox-module':
-            return 'workbox-module-[hash].js'
-          case swChunkName:
-            return swName
-          default:
-            return '[name]-[hash].[ext]'
-        }
-      },
-      assetFileNames: '[name]-[hash].[ext]',
-      entryFileNames: (chunk) => {
-        switch (chunk.name) {
-          case 'workbox-module':
-            return 'workbox-module-[hash].js'
-          case swChunkName:
-            return swName
-          default:
-            return '[name]-[hash].js'
-        }
-      },
-      codeSplitting: inline
-        ? false
-        : {
-            groups: [
-              {
-                minSize: 0,
-                name: (moduleId) => {
-                  return workboxRegex.some(r => r.test(moduleId)) ? 'workbox-module' : undefined
-                },
-              },
-            ],
-          },
-    },
-    hooks: {
-      'build:done': async ({ chunks }) => {
-        for (const chunk of chunks) {
-          filePaths.push(path.resolve(rootDir, chunk.fileName))
-        }
-        await fs.rm(tempSWFile, { force: true })
-        if (!inline) {
-          workboxModuleFile = chunks.find(chunk => chunk.name === 'workbox-module')?.fileName
-        }
-      },
-    },
-  })
-
-  await fixSourceMaps(
-    sourcemap,
-    swName,
-    path.resolve(rootDir, swName),
-    false,
-    undefined,
-    !inline && sourcemap
-      ? {
-          tempName: 'workbox-module.js',
-          name: workboxModuleFile!,
-          file: path.resolve(rootDir, workboxModuleFile!),
-        }
-      : undefined,
-  )
-}
-
-async function buildAssets<T extends SWType>(options: GenerateSWOptions<T>): Promise<BuildResult> {
+async function buildAssets<T extends SWType>(
+  options: GenerateSWOptions<T>,
+): Promise<BuildResult> {
+  const rolldown = await import('./rolldown-build').catch(e => throwMissingRolldownError(e))
   const {
     sw,
     swTemp,
@@ -320,7 +85,7 @@ async function buildAssets<T extends SWType>(options: GenerateSWOptions<T>): Pro
   const workboxRegex = [/^@composable-vite-pwa\/workbox-swkit\//, /[\\/]workbox-swkit[\\/]/, /[\\/]workbox[\\/]swkit/]
   const filePaths: string[] = []
 
-  const define: import('tsdown').InlineConfig['define'] = {}
+  const define: import('rolldown').TransformOptions['define'] = {}
   if (options.mode) {
     define['process.env.NODE_ENV'] = JSON.stringify(options.mode)
   }
@@ -338,19 +103,18 @@ async function buildAssets<T extends SWType>(options: GenerateSWOptions<T>): Pro
     ].filter(Boolean))
     await Promise.all([
       // classic
-      buildClassicSW(
+      rolldown!.buildClassicSW(
         rootDir,
         classic,
         classicTemp,
         inline,
         sourcemap,
         define,
-        workboxRegex,
         filePaths,
         false,
       ),
       // module
-      buildESMSW(
+      rolldown!.buildModuleSW(
         rootDir,
         esm,
         esmTemp,
@@ -377,21 +141,20 @@ async function buildAssets<T extends SWType>(options: GenerateSWOptions<T>): Pro
             )
           : undefined,
       ].filter(Boolean))
-      await buildClassicSW(
+      await rolldown!.buildClassicSW(
         rootDir,
         sw,
         swTemp,
         inline,
         sourcemap,
         define,
-        workboxRegex,
         filePaths,
         options.classicWorkboxRuntimeCompatible === true,
       )
     }
     else {
       await fs.writeFile(path.resolve(rootDir, swTemp), chunks.swCode, 'utf8')
-      await buildESMSW(
+      await rolldown.buildModuleSW(
         rootDir,
         sw,
         swTemp,

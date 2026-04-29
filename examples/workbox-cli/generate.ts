@@ -63,7 +63,7 @@ generateSW({
   cleanupOutdatedCaches: true,
   disableDevLogs: false,
   sourcemap: true,
-  swType: 'classic',
+  swType: 'classic-and-module',
   urlManipulation: ({ url }) => {
     return [url]
   },
@@ -71,5 +71,6 @@ generateSW({
   inlineWorkboxRuntime: false,
   runtimeCaching,
 }).then((result) => {
+  // eslint-disable-next-line no-console
   console.log(result)
 })
