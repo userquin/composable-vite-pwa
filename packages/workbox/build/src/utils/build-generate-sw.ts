@@ -155,6 +155,7 @@ async function buildClassicSW(
         jsdoc: false,
         annotation: false,
       },
+      hashCharacters: classicWorkboxRuntimeCompatible ? 'hex' : undefined,
       chunkFileNames: inline ? swName : `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}-[hash].js`,
       assetFileNames: '[name]-[hash].[ext]',
       entryFileNames: inline ? swName : `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}-[hash].js`,
@@ -366,7 +367,14 @@ async function buildAssets<T extends SWType>(options: GenerateSWOptions<T>): Pro
       await Promise.all([
         fs.writeFile(path.resolve(rootDir, swTemp), chunks.swCode, 'utf8'),
         chunks.workbox
-          ? fs.writeFile(path.resolve(rootDir, 'workbox-classic.js'), chunks.workbox, 'utf8')
+          ? fs.writeFile(
+              path.resolve(
+                rootDir,
+                `workbox${options.classicWorkboxRuntimeCompatible ? '' : '-classic'}.js`,
+              ),
+              chunks.workbox,
+              'utf8',
+            )
           : undefined,
       ].filter(Boolean))
       await buildClassicSW(

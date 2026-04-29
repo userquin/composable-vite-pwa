@@ -63,7 +63,7 @@ generateSW({
   cleanupOutdatedCaches: true,
   disableDevLogs: false,
   sourcemap: true,
-  swType: 'classic-and-module',
+  swType: 'classic',
   urlManipulation: ({ url }) => {
     return [url]
   },
