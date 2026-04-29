@@ -1,6 +1,6 @@
 // import type { ArrayExpression, Program } from '@babel/types'
 import type { BaseIssue, BaseSchemaAsync, InferOutput, IssuePathItem } from 'valibot'
-import type { GenerateSWOptions, InjectManifestOptions } from '../types'
+import type { GenerateSWOptions, InjectManifestOptions, SWType } from '../types'
 import { getDotPath, safeParseAsync } from 'valibot'
 import { AsyncGenerateSWOptionsSchema } from './async-generate-sw'
 import { AsyncInjectManifestOptionsSchema } from './async-inject-manifest'
@@ -146,7 +146,7 @@ function _sanitizeMagicastOptions(options: any): any {
   return sanitized
 }
 
-export async function validateGenerateSW(options: GenerateSWOptions): Promise<InferOutput<typeof AsyncGenerateSWOptionsSchema>> {
+export async function validateGenerateSW<T extends SWType>(options: GenerateSWOptions<T>): Promise<InferOutput<typeof AsyncGenerateSWOptionsSchema>> {
   return await validateAsync(AsyncGenerateSWOptionsSchema, options, 'generateSW')
 }
 
