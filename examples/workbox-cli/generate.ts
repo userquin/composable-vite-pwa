@@ -66,8 +66,8 @@ generateSW({
   disableDevLogs: false,
   sourcemap: true,
   swType: 'classic-and-module',
-  urlManipulation: ({ url }) => {
-    return [url]
+  urlManipulation: () => {
+    return []
   },
   swDest: 'sw.js',
   inlineWorkboxRuntime: true,

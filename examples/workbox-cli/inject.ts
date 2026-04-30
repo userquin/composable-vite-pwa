@@ -8,9 +8,9 @@ rolldown({
   platform: 'browser',
 }).then((instance) => {
   return instance.write({
-    // sourcemap: true,
+    sourcemap: true,
     // sourcemap: 'inline',
-    sourcemap: 'hidden',
+    // sourcemap: 'hidden',
     dir: 'dist',
     format: 'iife',
     cleanDir: false,
