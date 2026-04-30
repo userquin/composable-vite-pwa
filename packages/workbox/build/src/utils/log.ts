@@ -45,7 +45,7 @@ export function checkInvalidPatterns(isStrict: boolean, invalidPatterns: string[
     invalidPatterns.map(e => `  - ${e}`).join('\n'),
     '',
     pc.bold('To resolve this issue, you can either:'),
-    `  1. Disable ${pc.green('"globStrict"')} to convert this error into a warning.`,
+    `  1. Disable ${pc.green('"globStrict"')}${isStrict ? ' to convert this error into a warning' : ''}.`,
     `  2. Remove the patterns from ${pc.green('"globPatterns"')}.\n\n`,
   ].filter(Boolean).join('\n')
 }
