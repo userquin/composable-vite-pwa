@@ -7,11 +7,11 @@ import type {
 import type { FileDetails } from './get-file-details'
 import type { InternalManifestEntry } from './types'
 import { createHash } from 'node:crypto'
-import { transformManifest } from '@composable-vite-pwa/workbox-build/utils/transform-manifest'
 import { errors } from '../validation/errors'
 import { getFileDetails } from './get-file-details'
 import { checkInvalidPatterns, checkMaximumFileSizeToCacheExceeded } from './log'
 import { migrateGlobsToPicomatch } from './migrate-globs-to-picomatch'
+import { transformManifest } from './transform-manifest'
 
 export async function generateManifestEntries(
   options: BasePartial & GlobPartial,

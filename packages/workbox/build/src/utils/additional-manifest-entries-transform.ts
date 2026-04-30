@@ -1,5 +1,5 @@
-import type { InternalManifestEntry } from '@composable-vite-pwa/workbox-build/utils/types'
 import type { ManifestEntry } from '../types'
+import type { InternalManifestEntry } from './types'
 import { errors } from '../validation/errors'
 
 interface AdditionalManifestEntriesTransform {

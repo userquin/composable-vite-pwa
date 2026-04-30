@@ -1,13 +1,13 @@
 import type { BasePartial, ManifestTransform } from '../types'
 import type { InternalManifestEntry } from './types'
+import { errors } from '../validation/errors'
 import {
   additionalManifestEntriesTransform,
-} from '@composable-vite-pwa/workbox-build/utils/additional-manifest-entries-transform'
-import { modifyURLPrefixTransform } from '@composable-vite-pwa/workbox-build/utils/modify-url-prefix-transform'
+} from './additional-manifest-entries-transform'
+import { modifyURLPrefixTransform } from './modify-url-prefix-transform'
 import {
   noRevisionForURLsMatchingTransform,
-} from '@composable-vite-pwa/workbox-build/utils/no-revision-for-urls-matching-transform'
-import { errors } from '@composable-vite-pwa/workbox-build/validation/errors'
+} from './no-revision-for-urls-matching-transform'
 
 export async function transformManifest({
   additionalManifestEntries,

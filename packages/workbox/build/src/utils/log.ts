@@ -1,6 +1,6 @@
 import type { InternalManifestEntry } from './types'
-import { errors } from '@composable-vite-pwa/workbox-build/validation/errors'
 import pc from 'picocolors'
+import { errors } from '../validation/errors'
 
 export function checkMaximumFileSizeToCacheExceeded(
   maximumFileSizeToCacheInBytes: number,
