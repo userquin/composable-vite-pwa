@@ -6,6 +6,7 @@ import MagicString from 'magic-string'
 import { deepMergeObject } from 'magicast/helpers'
 import { errors } from '../validation/errors'
 import { validateInjectManifest } from '../validation/validation-helper'
+import { escapeRegExp } from './escape-regexp'
 import { generateManifestEntries } from './generate-manifest-entries'
 import { prepareGlobIgnores } from './utils'
 
@@ -55,7 +56,7 @@ export async function buildInjectManifest(options: InjectManifestOptions): Promi
     size,
     warnings,
     manifestEntries,
-  } = await generateManifestEntries(rootDir, options)
+  } = await generateManifestEntries(options, rootDir)
 
   const s = new MagicString(cleanCode)
   const index = cleanCode.indexOf(injectionPoint)
@@ -120,11 +121,6 @@ export async function buildInjectManifest(options: InjectManifestOptions): Promi
     warnings,
     filePaths: filePaths.sort(),
   }
-}
-
-const escapeRegex = /[.*+?^${}()|[\]\\]/g
-function escapeRegExp(str: string): string {
-  return str.replace(escapeRegex, '\\$&')
 }
 
 /* const innerRegex = /[#@] sourceMappingURL=([^\s'"]*)/

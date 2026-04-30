@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
 import * as v from 'valibot'
 import { AsyncManifestOptionsSchema, AsyncRuntimeCachingEntrySchema } from './utils'
 
@@ -113,8 +116,29 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
   }),
   v.forwardAsync(
     v.checkAsync(
+      async (input) => {
+        const swDestParent = path.dirname(path.resolve((process.cwd()), input.swDest))
+        return await fs.lstat(swDestParent).then(stats => stats.isDirectory()).catch(() => false)
+      },
+      'invalid-sw-dest',
+    ),
+    ['swDest'],
+  ),
+  v.forwardAsync(
+    v.checkAsync(
       async input => !!input.runtimeCaching || (typeof input.globDirectory === 'string'),
       'no-manifest-entries-or-runtime-caching',
+    ),
+    ['globDirectory'],
+  ),
+  v.forwardAsync(
+    v.checkAsync(
+      async (input) => {
+        return typeof input.globDirectory === 'string'
+          ? await fs.lstat(input.globDirectory).then(stats => stats.isDirectory()).catch(() => false)
+          : false
+      },
+      'glob-directory-invalid',
     ),
     ['globDirectory'],
   ),

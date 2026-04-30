@@ -2,11 +2,11 @@ import type { BuildResult, GenerateSWOptions, SWType } from '../types'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-import { prepareGlobIgnores } from '@composable-vite-pwa/workbox-build/utils/utils'
 import { deepMergeObject } from 'magicast/helpers'
 import { validateGenerateSW } from '../validation/validation-helper'
 import { prepareSWCode } from './prepare-sw-code'
 import { buildClassicSW, buildModuleSW } from './rolldown-build'
+import { prepareGlobIgnores } from './utils'
 
 export async function buildGenerateSW<T extends SWType>(options: GenerateSWOptions<T>): Promise<BuildResult> {
   const optionsWithDefaults = await validateGenerateSW(options)
@@ -27,8 +27,13 @@ async function buildAssets<T extends SWType>(
     esm,
     esmTemp,
   } = prepareGlobIgnores(options, options.sourcemap === true)
-  const rootDir = options.globDirectory ? path.resolve(process.cwd(), options.globDirectory) : process.cwd()
-  const { manifestEntries, chunks } = await prepareSWCode(rootDir, options)
+  const rootDir = path.dirname(path.resolve(process.cwd(), options.swDest))
+  const { manifestEntries, chunks } = await prepareSWCode(
+    options,
+    options.globDirectory
+      ? path.resolve(process.cwd(), options.globDirectory)
+      : undefined,
+  )
   const inline = options.inlineWorkboxRuntime === true
   const sourcemap = options.sourcemap === true
   const workboxRegex = [/^@composable-vite-pwa\/workbox-swkit\//, /[\\/]workbox-swkit[\\/]/, /[\\/]workbox[\\/]swkit/]

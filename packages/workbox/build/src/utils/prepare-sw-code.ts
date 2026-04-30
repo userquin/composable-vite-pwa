@@ -24,10 +24,10 @@ export interface InternalGetManifestResult<T extends SWType> {
 }
 
 export async function prepareSWCode<T extends SWType>(
-  globDirectory: string,
   options: GenerateSWOptions<T>,
+  globDirectory?: string,
 ): Promise<InternalGetManifestResult<T>> {
-  const manifestEntries = await generateManifestEntries(globDirectory, options)
+  const manifestEntries = await generateManifestEntries(options, globDirectory)
 
   const chunks = options.swType === 'classic-and-module'
     ? {
@@ -48,139 +48,6 @@ export async function prepareSWCode<T extends SWType>(
     manifestEntries,
     chunks,
   } as InternalGetManifestResult<T>
-  /*
-  const strategyImports = new Set<string>()
-  if (options.runtimeCaching) {
-    for (const entry of options.runtimeCaching) {
-      if (typeof entry.handler === 'string') {
-        strategyImports.add(capitalize(entry.handler))
-      }
-    }
-  }
-
-  if (manifestEntries.manifestEntries.length > 0) {
-    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/precaching', imported: 'precacheAndRoute' })
-  }
-
-  if (options.navigationPreload) {
-    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/navigation-preload', imported: 'enable' })
-  }
-
-  if (options.cacheId) {
-    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/core', imported: 'setCacheNameDetails' })
-  }
-
-  if (options.skipWaiting) {
-    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/core', imported: 'skipWaiting' })
-  }
-  if (options.clientsClaim) {
-    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/core', imported: 'clientsClaim' })
-  }
-  if (options.cleanupOutdatedCaches) {
-    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/precaching', imported: 'cleanupOutdatedCaches' })
-  }
-
-  const needsRegisterRoute = options.runtimeCaching?.length || options.navigateFallback
-  if (needsRegisterRoute) {
-    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/routing', imported: 'registerRoute' })
-  }
-
-  if (options.navigateFallback) {
-    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/routing', imported: 'NavigationRoute' })
-    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/precaching', imported: 'createHandlerBoundToURL' })
-  }
-
-  if (options.runtimeCaching?.length) {
-    if (strategyImports.size > 0) {
-      for (const strategyImport of strategyImports) {
-        swModule.imports.$append({
-          from: '@composable-vite-pwa/workbox-swkit/strategies',
-          imported: strategyImport,
-        })
-      }
-    }
-  }
-
-  const swCode: string[] = []
-
-  if (options.navigationPreload) {
-    swCode.push('enable();')
-  }
-
-  if (options.cacheId) {
-    const call = builders.functionCall('setCacheNameDetails', { prefix: options.cacheId })
-    swCode.push(generateCode(call).code)
-  }
-
-  if (options.skipWaiting) {
-    swCode.push('self.skipWaiting();')
-  }
-  else {
-    swCode.push(`self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});`)
-  }
-
-  if (manifestEntries.manifestEntries.length > 0) {
-    const precacheOptions: any = {}
-    if (options.directoryIndex) {
-      precacheOptions.directoryIndex = options.directoryIndex
-    }
-    if (options.ignoreURLParametersMatching) {
-      precacheOptions.ignoreURLParametersMatching = options.ignoreURLParametersMatching
-    }
-    if (options.cleanURLs) {
-      precacheOptions.cleanURLs = options.cleanURLs
-    }
-    if (options.urlManipulation) {
-      precacheOptions.urlManipulation = parseExpression(serialize(options.urlManipulation, { unsafe: true }))
-    }
-
-    const precacheAndRoute = Object.keys(precacheOptions).length > 0
-      ? builders.functionCall('precacheAndRoute', manifestEntries.manifestEntries, precacheOptions)
-      : builders.functionCall('precacheAndRoute', manifestEntries.manifestEntries)
-
-    swCode.push(generateCode(precacheAndRoute).code)
-  }
-
-  if (options.cleanupOutdatedCaches) {
-    swCode.push('cleanupOutdatedCaches();')
-  }
-
-  if (options.navigateFallback) {
-    const handler = builders.functionCall('createHandlerBoundToURL', options.navigateFallback)
-    let newOptions: any
-    if (options.navigateFallbackAllowlist || options.navigateFallbackDenylist) {
-      newOptions = {}
-      if (options.navigateFallbackAllowlist) {
-        newOptions.allowlist = options.navigateFallbackAllowlist
-      }
-      if (options.navigateFallbackDenylist) {
-        newOptions.denylist = options.navigateFallbackDenylist
-      }
-    }
-    const navigationRoute = newOptions
-      ? builders.newExpression('NavigationRoute', handler, newOptions)
-      : builders.newExpression('NavigationRoute', handler)
-    const registerRoute = builders.functionCall('registerRoute', navigationRoute)
-    swCode.push(generateCode(registerRoute).code)
-  }
-
-  if (options.runtimeCaching) {
-    swCode.push(...getRuntimeCachingEntries(options))
-  }
-
-  if (options.disableDevLogs) {
-    swCode.push('self.__WB_DISABLE_DEV_LOGS = true;')
-  }
-
-  const _importsCode = generateCode(swModule.imports).code
-
-  // return Object.assign({}, manifestEntries, {
-  //   swCode: `${importsCode}\n\n${swCode.join('\n')}`,
-  // }) */
 }
 
 export function camelize(str: string): string {

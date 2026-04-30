@@ -5,6 +5,7 @@ import { AsyncGenerateSWOptionsSchema } from './async-generate-sw'
 import { AsyncGetManifestOptionsSchema } from './async-get-manifest'
 import { AsyncInjectManifestOptionsSchema } from './async-inject-manifest'
 import { errors } from './errors'
+import { WorkboxConfigError } from './validation-options'
 
 // This helper function traverses the issue's path to find the top-level object key
 // that contains the error. This is crucial for errors nested inside arrays.
@@ -26,6 +27,7 @@ const requiredErrorMap: Record<string, keyof typeof errors> = {
 // see [Path Key not Available in safeParse](https://github.com/fabian-hiller/valibot/discussions/696).
 // custom Valibot's message mapping
 function extractIssueMessage(issue: BaseIssue<any>) {
+  console.log(issue)
   // console.log(issue)
   const path = getDotPath(issue)
   const topLevelKey = getTopLevelKey(issue.path)
@@ -137,7 +139,7 @@ export async function validateAsync<TSchema extends BaseSchemaAsync<any, any, an
   )
   if (!result.success) {
     const errorMessages = result.issues.map(extractIssueMessage)
-    throw new Error(
+    throw new WorkboxConfigError(
       `${methodName}() options validation failed: \n- ${errorMessages.join('\n- ')}`,
     )
   }

@@ -17,6 +17,7 @@ export const errors = {
   'unable-to-get-file-manifest-name': 'Unable to get a file manifest name.',
   'missing-sw-dest': `The 'swDest' option is required.`,
   'invalid-sw-dest': `The 'swDest' value must be a valid path.`,
+  'glob-directory-invalid': ol`The path you entered isn't a valid directory.`,
   'invalid-sw-dest-js-ext': `The 'swDest' must end with .js.`,
   'unable-to-get-sw-name': 'Unable to get a service worker file name.',
   'unable-to-get-save-config': ol`An error occurred when asking to save details
@@ -75,8 +76,7 @@ export const errors = {
     only one match for the following: `,
   'populating-sw-tmpl-failed': ol`Unable to generate service worker from
     template.`,
-  'useless-glob-pattern': ol`One of the glob patterns doesn't match any files.
-    Please remove or fix the following: `,
+  'useless-glob-pattern': ol`One of the glob patterns doesn't match any files: `,
   'bad-template-urls-asset': ol`There was an issue using one of the provided
     'templatedURLs'.`,
   'invalid-runtime-caching': ol`The 'runtimeCaching' parameter must an an

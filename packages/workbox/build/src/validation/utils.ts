@@ -201,28 +201,28 @@ export const AsyncGlobOptionsSchema = v.objectAsync({
   throwMaximumFileSizeToCacheInBytes: v.optionalAsync(v.boolean(), true),
   /**
    * Determines whether or not symlinks are followed when generating the
-   * precache manifest. For more information, see the definition of `follow` in
-   * the `glob` [documentation](https://github.com/isaacs/node-glob#options).
+   * precache manifest. For more information, see the definition of `followSymbolicLinks`
+   * in the `glob` [documentation](https://superchupu.dev/tinyglobby).
    * @default true
    */
   globFollow: v.optionalAsync(v.boolean(), true),
   /**
    * Files matching any of these patterns will be included in the precache
    * manifest. For more information, see the
-   * [`glob` primer](https://github.com/isaacs/node-glob#glob-primer).
+   * [tinyglobby](https://superchupu.dev/tinyglobby).
    */
   globPatterns: v.optionalAsync(v.arrayAsync(v.string()), ['**/*.{js,css,html}']),
   /**
    * A set of patterns matching files to always exclude when generating the
    * precache manifest. For more information, see the definition of `ignore` in
-   * the `glob` [documentation](https://github.com/isaacs/node-glob#options).
+   * the `glob` [documentation](https://superchupu.dev/tinyglobby).
    */
   globIgnores: v.optionalAsync(v.arrayAsync(v.string()), ['**/node_modules/**/*']),
   /**
    * If true, an error reading a directory when generating a precache manifest
    * will cause the build to fail. If false, the problematic directory will be
    * skipped. For more information, see the definition of `strict` in the `glob`
-   * [documentation](https://github.com/isaacs/node-glob#options).
+   * [documentation](https://superchupu.dev/tinyglobby).
    * @default true
    */
   globStrict: v.optionalAsync(v.boolean(), true),

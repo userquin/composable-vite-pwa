@@ -11,7 +11,7 @@ export async function buildGetManifest(options: GetManifestOptions): Promise<Get
   deepMergeObject(options, optionsWithDefaults)
 
   return await generateManifestEntries(
-    path.resolve(process.cwd(), options.globDirectory),
     options,
+    path.resolve(process.cwd(), options.globDirectory),
   )
 }

@@ -1,25 +1,23 @@
 import type {
-  GenerateSWOptions,
-  GetManifestOptions,
+  BasePartial,
   GetManifestResult,
-  InjectManifestOptions,
+  GlobPartial,
   ManifestEntry,
-  SWType,
 } from '../types'
+import type { FileDetails } from './get-file-details'
 import type { InternalManifestEntry } from './types'
 import { createHash } from 'node:crypto'
-import { readFile, stat } from 'node:fs/promises'
-import { resolve } from 'node:path'
-import { glob } from 'tinyglobby'
-import { DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES } from './constants'
-import { checkMaximumFileSizeToCacheExceeded } from './log'
+import { transformManifest } from '@composable-vite-pwa/workbox-build/utils/transform-manifest'
+import { errors } from '../validation/errors'
+import { getFileDetails } from './get-file-details'
+import { checkInvalidPatterns, checkMaximumFileSizeToCacheExceeded } from './log'
 import { migrateGlobsToPicomatch } from './migrate-globs-to-picomatch'
 
 export async function generateManifestEntries(
-  globDirectory: string,
-  options: GenerateSWOptions<SWType> | InjectManifestOptions | GetManifestOptions,
+  options: BasePartial & GlobPartial,
+  globDirectory?: string,
 ): Promise<GetManifestResult> {
-  if (!options.globDirectory) {
+  if (!globDirectory) {
     return {
       count: 0,
       manifestEntries: [],
@@ -30,26 +28,36 @@ export async function generateManifestEntries(
 
   const globPatterns = options.globPatterns!
   const globIgnores = options.globIgnores!
+  const globFollow = options.globFollow!
 
   const { patterns, ignore } = migrateGlobsToPicomatch({
     globPatterns,
     globIgnores,
   })
 
-  const assets = await glob(patterns, {
-    cwd: globDirectory,
-    ignore,
-    onlyFiles: true,
-    absolute: false,
-    expandDirectories: false,
-    followSymbolicLinks: options.globFollow,
-  })
-
-  const maxFileSize = options.maximumFileSizeToCacheInBytes ?? DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES
+  const maxFileSize = typeof options.maximumFileSizeToCacheInBytes === 'number'
+    ? options.maximumFileSizeToCacheInBytes
+    : 0
   const maxFileSizeExceeded: (ManifestEntry & { size: number })[] = []
 
-  let manifestEntries: (ManifestEntry & { size: number })[] = []
-  for await (const manifest of hashManifestEntries(globDirectory, assets)) {
+  let manifestEntries: InternalManifestEntry[] = []
+  const urls = new Map<string, InternalManifestEntry>()
+  const invalidPatterns: string[] = []
+
+  let manifest: InternalManifestEntry
+  for await (
+    const {
+      file,
+      hash,
+      size,
+    } of getFileDetails(
+      globDirectory,
+      invalidPatterns,
+      { globFollow, globIgnores: ignore, globPatterns: patterns },
+    )
+  ) {
+    manifest = { url: file, revision: hash, size }
+    urls.set(manifest.url, manifest)
     if (manifest.size > maxFileSize) {
       maxFileSizeExceeded.push(manifest)
     }
@@ -58,26 +66,92 @@ export async function generateManifestEntries(
     }
   }
 
-  const message = checkMaximumFileSizeToCacheExceeded(
-    options.maximumFileSizeToCacheInBytes ?? DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES,
+  const emptyGlobsMessage = checkInvalidPatterns(options.globStrict === true, invalidPatterns)
+
+  if (options.globStrict && emptyGlobsMessage) {
+    throw new Error(emptyGlobsMessage)
+  }
+
+  const maxSizeMessage = checkMaximumFileSizeToCacheExceeded(
+    maxFileSize,
     maxFileSizeExceeded,
   )
 
-  if (options.throwMaximumFileSizeToCacheInBytes && message) {
-    throw new Error(message)
+  if (options.throwMaximumFileSizeToCacheInBytes && maxSizeMessage) {
+    throw new Error(maxSizeMessage)
   }
 
-  const warnings = [message].filter(Boolean) as string[]
+  // tinyglobby is non-deterministic: avoid firing an unnecessary sw update on the client
+  manifestEntries.sort(
+    (a, b) => a.url.localeCompare(b.url),
+  )
 
-  if (options.manifestTransforms) {
-    for (const mt of options.manifestTransforms) {
-      const result = await mt(manifestEntries, options)
-      manifestEntries = result.manifest
-      if (result.warnings) {
-        warnings.push(...result.warnings)
+  const warnings = [emptyGlobsMessage, maxSizeMessage].filter(Boolean) as string[]
+
+  const templatedURLs = options.templatedURLs
+
+  if (templatedURLs) {
+    for (const [url, dependencies] of Object.entries(templatedURLs)) {
+      if (!urls.has(url)) {
+        throw new Error(errors['templated-url-matches-glob'])
+      }
+
+      if (Array.isArray(dependencies)) {
+        invalidPatterns.length = 0
+        const details: FileDetails[] = []
+        for await (
+          const file of getFileDetails(
+            globDirectory,
+            invalidPatterns,
+            { globFollow, globIgnores: ignore, globPatterns: dependencies },
+          )
+        ) {
+          details.push(file)
+        }
+        if (details.length === 0) {
+          throw new Error(
+            `${errors['bad-template-urls-asset']} The glob `
+            + `pattern '${dependencies.toString()}' did not match anything.`,
+          )
+        }
+        let hashOfHashes = ''
+        let totalSize = 0
+        for (
+          const {
+            hash,
+            size,
+          } of details.sort(
+            (a, b) => a.file.localeCompare(b.file),
+          )
+        ) {
+          hashOfHashes += hash
+          totalSize += size
+        }
+        urls.set(url, {
+          url,
+          revision: createHash('md5').update(hashOfHashes).digest('hex'),
+          size: totalSize,
+        })
+      }
+      else {
+        urls.set(url, {
+          url,
+          revision: createHash('md5').update(dependencies).digest('hex'),
+          size: 0,
+        })
       }
     }
   }
+
+  manifestEntries = await transformManifest({
+    additionalManifestEntries: options.additionalManifestEntries,
+    dontCacheBustURLsMatching: options.dontCacheBustURLsMatching,
+    manifestTransforms: options.manifestTransforms,
+    maximumFileSizeToCacheInBytes: options.maximumFileSizeToCacheInBytes,
+    modifyURLPrefix: options.modifyURLPrefix,
+    warnings,
+    manifestEntries,
+  })
 
   const size = manifestEntries.reduce((acc, entry) => acc + entry.size, 0)
   const count = manifestEntries.length
@@ -87,17 +161,5 @@ export async function generateManifestEntries(
     size,
     manifestEntries: manifestEntries.map(({ size, ...rest }) => rest),
     warnings,
-  }
-}
-
-async function* hashManifestEntries(
-  globDirectory: string,
-  assets: string[],
-): AsyncGenerator<InternalManifestEntry, undefined, void> {
-  for (const asset of assets) {
-    const filePath = resolve(globDirectory!, asset)
-    const stats = await stat(filePath)
-    const revision = createHash('md5').update(await readFile(filePath)).digest('hex')
-    yield { url: asset, revision, size: stats.size }
   }
 }
