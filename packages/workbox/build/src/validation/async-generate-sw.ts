@@ -136,7 +136,7 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
       async (input) => {
         return typeof input.globDirectory === 'string'
           ? await fs.lstat(input.globDirectory).then(stats => stats.isDirectory()).catch(() => false)
-          : false
+          : true
       },
       'glob-directory-invalid',
     ),

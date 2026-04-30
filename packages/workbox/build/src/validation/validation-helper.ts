@@ -27,8 +27,6 @@ const requiredErrorMap: Record<string, keyof typeof errors> = {
 // see [Path Key not Available in safeParse](https://github.com/fabian-hiller/valibot/discussions/696).
 // custom Valibot's message mapping
 function extractIssueMessage(issue: BaseIssue<any>) {
-  console.log(issue)
-  // console.log(issue)
   const path = getDotPath(issue)
   const topLevelKey = getTopLevelKey(issue.path)
   const lastKey = issue.path?.[issue.path.length - 1]?.key
