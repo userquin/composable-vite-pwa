@@ -27,7 +27,9 @@
   ],
   "sideEffects": false,
   "exports": {
+    ".": "./dist/index.mjs",
     "./generate-sw": "./dist/generate-sw.mjs",
+    "./get-manifest": "./dist/get-manifest.mjs",
     "./inject-manifest": "./dist/inject-manifest.mjs",
     "./types": {
       "types": "./dist/types.d.mts"
@@ -39,6 +41,9 @@
     "*": {
       "generate-sw": [
         "./dist/generate-sw.d.mts"
+      ],
+      "get-manifest": [
+        "./dist/get-manifest.d.mts"
       ],
       "inject-manifest": [
         "./dist/inject-manifest.d.mts"
@@ -59,10 +64,11 @@
     "tsx:test": "tsx ./src/generate-sw.ts"
   },
   "peerDependencies": {
-    "rolldown": "^1.0.0-0"
+    "rolldown": "^1.0.0-0",
+    "vite": "^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
   },
   "peerDependenciesMeta": {
-    "rolldown": {
+    "vite": {
       "optional": true
     }
   },
@@ -80,6 +86,7 @@
   },
   "devDependencies": {
     "@types/serialize-javascript": "catalog:types",
-    "rolldown": "catalog:utils"
+    "rolldown": "catalog:utils",
+    "vite": "catalog:vite"
   }
 }

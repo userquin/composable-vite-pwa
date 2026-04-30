@@ -2,6 +2,7 @@
 
 import { generateSW } from '@composable-vite-pwa/workbox-build/generate-sw'
 import { runtimeCaching } from './cache'
+import { globIgnores } from './glogIgnores'
 
 /* prepareSWCode({
   globDirectory: './',
@@ -57,6 +58,7 @@ import { runtimeCaching } from './cache'
 // })
 generateSW({
   globDirectory: './',
+  globIgnores,
   globPatterns: ['**/*.{js,html}'],
   skipWaiting: true,
   navigateFallback: 'index.html',
@@ -68,7 +70,7 @@ generateSW({
     return [url]
   },
   swDest: 'sw.js',
-  inlineWorkboxRuntime: false,
+  inlineWorkboxRuntime: true,
   runtimeCaching,
 }).then((result) => {
   // eslint-disable-next-line no-console

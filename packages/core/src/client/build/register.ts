@@ -32,7 +32,7 @@ export function registerSW(options: RegisterSWOptions = {}) {
     if ('serviceWorker' in navigator) {
       wb = await import('@composable-vite-pwa/workbox-window').then(({ Workbox }) => {
         // eslint-disable-next-line node/prefer-global/process
-        if (process.env.VITE_PWA_ESM_FALLBACK_SW) {
+        if (process.env.PWA_ESM_FALLBACK_SW) {
           // By default, vite SW build will use classic and the sw.js will be the ESM version.
           // We're generating 2 variants: <sw>.js and classic-<sw>.js.
           if (supportsESM?.() || isSWModuleSupported()) {

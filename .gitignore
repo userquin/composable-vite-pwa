@@ -27,6 +27,7 @@ dist-ssr
 !.changeset/*.md
 
 # examples
+examples/workbox-cli/custom-sw-inject.js
 examples/workbox-cli/classic-sw*.js
 examples/workbox-cli/classic-sw*.map
 examples/workbox-cli/esm-sw*.js

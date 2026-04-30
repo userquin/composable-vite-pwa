@@ -1,8 +1,8 @@
-// import type { ArrayExpression, Program } from '@babel/types'
 import type { BaseIssue, BaseSchemaAsync, InferOutput, IssuePathItem } from 'valibot'
-import type { GenerateSWOptions, InjectManifestOptions, SWType } from '../types'
+import type { GenerateSWOptions, GetManifestOptions, InjectManifestOptions, SWType } from '../types'
 import { getDotPath, safeParseAsync } from 'valibot'
 import { AsyncGenerateSWOptionsSchema } from './async-generate-sw'
+import { AsyncGetManifestOptionsSchema } from './async-get-manifest'
 import { AsyncInjectManifestOptionsSchema } from './async-inject-manifest'
 import { errors } from './errors'
 
@@ -36,9 +36,7 @@ function extractIssueMessage(issue: BaseIssue<any>) {
     return errors[issue.message as keyof typeof errors]
   }
 
-  // console.log(path, path && path in requiredErrorMap)
   if (path && path in requiredErrorMap) {
-    // console.log('WTF')
     return errors[requiredErrorMap[path]]
   }
 
@@ -109,49 +107,16 @@ function extractIssueMessage(issue: BaseIssue<any>) {
   return issue.message
 }
 
-// This function intelligently sanitizes the options object from magicast.
-function _sanitizeMagicastOptions(options: any): any {
-  if (options === null || typeof options !== 'object')
-    return options
-
-  // Gracias a tu parche, podemos detectar los tipos directamente.
-  if (options instanceof RegExp || typeof options === 'function') {
-    return options
-  }
-
-  if (Array.isArray(options)) {
-    // console.log('PASO')
-    const sanitizedArray: any[] = []
-    for (const option of options) {
-      sanitizedArray.push(_sanitizeMagicastOptions(option))
-    }
-    return sanitizedArray
-    // return options.map(sanitizeMagicastOptions)
-  }
-
-  /* if (options.$type === 'array') {
-    const sanitizedArray: any[] = []
-    for (const option of options) {
-      sanitizedArray.push(sanitizeMagicastOptions(option))
-    }
-    return sanitizedArray
-  } */
-
-  const sanitized: { [key: string]: any } = {}
-  for (const key in options) {
-    if (Object.hasOwn(options, key) && !key.startsWith('$'))
-      sanitized[key] = _sanitizeMagicastOptions(options[key])
-  }
-
-  return sanitized
-}
-
 export async function validateGenerateSW<T extends SWType>(options: GenerateSWOptions<T>): Promise<InferOutput<typeof AsyncGenerateSWOptionsSchema>> {
   return await validateAsync(AsyncGenerateSWOptionsSchema, options, 'generateSW')
 }
 
 export async function validateInjectManifest(options: InjectManifestOptions): Promise<InferOutput<typeof AsyncInjectManifestOptionsSchema>> {
   return await validateAsync(AsyncInjectManifestOptionsSchema, options, 'injectManifest')
+}
+
+export async function validateGetManifest(options: GetManifestOptions): Promise<InferOutput<typeof AsyncGetManifestOptionsSchema>> {
+  return await validateAsync(AsyncGetManifestOptionsSchema, options, 'getManifest')
 }
 
 /**

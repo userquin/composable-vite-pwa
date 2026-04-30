@@ -9,7 +9,7 @@ const _packageJson = require('./package.json')
 const cwd = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
-  entry: './src/{config,index,types,generate-sw,get-manifest,inject-manifest}.ts',
+  entry: './src/{index,types,generate-sw,get-manifest,inject-manifest}.ts',
   platform: 'node',
   banner,
   attw,

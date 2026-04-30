@@ -27,7 +27,7 @@ export default defineConfig([{
   clean: false,
   banner,
   define: {
-    'process.env.VITE_PWA_ESM_FALLBACK_SW': 'process.env.VITE_PWA_ESM_FALLBACK_SW',
+    'process.env.PWA_ESM_FALLBACK_SW': 'process.env.PWA_ESM_FALLBACK_SW',
     '__SW_URL__': '__SW_URL__',
     '__SW_SCOPE__': '__SW_SCOPE__',
     '__SW_UPDATE_VIA_CACHE__': '__SW_UPDATE_VIA_CACHE__',

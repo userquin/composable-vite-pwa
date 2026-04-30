@@ -4,6 +4,7 @@ export default antfu({
   ignores: [
     '**/dist/**',
     '**/dev-dist/**',
+    'examples/workbox-cli/custom-sw*.js',
     'examples/workbox-cli/esm-sw*.js',
     'examples/workbox-cli/classic-sw*.js',
     'examples/workbox-cli/sw*.js',

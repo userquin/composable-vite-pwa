@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "generate": "pnpx tsx ./generate.ts"
+    "generate": "pnpx tsx ./generate.ts",
+    "inject": "pnpx tsx ./inject.ts",
+    "manifest": "pnpx tsx ./manifest.ts"
   },
   "dependencies": {
     "@composable-vite-pwa/workbox-build": "workspace:*"

@@ -1,5 +1,5 @@
 import type { BuildResult, InjectManifestOptions } from './types'
 
-export async function injectManifest(_options: InjectManifestOptions): Promise<BuildResult> {
-  return undefined!
+export async function injectManifest(options: InjectManifestOptions): Promise<BuildResult> {
+  return await import('./utils/build-inject-manifest').then(({ buildInjectManifest }) => buildInjectManifest(options))
 }

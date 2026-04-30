@@ -1,4 +1,11 @@
-import type { GenerateSWOptions, GetManifestResult, InjectManifestOptions, ManifestEntry, SWType } from '../types'
+import type {
+  GenerateSWOptions,
+  GetManifestOptions,
+  GetManifestResult,
+  InjectManifestOptions,
+  ManifestEntry,
+  SWType,
+} from '../types'
 import type { InternalManifestEntry } from './types'
 import { createHash } from 'node:crypto'
 import { readFile, stat } from 'node:fs/promises'
@@ -10,7 +17,7 @@ import { migrateGlobsToPicomatch } from './migrate-globs-to-picomatch'
 
 export async function generateManifestEntries(
   globDirectory: string,
-  options: GenerateSWOptions<SWType> | InjectManifestOptions,
+  options: GenerateSWOptions<SWType> | InjectManifestOptions | GetManifestOptions,
 ): Promise<GetManifestResult> {
   if (!options.globDirectory) {
     return {

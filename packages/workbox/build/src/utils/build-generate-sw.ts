@@ -2,9 +2,11 @@ import type { BuildResult, GenerateSWOptions, SWType } from '../types'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
+import { prepareGlobIgnores } from '@composable-vite-pwa/workbox-build/utils/utils'
 import { deepMergeObject } from 'magicast/helpers'
 import { validateGenerateSW } from '../validation/validation-helper'
 import { prepareSWCode } from './prepare-sw-code'
+import { buildClassicSW, buildModuleSW } from './rolldown-build'
 
 export async function buildGenerateSW<T extends SWType>(options: GenerateSWOptions<T>): Promise<BuildResult> {
   const optionsWithDefaults = await validateGenerateSW(options)
@@ -14,62 +16,9 @@ export async function buildGenerateSW<T extends SWType>(options: GenerateSWOptio
   return await buildAssets(options)
 }
 
-function prepareGlobIgnores(
-  options: GenerateSWOptions<SWType>,
-): {
-  sw: string
-  swTemp: string
-  classic: string
-  classicTemp: string
-  esm: string
-  esmTemp: string
-} {
-  const entry = options.swDest.replace('.js', '.temp.js')
-  const parts = options.swDest.split('/')
-  const fileName = parts.pop()!
-  const p = parts.join('/')
-
-  const classic = `${p ? `${p}/` : ''}classic-${fileName}`
-  const classicTemp = `${p ? `${p}/` : ''}classic-${fileName.replace('.js', '.temp.js')}`
-  const esm = `${p ? `${p}/` : ''}esm-${fileName}`
-  const esmTemp = `${p ? `${p}/` : ''}esm-${fileName.replace('.js', '.temp.js')}`
-
-  options.globIgnores ??= []
-  options.globIgnores.push(options.swDest)
-  options.globIgnores.push(classic)
-  options.globIgnores.push(esm)
-  options.globIgnores.push('**/workbox-*.js')
-  // add temp sw
-  options.globIgnores.push(entry)
-  options.globIgnores.push(classicTemp)
-  options.globIgnores.push(esmTemp)
-  if (options.sourcemap) {
-    options.globIgnores.push(`${options.swDest}.map`)
-    options.globIgnores.push(`${classic}.map`)
-    options.globIgnores.push(`${esm}.map`)
-    options.globIgnores.push('**/workbox-*.js.map')
-    // add temp sw map
-    options.globIgnores.push(`${entry}.map`)
-  }
-
-  return {
-    sw: options.swDest,
-    swTemp: entry,
-    classic,
-    classicTemp,
-    esm,
-    esmTemp,
-  }
-}
-
-function throwMissingRolldownError(error: unknown): never {
-  throw new Error('Failed to load Rolldown. Please make sure to install it as a dev dependency or enable auto install peers in your package manager settings.', { cause: error })
-}
-
 async function buildAssets<T extends SWType>(
   options: GenerateSWOptions<T>,
 ): Promise<BuildResult> {
-  const rolldown = await import('./rolldown-build').catch(e => throwMissingRolldownError(e))
   const {
     sw,
     swTemp,
@@ -77,7 +26,7 @@ async function buildAssets<T extends SWType>(
     classicTemp,
     esm,
     esmTemp,
-  } = prepareGlobIgnores(options)
+  } = prepareGlobIgnores(options, options.sourcemap === true)
   const rootDir = options.globDirectory ? path.resolve(process.cwd(), options.globDirectory) : process.cwd()
   const { manifestEntries, chunks } = await prepareSWCode(rootDir, options)
   const inline = options.inlineWorkboxRuntime === true
@@ -103,7 +52,7 @@ async function buildAssets<T extends SWType>(
     ].filter(Boolean))
     await Promise.all([
       // classic
-      rolldown!.buildClassicSW(
+      buildClassicSW(
         rootDir,
         classic,
         classicTemp,
@@ -114,7 +63,7 @@ async function buildAssets<T extends SWType>(
         false,
       ),
       // module
-      rolldown!.buildModuleSW(
+      buildModuleSW(
         rootDir,
         esm,
         esmTemp,
@@ -141,7 +90,7 @@ async function buildAssets<T extends SWType>(
             )
           : undefined,
       ].filter(Boolean))
-      await rolldown!.buildClassicSW(
+      await buildClassicSW(
         rootDir,
         sw,
         swTemp,
@@ -154,7 +103,7 @@ async function buildAssets<T extends SWType>(
     }
     else {
       await fs.writeFile(path.resolve(rootDir, swTemp), chunks.swCode, 'utf8')
-      await rolldown.buildModuleSW(
+      await buildModuleSW(
         rootDir,
         sw,
         swTemp,
