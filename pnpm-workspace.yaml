@@ -42,7 +42,10 @@ catalogs:
   svelte:
     svelte: ^5.55.0
   test:
+    '@types/chai-as-promised': ^8.0.2
     '@vitest/ui': ^4.1.5
+    chai: ^6.2.2
+    chai-as-promised: ^8.0.2
     vitest: ^4.1.5
   types:
     '@types/node': ^24.12.0
