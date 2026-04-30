@@ -10,16 +10,6 @@ export function checkMaximumFileSizeToCacheExceeded(
     return undefined
   }
 
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0)
-      return `0 ${pc.dim('Bytes')}`
-    const k = 1024
-    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    const val = Number.parseFloat((bytes / k ** i).toFixed(2))
-    return `${val} ${pc.dim(sizes[i])}`
-  }
-
   const limitStr = formatBytes(maximumFileSizeToCacheInBytes)
   return [
     `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('Maximum file size exceeded for precaching!')}\n\n`,
@@ -48,4 +38,14 @@ export function checkInvalidPatterns(isStrict: boolean, invalidPatterns: string[
     `  1. Disable ${pc.green('"globStrict"')}${isStrict ? ' to convert this error into a warning' : ''}.`,
     `  2. Remove the patterns from ${pc.green('"globPatterns"')}.\n\n`,
   ].filter(Boolean).join('\n')
+}
+
+function formatBytes(bytes: number) {
+  if (bytes === 0)
+    return `0 ${pc.dim('Bytes')}`
+  const k = 1024
+  const sizes = ['Bytes', 'KiB', 'MiB', 'GiB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  const val = Number.parseFloat((bytes / k ** i).toFixed(2))
+  return `${val} ${pc.dim(sizes[i])}`
 }
