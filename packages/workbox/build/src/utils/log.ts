@@ -42,8 +42,8 @@ export function checkInvalidPatterns(isStrict: boolean, invalidPatterns: string[
   const color = isStrict ? pc.red : pc.yellow
   return [
     `\n${color(pc.bold('[Vite PWA]'))} ${color(errors['useless-glob-pattern'])}`,
-    JSON.stringify(invalidPatterns.map(e => `  - ${e}`).join('\n'), null, 2),
-    isStrict ? '' : undefined,
+    invalidPatterns.map(e => `  - ${e}`).join('\n'),
+    '',
     pc.bold('To resolve this issue, you can either:'),
     `  1. Disable ${pc.green('"globStrict"')} to convert this error into a warning.`,
     `  2. Remove the patterns from ${pc.green('"globPatterns"')}.\n\n`,
