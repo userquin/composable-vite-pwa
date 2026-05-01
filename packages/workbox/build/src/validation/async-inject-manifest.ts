@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises'
+import path from 'node:path'
+import process from 'node:process'
 import * as v from 'valibot'
 import { AsyncManifestOptionsSchema } from './utils'
 
@@ -34,4 +37,33 @@ export const AsyncInjectManifestOptionsSchema = v.pipeAsync(
      */
     globDirectory: v.string(),
   }),
+  v.forwardAsync(
+    v.checkAsync(
+      async (input) => {
+        const swSrc = path.resolve(process.cwd(), input.swSrc)
+        return await fs.lstat(swSrc).then(stats => stats.isFile()).catch(() => false)
+      },
+      'invalid-sw-src',
+    ),
+    ['swSrc'],
+  ),
+  v.forwardAsync(
+    v.checkAsync(
+      async (input) => {
+        const swDestParent = path.dirname(path.resolve(process.cwd(), input.swDest))
+        return await fs.lstat(swDestParent).then(stats => stats.isDirectory()).catch(() => false)
+      },
+      'invalid-sw-dest',
+    ),
+    ['swDest'],
+  ),
+  v.forwardAsync(
+    v.checkAsync(
+      async (input) => {
+        return await fs.lstat(input.globDirectory).then(stats => stats.isDirectory()).catch(() => false)
+      },
+      'glob-directory-invalid',
+    ),
+    ['globDirectory'],
+  ),
 )

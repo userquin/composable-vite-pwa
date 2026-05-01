@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises'
 import * as v from 'valibot'
 import { AsyncManifestOptionsSchema } from './utils'
 
@@ -12,4 +13,13 @@ export const AsyncGetManifestOptionsSchema = v.pipeAsync(
      */
     globDirectory: v.string(),
   }),
+  v.forwardAsync(
+    v.checkAsync(
+      async (input) => {
+        return await fs.lstat(input.globDirectory).then(stats => stats.isDirectory()).catch(() => false)
+      },
+      'glob-directory-invalid',
+    ),
+    ['globDirectory'],
+  ),
 )
