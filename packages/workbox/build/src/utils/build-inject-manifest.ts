@@ -8,9 +8,14 @@ import { errors } from '../validation/errors'
 import { validateInjectManifest } from '../validation/validation-helper'
 import { escapeRegExp } from './escape-regexp'
 import { generateManifestEntries } from './generate-manifest-entries'
+import { throwInvalidInjectionPoint } from './log'
 import { prepareGlobIgnores } from './utils'
 
-export async function buildInjectManifest(options: InjectManifestOptions): Promise<BuildResult> {
+export async function buildInjectManifest(options: InjectManifestOptions, fromInjectManifest = true): Promise<BuildResult> {
+  if (fromInjectManifest && (options.injectionPoint === false || options.injectionPoint == null)) {
+    throwInvalidInjectionPoint()
+  }
+
   const optionsWithDefaults = await validateInjectManifest(options)
 
   deepMergeObject(options, optionsWithDefaults)

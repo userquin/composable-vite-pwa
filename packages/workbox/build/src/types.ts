@@ -448,9 +448,13 @@ export interface InjectPartial {
   /**
    * The string to find inside of the `swSrc` file. Once found, it will be
    * replaced by the generated precache manifest.
+   * Set it to `null` or `false` to disable injection point.
+   *
+   * **NOTE**: calling `injectManifest` directly with `injectionPoint` set to `null` or `false` will fail.
+   *
    * @default "self.__WB_MANIFEST"
    */
-  injectionPoint?: string
+  injectionPoint?: string | null | false
   /**
    * The path and filename of the service worker file that will be read during
    * the build process, relative to the current working directory.

@@ -24,6 +24,7 @@ rolldown({
     return injectManifest({
       swSrc: 'dist/custom-sw.js',
       swDest: 'dist/custom-sw.js',
+      // injectionPoint: false,
       globDirectory: './',
       globIgnores,
       globPatterns: ['**/*.{js,html}'],

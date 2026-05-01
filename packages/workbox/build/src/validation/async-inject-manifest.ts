@@ -12,9 +12,19 @@ export const AsyncInjectManifestOptionsSchema = v.pipeAsync(
     /**
      * The string to find inside of the `swSrc` file. Once found, it will be
      * replaced by the generated precache manifest.
+     *
+     * **NOTE**: calling `injectManifest` with `injectionPoint` set to `null` or `false` will fail.
+     *
      * @default "self.__WB_MANIFEST"
      */
-    injectionPoint: v.optionalAsync(v.string(), 'self.__WB_MANIFEST'),
+    injectionPoint: v.optionalAsync(
+      v.unionAsync([
+        v.string(),
+        v.null(),
+        v.literal(false),
+      ]),
+      'self.__WB_MANIFEST', // Solo se aplica si la clave NO ESTÁ o es UNDEFINED
+    ),
     /**
      * The path and filename of the service worker file that will be read during
      * the build process, relative to the current working directory.

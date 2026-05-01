@@ -49,6 +49,19 @@ export function logDeprecatedGenerateSW() {
   ].join('\n'))
 }
 
+export function throwInvalidInjectionPoint(): never {
+  const message = [
+    `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('Invalid configuration for injectManifest!')}\n`,
+    `You have disabled ${pc.green('"injectionPoint"')} (set to null or false), but you are calling`,
+    `the ${pc.cyan('injectManifest()')} function directly.\n`,
+    `${pc.bold('To resolve this issue:')}`,
+    `  - If you want to disable injection, ensure you are not using the default injectManifest build tool.`,
+    `  - If you need a custom build without injection, use the ${pc.cyan('swBuild')} utilities instead.\n`,
+  ].join('\n')
+
+  throw new Error(message)
+}
+
 function formatBytes(bytes: number) {
   if (bytes === 0)
     return `0 ${pc.dim('Bytes')}`
