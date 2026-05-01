@@ -43,11 +43,11 @@ describe('generate-manifest-entries results', () => {
     const { result: r2 } = await runWith(createGetManifestOptions, validateGetManifest, {
       globDirectory: injectManifestFixture,
     })
-    expect(r2.manifestEntries.map(n => n.url)).toEqual(['index.html', 'index.js', 'sw.js'])
+    expect(r2.manifestEntries.map(n => n.url)).toEqual(['custom-sw.js', 'index.html', 'index.js', 'sw.js'])
 
     const { result: r3 } = await runWith(createGetManifestOptions, validateGetManifest, {
       globDirectory: injectManifestFixture,
-      globIgnores: ['sw.js'],
+      globIgnores: ['custom-sw.js', 'sw.js'],
     })
     expect(r3.manifestEntries.map(n => n.url)).toEqual(['index.html', 'index.js'])
   })
@@ -60,10 +60,10 @@ describe('generate-manifest-entries results', () => {
   })
   it ('inject-manifest: handles inject-manifest fixture correctly', async () => {
     const { result: r1 } = await runWith(createInjectManifestOptions, validateInjectManifest)
-    expect(r1.manifestEntries.map(n => n.url)).toEqual(['index.html', 'index.js', 'sw.js'])
+    expect(r1.manifestEntries.map(n => n.url)).toEqual(['custom-sw.js', 'index.html', 'index.js', 'sw.js'])
 
     const { result: r2 } = await runWith(createInjectManifestOptions, validateInjectManifest, {
-      globIgnores: ['sw.js'],
+      globIgnores: ['custom-sw.js', 'sw.js'],
     })
     expect(r2.manifestEntries.map(n => n.url)).toEqual(['index.html', 'index.js'])
   })
