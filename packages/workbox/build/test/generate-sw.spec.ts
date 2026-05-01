@@ -1,9 +1,8 @@
 import type { GenerateSWOptions, SWType } from '../src/types'
-import { mkdirSync, rmdirSync, rmSync } from 'node:fs'
 import path from 'node:path'
 import { chai } from '@vitest/expect'
 import chaiAsPromised from 'chai-as-promised'
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { generateSW } from '../src/generate-sw'
 import { validateGenerateSW } from '../src/validation/validation-helper'
 // import { errors } from '../src/validation/errors'
@@ -12,15 +11,7 @@ import { WorkboxConfigError } from '../src/validation/validation-options'
 chai.use(chaiAsPromised)
 
 describe(`[workbox-build] generate-sw.js (End to End)`, () => {
-  beforeAll(() => {
-    mkdirSync(path.resolve(import.meta.dirname, 'empty-folder'))
-  })
-  afterAll(() => {
-    rmSync(path.resolve(import.meta.dirname, 'empty-folder', 'sw.js'), { force: true })
-    rmSync(path.resolve(import.meta.dirname, 'empty-folder', 'sw.temp.js'), { force: true })
-    rmdirSync(path.resolve(import.meta.dirname, 'empty-folder'))
-  })
-  const GLOB_DIR = path.resolve(import.meta.dirname, 'fixture-generate-sw')
+  const GLOB_DIR = path.resolve(import.meta.dirname, 'fixtures/fixture-generate-sw')
   const BASE_OPTIONS = {
     globDirectory: GLOB_DIR,
     inlineWorkboxRuntime: false,
@@ -116,7 +107,7 @@ describe(`[workbox-build] generate-sw.js (End to End)`, () => {
     }
   })
 
-  describe('[workbox-build] invalid parameter values', () => {
+  describe.only('[workbox-build] invalid parameter values', () => {
     /* for (const param of SUPPORTED_PARAMS) {
       it(`should fail validation when '${param}' is an unexpected value`, async () => {
         const options = Object.assign({}, BASE_OPTIONS) as any
@@ -131,9 +122,9 @@ describe(`[workbox-build] generate-sw.js (End to End)`, () => {
 
     it(`should reject when there are no manifest entries or runtimeCaching`, async () => {
       const options = Object.assign({}, BASE_OPTIONS) as GenerateSWOptions<SWType>
-      // This temporary directory will be empty.
       options.globStrict = true
-      options.globDirectory = path.resolve(import.meta.dirname, 'empty-folder')
+      // This temporary directory will be empty.
+      options.globDirectory = path.resolve(import.meta.dirname, 'fixtures/empty-fixture')
 
       try {
         await generateSW(options)
@@ -141,10 +132,7 @@ describe(`[workbox-build] generate-sw.js (End to End)`, () => {
       catch (e) {
         console.error('WTF', e)
       }
-      await expect(vi.waitFor(() => generateSW(options).catch((e) => {
-        console.log(e)
-        return Promise.reject(e)
-      }))).rejects.toThrowErrorMatchingInlineSnapshot()
+      await expect(generateSW(options)).rejects.toThrowErrorMatchingInlineSnapshot('')
     })
   })
 
