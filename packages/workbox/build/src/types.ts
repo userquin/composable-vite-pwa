@@ -378,9 +378,14 @@ export interface GeneratePartial<T extends SWType> {
   skipWaiting?: boolean
   /**
    * Whether to create a sourcemap for the generated service worker files.
+   * - `false`: No sourcemap will be generated.
+   * - `true`: A separate sourcemap file will be generated.
+   * - `inline`: The sourcemap will be appended to the output file as a data URL.
+   * - `hidden`: A separate sourcemap file will be generated, but the link to the sourcemap (`//# sourceMappingURL` comment) will not be included in the output file.
+   *
    * @default true
    */
-  sourcemap?: boolean
+  sourcemap?: boolean | 'hidden' | 'inline'
 }
 
 // This needs to be set when using GetManifest or InjectManifest, but is

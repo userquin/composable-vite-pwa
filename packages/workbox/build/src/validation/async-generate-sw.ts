@@ -99,8 +99,21 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
     skipWaiting: v.optionalAsync(v.boolean(), false),
     /**
      * Whether to create a sourcemap for the generated service worker files.
+     * - `false`: No sourcemap will be generated.
+     * - `true`: A separate sourcemap file will be generated.
+     * - `inline`: The sourcemap will be appended to the output file as a data URL.
+     * - `hidden`: A separate sourcemap file will be generated, but the link to the sourcemap (`//# sourceMappingURL` comment) will not be included in the output file.
+     *
+     * @default true
      */
-    sourcemap: v.optionalAsync(v.boolean(), true),
+    sourcemap: v.optionalAsync(
+      v.unionAsync([
+        v.boolean(),
+        v.literal('hidden'),
+        v.literal('inline'),
+      ]),
+      true,
+    ),
     /**
      * The path and filename of the service worker file that will be created by the build process, relative to the current working directory. It must end in '.js'.
      */

@@ -8,7 +8,7 @@ export async function buildClassicSW(
   swName: string,
   tempSwName: string,
   inline: boolean,
-  sourcemap: boolean,
+  sourcemap: boolean | 'inline' | 'hidden',
   define: import('rolldown').TransformOptions['define'],
   filePaths: string[],
   classicWorkboxRuntimeCompatible: boolean,
@@ -46,7 +46,7 @@ export async function buildClassicSW(
     await Promise.all([
       fs.rm(tempSWFile, { force: true }),
       fixSourceMaps(
-        sourcemap,
+        sourcemap === true,
         swName,
         path.resolve(rootDir, swName),
         classicWorkboxRuntimeCompatible,
@@ -103,7 +103,7 @@ export async function buildModuleSW(
   swName: string,
   tempSwName: string,
   inline: boolean,
-  sourcemap: boolean,
+  sourcemap: boolean | 'inline' | 'hidden',
   define: import('rolldown').TransformOptions['define'],
   workboxRegex: RegExp[],
   filePaths: string[],
@@ -168,7 +168,7 @@ export async function buildModuleSW(
   }
   const workboxModuleFile = output.find(chunk => chunk.name === 'workbox-module')?.fileName
   await fixSourceMaps(
-    sourcemap,
+    sourcemap === true,
     swName,
     path.resolve(rootDir, swName),
     false,

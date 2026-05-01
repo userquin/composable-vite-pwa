@@ -1,6 +1,6 @@
 // import { prepareSWCode } from '@composable-vite-pwa/workbox-build/utils/prepare-sw-code'
 
-import { generateSW } from '@composable-vite-pwa/workbox-build/generate-sw'
+import { generateModernSW } from '@composable-vite-pwa/workbox-build/generate-sw'
 import { runtimeCaching } from './cache'
 import { globIgnores } from './glogIgnores'
 
@@ -56,7 +56,7 @@ import { globIgnores } from './glogIgnores'
 // }).then(result => {
 //   console.log(result)
 // })
-generateSW({
+generateModernSW({
   globDirectory: './',
   globIgnores,
   globPatterns: ['**/*.{js,html}'],
@@ -64,7 +64,7 @@ generateSW({
   navigateFallback: 'index.html',
   cleanupOutdatedCaches: true,
   disableDevLogs: false,
-  sourcemap: true,
+  sourcemap: 'hidden',
   swType: 'classic-and-module',
   urlManipulation: () => {
     return []

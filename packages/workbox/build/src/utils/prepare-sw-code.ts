@@ -251,16 +251,18 @@ function prepareWorkboxModule(
         module.imports.$append({ from: key, imported })
       }
     }
-    code = generateCode(module, { format: {
-      tabWidth: 2,
-      useTabs: false,
-      quote: 'single',
-      trailingComma: false,
-      arrayBracketSpacing: false,
-      objectCurlySpacing: false,
-      arrowParensAlways: true,
-      useSemi: true,
-    } }).code
+    code = generateCode(module, {
+      format: {
+        tabWidth: 2,
+        useTabs: false,
+        quote: 'single',
+        trailingComma: false,
+        arrayBracketSpacing: false,
+        objectCurlySpacing: false,
+        arrowParensAlways: true,
+        useSemi: true,
+      },
+    }).code
   }
 
   if (classic) {

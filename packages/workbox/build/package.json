@@ -23,11 +23,17 @@
     "caching",
     "fetch requests",
     "offline",
-    "file manifest"
+    "file manifest",
+    "vite",
+    "rolldown"
   ],
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.mjs",
+    "./build": "./dist/build/index.mjs",
+    "./build/types": {
+      "types": "./dist/build/types.d.mts"
+    },
     "./generate-sw": "./dist/generate-sw.mjs",
     "./get-manifest": "./dist/get-manifest.mjs",
     "./inject-manifest": "./dist/inject-manifest.mjs",
@@ -39,6 +45,12 @@
   "types": "./dist/index.d.mts",
   "typesVersions": {
     "*": {
+      "build": [
+        "./dist/build/index.d.mts"
+      ],
+      "build/types": [
+        "./dist/build/types.d.mts"
+      ],
       "generate-sw": [
         "./dist/generate-sw.d.mts"
       ],
@@ -66,10 +78,14 @@
     "tsx:test": "tsx ./src/generate-sw.ts"
   },
   "peerDependencies": {
+    "oxc-transform": "*",
     "rolldown": "^1.0.0-0",
     "vite": "^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
   },
   "peerDependenciesMeta": {
+    "oxc-transform": {
+      "optional": true
+    },
     "rolldown": {
       "optional": true
     },
@@ -91,6 +107,7 @@
   },
   "devDependencies": {
     "@types/serialize-javascript": "catalog:types",
+    "oxc-transform": "catalog:utils",
     "rolldown": "catalog:utils",
     "vite": "catalog:vite"
   }

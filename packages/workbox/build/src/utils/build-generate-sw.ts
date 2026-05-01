@@ -40,7 +40,7 @@ async function buildAssets<T extends SWType>(
       : undefined,
   )
   const inline = options.inlineWorkboxRuntime === true
-  const sourcemap = options.sourcemap === true
+  const sourcemap = options.sourcemap ?? true
   const workboxRegex = [/^@composable-vite-pwa\/workbox-swkit\//, /[\\/]workbox-swkit[\\/]/, /[\\/]workbox[\\/]swkit/]
   const filePaths: string[] = []
 

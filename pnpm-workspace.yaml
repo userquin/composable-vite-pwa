@@ -42,6 +42,7 @@ catalogs:
     idb: ^8.0.3
     magic-string: ^0.30.21
     magicast: ^0.5.2
+    oxc-transform: ^0.128.0
     picocolors: ^1.1.1
     pkg-types: ^2.3.0
     proper-tags: ^2.0.2
