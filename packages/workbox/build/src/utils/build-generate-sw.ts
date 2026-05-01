@@ -4,11 +4,16 @@ import path from 'node:path'
 import process from 'node:process'
 import { deepMergeObject } from 'magicast/helpers'
 import { validateGenerateSW } from '../validation/validation-helper'
+import { logDeprecatedGenerateSW } from './log'
 import { prepareSWCode } from './prepare-sw-code'
 import { buildClassicSW, buildModuleSW } from './rolldown-build'
 import { prepareGlobIgnores } from './utils'
 
-export async function buildGenerateSW<T extends SWType>(options: GenerateSWOptions<T>): Promise<BuildResult> {
+export async function buildGenerateSW<T extends SWType>(options: GenerateSWOptions<T>, legacy = false): Promise<BuildResult> {
+  if (legacy) {
+    logDeprecatedGenerateSW()
+  }
+
   const optionsWithDefaults = await validateGenerateSW(options)
 
   deepMergeObject(options, optionsWithDefaults)

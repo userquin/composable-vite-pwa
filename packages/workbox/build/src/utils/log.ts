@@ -40,6 +40,15 @@ export function checkInvalidPatterns(isStrict: boolean, invalidPatterns: string[
   ].filter(Boolean).join('\n')
 }
 
+export function logDeprecatedGenerateSW() {
+  console.warn([
+    `\n${pc.yellow(pc.bold('[Vite PWA]'))} ${pc.yellow('DEPRECATION WARNING')}:`,
+    `You are using ${pc.cyan('generateSW()')}, which is now deprecated.`,
+    `Please migrate to ${pc.green('generateModernSW()')} or ${pc.green('generateClassicSW()')}.`,
+    `This function will be removed in the next major version.\n`,
+  ].join('\n'))
+}
+
 function formatBytes(bytes: number) {
   if (bytes === 0)
     return `0 ${pc.dim('Bytes')}`
