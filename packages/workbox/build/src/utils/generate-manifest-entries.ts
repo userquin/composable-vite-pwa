@@ -37,7 +37,7 @@ export async function generateManifestEntries(
 
   const maxFileSize = typeof options.maximumFileSizeToCacheInBytes === 'number'
     ? options.maximumFileSizeToCacheInBytes
-    : 0
+    : -1
   const maxFileSizeExceeded: (ManifestEntry & { size: number })[] = []
 
   let manifestEntries: InternalManifestEntry[] = []
@@ -58,7 +58,7 @@ export async function generateManifestEntries(
   ) {
     manifest = { url: file, revision: hash, size }
     urls.set(manifest.url, manifest)
-    if (manifest.size > maxFileSize) {
+    if (maxFileSize > -1 && manifest.size > maxFileSize) {
       maxFileSizeExceeded.push(manifest)
     }
     else {
