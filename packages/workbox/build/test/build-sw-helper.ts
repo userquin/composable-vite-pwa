@@ -3,7 +3,6 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { test as base } from 'vitest'
 
-// Helper interno para no repetir la lógica de creación/borrado
 async function createSandbox(fixtureName: string, prefix: string, use: (path: string) => Promise<void>) {
   const id = randomUUID()
   const fixtureSource = path.resolve(import.meta.dirname, `fixtures/${fixtureName}`)
