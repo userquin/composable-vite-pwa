@@ -1,29 +1,11 @@
-autoInstallPeers: true
-
-catalogMode: prefer
-
-cleanupUnusedCatalogs: true
-
-ignoreDepScripts: true
-
-ignoreWorkspaceRootCheck: true
-
-linkWorkspacePackages: true
-
-preferWorkspacePackages: true
-
-shamefullyHoist: true
-
-shellEmulator: true
-
-strictPeerDependencies: false
-
-trustPolicy: no-downgrade
 
 packages:
   - examples/**
   - packages/core/**
   - packages/workbox/**
+autoInstallPeers: true
+
+catalogMode: prefer
 
 catalogs:
   build:
@@ -42,10 +24,7 @@ catalogs:
   svelte:
     svelte: ^5.55.0
   test:
-    '@types/chai-as-promised': ^8.0.2
     '@vitest/ui': ^4.1.5
-    chai: ^6.2.2
-    chai-as-promised: ^8.0.2
     vitest: ^4.1.5
   types:
     '@types/node': ^24.12.0
@@ -61,8 +40,8 @@ catalogs:
     cac: ^7.0.0
     consola: ^3.4.2
     idb: ^8.0.3
-    magicast: ^0.5.2
     magic-string: ^0.30.21
+    magicast: ^0.5.2
     picocolors: ^1.1.1
     pkg-types: ^2.3.0
     proper-tags: ^2.0.2
@@ -77,3 +56,21 @@ catalogs:
     vite: ^8.0.10
   vue:
     vue: ^3.5.31
+
+cleanupUnusedCatalogs: true
+
+ignoreDepScripts: true
+
+ignoreWorkspaceRootCheck: true
+
+linkWorkspacePackages: true
+
+preferWorkspacePackages: true
+
+shamefullyHoist: true
+
+shellEmulator: true
+
+strictPeerDependencies: false
+
+trustPolicy: no-downgrade

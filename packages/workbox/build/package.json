@@ -90,10 +90,7 @@
     "valibot": "catalog:utils"
   },
   "devDependencies": {
-    "@types/chai-as-promised": "catalog:test",
     "@types/serialize-javascript": "catalog:types",
-    "chai": "catalog:test",
-    "chai-as-promised": "catalog:test",
     "rolldown": "catalog:utils",
     "vite": "catalog:vite"
   }

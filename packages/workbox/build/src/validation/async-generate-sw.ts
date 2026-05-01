@@ -117,7 +117,7 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
   v.forwardAsync(
     v.checkAsync(
       async (input) => {
-        const swDestParent = path.dirname(path.resolve((process.cwd()), input.swDest))
+        const swDestParent = path.dirname(path.resolve(process.cwd(), input.swDest))
         return await fs.lstat(swDestParent).then(stats => stats.isDirectory()).catch(() => false)
       },
       'invalid-sw-dest',
