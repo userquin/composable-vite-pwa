@@ -1,40 +1,10 @@
 import type { InjectManifestOptions } from '../src/types'
-import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES } from '../src/utils/constants'
 import { AsyncInjectManifestOptionsSchema } from '../src/validation/async-inject-manifest'
 import { validateInjectManifest } from '../src/validation/validation-helper'
+import { createInjectManifestOptions } from './test-helper'
 
-function generateSWOptions(
-  options: Partial<InjectManifestOptions> = {},
-) {
-  const swSrc = path.relative(
-    process.cwd(),
-    path.resolve(import.meta.dirname, 'fixtures/fixture-inject-manifest', 'sw.js'),
-  ).replace(/\\/g, '/')
-  const swDest = path.relative(
-    process.cwd(),
-    path.resolve(import.meta.dirname, 'fixtures/fixture-inject-manifest', 'sw-test.js'),
-  ).replace(/\\/g, '/')
-  const globDirectory = path.relative(
-    process.cwd(),
-    path.resolve(import.meta.dirname, 'fixtures/fixture-inject-manifest'),
-  ).replace(/\\/g, '/')
-  return {
-    globDirectory,
-    swDest,
-    swSrc,
-    options: Object.assign(
-      {},
-      {
-        globDirectory,
-        swDest,
-        swSrc,
-      },
-      options,
-    ) satisfies InjectManifestOptions,
-  }
-}
 describe('inject-manifest validations', () => {
   const objectSchema = AsyncInjectManifestOptionsSchema.pipe[0]
   const entries = objectSchema.entries
@@ -53,7 +23,7 @@ describe('inject-manifest validations', () => {
   }
 
   it.each(requiredFields)('missing %s option fails', async (field) => {
-    const { options } = generateSWOptions()
+    const { options } = createInjectManifestOptions()
     // @ts-expect-error this is the desired test
     options[field] = undefined
     expect(messages[field]).not.toBeUndefined()
@@ -61,7 +31,7 @@ describe('inject-manifest validations', () => {
   })
 
   it.each(requiredFields)('invalid %s option type fails', async (field) => {
-    const { options } = generateSWOptions()
+    const { options } = createInjectManifestOptions()
     // @ts-expect-error this is the desired test
     options[field] = () => {}
     expect(messages[field]).not.toBeUndefined()
@@ -69,7 +39,7 @@ describe('inject-manifest validations', () => {
   })
 
   it('default values are populated', async () => {
-    const { globDirectory, options, swDest, swSrc } = generateSWOptions()
+    const { globDirectory, options, swDest, swSrc } = createInjectManifestOptions()
     await expect(validateInjectManifest(options)).resolves.toMatchObject({
       swDest,
       swSrc,
@@ -82,7 +52,7 @@ describe('inject-manifest validations', () => {
   })
 
   it('missing swSrc fails', async () => {
-    const { options } = generateSWOptions({
+    const { options } = createInjectManifestOptions({
       swSrc: '__missing__/sw.js',
     })
     await expect(validateInjectManifest(options)).rejects.toThrow(
@@ -91,7 +61,7 @@ describe('inject-manifest validations', () => {
   })
 
   it('missing swDest fails', async () => {
-    const { options } = generateSWOptions({
+    const { options } = createInjectManifestOptions({
       swDest: '__missing__/sw.js',
     })
     await expect(validateInjectManifest(options)).rejects.toThrow(
@@ -100,7 +70,7 @@ describe('inject-manifest validations', () => {
   })
 
   it('missing globDirectory fails', async () => {
-    const { options } = generateSWOptions({
+    const { options } = createInjectManifestOptions({
       globDirectory: '__missing__',
     })
     await expect(validateInjectManifest(options)).rejects.toThrow(

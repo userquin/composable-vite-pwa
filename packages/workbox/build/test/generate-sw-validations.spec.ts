@@ -1,53 +1,9 @@
 import type { GenerateSWOptions, SWType } from '../src/types'
-import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES } from '../src/utils/constants'
 import { AsyncGenerateSWOptionsSchema } from '../src/validation/async-generate-sw'
 import { validateGenerateSW } from '../src/validation/validation-helper'
-
-function generateSWOptions<T extends SWType>(
-  swType: T,
-  withGlobDirectory = true,
-  options: Partial<GenerateSWOptions<T>> = {},
-) {
-  const swDest = path.relative(
-    process.cwd(),
-    path.resolve(import.meta.dirname, 'fixtures/fixture-generate-sw', 'sw.js'),
-  ).replace(/\\/g, '/')
-  const globDirectory = path.relative(
-    process.cwd(),
-    path.resolve(import.meta.dirname, 'fixtures/fixture-generate-sw'),
-  ).replace(/\\/g, '/')
-  return {
-    swDest,
-    globDirectory,
-    options: Object.assign(
-      {},
-      {
-        swType,
-        globDirectory: withGlobDirectory
-          ? globDirectory
-          : undefined,
-        swDest,
-      },
-      options,
-    ) satisfies GenerateSWOptions<T>,
-  }
-}
-
-function withDummyRuntimeCaching<T extends SWType>(
-  swType: T,
-  withGlobDirectory = false,
-  options: Partial<GenerateSWOptions<T>> = {},
-) {
-  const data = generateSWOptions(swType, withGlobDirectory, options)
-  data.options.runtimeCaching = [{
-    handler: 'NetworkOnly',
-    method: 'GET',
-    urlPattern: /.*/,
-  }]
-  return data
-}
+import { createGenerateSWOptions, withDummyRuntimeCaching } from './test-helper'
 
 describe('generate-sw validations', () => {
   const objectSchema = AsyncGenerateSWOptionsSchema.pipe[0]
@@ -69,7 +25,7 @@ describe('generate-sw validations', () => {
   it.each(swTypeAndRequiredFields)(
     'missing required field "$field" fails for $swType',
     async ({ swType, field }) => {
-      const { options } = generateSWOptions(swType)
+      const { options } = createGenerateSWOptions(swType)
 
       // @ts-expect-error forcing validation failure
       options[field] = undefined
@@ -83,7 +39,7 @@ describe('generate-sw validations', () => {
   it.each(swTypeAndRequiredFields)(
     'invalid type for required field "$field" fails for $swType',
     async ({ swType, field }) => {
-      const { options } = generateSWOptions(swType)
+      const { options } = createGenerateSWOptions(swType)
       // @ts-expect-error forcing type failure
       options[field] = () => {}
       await expect(validateGenerateSW(options)).rejects.toThrow(
@@ -93,11 +49,12 @@ describe('generate-sw validations', () => {
   )
 
   it.each(swTypes)('default values are populated for %s', async (swType) => {
-    const { globDirectory, options, swDest } = generateSWOptions(swType)
+    const { globDirectory, options, swDest } = createGenerateSWOptions(swType)
     await expect(validateGenerateSW(options)).resolves.toMatchObject({
       swDest,
       swType,
       globDirectory,
+      inlineWorkboxRuntime: false,
       maximumFileSizeToCacheInBytes: DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES,
       throwMaximumFileSizeToCacheInBytes: true,
       globPatterns: ['**/*.{js,css,html}'],
@@ -106,7 +63,7 @@ describe('generate-sw validations', () => {
   })
 
   it.each(swTypes)('missing swDest folder fails for %s', async (swType) => {
-    const { options } = generateSWOptions(swType, true, {
+    const { options } = createGenerateSWOptions(swType, true, {
       swDest: '__missing__/sw.js',
     })
     await expect(validateGenerateSW(options)).rejects.toThrow(
@@ -115,13 +72,13 @@ describe('generate-sw validations', () => {
   })
 
   it.each(swTypes)('missing globDirectory and runtimeCaching fails for %s', async (swType) => {
-    const { options } = generateSWOptions(swType, false)
+    const { options } = createGenerateSWOptions(swType, false)
     await expect(validateGenerateSW(options)).rejects.toThrow(
       /Couldn't find configuration for either precaching or runtime caching/,
     )
   })
   it.each(swTypes)('missing globDirectory fails for %s', async (swType) => {
-    const { options } = generateSWOptions(swType, false, {
+    const { options } = createGenerateSWOptions(swType, false, {
       globDirectory: '__missing__',
     })
     await expect(validateGenerateSW(options)).rejects.toThrow(
