@@ -28,9 +28,10 @@ function BuildPlugin(
       async handler() {
         const manifestResult = await generateManifestEntries({
           globIgnores: ['**/{sw,workbox,workbox-*,classic-sw,module-sw}.js', '**/*.map'],
-          globPatterns: ['**/*.{js,html}'],
-          dontCacheBustURLsMatching: /[\\/]assets[\\/]/,
+          globPatterns: ['**/*.{js,html,svg,png}'],
+          dontCacheBustURLsMatching: /[\\/]?assets[\\/]/,
         }, './dist')
+        console.log(manifestResult)
         const instance = await rolldown({
           input: `src/${swName}`,
           platform: 'browser',
