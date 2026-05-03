@@ -32,7 +32,7 @@ async function buildAssets<T extends SWType>(
     esm,
     esmTemp,
   } = prepareGlobIgnores(options, options.sourcemap === true)
-  const rootDir = path.dirname(path.resolve(process.cwd(), options.swDest))
+  const buildDir = path.dirname(path.resolve(process.cwd(), options.swDest))
   const { manifestEntries, chunks } = await prepareSWCode(
     options,
     options.globDirectory
@@ -54,16 +54,16 @@ async function buildAssets<T extends SWType>(
 
   if ('classic' in chunks) {
     await Promise.all([
-      fs.writeFile(path.resolve(rootDir, classicTemp), chunks.classic.swCode, 'utf8'),
-      fs.writeFile(path.resolve(rootDir, esmTemp), chunks.module.swCode, 'utf8'),
+      fs.writeFile(path.resolve(buildDir, classicTemp), chunks.classic.swCode, 'utf8'),
+      fs.writeFile(path.resolve(buildDir, esmTemp), chunks.module.swCode, 'utf8'),
       chunks.classic.workbox
-        ? fs.writeFile(path.resolve(rootDir, 'workbox-classic.js'), chunks.classic.workbox, 'utf8')
+        ? fs.writeFile(path.resolve(buildDir, 'workbox-classic.js'), chunks.classic.workbox, 'utf8')
         : undefined,
     ].filter(Boolean))
     await Promise.all([
       // classic
       buildClassicSW(
-        rootDir,
+        buildDir,
         classic,
         classicTemp,
         inline,
@@ -74,7 +74,7 @@ async function buildAssets<T extends SWType>(
       ),
       // module
       buildModuleSW(
-        rootDir,
+        buildDir,
         esm,
         esmTemp,
         inline,
@@ -88,11 +88,11 @@ async function buildAssets<T extends SWType>(
   else {
     if (options.swType === 'classic') {
       await Promise.all([
-        fs.writeFile(path.resolve(rootDir, swTemp), chunks.swCode, 'utf8'),
+        fs.writeFile(path.resolve(buildDir, swTemp), chunks.swCode, 'utf8'),
         chunks.workbox
           ? fs.writeFile(
               path.resolve(
-                rootDir,
+                buildDir,
                 `workbox${options.classicWorkboxRuntimeCompatible ? '' : '-classic'}.js`,
               ),
               chunks.workbox,
@@ -101,7 +101,7 @@ async function buildAssets<T extends SWType>(
           : undefined,
       ].filter(Boolean))
       await buildClassicSW(
-        rootDir,
+        buildDir,
         sw,
         swTemp,
         inline,
@@ -112,9 +112,9 @@ async function buildAssets<T extends SWType>(
       )
     }
     else {
-      await fs.writeFile(path.resolve(rootDir, swTemp), chunks.swCode, 'utf8')
+      await fs.writeFile(path.resolve(buildDir, swTemp), chunks.swCode, 'utf8')
       await buildModuleSW(
-        rootDir,
+        buildDir,
         sw,
         swTemp,
         inline,

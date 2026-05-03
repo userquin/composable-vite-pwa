@@ -4,7 +4,7 @@ import MagicString from 'magic-string'
 import { rolldown } from 'rolldown'
 
 export async function buildClassicSW(
-  rootDir: string,
+  buildDir: string,
   swName: string,
   tempSwName: string,
   inline: boolean,
@@ -16,7 +16,7 @@ export async function buildClassicSW(
 ) {
   const workboxAssetName = `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}-[hash].js`
   const workboxChunkName = `workbox${classicWorkboxRuntimeCompatible ? '' : '-classic'}`
-  const workboxFile = path.resolve(rootDir, `${workboxChunkName}.js`)
+  const workboxFile = path.resolve(buildDir, `${workboxChunkName}.js`)
   const instance = await rolldown({
     input: inline ? tempSwName : `${workboxChunkName}.js`,
     platform: 'browser',
@@ -29,7 +29,7 @@ export async function buildClassicSW(
       jsdoc: false,
       annotation: false,
     },
-    dir: rootDir,
+    dir: buildDir,
     format: 'iife',
     cleanDir: false,
     hashCharacters: classicWorkboxRuntimeCompatible ? 'hex' : undefined,
@@ -39,23 +39,23 @@ export async function buildClassicSW(
     codeSplitting: false,
   })
   for (const chunk of output) {
-    filePaths.push(path.resolve(rootDir, chunk.fileName))
+    filePaths.push(path.resolve(buildDir, chunk.fileName))
   }
-  const tempSWFile = path.resolve(rootDir, tempSwName)
+  const tempSWFile = path.resolve(buildDir, tempSwName)
   if (inline) {
     await Promise.all([
       fs.rm(tempSWFile, { force: true }),
       fixSourceMaps(
         sourcemap === true,
         swName,
-        path.resolve(rootDir, swName),
+        path.resolve(buildDir, swName),
         classicWorkboxRuntimeCompatible,
         workboxClassicFileForSourceMap,
         workboxClassicFileForSourceMap && sourcemap
           ? {
               tempName: `${workboxChunkName}.js`,
               name: workboxClassicFileForSourceMap!,
-              file: path.resolve(rootDir, workboxClassicFileForSourceMap!),
+              file: path.resolve(buildDir, workboxClassicFileForSourceMap!),
             }
           : undefined,
       ),
@@ -71,7 +71,7 @@ export async function buildClassicSW(
       fs.rm(tempSWFile, { force: true }),
     ])
     throw new Error(`${path.relative(
-      rootDir,
+      buildDir,
       workboxFile,
     ).replace(
       '.js',
@@ -85,7 +85,7 @@ export async function buildClassicSW(
   await Promise.all([
     fs.rm(workboxFile, { force: true }),
     buildClassicSW(
-      rootDir,
+      buildDir,
       swName,
       tempSwName,
       true,
@@ -99,7 +99,7 @@ export async function buildClassicSW(
 }
 
 export async function buildModuleSW(
-  rootDir: string,
+  buildDir: string,
   swName: string,
   tempSwName: string,
   inline: boolean,
@@ -122,7 +122,7 @@ export async function buildModuleSW(
       jsdoc: false,
       annotation: false,
     },
-    dir: rootDir,
+    dir: buildDir,
     format: 'esm',
     cleanDir: false,
     chunkFileNames: (chunk) => {
@@ -160,9 +160,9 @@ export async function buildModuleSW(
         },
   })
   for (const chunk of output) {
-    filePaths.push(path.resolve(rootDir, chunk.fileName))
+    filePaths.push(path.resolve(buildDir, chunk.fileName))
   }
-  await fs.rm(path.resolve(rootDir, tempSwName), { force: true })
+  await fs.rm(path.resolve(buildDir, tempSwName), { force: true })
   if (inline) {
     return
   }
@@ -170,19 +170,20 @@ export async function buildModuleSW(
   await fixSourceMaps(
     sourcemap === true,
     swName,
-    path.resolve(rootDir, swName),
+    path.resolve(buildDir, swName),
     false,
     undefined,
     workboxModuleFile && sourcemap
       ? {
           tempName: 'workbox-module.js',
           name: workboxModuleFile,
-          file: path.resolve(rootDir, workboxModuleFile),
+          file: path.resolve(buildDir, workboxModuleFile),
         }
       : undefined,
   )
 }
 
+// TODO: review this, we added hidden and inline at sourcemap
 async function fixSourceMaps(
   sourcemap: boolean,
   swName: string,

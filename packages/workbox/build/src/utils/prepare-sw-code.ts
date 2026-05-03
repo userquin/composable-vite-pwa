@@ -271,21 +271,21 @@ self.workbox=self.workbox||{};
 ${Array.from(map.keys()).map(k => `self.workbox.${workboxMap.get(k)} = ${workboxMap.get(k)};`).join('\n')}    
 `
   }
-  else {
-    if (inline) {
-      return code
+
+  if (inline) {
+    return code
+  }
+
+  const exports: string[] = []
+  for (const [_, imports] of map.entries()) {
+    for (const imported of imports) {
+      exports.push(imported)
     }
-    const exports: string[] = []
-    for (const [_, imports] of map.entries()) {
-      for (const imported of imports) {
-        exports.push(imported)
-      }
-    }
-    return `${code}
+  }
+  return `${code}
     
 export {${exports.join(', ')}}
 `
-  }
 }
 
 function prepareWorkboxRuntime<T extends SWType>(
