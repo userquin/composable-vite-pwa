@@ -209,6 +209,21 @@ importers:
         specifier: catalog:vue
         version: 3.5.33(typescript@5.9.3)
 
+  examples/vite-js-example:
+    devDependencies:
+      '@composable-vite-pwa/workbox-build':
+        specifier: workspace:*
+        version: link:../../packages/workbox/build
+      magic-string:
+        specifier: catalog:utils
+        version: 0.30.21
+      rolldown:
+        specifier: catalog:utils
+        version: 1.0.0-rc.18
+      vite:
+        specifier: catalog:vite
+        version: 8.0.10(@types/node@24.12.2)(jiti@2.6.1)(yaml@2.8.3)
+
   examples/workbox-cli:
     dependencies:
       '@composable-vite-pwa/workbox-build':

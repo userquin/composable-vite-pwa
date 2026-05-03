@@ -7,7 +7,7 @@ import {
 } from '../../../tsdown-helper'
 
 export default defineConfig({
-  entry: './src/index.ts',
+  entry: './src/{index,esm-sw-detector}.ts',
   platform: 'browser',
   banner,
   define,
