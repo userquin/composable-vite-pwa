@@ -1,7 +1,9 @@
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import process from 'node:process'
 import * as v from 'valibot'
+import {
+  validateGlobDirectory,
+  validateSWDestDirectory,
+  validateSWSrc,
+} from './generation-utils'
 import { AsyncManifestOptionsSchema } from './utils'
 
 export type AsyncInjectManifestOptionsSchemaType = v.InferInput<typeof AsyncInjectManifestOptionsSchema>
@@ -23,7 +25,7 @@ export const AsyncInjectManifestOptionsSchema = v.pipeAsync(
         v.null(),
         v.literal(false),
       ]),
-      'self.__WB_MANIFEST', // Solo se aplica si la clave NO ESTÁ o es UNDEFINED
+      'self.__WB_MANIFEST',
     ),
     /**
      * The path and filename of the service worker file that will be read during
@@ -50,8 +52,7 @@ export const AsyncInjectManifestOptionsSchema = v.pipeAsync(
   v.forwardAsync(
     v.checkAsync(
       async (input) => {
-        const swSrc = path.resolve(process.cwd(), input.swSrc)
-        return await fs.lstat(swSrc).then(stats => stats.isFile()).catch(() => false)
+        return await validateSWSrc(input.swSrc)
       },
       'invalid-sw-src',
     ),
@@ -60,8 +61,7 @@ export const AsyncInjectManifestOptionsSchema = v.pipeAsync(
   v.forwardAsync(
     v.checkAsync(
       async (input) => {
-        const swDestParent = path.dirname(path.resolve(process.cwd(), input.swDest))
-        return await fs.lstat(swDestParent).then(stats => stats.isDirectory()).catch(() => false)
+        return await validateSWDestDirectory(input.swDest)
       },
       'invalid-sw-dest',
     ),
@@ -70,7 +70,7 @@ export const AsyncInjectManifestOptionsSchema = v.pipeAsync(
   v.forwardAsync(
     v.checkAsync(
       async (input) => {
-        return await fs.lstat(input.globDirectory).then(stats => stats.isDirectory()).catch(() => false)
+        return await validateGlobDirectory(input.globDirectory)
       },
       'glob-directory-invalid',
     ),

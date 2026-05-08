@@ -44,6 +44,7 @@ export async function* getFileDetails(
     for (const file of files) {
       const filePath = resolve(globDirectory!, file)
       const stats = await stat(filePath)
+      // change this to use just node/crypto::hash in the future: node still recommends using createHash
       const hash = createHash('md5').update(await readFile(filePath)).digest('hex')
       yield { file: file.replace(/\\/g, '/'), hash, size: stats.size }
     }

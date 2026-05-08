@@ -37,3 +37,6 @@ examples/workbox-cli/sw*.map
 examples/workbox-cli/workbox.js
 examples/workbox-cli/workbox-*.js
 examples/workbox-cli/workbox-*.map
+examples/workbox-cli/custom-build/workbox-*.js
+examples/workbox-cli/custom-build/sw-*.js
+examples/workbox-cli/custom-build/*.map

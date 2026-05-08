@@ -1,0 +1,18 @@
+{
+  "name": "vite-js-example",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "magic-string": "catalog:utils",
+    "magicast": "catalog:utils",
+    "rolldown": "catalog:utils",
+    "vite": "catalog:vite"
+  }
+}

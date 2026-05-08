@@ -12,14 +12,6 @@ export default defineConfig([{
   },
 }, {
   entry: {
-    'client/esm-sw-detector': './src/client/esm-sw-detector.ts',
-  },
-  platform: 'browser',
-  clean: false,
-  dts: true,
-  banner,
-}, {
-  entry: {
     'client/build/*': ['./src/client/build/*.ts'],
     'client/dev/*': ['./src/client/dev/*.ts'],
   },
@@ -29,6 +21,8 @@ export default defineConfig([{
   define: {
     'process.env.PWA_ESM_FALLBACK_SW': 'process.env.PWA_ESM_FALLBACK_SW',
     '__SW_URL__': '__SW_URL__',
+    '__SW_CLASSIC_URL__': '__SW_CLASSIC_URL__',
+    '__SW_MODULE_URL__': '__SW_MODULE_URL__',
     '__SW_SCOPE__': '__SW_SCOPE__',
     '__SW_UPDATE_VIA_CACHE__': '__SW_UPDATE_VIA_CACHE__',
     '__SW_AUTO_UPDATE__': '__SW_AUTO_UPDATE__',

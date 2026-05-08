@@ -28,11 +28,18 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.js",
+    "./esm-sw-detector": "./dist/esm-sw-detector.js",
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "esm-sw-detector": [
+        "./dist/esm-sw-detector.d.ts",
+        "./dist/esm-sw-detector.js"
+      ]
+    }
+  },
   "files": [
     "dist"
   ],

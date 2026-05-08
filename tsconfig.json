@@ -16,6 +16,9 @@
       "@composable-vite-pwa/workbox-build/*": [
         "./packages/workbox/build/src/*.ts"
       ],
+      "@composable-vite-pwa/workbox-build/build/*": [
+        "./packages/workbox/build/src/build/*.ts"
+      ],
       "@composable-vite-pwa/workbox-swkit": [
         "./packages/workbox/swkit/src/index.ts"
       ],

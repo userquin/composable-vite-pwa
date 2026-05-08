@@ -1,15 +1,15 @@
 import type { TrustedScriptURL } from 'trusted-types/lib'
-import type { PWATrustedScriptURL, RegisterSWOptions } from '../types'
-import { isSWModuleSupported } from '../esm-sw-detector'
+import type { RegisterSWOptions } from '../types'
+import { isSWModuleSupported } from '@composable-vite-pwa/workbox-window/esm-sw-detector'
 
 const swUrl = __SW_URL__
+const swClassicUrl = __SW_CLASSIC_URL__
+const swModuleUrl = __SW_MODULE_URL__
 const scope = __SW_SCOPE__
 const swType = __SW_TYPE__
 const auto = __SW_AUTO_UPDATE__
 const autoDestroy = __SW_SELF_DESTROYING__
 const updateViaCache = __SW_UPDATE_VIA_CACHE__
-
-export type { PWATrustedScriptURL, RegisterSWOptions }
 
 export function registerSW(options: RegisterSWOptions = {}) {
   const {
@@ -35,20 +35,21 @@ export function registerSW(options: RegisterSWOptions = {}) {
         if (process.env.PWA_ESM_FALLBACK_SW) {
           // By default, vite SW build will use classic and the sw.js will be the ESM version.
           // We're generating 2 variants: <sw>.js and classic-<sw>.js.
-          if (supportsESM?.() || isSWModuleSupported()) {
+          const esmSW = typeof supportsESM === 'function'
+            ? supportsESM()
+            : isSWModuleSupported()
+          // update entries
+          if (esmSW) {
             useSWType = 'module'
+            useSWURL = swModuleUrl
           }
           else {
-            const isAbsolute = swUrl.startsWith('/')
-            const parts = (isAbsolute ? swUrl.slice(1) : swUrl).split('/')
-            const fileName = parts.pop()
-            const path = parts.join('/')
-            useSWURL = `${isAbsolute ? '/' : ''}${path ? `${path}/` : ''}classic-${fileName}`
             useSWType = 'classic'
+            useSWURL = swClassicUrl
           }
           if (trustedScriptUrl) {
             if (typeof trustedScriptUrl === 'function') {
-              useSWURL = trustedScriptUrl(useSWURL as string)
+              useSWURL = trustedScriptUrl(useSWType === 'classic', useSWURL as string)
             }
             else {
               throw new TypeError('Cannot use fixed TrustedScriptURL at RegisterSWOptions when enabling dual service worker registration (classic and module), use a callback!')
@@ -58,7 +59,7 @@ export function registerSW(options: RegisterSWOptions = {}) {
         else {
           if (trustedScriptUrl) {
             if (typeof trustedScriptUrl === 'function') {
-              useSWURL = trustedScriptUrl(swUrl)
+              useSWURL = trustedScriptUrl(swType === 'classic', swUrl)
             }
             else {
               useSWURL = trustedScriptUrl

@@ -1,12 +1,10 @@
-import fs from 'node:fs/promises'
-import path from 'node:path'
-import process from 'node:process'
 import * as v from 'valibot'
+import { validateGlobDirectory, validateSWDestDirectory, withSmartMinify } from './generation-utils'
 import { AsyncManifestOptionsSchema, AsyncRuntimeCachingEntrySchema } from './utils'
 
 export type AsyncGenerateSWOptionsSchemaType = v.InferInput<typeof AsyncGenerateSWOptionsSchema>
 
-export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
+const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
   v.strictObjectAsync({
     ...AsyncManifestOptionsSchema.entries,
     /**
@@ -19,18 +17,40 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
       'classic-and-module',
     ]), 'classic'),
     /**
-     * When using `classic` and splitting workbox runtime (inlineWorkboxRuntime set to false), this flag controls the
+     * When using `classic` or `module` and splitting workbox runtime (inlineWorkboxRuntime set to false), this flag controls the
      * name of the `workbox-**.js` chunk:
-     * - when true, workbox will generate the same old asset name `workbox-<hex>.js` (using `hex` instead new Rolldown naming)
-     * - when false, workbox will generate `classic-workbox-<rolldown-hash>.js`.
+     * - when true, workbox will generate the same old asset name `workbox-<hash>.js` using `hex`
+     * - when false, workbox will generate `workbox-classic-<hash>.js` or `workbox-modern-<hash>.js` with modern Vite/Rolldown hash.
+     *
+     * When using `classic-and-module` (dual build), the build will use modern Vite/Rolldown hash regardless of the value of this flag.
      *
      * @default true
      */
-    classicWorkboxRuntimeCompatible: v.optionalAsync(v.boolean(), true),
+    workboxRuntimeCompatible: v.optionalAsync(v.boolean(), true),
     /**
-     * The [targets](https://babeljs.io/docs/en/babel-preset-env#targets) to pass to `babel-preset-env` when transpiling the service worker bundle.
+     * Service worker target build.
      */
-    babelPresetEnvTargets: v.optionalAsync(v.arrayAsync(v.string()), ['chrome >= 56']),
+    target: v.optionalAsync(
+      v.unionAsync([
+        v.string(), // Allow 'chrome56', 'es2015', etc.
+        v.arrayAsync(v.string()), // Allow ['chrome56', 'safari11', 'firefox60']
+        v.strictObjectAsync({
+          classic: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
+          module: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
+        }),
+      ]),
+      {
+        classic: ['chrome56', 'safari11', 'firefox60'],
+        module: 'baseline-widely-available',
+      },
+    ),
+    /**
+     * Should minify the output?
+     * - when specified it is preserved
+     * - true when sourcemap is not set to false or mode is set to production
+     * - otherwise false
+     */
+    minify: v.optionalAsync(v.boolean()),
     /**
      * An optional ID to be prepended to cache names. This is primarily useful for local development where multiple sites may be served from the same `http://localhost:port` origin.
      */
@@ -99,8 +119,21 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
     skipWaiting: v.optionalAsync(v.boolean(), false),
     /**
      * Whether to create a sourcemap for the generated service worker files.
+     * - `false`: No sourcemap will be generated.
+     * - `true`: A separate sourcemap file will be generated.
+     * - `inline`: The sourcemap will be appended to the output file as a data URL.
+     * - `hidden`: A separate sourcemap file will be generated, but the link to the sourcemap (`//# sourceMappingURL` comment) will not be included in the output file.
+     *
+     * @default true
      */
-    sourcemap: v.optionalAsync(v.boolean(), true),
+    sourcemap: v.optionalAsync(
+      v.unionAsync([
+        v.boolean(),
+        v.literal('hidden'),
+        v.literal('inline'),
+      ]),
+      true,
+    ),
     /**
      * The path and filename of the service worker file that will be created by the build process, relative to the current working directory. It must end in '.js'.
      */
@@ -117,8 +150,7 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
   v.forwardAsync(
     v.checkAsync(
       async (input) => {
-        const swDestParent = path.dirname(path.resolve(process.cwd(), input.swDest))
-        return await fs.lstat(swDestParent).then(stats => stats.isDirectory()).catch(() => false)
+        return await validateSWDestDirectory(input.swDest)
       },
       'invalid-sw-dest',
     ),
@@ -135,7 +167,7 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
     v.checkAsync(
       async (input) => {
         return typeof input.globDirectory === 'string'
-          ? await fs.lstat(input.globDirectory).then(stats => stats.isDirectory()).catch(() => false)
+          ? await validateGlobDirectory(input.globDirectory)
           : true
       },
       'glob-directory-invalid',
@@ -169,4 +201,9 @@ export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
     ),
     ['runtimeCaching'],
   ),
+)
+
+export const AsyncGenerateSWOptionsSchema = v.pipeAsync(
+  BaseAsyncGenerateSWOptionsSchema,
+  withSmartMinify(),
 )

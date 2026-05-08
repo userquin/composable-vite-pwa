@@ -1,6 +1,13 @@
 import type { TrustedScriptURL } from 'trusted-types/lib'
 
-export type PWATrustedScriptURL = TrustedScriptURL | ((swUrl: string) => TrustedScriptURL)
+/**
+ * A function that returns the service worker trusted script url.
+ *
+ * @param classic Whether the browser is in legacy mode (i.e. not supporting ES modules in service workers).
+ * @param swUrl The url for the service worker.
+ * @returns The service worker script url.
+ */
+export type PWATrustedScriptURL = (classic: boolean, swUrl: string) => TrustedScriptURL
 
 export interface RegisterSWOptions {
   immediate?: boolean
@@ -14,13 +21,11 @@ export interface RegisterSWOptions {
   onNeedRefresh?: () => void
   onOfflineReady?: () => void
   /**
-   * A function that returns the service worker trusted script url.
+   * Service worker trusted script url.
    *
-   * @param classic Whether the browser is in legacy mode (i.e. not supporting ES modules in service workers).
-   * @returns The service worker script url.
    * @since 2.0.0
    */
-  trustedScriptUrl?: PWATrustedScriptURL
+  trustedScriptUrl?: TrustedScriptURL | PWATrustedScriptURL
   /**
    * Override the automatic ESM support detection.
    * Return true to force module type, false for classic,

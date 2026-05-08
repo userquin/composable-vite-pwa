@@ -1,17 +1,20 @@
 import type { BuildResult, InjectManifestOptions } from '../types'
-import fs from 'node:fs/promises'
+import fs from 'node:fs'
+import fsp from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import MagicString from 'magic-string'
-import { deepMergeObject } from 'magicast/helpers'
 import { errors } from '../validation/errors'
 import { validateInjectManifest } from '../validation/validation-helper'
 import { escapeRegExp } from './escape-regexp'
 import { generateManifestEntries } from './generate-manifest-entries'
 import { throwInvalidInjectionPoint } from './log'
-import { prepareGlobIgnores } from './utils'
+import { deepMergeObject, prepareGlobIgnores } from './utils'
 
-export async function buildInjectManifest(options: InjectManifestOptions, fromInjectManifest = true): Promise<BuildResult> {
+export async function buildInjectManifest(
+  options: InjectManifestOptions,
+  fromInjectManifest = true,
+): Promise<BuildResult> {
   if (fromInjectManifest && (options.injectionPoint === false || options.injectionPoint == null)) {
     throwInvalidInjectionPoint()
   }
@@ -22,7 +25,7 @@ export async function buildInjectManifest(options: InjectManifestOptions, fromIn
 
   let swCode: string
   try {
-    swCode = await fs.readFile(options.swSrc, 'utf8')
+    swCode = await fsp.readFile(options.swSrc, 'utf8')
   }
   catch (error) {
     throw new Error(
@@ -83,7 +86,7 @@ export async function buildInjectManifest(options: InjectManifestOptions, fromIn
   }
   else {
     try {
-      await fs.access(`${options.swSrc}.map`)
+      await fsp.access(`${options.swSrc}.map`, fs.constants.F_OK)
       isHidden = true
     }
     catch {
@@ -92,7 +95,7 @@ export async function buildInjectManifest(options: InjectManifestOptions, fromIn
   }
 
   const destDir = path.dirname(destPath)
-  await fs.mkdir(destDir, { recursive: true })
+  await fsp.mkdir(destDir, { recursive: true })
 
   if (isInline || isExternal || isHidden) {
     const map = s.generateMap({
@@ -103,7 +106,7 @@ export async function buildInjectManifest(options: InjectManifestOptions, fromIn
 
     if (isInline) {
       const inlineCode = `${finalCode}\n//# sourceMappingURL=${map.toUrl()}`
-      await fs.writeFile(destPath, inlineCode, 'utf-8')
+      await fsp.writeFile(destPath, inlineCode, 'utf-8')
     }
     else {
       const mapPath = `${destPath}.map`
@@ -111,13 +114,13 @@ export async function buildInjectManifest(options: InjectManifestOptions, fromIn
       if (isExternal) {
         outputCode += `\n//# sourceMappingURL=${path.basename(mapPath)}`
       }
-      await fs.writeFile(mapPath, map.toString(), 'utf-8')
-      await fs.writeFile(destPath, outputCode, 'utf-8')
+      await fsp.writeFile(mapPath, map.toString(), 'utf-8')
+      await fsp.writeFile(destPath, outputCode, 'utf-8')
       filePaths.push(mapPath)
     }
   }
   else {
-    await fs.writeFile(destPath, finalCode, 'utf-8')
+    await fsp.writeFile(destPath, finalCode, 'utf-8')
   }
 
   return {

@@ -6,9 +6,12 @@
   "scripts": {
     "generate": "pnpx tsx ./generate.ts",
     "inject": "pnpx tsx ./inject.ts",
-    "manifest": "pnpx tsx ./manifest.ts"
+    "manifest": "pnpx tsx ./manifest.ts",
+    "build": "pnpx tsx ./build.ts",
+    "build-split": "pnpx tsx ./build-split.ts"
   },
   "dependencies": {
+    "@composable-vite-pwa/workbox-swkit": "workspace:*",
     "@composable-vite-pwa/workbox-build": "workspace:*"
   }
 }

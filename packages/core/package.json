@@ -33,7 +33,6 @@
     "./types": {
       "types": "./types/index.d.ts"
     },
-    "./client/esm-sw-detector": "./dist/client/esm-sw-detector.js",
     "./preact": {
       "types": "./preact.d.ts"
     },
