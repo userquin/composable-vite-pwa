@@ -1,9 +1,16 @@
-import type { GenerateSWOptions, GetManifestOptions, InjectManifestOptions, SWType } from '../src/types'
+import type { GenerateSWOptions, GetManifestOptions, InjectManifestOptions, SWTarget, SWType } from '../src/types'
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 import { test as base } from 'vitest'
+
+export const defaultTargets = {
+  target: <SWTarget>{
+    classic: ['chrome56', 'safari11', 'firefox60'],
+    module: 'baseline-widely-available',
+  },
+}
 
 export const injectManifestFixture = path.relative(process.cwd(), path.resolve(import.meta.dirname, 'fixtures/fixture-inject-manifest'))
 export const generateSWFixture = path.relative(process.cwd(), path.resolve(import.meta.dirname, 'fixtures/fixture-generate-sw'))

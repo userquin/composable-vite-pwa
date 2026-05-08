@@ -5,6 +5,36 @@ import type { ExpirationPluginOptions } from '@composable-vite-pwa/workbox-swkit
 import type { HTTPMethod } from '@composable-vite-pwa/workbox-swkit/routing/types'
 import type { QueueOptions } from '@composable-vite-pwa/workbox-swkit/types'
 
+/**
+ * Service worker build target.
+ * @default undefined
+ * @see https://vite.dev/config/build-options#build-target
+ */
+export type SWTargets = 'baseline-widely-available' | 'esnext' | string | string[]
+/**
+ * Service worker build targets:
+ * - when building the classic service worker, the default target will be `['chrome56', 'safari11', 'firefox60']`.
+ * - when building the module service worker, the default target will be `baseline-widely-available`.
+ *
+ * When using legacy Vite (Vite < 8) or using Rolldown, `baseline-widely-available` will be transformed
+ * to `esnext` (no transformation: check Rolldown [target](https://rolldown.rs/reference/InputOptions.transform#target)).
+ *
+ * You can specify custom targets per service worker build.
+ *
+ * @see https://vite.dev/config/build-options#build-target
+ * @see https://rolldown.rs/reference/InputOptions.transform#target
+ */
+export type SWTarget = SWTargets | {
+  /**
+   * Classic service worker build target.
+   */
+  classic: SWTargets
+  /**
+   * Module service worker build target.
+   */
+  module: SWTargets
+}
+
 export interface ManifestEntry {
   integrity?: string
   revision: string | null
@@ -50,9 +80,6 @@ export interface RuntimeCaching {
      * {@link workbox-strategies} configured in `handler`.
      */
     broadcastUpdate?: {
-      // TODO: This option is ignored since we switched to using postMessage().
-      // Remove it in the next major release.
-      channelName?: string
       options: BroadcastCacheUpdateOptions
     }
     /**
@@ -200,20 +227,29 @@ export interface GeneratePartial<T extends SWType> {
    */
   swType?: T
   /**
-   * When using `classic` and splitting workbox runtime (inlineWorkboxRuntime set to false), this flag controls the
+   * When using `classic` or `module` and splitting workbox runtime (inlineWorkboxRuntime set to false), this flag controls the
    * name of the `workbox-**.js` chunk:
-   * - when true, workbox will generate the same old asset name `workbox-<hash>.js`
-   * - when false, workbox will generate `classic-workbox-<hash>.js`.
+   * - when true, workbox will generate the same old asset name `workbox-<hash>.js` using `hex`
+   * - when false, workbox will generate `workbox-classic-<hash>.js` or `workbox-modern-<hash>.js` with modern Vite/Rolldown hash.
+   *
+   * When using `classic-and-module` (dual build), the build will use modern Vite/Rolldown hash regardless of the value of this flag.
    *
    * @default true
    */
-  classicWorkboxRuntimeCompatible?: boolean
+  workboxRuntimeCompatible?: boolean
   /**
-   * The [targets](https://babeljs.io/docs/en/babel-preset-env#targets) to pass
-   * to `babel-preset-env` when transpiling the service worker bundle.
-   * @default ["chrome >= 56"]
+   * Service worker target build.
+   * @default undefined
+   * @see https://vite.dev/config/build-options#build-target
    */
-  babelPresetEnvTargets?: Array<string>
+  target?: SWTarget
+  /**
+   * Should minify the output?
+   * - when specified it is preserved
+   * - true when sourcemap is not set to false or mode is set to production
+   * - otherwise false
+   */
+  minify?: boolean
   /**
    * An optional ID to be prepended to cache names. This is primarily useful for
    * local development where multiple sites may be served from the same

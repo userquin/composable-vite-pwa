@@ -1,4 +1,5 @@
 import type { GlobPartial, RequiredSWDestPartial } from '../types'
+import path from 'node:path'
 
 export function prepareGlobIgnores(
   options: GlobPartial & RequiredSWDestPartial,
@@ -46,5 +47,75 @@ export function prepareGlobIgnores(
     classicTemp,
     esm,
     esmTemp,
+  }
+}
+
+export function resolveSWNamesAndGlobIgnores(
+  options: GlobPartial & RequiredSWDestPartial,
+  swSrc: string,
+  generateSW: boolean,
+) {
+  const newSWSrc = generateSW ? options.swDest.replace(/\.js$/, '-temp.js') : swSrc
+  const swChunkName = generateSW
+    ? path.basename(newSWSrc, '.js')
+    : path.basename(swSrc.replace(/\.([mc])?[jt]sx?$/, '.js'), '.js')
+  const swDestBasename = path.basename(options.swDest)
+  const classicSWDest = options.swDest.replace(swDestBasename, `classic-${swDestBasename}`)
+  const moduleSWDest = options.swDest.replace(swDestBasename, `module-${swDestBasename}`)
+
+  const classicSWSrc = generateSW ? newSWSrc.replace(/-temp\.js$/, '-classic-temp.js') : undefined
+  const classicSWChunkName = classicSWSrc ? path.basename(classicSWSrc, '.js') : undefined
+  const moduleSWSrc = generateSW ? newSWSrc.replace(/-temp\.js$/, '-module-temp.js') : undefined
+  const moduleSWChunkName = moduleSWSrc ? path.basename(moduleSWSrc, '.js') : undefined
+
+  options.globIgnores ??= []
+  options.globIgnores.push(swSrc)
+  options.globIgnores.push('**/*-classic-temp.js')
+  options.globIgnores.push('**/*-module-temp.js')
+  options.globIgnores.push(options.swDest)
+  options.globIgnores.push(`${options.swDest}.map`)
+  options.globIgnores.push(classicSWDest)
+  options.globIgnores.push(`${classicSWDest}.map`)
+  options.globIgnores.push(moduleSWDest)
+  options.globIgnores.push(`${moduleSWDest}.map`)
+  options.globIgnores.push('**/workbox-*.js')
+  options.globIgnores.push('**/workbox-*.js.map')
+
+  return {
+    swSrc: newSWSrc,
+    swChunkName,
+    classicSWSrc,
+    classicSWChunkName,
+    moduleSWSrc,
+    moduleSWChunkName,
+    swDest: options.swDest,
+    classicSWDest,
+    moduleSWDest,
+  }
+}
+
+export function deepMergeObject(magicast: any, object: any) {
+  if (typeof object === 'object' && object !== null) {
+    for (const key in object) {
+      const magicastValue = magicast[key]
+      const objectValue = object[key]
+
+      // Check for identity to prevent infinite recursion
+      if (magicastValue === objectValue) {
+        continue
+      }
+
+      if (
+        typeof magicastValue === 'object'
+        && magicastValue !== null
+        && typeof objectValue === 'object'
+        && objectValue !== null
+      ) {
+        deepMergeObject(magicastValue, objectValue)
+      }
+      else {
+        magicast[key] = objectValue
+      }
+    }
   }
 }

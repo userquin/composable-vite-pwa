@@ -1,22 +1,40 @@
-import type { Node } from '@babel/types'
 import * as v from 'valibot'
 import { DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES } from '../utils/constants'
 
+interface BaseNode {
+  type: string
+}
+
+interface NumericLiteral extends BaseNode {
+  type: 'NumericLiteral'
+  value: number
+}
+
+interface BinaryExpression extends BaseNode {
+  type: 'BinaryExpression'
+  left: ExpressionNode
+  right: ExpressionNode
+  operator: string
+}
+
+type ExpressionNode = NumericLiteral | BinaryExpression | BaseNode
+
 /**
- * Recursively infers the type of an AST expression node.
+ * Recursively infers the type of AST expression node.
  * It does NOT evaluate the expression.
  */
-function inferExpressionType(node: Node): 'number' | 'unknown' {
+function inferExpressionType(node: ExpressionNode): 'number' | 'unknown' {
   switch (node.type) {
     case 'NumericLiteral':
       return 'number'
     case 'BinaryExpression': {
+      const be = node as BinaryExpression
       // A binary expression is numeric only if both sides are numeric
       // and the operator is mathematical.
-      const leftType = inferExpressionType(node.left)
-      const rightType = inferExpressionType(node.right)
+      const leftType = inferExpressionType(be.left)
+      const rightType = inferExpressionType(be.right)
       if (leftType === 'number' && rightType === 'number') {
-        if (['+', '-', '*', '/', '%'].includes(node.operator))
+        if (['+', '-', '*', '/', '%'].includes(be.operator))
           return 'number'
       }
       return 'unknown'
@@ -77,7 +95,6 @@ export const AsyncRuntimeCachingOptionsSchema = v.strictObjectAsync({
    * Configuring this will add a workbox-broadcast-update.BroadcastUpdatePlugin instance to the workbox-strategies configured in `handler`.
    */
   broadcastUpdate: v.optionalAsync(v.strictObjectAsync({
-    channelName: v.string(),
     options: v.strictObjectAsync({ // Inlined BroadcastCacheUpdateOptionsSchema
       headersToCheck: v.optionalAsync(v.arrayAsync(v.string())),
       generatePayload: v.optionalAsync(v.function()),

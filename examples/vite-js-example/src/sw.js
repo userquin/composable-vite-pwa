@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   CacheFirst,
   cleanupOutdatedCaches,
@@ -16,7 +17,9 @@ console.log('sayHello', sayHello('userquin'))
 console.log('Message from virtual:sw-chunk', message2)
 console.log('sayHello2', sayHello2('userquin'))
 
+// eslint-disable-next-line no-restricted-globals
 self.skipWaiting()
+// eslint-disable-next-line no-restricted-globals
 precacheAndRoute(self.__WB_MANIFEST, {
   cleanURLs: true,
   urlManipulation: () => {
@@ -25,6 +28,7 @@ precacheAndRoute(self.__WB_MANIFEST, {
 })
 cleanupOutdatedCaches()
 registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')))
+// eslint-disable-next-line prefer-regex-literals
 registerRoute(new RegExp('^https:\\/\\/fonts\\.(?:googleapis|gstatic)\\.com\\/.*', 'i'), new CacheFirst({
   cacheName: 'google-fonts',
   expiration: {
@@ -32,6 +36,7 @@ registerRoute(new RegExp('^https:\\/\\/fonts\\.(?:googleapis|gstatic)\\.com\\/.*
     maxAgeSeconds: 31536e3,
   },
 }), 'GET')
+// eslint-disable-next-line prefer-regex-literals
 registerRoute(new RegExp('\\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$', 'i'), new StaleWhileRevalidate({
   cacheName: 'static-font-assets',
   expiration: {
@@ -39,6 +44,7 @@ registerRoute(new RegExp('\\.(?:eot|otf|ttc|ttf|woff|woff2|font.css)$', 'i'), ne
     maxAgeSeconds: 604800,
   },
 }), 'GET')
+// eslint-disable-next-line prefer-regex-literals
 registerRoute(new RegExp('\\.(?:jpg|jpeg|gif|png|svg|ico|webp)$', 'i'), new StaleWhileRevalidate({
   cacheName: 'static-image-assets',
   expiration: {
@@ -46,6 +52,7 @@ registerRoute(new RegExp('\\.(?:jpg|jpeg|gif|png|svg|ico|webp)$', 'i'), new Stal
     maxAgeSeconds: 86400,
   },
 }), 'GET')
+// eslint-disable-next-line prefer-regex-literals
 registerRoute(new RegExp('\\.js$', 'i'), new StaleWhileRevalidate({
   cacheName: 'static-js-assets',
   expiration: {
@@ -53,6 +60,7 @@ registerRoute(new RegExp('\\.js$', 'i'), new StaleWhileRevalidate({
     maxAgeSeconds: 86400,
   },
 }), 'GET')
+// eslint-disable-next-line prefer-regex-literals
 registerRoute(new RegExp('\\.(?:css|less)$', 'i'), new StaleWhileRevalidate({
   cacheName: 'static-style-assets',
   expiration: {
@@ -60,6 +68,7 @@ registerRoute(new RegExp('\\.(?:css|less)$', 'i'), new StaleWhileRevalidate({
     maxAgeSeconds: 86400,
   },
 }), 'GET')
+// eslint-disable-next-line prefer-regex-literals
 registerRoute(new RegExp('\\.(?:json|xml|csv)$', 'i'), new NetworkFirst({
   cacheName: 'static-data-assets',
   expiration: {
@@ -67,6 +76,7 @@ registerRoute(new RegExp('\\.(?:json|xml|csv)$', 'i'), new NetworkFirst({
     maxAgeSeconds: 86400,
   },
 }), 'GET')
+// eslint-disable-next-line prefer-regex-literals
 registerRoute(new RegExp('\\/api\\/.*$', 'i'), new NetworkFirst({
   cacheName: 'apis',
   expiration: {
@@ -75,6 +85,7 @@ registerRoute(new RegExp('\\/api\\/.*$', 'i'), new NetworkFirst({
   },
   networkTimeoutSeconds: 10,
 }), 'GET')
+// eslint-disable-next-line prefer-regex-literals
 registerRoute(new RegExp('.*', ''), new NetworkFirst({
   cacheName: 'others',
   expiration: {

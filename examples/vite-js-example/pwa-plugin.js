@@ -3,10 +3,10 @@ import path from 'node:path'
 import MagicString from 'magic-string'
 import { rolldown } from 'rolldown'
 // eslint-disable-next-line antfu/no-import-dist
-import { t as generateManifestEntries } from '../../packages/workbox/build/dist/generate-manifest-entries-Czw0XH0g.mjs'
+import { t as generateManifestEntries } from '../../packages/workbox/build/dist/generate-manifest-entries-BHytALKL.mjs'
 import { VirtualPlugin } from './virtual-plugin'
 
-const workboxRegex = [/^@composable-vite-pwa\/workbox-swkit\//, /[\\/]workbox-swkit[\\/]/, /[\\/]workbox[\\/]swkit/]
+const workboxRegex = [/^@composable-vite-pwa\/workbox-swkit\//, /[\\/]workbox[\\/]swkit/]
 
 function resolve(name) {
   return path.resolve(import.meta.dirname, `${name}.js`)
@@ -28,7 +28,7 @@ function BuildPlugin(
       async handler() {
         const manifestResult = await generateManifestEntries({
           globIgnores: ['**/{sw,workbox,workbox-*,classic-sw,module-sw}.js', '**/*.map'],
-          globPatterns: ['**/*.{js,html,svg,png}'],
+          globPatterns: ['**/*.{js,css,html,svg,png}'],
           dontCacheBustURLsMatching: /[\\/]?assets[\\/]/,
         }, './dist')
         console.log(manifestResult)
@@ -153,7 +153,7 @@ function BuildPlugin(
           }],
           transform: {
             define: {
-              'process.env.NODE_ENV': JSON.stringify('production'),
+              'process.env.NODE_ENV': JSON.stringify('development'),
               'self.__WB_MANIFEST': JSON.stringify(manifestResult.manifestEntries),
             },
           },

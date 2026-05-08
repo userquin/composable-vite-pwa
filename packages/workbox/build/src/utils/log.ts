@@ -62,20 +62,7 @@ export function throwInvalidInjectionPoint(): never {
   throw new Error(message)
 }
 
-/**
- * Warn the user about using the barrel export in IIFE/Classic mode.
- */
-export function warnSwkitBarrel() {
-  console.warn([
-    `\n${pc.yellow(pc.bold('[Vite PWA]'))} ${pc.yellow('Oh, you sweet summer child...')}`,
-    `You're using the ${pc.cyan('\'@vite-pwa/workbox-swkit\' barrel export')} in IIFE format.`,
-    // `You're about to include the ${pc.red('KITCHEN SINK')} in your Service Worker.`,
-    `Your users will need a NASA-grade connection to download this beast.`,
-    `Switch to subpackage imports (e.g., ${pc.green('\'@vite-pwa/workbox-swkit/core\'')}) to save some souls.\n`,
-  ].join('\n'))
-}
-
-function formatBytes(bytes: number) {
+export function formatBytes(bytes: number) {
   if (bytes === 0)
     return `0 ${pc.dim('Bytes')}`
   const k = 1024
