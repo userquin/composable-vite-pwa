@@ -34,7 +34,7 @@ function BuildPlugin2(
   swType,
   /** @type {string} */
   swName,
-  /** @type {'vite-build-sw'|'rolldown-build'|'vite-generate-sw'|'rolldown-generate-sw'} */
+  /** @type {'vite-build-sw'|'rolldown-build-sw'|'vite-generate-sw'|'rolldown-generate-sw'} */
   buildType,
 ) {
   /** @type {import('vite').Plugin} */
@@ -73,7 +73,7 @@ function BuildPlugin2(
           plugins: () => [VirtualPlugin()],
         }
         console.log(`Running ${buildType}...`)
-        const isBuild = buildType.endsWith('-build-sw')
+        const isBuild = buildType.includes('build-sw')
         const data = isBuild ? buildData : generateData
         const result = await methods[isBuild ? 'buildSW' : 'generateSW'][buildType](data)
         console.log(result)
@@ -126,7 +126,7 @@ function VirtualPWARegister(
  *
  * @param swName string
  * @param swType {'classic'|'module'|'classic-and-module'}
- * @param buildType {'vite-build-sw'|'rolldown-build'|'vite-generate-sw'|'rolldown-generate-sw'}
+ * @param buildType {'vite-build-sw'|'rolldown-build-sw'|'vite-generate-sw'|'rolldown-generate-sw'}
  * @return {({name: string, apply: string, enforce: string, closeBundle: {enforce: string, handler(): Promise<void>}}|{name: string, enforce: string, config(): {define: {__SW_URL__: *, __SW_TYPE__: *, __SW_CLASSIC_URL__: *, __SW_MODULE_URL__: *, __SW_SCOPE__: *, __SW_AUTO_UPDATE__: *, __SW_SELF_DESTROYING__: *, __SW_UPDATE_VIA_CACHE__: *, "process.env.PWA_ESM_FALLBACK_SW": *}}, resolveId(*): string|undefined, load(*): (Promise<>|undefined)})[]}
  * @constructor
  */
@@ -135,7 +135,7 @@ function PWAPlugin2(
   swName,
   /** @type {import('@composable-vite-pwa/workbox-build/types').SWType} */
   swType = 'classic-and-module',
-  /** @type {'vite-build-sw'|'rolldown-build'|'vite-generate-sw'|'rolldown-generate-sw'} */
+  /** @type {'vite-build-sw'|'rolldown-build-sw'|'vite-generate-sw'|'rolldown-generate-sw'} */
   buildType,
 ) {
   /** @type {import('vite').PluginOption} */
