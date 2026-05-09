@@ -64,50 +64,6 @@ describe('generate-sw validations', () => {
     })
   })
 
-  /* const swTypeAndRequiredFields = swTypes.flatMap(swType =>
-    requiredFields.map(field => ({ swType, field })),
-  )
-
-  it.each(swTypeAndRequiredFields)(
-    'missing required field "$field" fails for $swType',
-    async ({ swType, field }) => {
-      const { options } = createGenerateSWOptions(swType)
-
-      // @ts-expect-error forcing validation failure
-      options[field] = undefined
-
-      await expect(validateGenerateSW(options)).rejects.toThrow(
-        new RegExp(`The '${field}' option is required`),
-      )
-    },
-  )
-
-  it.each(swTypeAndRequiredFields)(
-    'invalid type for required field "$field" fails for $swType',
-    async ({ swType, field }) => {
-      const { options } = createGenerateSWOptions(swType)
-      // @ts-expect-error forcing type failure
-      options[field] = () => {}
-      await expect(validateGenerateSW(options)).rejects.toThrow(
-        new RegExp(`The '${field}' option is required`),
-      )
-    },
-  )
-
-  it.each(swTypes)('default values are populated for %s', async (swType) => {
-    const { globDirectory, options, swDest } = createGenerateSWOptions(swType)
-    await expect(validateGenerateSW(options)).resolves.toMatchObject({
-      swDest,
-      swType,
-      globDirectory,
-      inlineWorkboxRuntime: false,
-      maximumFileSizeToCacheInBytes: DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES,
-      throwMaximumFileSizeToCacheInBytes: true,
-      globPatterns: ['**!/!*.{js,css,html}'],
-      globIgnores: ['**!/node_modules/!**!/!*'],
-    } satisfies GenerateSWOptions<typeof swType>)
-  }) */
-
   describe('file system and path validations', () => {
     it.each(swTypes)('missing swDest folder fails for %s', async (swType) => {
       const { options } = createGenerateSWOptions(swType, true, {
