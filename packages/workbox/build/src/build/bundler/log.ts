@@ -110,19 +110,6 @@ export function logDeprecatedGenerateSW() {
   ].join('\n'))
 }
 
-export function throwInvalidInjectionPoint(): never {
-  const message = [
-    `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('Invalid configuration for injectManifest!')}\n`,
-    `You have disabled ${pc.green('"injectionPoint"')} (set to null or false), but you are calling`,
-    `the ${pc.cyan('injectManifest()')} function directly.\n`,
-    `${pc.bold('To resolve this issue:')}`,
-    `  - If you want to disable injection, ensure you are not using the default ${pc.cyan('injectManifest')} from ${pc.cyan('\'@vite-pwa/workbox-build/injectManifest\'')} tool.`,
-    `  - If you need a custom build without injection, use the ${pc.cyan('buildSW')} from ${pc.cyan('\'@vite-pwa/workbox-build/build\'')} instead.\n`,
-  ].join('\n')
-
-  throw new Error(message)
-}
-
 /**
  * Error when the options object doesn't match any known strategy.
  */

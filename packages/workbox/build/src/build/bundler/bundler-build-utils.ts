@@ -9,8 +9,8 @@ type BundlerPluginType<T extends Bundler> = T extends 'rolldown'
   : import('vite').Plugin
 
 type RolldownOptions<T extends Bundler> = T extends 'rolldown'
-  ? import('../rolldown/types').RolldownBuildOptions
-  : import('../vite/types').ViteBuildOptions
+  ? import('../rolldown/internal-types').RolldownBuildOptions
+  : import('../vite/internal-types').ViteBuildOptions
 
 interface PrepareBundlerBuilder<T extends Bundler> {
   plugins: BundlerPluginType<T>[]

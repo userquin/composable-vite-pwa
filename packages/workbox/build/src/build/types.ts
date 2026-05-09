@@ -51,5 +51,3 @@ export interface BuildSWOptions<T extends SWType> extends InjectManifestOptions 
 }
 
 export type BuildGenerateSWOptions<T extends SWType> = GenerateSWOptions<T>
-
-export type BuildInjectManifestSWOptions<T extends SWType> = BuildSWOptions<T>

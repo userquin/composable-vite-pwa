@@ -1,4 +1,4 @@
-import type { RolldownBuildOptions } from './types'
+import type { RolldownBuildOptions } from './internal-types'
 import { rolldown } from 'rolldown'
 import { prepareBundlerBuildOptions } from '../bundler/bundler-build-utils'
 

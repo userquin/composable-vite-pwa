@@ -1,4 +1,4 @@
-import type { ViteBuildOptions } from './types'
+import type { ViteBuildOptions } from './internal-types'
 import path from 'node:path'
 import process from 'node:process'
 import { build } from 'vite'

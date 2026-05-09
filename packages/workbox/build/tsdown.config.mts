@@ -20,14 +20,17 @@ export default defineConfig({
     {
       'build/*': [
         './src/build/*.ts',
+        '!./src/build/generate-sw.ts',
       ],
       'build/vite/*': [
         './src/build/vite/*.ts',
         '!./src/build/vite/build-utils.ts',
+        '!./src/build/vite/internal-types.ts',
       ],
       'build/rolldown/*': [
         './src/build/rolldown/*.ts',
         '!./src/build/rolldown/build-utils.ts',
+        '!./src/build/rolldown/internal-types.ts',
       ],
     },
   ],
