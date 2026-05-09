@@ -125,7 +125,7 @@ export function prepareBundlerOptions(
           },
       workboxRuntimeCompatible: swType === 'classic' ? workboxRuntimeCompatible : false,
       swType: 'classic',
-      generateSW: true,
+      generateSW: !!generateSW,
     })
   }
   if (swType === 'classic-and-module' || swType === 'module') {
@@ -160,7 +160,7 @@ export function prepareBundlerOptions(
           },
       workboxRuntimeCompatible: swType === 'module' ? workboxRuntimeCompatible : false,
       swType: 'module',
-      generateSW: true,
+      generateSW: !!generateSW,
     })
   }
 

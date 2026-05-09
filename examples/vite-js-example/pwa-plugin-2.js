@@ -51,7 +51,7 @@ function BuildPlugin2(
           swDest: `dist/${swName}`,
           // globIgnores: ['**!/{sw,workbox,workbox-*,classic-sw,module-sw}.js', '**!/!*.map'],
           globDirectory: './dist',
-          globPatterns: ['**!/!*.{js,css,html,svg,png}'],
+          globPatterns: ['**/*.{js,css,html,svg,png}'],
           dontCacheBustURLsMatching: /[\\/]?assets[\\/]/,
           sourcemap: true,
           minify: false,
@@ -75,8 +75,10 @@ function BuildPlugin2(
         console.log(`Running ${buildType}...`)
         const isBuild = buildType.includes('build-sw')
         const data = isBuild ? buildData : generateData
+        const now = performance.now()
         const result = await methods[isBuild ? 'buildSW' : 'generateSW'][buildType](data)
         console.log(result)
+        console.log(performance.now() - now)
       },
     },
   }
