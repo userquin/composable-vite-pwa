@@ -9,7 +9,7 @@ import { validateInjectManifest } from '../validation/validation-helper'
 import { escapeRegExp } from './escape-regexp'
 import { generateManifestEntries } from './generate-manifest-entries'
 import { throwInvalidInjectionPoint } from './log'
-import { deepMergeObject, prepareGlobIgnores } from './utils'
+import { deepMergeObject, prepareInjectManifestGlobIgnores } from './utils'
 
 export async function buildInjectManifest(
   options: InjectManifestOptions,
@@ -38,7 +38,7 @@ export async function buildInjectManifest(
   /// extract clean code without sourcemap if present
   const { code: cleanCode, mapComment } = extractSourceMap(swCode)
 
-  prepareGlobIgnores(options, !!mapComment)
+  prepareInjectManifestGlobIgnores(options, !!mapComment)
 
   options.globIgnores = options.globIgnores || []
   options.globIgnores.push(options.swSrc, options.swDest)

@@ -17,6 +17,7 @@ interface BinaryExpression extends BaseNode {
   operator: string
 }
 
+// babel type: we don't need babel for this
 type ExpressionNode = NumericLiteral | BinaryExpression | BaseNode
 
 /**
