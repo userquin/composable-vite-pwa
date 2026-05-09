@@ -30,7 +30,7 @@ function CloseBundlePlugin<T extends Bundler>(
   }: ClassicBuild,
 ): BundlerPluginType<T> {
   return {
-    name: 'vite-pwa:workbox-build:classic-sw:build-plugin',
+    name: 'vite-pwa:workbox-build:build-plugin',
     enforce: bundler === 'vite' ? 'pre' : undefined,
     apply: bundler === 'vite' ? 'build' : undefined,
     async generateBundle(_, bundle) {
@@ -42,7 +42,7 @@ function CloseBundlePlugin<T extends Bundler>(
         }
       }
 
-      for (const [_, chunk] of Object.entries(bundle)) {
+      for (const chunk of Object.values(bundle)) {
         if (chunk.type !== 'chunk')
           continue
 
@@ -115,13 +115,7 @@ export function prepareBundlerBuildOptions<T extends Bundler>(
     generateSW,
     filePaths,
   } = options
-  const workboxName = inlineWorkboxRuntime !== true
-    ? (inlineWorkboxRuntime.workboxChunkName || (
-        swType === 'classic'
-          ? 'workbox-classic'
-          : 'workbox-module'
-      ))
-    : undefined
+
   define['process.env.NODE_ENV'] = JSON.stringify(mode || process.env.NODE_ENV || 'production')
   if (generateSW) {
     delete define['self.__WB_MANIFEST']
@@ -129,6 +123,15 @@ export function prepareBundlerBuildOptions<T extends Bundler>(
   else {
     define['self.__WB_MANIFEST'] = JSON.stringify(manifestEntries)
   }
+
+  const workboxName = inlineWorkboxRuntime !== true
+    ? (inlineWorkboxRuntime.workboxChunkName || (
+        swType === 'classic'
+          ? 'workbox-classic'
+          : 'workbox-module'
+      ))
+    : undefined
+
   plugins.unshift(CloseBundlePlugin(
     bundler,
     {
@@ -176,11 +179,13 @@ export function prepareBundlerBuildOptions<T extends Bundler>(
         }
       : false,
   }
+
   if (bundler === 'rolldown') {
     rolldownOptions.sourcemap = sourcemap
     rolldownOptions.minify = minify
     rolldownOptions.dir = path.resolve(process.cwd(), path.dirname(swDest))
   }
+
   return {
     define,
     plugins: plugins as BundlerPluginType<T>[],
