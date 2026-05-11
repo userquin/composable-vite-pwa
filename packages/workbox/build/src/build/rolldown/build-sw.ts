@@ -1,9 +1,8 @@
 import type { BuildResult, SWType } from '../../types'
-import type { BundlerOptions } from '../bundler/bundler-types'
 import type { BuildServiceWorkerOptions } from './types'
 
 function prepareRolldownBuilds<T extends SWType>(
-  bundlerOptions: BundlerOptions[],
+  bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
   options: BuildServiceWorkerOptions<T>,
   transformESMTargetToRolldown: typeof import('../bundler/utils')['transformESMTargetToRolldown'],
   prepareRolldownBuild: typeof import('./build-utils')['prepareRolldownBuild'],

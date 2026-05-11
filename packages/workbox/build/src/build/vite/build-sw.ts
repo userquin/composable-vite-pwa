@@ -1,5 +1,4 @@
 import type { BuildResult, SWType } from '../../types'
-import type { BundlerOptions } from '../bundler/bundler-types'
 import type {
   BuildServiceWorkerOptions,
   ServiceWorkerOptions,
@@ -17,7 +16,7 @@ async function prepareBuildSWPlugins(
 }
 
 function prepareViteBuilds<T extends SWType>(
-  bundlerOptions: BundlerOptions[],
+  bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
   options: BuildServiceWorkerOptions<T>,
   prepareViteBuild: typeof import('./build-utils')['prepareViteBuild'],
   asyncFlatten: typeof import('../bundler/utils')['asyncFlatten'],

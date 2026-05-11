@@ -1,5 +1,4 @@
 import type { BuildResult, SWType } from '../../types'
-import type { BundlerOptions } from '../bundler/bundler-types'
 import type { BuildServiceWorkerOptions, ServiceWorkerOptions } from './types'
 
 async function prepareBuildSWPlugins(
@@ -14,14 +13,13 @@ async function prepareBuildSWPlugins(
 }
 
 function prepareRolldownBuilds<T extends SWType>(
-  bundlerOptions: BundlerOptions[],
+  bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
   options: BuildServiceWorkerOptions<T>,
   asyncFlatten: typeof import('../bundler/utils')['asyncFlatten'],
   transformESMTargetToRolldown: typeof import('../bundler/utils')['transformESMTargetToRolldown'],
   prepareRolldownBuild: typeof import('../rolldown/build-utils')['prepareRolldownBuild'],
 ): Promise<any>[] {
   return bundlerOptions.map(async (b) => {
-    await import('../bundler/bundler-types')
     return await prepareBuildSWPlugins(
       options.plugins,
       asyncFlatten,
