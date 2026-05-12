@@ -76,6 +76,7 @@ describe('prepare-sw-code (applies only to generateSW strategy)', () => {
       skipWaiting: true,
       clientsClaim: true,
       cleanupOutdatedCaches: true,
+      globIgnores: ['**/sw.js'],
       globDirectory: generateSWFixture,
       globPatterns: ['**/*.js'],
     }, generateSWFixture)
