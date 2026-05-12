@@ -42,6 +42,7 @@
     "./build/vite": "./dist/build/vite/index.mjs",
     "./build/vite/build-sw": "./dist/build/vite/build-sw.mjs",
     "./build/vite/generate-sw": "./dist/build/vite/generate-sw.mjs",
+    "./build/vite/legacy-types": "./dist/build/vite/legacy-types.mjs",
     "./build/vite/rolldown-build-sw": "./dist/build/vite/rolldown-build-sw.mjs",
     "./build/vite/rolldown-generate-sw": "./dist/build/vite/rolldown-generate-sw.mjs",
     "./build/vite/types": {
@@ -81,6 +82,9 @@
       ],
       "build/vite/generate-sw": [
         "./dist/build/vite/generate-sw.d.mts"
+      ],
+      "build/vite/legacy-types": [
+        "./dist/build/vite/legacy-types.d.mts"
       ],
       "build/vite/rolldown-build-sw": [
         "./dist/build/vite/rolldown-build-sw.d.mts"
