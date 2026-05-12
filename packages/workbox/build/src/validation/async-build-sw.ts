@@ -16,13 +16,13 @@ import { SWTargetSchema } from './utils'
 const AsyncBaseInjectManifestEntries = AsyncInjectManifestOptionsSchema.pipe[0]
 
 const BaseInjectManifestEntries = v.pipeAsync(
-  v.strictObjectAsync({
+  v.strictObject({
     ...AsyncBaseInjectManifestEntries.entries,
     /**
      * The type of the service worker.
      * @default classic
      */
-    swType: v.optionalAsync(v.picklist([
+    swType: v.optional(v.picklist([
       'classic',
       'module',
       'classic-and-module',
@@ -30,11 +30,11 @@ const BaseInjectManifestEntries = v.pipeAsync(
     /**
      * Whether the runtime code for the Workbox library should be included in the top-level service worker, or split into a separate file that needs to be deployed alongside the service worker. Keeping the runtime separate means that users will not have to re-download the Workbox code each time your top-level service worker changes.
      */
-    inlineWorkboxRuntime: v.optionalAsync(v.boolean(), false),
+    inlineWorkboxRuntime: v.optional(v.boolean(), false),
     /**
      * If set to 'production', then an optimized service worker bundle that excludes debugging info will be produced. If not explicitly configured here, the `process.env.NODE_ENV` value will be used, and failing that, it will fall back to `'production'`.
      */
-    mode: v.optionalAsync(v.nullable(v.string()), 'production'),
+    mode: v.optional(v.nullable(v.string()), 'production'),
     /**
      * When using `classic` or `module` and splitting workbox runtime (inlineWorkboxRuntime set to false), this flag controls the
      * name of the `workbox-**.js` chunk:
@@ -45,40 +45,24 @@ const BaseInjectManifestEntries = v.pipeAsync(
      *
      * @default true
      */
-    workboxRuntimeCompatible: v.optionalAsync(v.boolean(), true),
+    workboxRuntimeCompatible: v.optional(v.boolean(), true),
     /**
      * Service worker target build.
      */
     target: SWTargetSchema,
-    /*
-    target: v.optionalAsync(
-      v.unionAsync([
-        v.string(),
-        v.arrayAsync(v.string()),
-        v.objectAsync({
-          classic: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
-          module: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
-        }),
-      ]),
-      {
-        classic: ['chrome56', 'safari11', 'firefox60'],
-        module: 'baseline-widely-available',
-      },
-    ),
-*/
     /**
      * Should minify the output?
      * - when specified it is preserved
      * - true when sourcemap is not set to false or mode is set to production
      * - otherwise false
      */
-    minify: v.optionalAsync(v.boolean()),
+    minify: v.optional(v.boolean()),
     /**
      * Whether to create a sourcemap.
      * @default true
      */
-    sourcemap: v.optionalAsync(
-      v.unionAsync([
+    sourcemap: v.optional(
+      v.union([
         v.boolean(),
         v.literal('hidden'),
         v.literal('inline'),
@@ -89,14 +73,14 @@ const BaseInjectManifestEntries = v.pipeAsync(
      * Custom chunks support (requires magicast).
      * This allows splitting specific modules into separate files.
      */
-    customChunks: v.optionalAsync(
+    customChunks: v.optional(
       v.function(),
     ),
     // Vite specific optional fields
-    define: v.optionalAsync(v.recordAsync(v.string(), v.any())),
-    envDir: v.optionalAsync(v.string()),
-    envPrefix: v.optionalAsync(v.unionAsync([v.string(), v.arrayAsync(v.string())])),
-    plugins: v.optionalAsync(v.any()),
+    define: v.optional(v.record(v.string(), v.any())),
+    envDir: v.optional(v.string()),
+    envPrefix: v.optional(v.union([v.string(), v.array(v.string())])),
+    plugins: v.optional(v.any()),
   }),
   v.forwardAsync(
     v.checkAsync(

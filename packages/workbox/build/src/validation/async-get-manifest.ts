@@ -1,12 +1,12 @@
 import fs from 'node:fs/promises'
 import * as v from 'valibot'
-import { AsyncManifestOptionsSchema } from './utils'
+import { ManifestOptionsSchema } from './utils'
 
 export type AsyncGetManifestOptionsSchemaType = v.InferInput<typeof AsyncGetManifestOptionsSchema>
 
 export const AsyncGetManifestOptionsSchema = v.pipeAsync(
-  v.strictObjectAsync({
-    ...AsyncManifestOptionsSchema.entries,
+  v.strictObject({
+    ...ManifestOptionsSchema.entries,
     /**
      * The local directory you wish to match `globPatterns` against. The path is
      * relative to the current directory.

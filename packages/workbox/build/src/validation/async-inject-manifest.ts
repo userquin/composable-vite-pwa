@@ -4,13 +4,13 @@ import {
   validateSWDestDirectory,
   validateSWSrc,
 } from './generation-utils'
-import { AsyncManifestOptionsSchema } from './utils'
+import { ManifestOptionsSchema } from './utils'
 
 export type AsyncInjectManifestOptionsSchemaType = v.InferInput<typeof AsyncInjectManifestOptionsSchema>
 
 export const AsyncInjectManifestOptionsSchema = v.pipeAsync(
-  v.strictObjectAsync({
-    ...AsyncManifestOptionsSchema.entries,
+  v.strictObject({
+    ...ManifestOptionsSchema.entries,
     /**
      * The string to find inside of the `swSrc` file. Once found, it will be
      * replaced by the generated precache manifest.
@@ -19,8 +19,8 @@ export const AsyncInjectManifestOptionsSchema = v.pipeAsync(
      *
      * @default "self.__WB_MANIFEST"
      */
-    injectionPoint: v.optionalAsync(
-      v.unionAsync([
+    injectionPoint: v.optional(
+      v.union([
         v.string(),
         v.null(),
         v.literal(false),
@@ -38,7 +38,7 @@ export const AsyncInjectManifestOptionsSchema = v.pipeAsync(
      * the build process, relative to the current working directory. It must end
      * in '.js'.
      */
-    swDest: v.pipeAsync(
+    swDest: v.pipe(
       v.string(),
       v.endsWith('.js', 'invalid-sw-dest-js-ext'),
     ),

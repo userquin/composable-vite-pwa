@@ -1,17 +1,17 @@
 import * as v from 'valibot'
 import { validateGlobDirectory, validateSWDestDirectory, withSmartMinify } from './generation-utils'
-import { AsyncManifestOptionsSchema, AsyncRuntimeCachingEntrySchema, SWTargetSchema } from './utils'
+import { ManifestOptionsSchema, RuntimeCachingEntrySchema, SWTargetSchema } from './utils'
 
 export type AsyncGenerateSWOptionsSchemaType = v.InferInput<typeof AsyncGenerateSWOptionsSchema>
 
 const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
-  v.strictObjectAsync({
-    ...AsyncManifestOptionsSchema.entries,
+  v.strictObject({
+    ...ManifestOptionsSchema.entries,
     /**
      * The type of the service worker.
      * @default classic
      */
-    swType: v.optionalAsync(v.picklist([
+    swType: v.optional(v.picklist([
       'classic',
       'module',
       'classic-and-module',
@@ -26,100 +26,84 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
      *
      * @default true
      */
-    workboxRuntimeCompatible: v.optionalAsync(v.boolean(), true),
+    workboxRuntimeCompatible: v.optional(v.boolean(), true),
     /**
      * Service worker target build.
      */
     target: SWTargetSchema,
-    /*
-          target: v.optionalAsync(
-            v.unionAsync([
-              v.string(),
-              v.arrayAsync(v.string()),
-              v.objectAsync({
-                classic: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
-                module: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
-              }),
-            ]),
-            {
-              classic: ['chrome56', 'safari11', 'firefox60'],
-              module: 'baseline-widely-available',
-            },
-          ),
-      */
     /**
      * Should minify the output?
      * - when specified it is preserved
      * - true when sourcemap is not set to false or mode is set to production
      * - otherwise false
      */
-    minify: v.optionalAsync(v.boolean()),
+    minify: v.optional(v.boolean()),
     /**
      * An optional ID to be prepended to cache names. This is primarily useful for local development where multiple sites may be served from the same `http://localhost:port` origin.
      */
-    cacheId: v.optionalAsync(v.nullable(v.string())),
+    cacheId: v.optional(v.nullable(v.string())),
     /**
      * Whether or not Workbox should attempt to identify and delete any precaches created by older, incompatible versions.
      */
-    cleanupOutdatedCaches: v.optionalAsync(v.boolean(), false),
+    cleanupOutdatedCaches: v.optional(v.boolean(), false),
     /**
      * Whether or not the service worker should [start controlling](https://developers.google.com/web/fundamentals/primers/service-workers/lifecycle#clientsclaim) any existing clients as soon as it activates.
      */
-    clientsClaim: v.optionalAsync(v.boolean(), false),
+    clientsClaim: v.optional(v.boolean(), false),
     /**
      * If a navigation request for a URL ending in `/` fails to match a precached URL, this value will be appended to the URL and that will be checked for a precache match. This should be set to what your web server is using for its directory index.
      */
-    directoryIndex: v.optionalAsync(v.nullable(v.string())),
+    directoryIndex: v.optional(v.nullable(v.string())),
     /**
      * Whether to disable logging of warnings and errors.
      */
-    disableDevLogs: v.optionalAsync(v.boolean(), false),
+    disableDevLogs: v.optional(v.boolean(), false),
     /**
      * Any search parameter names that match against one of the RegExp in this array will be removed before looking for a precache match. This is useful if your users might request URLs that contain, for example, URL parameters used to track the source of the traffic. If not provided, the default value is `[/^utm_/, /^fbclid$/]`.
      */
-    ignoreURLParametersMatching: v.optionalAsync(v.arrayAsync(v.instance(RegExp))),
+    ignoreURLParametersMatching: v.optional(v.array(v.instance(RegExp))),
     /**
      * Whether or not to clean up search parameters from URLs.
      * @default true
      */
-    cleanURLs: v.optionalAsync(v.boolean(), true),
+    cleanURLs: v.optional(v.boolean(), true),
     /**
      * A callback function that allows you to modify the URL of a precached asset
      * before it's looked up in the cache.
      */
-    urlManipulation: v.optionalAsync(v.function()),
+    urlManipulation: v.optional(v.function()),
     /**
      * Whether the runtime code for the Workbox library should be included in the top-level service worker, or split into a separate file that needs to be deployed alongside the service worker. Keeping the runtime separate means that users will not have to re-download the Workbox code each time your top-level service worker changes.
      */
-    inlineWorkboxRuntime: v.optionalAsync(v.boolean(), false),
+    inlineWorkboxRuntime: v.optional(v.boolean(), false),
     /**
      * If set to 'production', then an optimized service worker bundle that excludes debugging info will be produced. If not explicitly configured here, the `process.env.NODE_ENV` value will be used, and failing that, it will fall back to `'production'`.
      */
-    mode: v.optionalAsync(v.nullable(v.string()), 'production'),
+    mode: v.optional(v.nullable(v.string()), 'production'),
     /**
      * If specified, all [navigation requests](https://developers.google.com/web/fundamentals/primers/service-workers/high-performance-loading#first_what_are_navigation_requests) for URLs that aren't precached will be fulfilled with the HTML at the URL provided. You must pass in the URL of an HTML document that is listed in your precache manifest. This is meant to be used in a Single Page App scenario, in which you want all navigations to use common [App Shell HTML](https://developers.google.com/web/fundamentals/architecture/app-shell).
      */
-    navigateFallback: v.optionalAsync(v.nullable(v.string()), null),
+    navigateFallback: v.optional(v.nullable(v.string()), null),
     /**
      * An optional array of regular expressions that restricts which URLs the configured `navigateFallback` behavior applies to. This is useful if only a subset of your site's URLs should be treated as being part of a [Single Page App](https://en.wikipedia.org/wiki/Single-page_application). If both `navigateFallbackDenylist` and `navigateFallbackAllowlist` are configured, the denylist takes precedent.
      */
-    navigateFallbackAllowlist: v.optionalAsync(v.arrayAsync(v.instance(RegExp))),
+    navigateFallbackAllowlist: v.optional(v.array(v.instance(RegExp))),
     /**
      * An optional array of regular expressions that restricts which URLs the configured `navigateFallback` behavior applies to. This is useful if only a subset of your site's URLs should be treated as being part of a [Single Page App](https://en.wikipedia.org/wiki/Single-page_application). If both `navigateFallbackDenylist` and `navigateFallbackAllowlist` are configured, the denylist takes precedent.
      */
-    navigateFallbackDenylist: v.optionalAsync(v.arrayAsync(v.instance(RegExp))),
+    navigateFallbackDenylist: v.optional(v.array(v.instance(RegExp))),
     /**
      * Whether or not to enable [navigation preload](https://developers.google.com/web/tools/workbox/modules/workbox-navigation-preload) in the generated service worker. When set to true, you must also use `runtimeCaching` to set up an appropriate response strategy that will match navigation requests, and make use of the preloaded response.
      */
-    navigationPreload: v.optionalAsync(v.boolean(), false),
+    navigationPreload: v.optional(v.boolean(), false),
     /**
      * When using Workbox's build tools to generate your service worker, you can specify one or more runtime caching configurations. These are then translated to {@link workbox-routing.registerRoute} calls using the match and handler configuration you define.
      */
-    runtimeCaching: v.optionalAsync(v.arrayAsync(AsyncRuntimeCachingEntrySchema)),
+    runtimeCaching: v.optional(v.array(RuntimeCachingEntrySchema)),
     /**
      * Whether to add an unconditional call to [`skipWaiting()`](https://developers.google.com/web/fundamentals/primers/service-workers/lifecycle#skip_the_waiting_phase) to the generated service worker. If `false`, then a `message` listener will be added instead, allowing client pages to trigger `skipWaiting()` by calling `postMessage({type: 'SKIP_WAITING'})` on a waiting service worker.
      */
-    skipWaiting: v.optionalAsync(v.boolean(), false),
+    skipWaiting: v.optional(v.boolean(), false),
     /**
      * Whether to create a sourcemap for the generated service worker files.
      * - `false`: No sourcemap will be generated.
@@ -129,8 +113,8 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
      *
      * @default true
      */
-    sourcemap: v.optionalAsync(
-      v.unionAsync([
+    sourcemap: v.optional(
+      v.union([
         v.boolean(),
         v.literal('hidden'),
         v.literal('inline'),
@@ -140,7 +124,7 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
     /**
      * The path and filename of the service worker file that will be created by the build process, relative to the current working directory. It must end in '.js'.
      */
-    swDest: v.pipeAsync(
+    swDest: v.pipe(
       v.string(),
       v.endsWith('.js', 'invalid-sw-dest-js-ext'),
     ),
@@ -148,7 +132,7 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
      * The local directory you wish to match `globPatterns` against. The path is
      * relative to the current directory.
      */
-    globDirectory: v.optionalAsync(v.string()),
+    globDirectory: v.optional(v.string()),
   }),
   v.forwardAsync(
     v.checkAsync(
