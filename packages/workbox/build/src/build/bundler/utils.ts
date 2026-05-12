@@ -65,6 +65,28 @@ export function restoreClassicGenerateSWRegions(
   )
 }
 
+const varRegex = /\b(?:const|let)(?=\s+[_$a-zA-Z])/g
+
+/**
+ * GLOBAL TRANSFORMATION: ES6 to Classic (let/const to var).
+ *
+ * Since Rolldown/Vite only supports ES2015+ targets, we must manually
+ * transform variable declarations for classic Service Workers to avoid
+ * syntax errors on re-evaluation (Redeclaration Error).
+ */
+function replaceLetConstWithVar(magicString: MagicString) {
+  let varMatch
+  const currentCode = magicString.original
+
+  // eslint-disable-next-line no-cond-assign
+  while ((varMatch = varRegex.exec(currentCode)) !== null) {
+    const start = varMatch.index
+    const end = start + varMatch[0].length
+    // Overwrite keeping the source map positions intact
+    magicString.overwrite(start, end, 'var')
+  }
+}
+
 export async function transformClassicChunk(
   name: 'workbox' | 'sw',
   code: string,
@@ -137,6 +159,8 @@ export async function transformClassicChunk(
       const replacement = `var { ${cleanImports} } = self.workbox.swkit`
       magicString.overwrite(match.index, match.index + fullMatch.length, replacement)
     }
+    // replace const/let with var: rolldown only supports ES6
+    replaceLetConstWithVar(magicString)
     // replace regions with temp SW name
     if (generateSW) {
       restoreClassicGenerateSWRegions(region, magicString)

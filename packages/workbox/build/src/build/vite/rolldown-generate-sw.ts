@@ -16,7 +16,7 @@ function prepareRolldownBuilds<T extends SWType>(
   })
 }
 
-export async function generateSW<T extends SWType>(
+export async function generateSWLegacy<T extends SWType>(
   options: BuildGenerateSWOptions<T>,
 ): Promise<BuildResult> {
   const [

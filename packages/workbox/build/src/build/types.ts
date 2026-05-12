@@ -1,6 +1,18 @@
 import type { GenerateSWOptions, InjectManifestOptions, SWTarget, SWType } from '../types'
 
-export interface BuildSWOptions<T extends SWType> extends InjectManifestOptions {
+/**
+ * Defines a custom code chunk group.
+ * Receives the module ID (file path) and returns the desired chunk name
+ * or undefined if the module should stay in the default bundle.
+ *
+ * @see https://rolldown.rs/reference/TypeAlias.CodeSplittingNameFunction#type-alias-codesplittingnamefunction
+ */
+export type CustomChunkCallback<B extends 'vite' | 'rolldown'>
+  = B extends 'vite'
+    ? import('vite').Rolldown.CodeSplittingNameFunction
+    : import('rolldown').CodeSplittingNameFunction
+
+export interface BuildSWOptions<T extends SWType, B extends 'vite' | 'rolldown' = 'vite'> extends InjectManifestOptions {
   /**
    * The type of the service worker.
    *
@@ -48,6 +60,25 @@ export interface BuildSWOptions<T extends SWType> extends InjectManifestOptions 
    * - otherwise false
    */
   minify?: boolean
+  /**
+   * Custom chunks support (**requires magicast**).
+   *
+   * This allows splitting specific modules into separate files via a callback.
+   *
+   * When used in 'classic' mode, static imports will be automatically added to `importScripts`.
+   *
+   * @example
+   * ```ts
+   * customChunks: (moduleId) => {
+   *   if (moduleId.includes('node_modules/dexie')) {
+   *     return 'dexie-lib';
+   *   }
+   * }
+   * ```
+   *
+   * @see https://rolldown.rs/reference/TypeAlias.CodeSplittingNameFunction#type-alias-codesplittingnamefunction
+   */
+  customChunks?: CustomChunkCallback<B>
 }
 
 export type BuildGenerateSWOptions<T extends SWType> = GenerateSWOptions<T>

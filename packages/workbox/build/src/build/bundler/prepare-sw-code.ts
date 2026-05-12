@@ -79,12 +79,12 @@ export async function prepareSWCode<T extends SWType>(
   }
 
   if (options.skipWaiting) {
-    swCode.push('globalThis.skipWaiting()')
+    swCode.push('self.skipWaiting()')
   }
   else {
     swCode.push(`self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    globalThis.skipWaiting()
+    self.skipWaiting()
   }
 })`)
   }
