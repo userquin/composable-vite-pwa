@@ -52,6 +52,26 @@ export const AsyncManifestEntrySchema = v.strictObjectAsync({
   url: v.string(),
 })
 
+export const SWTargetsSchema = v.unionAsync([
+  v.string(),
+  v.arrayAsync(v.string()),
+])
+
+export const SWTargetSchema = v.optionalAsync(
+  v.unionAsync([
+    v.string(),
+    v.arrayAsync(v.string()),
+    v.strictObjectAsync({
+      classic: SWTargetsSchema,
+      module: SWTargetsSchema,
+    }),
+  ]),
+  {
+    classic: ['chrome56', 'safari11', 'firefox60'],
+    module: 'baseline-widely-available',
+  },
+)
+
 /**
  * A custom Valibot schema that accepts either a primitive number
  * or a magicast Proxy representing a numeric expression.

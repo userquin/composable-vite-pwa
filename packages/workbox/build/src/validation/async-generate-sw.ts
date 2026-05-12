@@ -1,6 +1,6 @@
 import * as v from 'valibot'
 import { validateGlobDirectory, validateSWDestDirectory, withSmartMinify } from './generation-utils'
-import { AsyncManifestOptionsSchema, AsyncRuntimeCachingEntrySchema } from './utils'
+import { AsyncManifestOptionsSchema, AsyncRuntimeCachingEntrySchema, SWTargetSchema } from './utils'
 
 export type AsyncGenerateSWOptionsSchemaType = v.InferInput<typeof AsyncGenerateSWOptionsSchema>
 
@@ -30,20 +30,23 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
     /**
      * Service worker target build.
      */
-    target: v.optionalAsync(
-      v.unionAsync([
-        v.string(), // Allow 'chrome56', 'es2015', etc.
-        v.arrayAsync(v.string()), // Allow ['chrome56', 'safari11', 'firefox60']
-        v.strictObjectAsync({
-          classic: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
-          module: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
-        }),
-      ]),
-      {
-        classic: ['chrome56', 'safari11', 'firefox60'],
-        module: 'baseline-widely-available',
-      },
-    ),
+    target: SWTargetSchema,
+    /*
+          target: v.optionalAsync(
+            v.unionAsync([
+              v.string(),
+              v.arrayAsync(v.string()),
+              v.objectAsync({
+                classic: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
+                module: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
+              }),
+            ]),
+            {
+              classic: ['chrome56', 'safari11', 'firefox60'],
+              module: 'baseline-widely-available',
+            },
+          ),
+      */
     /**
      * Should minify the output?
      * - when specified it is preserved

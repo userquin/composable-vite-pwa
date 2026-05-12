@@ -6,6 +6,7 @@ import {
   validateSWSrc,
   withSmartMinify,
 } from './generation-utils'
+import { SWTargetSchema } from './utils'
 
 /**
  * We extract the base entries from InjectManifest to reuse them.
@@ -48,11 +49,13 @@ const BaseInjectManifestEntries = v.pipeAsync(
     /**
      * Service worker target build.
      */
+    target: SWTargetSchema,
+    /*
     target: v.optionalAsync(
       v.unionAsync([
         v.string(),
         v.arrayAsync(v.string()),
-        v.strictObjectAsync({
+        v.objectAsync({
           classic: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
           module: v.unionAsync([v.string(), v.arrayAsync(v.string())]),
         }),
@@ -62,6 +65,7 @@ const BaseInjectManifestEntries = v.pipeAsync(
         module: 'baseline-widely-available',
       },
     ),
+*/
     /**
      * Should minify the output?
      * - when specified it is preserved
@@ -80,6 +84,16 @@ const BaseInjectManifestEntries = v.pipeAsync(
         v.literal('inline'),
       ]),
       true,
+    ),
+    /**
+     * Custom chunks support (requires magicast).
+     * This allows splitting specific modules into separate files.
+     */
+    customChunks: v.optionalAsync(
+      v.recordAsync(
+        v.string(),
+        v.function(), // Simplified to avoid argument mismatch in complex pipes
+      ),
     ),
     // Vite specific optional fields
     define: v.optionalAsync(v.recordAsync(v.string(), v.any())),
