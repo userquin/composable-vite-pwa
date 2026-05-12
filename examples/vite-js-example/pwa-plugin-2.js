@@ -7,10 +7,10 @@ import {
   generateSW as viteGenerateSW,
 } from '@composable-vite-pwa/workbox-build/build/vite/generate-sw'
 import {
-  buildSW as rolldownBuildSW,
+  buildSWLegacy as rolldownBuildSW,
 } from '@composable-vite-pwa/workbox-build/build/vite/rolldown-build-sw'
 import {
-  generateSW as rolldownGenerateSW,
+  generateSWLegacy as rolldownGenerateSW,
 } from '@composable-vite-pwa/workbox-build/build/vite/rolldown-generate-sw'
 import { VirtualPlugin } from './virtual-plugin'
 

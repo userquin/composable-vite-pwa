@@ -27,7 +27,15 @@ precacheAndRoute(self.__WB_MANIFEST, {
   },
 })
 cleanupOutdatedCaches()
-registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')))
+/** @type {RegExp[] | undefined} */
+let allowlist
+if (import.meta.env.DEV)
+  allowlist = [/^\/$/]
+
+registerRoute(new NavigationRoute(
+  createHandlerBoundToURL('index.html'),
+  { allowlist },
+))
 // eslint-disable-next-line prefer-regex-literals
 registerRoute(new RegExp('^https:\\/\\/fonts\\.(?:googleapis|gstatic)\\.com\\/.*', 'i'), new CacheFirst({
   cacheName: 'google-fonts',
