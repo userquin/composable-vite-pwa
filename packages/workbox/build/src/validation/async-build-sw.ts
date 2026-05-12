@@ -90,10 +90,7 @@ const BaseInjectManifestEntries = v.pipeAsync(
      * This allows splitting specific modules into separate files.
      */
     customChunks: v.optionalAsync(
-      v.recordAsync(
-        v.string(),
-        v.function(), // Simplified to avoid argument mismatch in complex pipes
-      ),
+      v.function(),
     ),
     // Vite specific optional fields
     define: v.optionalAsync(v.recordAsync(v.string(), v.any())),
