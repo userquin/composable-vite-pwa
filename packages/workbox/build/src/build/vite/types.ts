@@ -7,6 +7,8 @@ export interface ServiceWorkerOptions {
   envPrefix?: import('vite').UserConfig['envPrefix']
   plugins?: () => import('vite').PluginOption[]
   sourcemap?: import('vite').BuildOptions['sourcemap']
+  // todo: add custom chunk file names
+  // todo: add custom callback customizer for vite build
 }
 
 export type BuildServiceWorkerOptions<T extends SWType> = BuildSWOptions<T> & ServiceWorkerOptions

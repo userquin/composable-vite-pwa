@@ -114,6 +114,8 @@ export async function transformClassicChunk(
       // todo: add it to log.ts
       throw new Error('Missing workbox file name!')
     }
+    // todo: allow add custom chunks mapping, this will work only with workbox runtime
+    // for example, check this repo: https://github.com/userquin/nostroid/blob/master/src/custom-sw.ts#L8
     magicString = new MagicString(code)
     magicString.prepend(`importScripts("./${workboxFileName}");\n`)
 
