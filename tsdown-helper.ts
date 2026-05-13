@@ -38,18 +38,19 @@ export const fixTypesVersion = {
       // add typesVersions entry
       if (key !== '.' && key !== './package.json') {
         const isMjs = value.endsWith('.mjs')
+        const isCjs = value.endsWith('.cjs')
         if (isMjs) {
           typesVersions[key.slice(2)] = [value.replace(regexp.mjs, '.d.mts')]
         }
         else {
-          typesVersions[key.slice(2)] = [value.replace(regexp.js, '.d.ts')]
+          typesVersions[key.slice(2)] = [value.replace(regexp.js, isCjs ? '.d.cts' : '.d.ts')]
         }
         if (key.endsWith('/types')) {
           if (isMjs) {
             exp[key] = { types: value.replace(regexp.mjs, '.d.mts') }
           }
           else {
-            exp[key] = { types: value.replace(regexp.js, '.d.ts') }
+            exp[key] = { types: value.replace(regexp.js, isCjs ? '.d.cts' : '.d.ts') }
           }
         }
       }
@@ -78,6 +79,10 @@ export async function cleanupDistFiles(cwd: string, patterns: string | string[])
 
 export async function cleanupJSTypes(cwd: string) {
   await cleanupDistFiles(cwd, ['**/types.{js,mjs}'])
+}
+
+export async function cleanupDualJSTypes(cwd: string) {
+  await cleanupDistFiles(cwd, ['**/types.{js,mjs,cjs}'])
 }
 
 export async function cleanupCliFiles(cwd: string) {

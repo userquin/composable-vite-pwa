@@ -1,3 +1,4 @@
+import type { BuildSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
 import type {
   GlobPartial,
   RequiredSWDestPartial,
@@ -11,6 +12,7 @@ import type {
   DetectionData,
   DetectorMode,
   LoadDetectorReturn,
+  OriginalBuildSWOptions,
   ResolvedSWTargets,
 } from './bundler-types'
 import path from 'node:path'
@@ -20,6 +22,17 @@ export const workboxRegex = [
   /^@composable-vite-pwa\/workbox-swkit\//,
   /[\\/]workbox[\\/]swkit/,
 ]
+
+export function extractOriginalBuildSWOptions<T extends SWType, Options extends BuildSWOptions<T>>(
+  options: Options,
+): OriginalBuildSWOptions {
+  return Object.assign({}, {
+    mode: options.mode,
+    envDir: 'envDir' in options ? options.envDir : undefined,
+    envPrefix: 'envPrefix' in options ? options.envPrefix : undefined,
+    define: 'define' in options ? options.define : undefined,
+  }) as OriginalBuildSWOptions
+}
 
 export async function loadDetector<M extends DetectorMode>({
   mode,

@@ -6,9 +6,6 @@ autoInstallPeers: true
 
 catalogMode: prefer
 
-overrides:
-  rolldown: ^1.0.0
-
 catalogs:
   build:
     tsdown: ^0.21.10
@@ -42,6 +39,7 @@ catalogs:
     ansis: ^4.2.0
     cac: ^7.0.0
     consola: ^3.4.2
+    dotenv-expand: 13.0.0
     idb: ^8.0.3
     magic-string: ^0.30.21
     magicast: ^0.5.2
@@ -66,6 +64,12 @@ ignoreDepScripts: true
 ignoreWorkspaceRootCheck: true
 
 linkWorkspacePackages: true
+
+overrides:
+  rolldown: ^1.0.0
+
+patchedDependencies:
+  dotenv-expand@13.0.0: patches/dotenv-expand@13.0.0.patch
 
 preferWorkspacePackages: true
 

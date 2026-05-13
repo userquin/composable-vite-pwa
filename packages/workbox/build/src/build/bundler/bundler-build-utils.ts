@@ -2,6 +2,7 @@ import type { Bundler, ClassicBuild } from './bundler-types'
 import path from 'node:path'
 import process from 'node:process'
 import MagicString from 'magic-string'
+import { loadEnv, resolveEnvPrefix } from './env'
 import { restoreClassicGenerateSWRegions, transformClassicChunk, workboxRegex } from './utils'
 
 type BundlerPluginType<T extends Bundler> = T extends 'rolldown'
@@ -18,7 +19,7 @@ interface PrepareBundlerBuilder<T extends Bundler> {
   rolldownOptions: import('rolldown').OutputOptions
 }
 
-function CloseBundlePlugin<T extends Bundler>(
+function GenerateBundlePlugin<T extends Bundler>(
   bundler: T,
   {
     swType,
@@ -94,13 +95,120 @@ function CloseBundlePlugin<T extends Bundler>(
   } as BundlerPluginType<T>
 }
 
-export function prepareBundlerBuildOptions<T extends Bundler>(
-  bundler: T,
+async function prepareDefineOptions<T extends Bundler>(
+  _bundler: T,
   options: RolldownOptions<T>,
-): PrepareBundlerBuilder<T> {
-  const swName = path.basename(options.swDest)
+) {
+  // Use the original options if available, otherwise fallback to the current ones
+  const original = options.originalBuildSWOptions || {}
+
+  const mode = options.mode || original.mode || 'production'
+  const envDir = original.envDir ?? options.envDir ?? process.cwd()
+  const envPrefix = original.envPrefix ?? options.envPrefix ?? 'VITE_'
+
+  const define: Record<string, any> = {
+    // 1. Static Replacement for NODE_ENV (Core for many libs)
+    'process.env.NODE_ENV': JSON.stringify(mode),
+    // 2. Workbox Placeholder
+    'self.__WB_MANIFEST': options.generateSW
+      ? JSON.stringify('undefined')
+      : JSON.stringify(options.manifestEntries),
+  }
+
+  // 3. Load Real Environment Variables
+  const resolvedPrefixes = resolveEnvPrefix(envPrefix)
+  const userEnv = loadEnv(mode, envDir, resolvedPrefixes)
+
+  // 4. Built-in Vite-like Env
+  const builtInEnv = {
+    MODE: mode,
+    DEV: mode !== 'production',
+    PROD: mode === 'production',
+    SSR: false,
+    BASE_URL: './',
+  }
+
+  // 5. Merge Strategy: Individual Keys
+  // We prioritize: User Define > User Env (.env) > Built-in Env
+  const mergedEnv = { ...builtInEnv, ...userEnv }
+
+  for (const [key, value] of Object.entries(mergedEnv)) {
+    define[`import.meta.env.${key}`] = JSON.stringify(value)
+  }
+
+  // 6. Full Object Replacement
+  // This allows code like: const x = import.meta.env
+  define['import.meta.env'] = JSON.stringify(mergedEnv)
+
+  // 7. Apply User-Specific Defines
+  // We do this last so the user can override anything else
+  if (original.define) {
+    for (const [key, value] of Object.entries(original.define)) {
+      define[key] = value // Note: user defines are usually already stringified
+    }
+  }
+
+  return define
+}
+/*
+
+async function prepareDefineOptions<T extends Bundler>(
+  _bundler: T,
+  options: RolldownOptions<T>,
+) {
+  const isDefineProvided = 'define' in options
+    && options.define
+    && Object.keys(options.define).length > 0
+
   const {
     mode,
+    define = {},
+    envDir,
+    envPrefix,
+    manifestEntries,
+    generateSW,
+  } = options
+
+  define['process.env.NODE_ENV'] = JSON.stringify(mode || process.env.NODE_ENV || 'production')
+  if (generateSW) {
+    define['self.__WB_MANIFEST'] = JSON.stringify('undefined')
+  }
+  else {
+    define['self.__WB_MANIFEST'] = JSON.stringify(manifestEntries)
+  }
+
+  if (isDefineProvided) {
+    return define
+  }
+
+  /!* let loadEnv:
+
+  if (envDir) {
+    const detection = await detectViteLoadEnvSupport()
+    if (detection) {
+      useEnv = true
+    }
+    else {
+      logViteLoadEnvWarning()
+    }
+  } *!/
+
+  // 1. check if vite is present: we'll need to check min. vite version exporting loadEnv
+  // 2. warn consumer if vite version missing
+  // 3. apply vite logic at:
+  // 3.1. https://github.com/sheremet-va/vite/blob/main/packages/vite/src/node/plugins/define.ts
+  // 3.2. https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L1656-L1684
+  // 4. populate env + import.meta.env at define
+  return define
+}
+*/
+
+export async function prepareBundlerBuildOptions<T extends Bundler>(
+  bundler: T,
+  options: RolldownOptions<T>,
+): Promise<PrepareBundlerBuilder<T>> {
+  const swName = path.basename(options.swDest)
+  const {
     sourcemap,
     swType,
     swSrc,
@@ -110,19 +218,11 @@ export function prepareBundlerBuildOptions<T extends Bundler>(
     inlineWorkboxRuntime,
     workboxRuntimeCompatible,
     plugins = [],
-    define = {},
-    manifestEntries,
     generateSW,
     filePaths,
   } = options
 
-  define['process.env.NODE_ENV'] = JSON.stringify(mode || process.env.NODE_ENV || 'production')
-  if (generateSW) {
-    delete define['self.__WB_MANIFEST']
-  }
-  else {
-    define['self.__WB_MANIFEST'] = JSON.stringify(manifestEntries)
-  }
+  const define = await prepareDefineOptions(bundler, options)
 
   const workboxName = inlineWorkboxRuntime !== true
     ? (inlineWorkboxRuntime.workboxChunkName || (
@@ -132,7 +232,7 @@ export function prepareBundlerBuildOptions<T extends Bundler>(
       ))
     : undefined
 
-  plugins.unshift(CloseBundlePlugin(
+  plugins.unshift(GenerateBundlePlugin(
     bundler,
     {
       swType,

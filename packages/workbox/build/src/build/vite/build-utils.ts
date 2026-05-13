@@ -21,7 +21,7 @@ export async function prepareViteBuild(
     plugins,
     define,
     rolldownOptions: output,
-  } = prepareBundlerBuildOptions('vite', options)
+  } = await prepareBundlerBuildOptions('vite', options)
 
   return await build({
     plugins,

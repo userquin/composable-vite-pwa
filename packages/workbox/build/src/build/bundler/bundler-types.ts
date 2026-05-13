@@ -1,5 +1,11 @@
 import type { ManifestEntry, SWTargets, SWType } from '../../types'
 
+export interface OriginalBuildSWOptions {
+  mode?: string | null
+  define?: Record<string, string>
+  envDir?: string | false
+  envPrefix?: string | string[]
+}
 export interface ResolvedSWTargets {
   classic: SWTargets
   module: SWTargets
@@ -21,6 +27,7 @@ export interface BundlerOptions {
   }
   manifestEntries: ManifestEntry[]
   generateSW: boolean
+  originalBuildSWOptions?: OriginalBuildSWOptions
 }
 
 export interface PrepareBundlerOptions {

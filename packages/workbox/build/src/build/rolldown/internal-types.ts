@@ -2,6 +2,28 @@ import type { BundlerOptions } from '../bundler/bundler-types'
 
 export interface RolldownBuildOptions extends BundlerOptions {
   define?: import('rolldown').TransformOptions['define']
+  /**
+   * The directory from which .env files are loaded.
+   *
+   * Can be an absolute path, or a path relative to the project root.
+   *
+   * Set to `false` to disable loading .env files.
+   *
+   * @default 'root'
+   *
+   * @see https://vite.dev/config/shared-options#envdir
+   * @see https://vite.dev/guide/env-and-mode#env-files
+   */
+  envDir?: string | false
+  /**
+   * Env variables starting with `envPrefix` will be exposed to your client code via import.meta.env.
+   *
+   * @default 'VITE_'
+   *
+   * @see https://vite.dev/config/shared-options#envprefix
+   * @see https://vite.dev/guide/env-and-mode#env-files
+   */
+  envPrefix?: string | string[]
   plugins?: import('rolldown').Plugin[]
   sourcemap?: import('rolldown').OutputOptions['sourcemap']
   generateSW: boolean

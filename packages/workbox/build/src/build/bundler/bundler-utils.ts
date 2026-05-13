@@ -1,5 +1,5 @@
 import type { BuildResult } from '../../types'
-import type { BundlerOptions, PrepareBundlerOptions } from './bundler-types'
+import type { BundlerOptions, OriginalBuildSWOptions, PrepareBundlerOptions } from './bundler-types'
 import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
@@ -64,6 +64,7 @@ export async function runBundlerBuild(
 
 export function prepareBundlerOptions(
   options: PrepareBundlerOptions,
+  originalBuildSWOptions?: OriginalBuildSWOptions,
 ): {
   builds: BundlerOptions[]
   filePathsMap: Map<'classic' | 'module', string[]>
@@ -126,6 +127,7 @@ export function prepareBundlerOptions(
       workboxRuntimeCompatible: swType === 'classic' ? workboxRuntimeCompatible : false,
       swType: 'classic',
       generateSW: !!generateSW,
+      originalBuildSWOptions,
     })
   }
   if (swType === 'classic-and-module' || swType === 'module') {
@@ -161,6 +163,7 @@ export function prepareBundlerOptions(
       workboxRuntimeCompatible: swType === 'module' ? workboxRuntimeCompatible : false,
       swType: 'module',
       generateSW: !!generateSW,
+      originalBuildSWOptions,
     })
   }
 

@@ -142,3 +142,19 @@ export function throwInvalidViteVersion(): never {
     + `Please upgrade your Vite dependency or use ${pc.cyan('"generateSW"')} / ${pc.cyan('"injectManifest"')} instead.\n`,
   )
 }
+
+/**
+ * Warning when Vite version is < 7.0.0 and cannot support .env expansion/nesting
+ * without external help or manual logic replication.
+ */
+export function logViteLoadEnvWarning() {
+  console.warn([
+    `\n${pc.yellow(pc.bold('[Vite PWA]'))} ${pc.yellow('VITE VERSION LIMITATION')}:`,
+    `Your Vite version is ${pc.red('< 7.0.0')}. Variable expansion in ${pc.cyan('.env')} files`,
+    `(e.g., ${pc.dim('VITE_APP_URL=https://somedomain.com')}) is not natively supported for the Service Worker build.`,
+    `Only simple key-value pairs will be loaded.\n`,
+    `${pc.bold('To resolve this:')}`,
+    `  - Upgrade to ${pc.green('Vite ^7.0.0')}.`,
+    `  - Or avoid using nested variables in your .env files for SW-related configs.\n`,
+  ].join('\n'))
+}

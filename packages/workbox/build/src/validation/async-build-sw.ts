@@ -78,8 +78,16 @@ const BaseInjectManifestEntries = v.pipeAsync(
     ),
     // Vite specific optional fields
     define: v.optional(v.record(v.string(), v.any())),
-    envDir: v.optional(v.string()),
-    envPrefix: v.optional(v.union([v.string(), v.array(v.string())])),
+    /**
+     * The directory from which .env files are loaded.
+     * @default 'root'
+     */
+    envDir: v.optional(v.union([v.string(), v.literal(false)]), 'root'),
+    /**
+     * Env variables starting with this prefix will be exposed to your client code.
+     * @default 'VITE_'
+     */
+    envPrefix: v.optional(v.union([v.string(), v.array(v.string())]), 'VITE_'),
     plugins: v.optional(v.any()),
   }),
   v.forwardAsync(

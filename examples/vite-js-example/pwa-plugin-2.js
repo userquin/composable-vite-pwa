@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
+import process from 'node:process'
 import {
   buildSW as viteBuildSW,
 } from '@composable-vite-pwa/workbox-build/build/vite/build-sw'
@@ -7,11 +8,11 @@ import {
   generateSW as viteGenerateSW,
 } from '@composable-vite-pwa/workbox-build/build/vite/generate-sw'
 import {
-  buildSWLegacy as rolldownBuildSW,
-} from '@composable-vite-pwa/workbox-build/build/vite/rolldown-build-sw'
+  buildSWLegacy,
+} from '@composable-vite-pwa/workbox-build/build/vite/legacy-build-sw'
 import {
-  generateSWLegacy as rolldownGenerateSW,
-} from '@composable-vite-pwa/workbox-build/build/vite/rolldown-generate-sw'
+  generateSWLegacy,
+} from '@composable-vite-pwa/workbox-build/build/vite/legacy-generate-sw'
 import { VirtualPlugin } from './virtual-plugin'
 
 function resolve(name) {
@@ -21,11 +22,11 @@ function resolve(name) {
 const methods = {
   buildSW: {
     'vite-build-sw': viteBuildSW,
-    'rolldown-build-sw': rolldownBuildSW,
+    'legacy-build-sw': buildSWLegacy,
   },
   generateSW: {
     'vite-generate-sw': viteGenerateSW,
-    'rolldown-generate-sw': rolldownGenerateSW,
+    'legacy-generate-sw': generateSWLegacy,
   },
 }
 
@@ -57,6 +58,10 @@ function BuildPlugin2(
           minify: false,
           inlineWorkboxRuntime: false,
         }
+
+        process.env.VITE_XXX = 'xxxx'
+        process.env.SECRET_YYY = 'yyyy'
+        process.env.VITE_SW_BUILDER = buildType
 
         /** @type {import('@composable-vite-pwa/workbox-build/build/vite/types').BuildServiceWorkerOptions} */
         const buildData = {
@@ -128,7 +133,7 @@ function VirtualPWARegister(
  *
  * @param swName string
  * @param swType {'classic'|'module'|'classic-and-module'}
- * @param buildType {'vite-build-sw'|'rolldown-build-sw'|'vite-generate-sw'|'rolldown-generate-sw'}
+ * @param buildType {'vite-build-sw'|'legacy-build-sw'|'vite-generate-sw'|'legacy-generate-sw'}
  * @return {({name: string, apply: string, enforce: string, closeBundle: {enforce: string, handler(): Promise<void>}}|{name: string, enforce: string, config(): {define: {__SW_URL__: *, __SW_TYPE__: *, __SW_CLASSIC_URL__: *, __SW_MODULE_URL__: *, __SW_SCOPE__: *, __SW_AUTO_UPDATE__: *, __SW_SELF_DESTROYING__: *, __SW_UPDATE_VIA_CACHE__: *, "process.env.PWA_ESM_FALLBACK_SW": *}}, resolveId(*): string|undefined, load(*): (Promise<>|undefined)})[]}
  * @constructor
  */
@@ -137,7 +142,7 @@ function PWAPlugin2(
   swName,
   /** @type {import('@composable-vite-pwa/workbox-build/types').SWType} */
   swType = 'classic-and-module',
-  /** @type {'vite-build-sw'|'rolldown-build-sw'|'vite-generate-sw'|'rolldown-generate-sw'} */
+  /** @type {'vite-build-sw'|'legacy-build-sw'|'vite-generate-sw'|'legacy-generate-sw'} */
   buildType,
 ) {
   /** @type {import('vite').PluginOption} */

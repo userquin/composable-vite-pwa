@@ -17,6 +17,8 @@ console.log('sayHello', sayHello('userquin'))
 console.log('Message from virtual:sw-chunk', message2)
 console.log('sayHello2', sayHello2('userquin'))
 
+console.log(import.meta.env)
+
 // eslint-disable-next-line no-restricted-globals
 self.skipWaiting()
 // eslint-disable-next-line no-restricted-globals

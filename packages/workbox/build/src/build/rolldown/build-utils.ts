@@ -16,7 +16,7 @@ export async function prepareRolldownBuild(
     plugins,
     define,
     rolldownOptions,
-  } = prepareBundlerBuildOptions('rolldown', options)
+  } = await prepareBundlerBuildOptions('rolldown', options)
 
   const instance = await rolldown({
     input: swSrc,
