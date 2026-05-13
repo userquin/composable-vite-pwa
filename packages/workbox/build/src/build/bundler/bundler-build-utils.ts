@@ -99,6 +99,11 @@ async function prepareDefineOptions<T extends Bundler>(
   _bundler: T,
   options: RolldownOptions<T>,
 ) {
+  // TODO: review logic at vite:
+  //  - this is the first approach to test Rolldown tree-shaking and
+  //  - import.meta.env support (should also work with generateSW strategy)
+  //  - we can use import.meta.env inside the handlers (generateSW)
+
   // Use the original options if available, otherwise fallback to the current ones
   const original = options.originalBuildSWOptions || {}
 
@@ -144,6 +149,9 @@ async function prepareDefineOptions<T extends Bundler>(
   // We do this last so the user can override anything else
   if (original.define) {
     for (const [key, value] of Object.entries(original.define)) {
+      // todo: check if it is an string:
+      //  - Vite: Record<string, any>
+      //  - Rolldown: Record<string, string>
       define[key] = value // Note: user defines are usually already stringified
     }
   }

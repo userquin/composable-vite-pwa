@@ -2,7 +2,7 @@ import type { ManifestEntry, SWTargets, SWType } from '../../types'
 
 export interface OriginalBuildSWOptions {
   mode?: string | null
-  define?: Record<string, string>
+  define?: Record<string, any>
   envDir?: string | false
   envPrefix?: string | string[]
 }
