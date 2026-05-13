@@ -29,7 +29,8 @@ precacheAndRoute(self.__WB_MANIFEST, {
 cleanupOutdatedCaches()
 /** @type {RegExp[] | undefined} */
 let allowlist
-allowlist = [/^\/$/]
+if (import.meta.env.DEV)
+  allowlist = [/^\/$/]
 
 registerRoute(new NavigationRoute(
   createHandlerBoundToURL('index.html'),
