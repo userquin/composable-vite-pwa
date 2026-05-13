@@ -8,9 +8,6 @@ import { setupCounter } from './counter.js'
 import { registerSW } from 'virtual:pwa-register'
 
 registerSW({
-  supportsESM() {
-    return false
-  },
   onRegisteredSW(url) {
     console.log('SW registered', url)
   },
