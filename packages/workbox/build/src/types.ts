@@ -4,6 +4,8 @@ import type { RouteHandler, RouteMatchCallback, WorkboxPlugin } from '@composabl
 import type { ExpirationPluginOptions } from '@composable-vite-pwa/workbox-swkit/expiration/types'
 import type { HTTPMethod } from '@composable-vite-pwa/workbox-swkit/routing/types'
 import type { QueueOptions } from '@composable-vite-pwa/workbox-swkit/types'
+import type { BundlerLogLevel } from './build/types'
+import type { LogLevel } from './utils/constants'
 
 /**
  * Service worker build target.
@@ -486,6 +488,18 @@ export interface GlobPartial {
 }
 
 export interface InjectPartial {
+  /**
+   * @default 'info'
+   */
+  logLevel?: LogLevel
+  /**
+   * Granular control for underlying bundler `logLevel`.
+   *
+   * If you set `logLevel` to '`silent` then the underline bundler logLevel will also be `silent`.
+   *
+   * @default `{ rolldown: 'warn', vite: 'warn' }`
+   */
+  bundlerLogLevel?: BundlerLogLevel
   /**
    * The string to find inside of the `swSrc` file. Once found, it will be
    * replaced by the generated precache manifest.

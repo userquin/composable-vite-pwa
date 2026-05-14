@@ -1,16 +1,22 @@
 import * as v from 'valibot'
+import { logLevel } from '../utils/constants'
 import {
   validateGlobDirectory,
   validateSWDestDirectory,
   validateSWSrc,
 } from './generation-utils'
-import { ManifestOptionsSchema } from './utils'
+import { BundlerLogLevelSchema, ManifestOptionsSchema } from './utils'
 
 export type AsyncInjectManifestOptionsSchemaType = v.InferInput<typeof AsyncInjectManifestOptionsSchema>
 
 export const AsyncInjectManifestOptionsSchema = v.pipeAsync(
   v.strictObject({
     ...ManifestOptionsSchema.entries,
+    logLevel: v.optional(
+      v.picklist(logLevel),
+      'info',
+    ),
+    bundlerLogLevel: BundlerLogLevelSchema,
     /**
      * The string to find inside of the `swSrc` file. Once found, it will be
      * replaced by the generated precache manifest.

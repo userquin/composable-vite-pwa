@@ -1,14 +1,14 @@
 import type {
-  BuildGenerateSWOptions,
-  BuildSWOptions,
-} from '@composable-vite-pwa/workbox-build/build/types'
-import type {
   GlobPartial,
   RequiredSWDestPartial,
   SWTarget,
   SWTargets,
   SWType,
 } from '../../types'
+import type {
+  BuildGenerateSWOptions,
+  BuildSWOptions,
+} from '../types'
 import type {
   Bundler,
   ClassicRegionReplacement,
@@ -26,7 +26,19 @@ export const workboxRegex = [
   /[\\/]workbox[\\/]swkit/,
 ]
 
-export function extractOriginalEnvironmentData<T extends SWType, Options extends BuildSWOptions<T> | BuildGenerateSWOptions<T>>(
+export const BundlerNames: Record<Bundler, string> = {
+  vite: 'Vite',
+  rolldown: 'Rolldown',
+}
+
+export function normalizePath(path: string): string {
+  return path.replace(/\\/g, '/')
+}
+
+export function extractOriginalEnvironmentData<
+  T extends SWType,
+  Options extends BuildSWOptions<T> | BuildGenerateSWOptions<T>,
+>(
   options: Options,
   injectionPoint: string | false,
 ): OriginalEnvironmentData {

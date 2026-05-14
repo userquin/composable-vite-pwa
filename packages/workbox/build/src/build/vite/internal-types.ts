@@ -1,6 +1,8 @@
+import type { ViteLogLevel } from '../../utils/constants'
 import type { BundlerOptions } from '../bundler/bundler-types'
 
 export interface ViteBuildOptions extends BundlerOptions {
+  logLevel: ViteLogLevel
   plugins?: import('vite').PluginOption[]
   define?: import('vite').UserConfig['define']
   /**

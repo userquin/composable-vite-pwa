@@ -5,7 +5,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { parseEnv } from 'node:util'
 import { expand } from 'dotenv-expand'
-import colors from 'picocolors'
+import pc from 'picocolors'
+import { normalizePath } from './utils'
 
 function arraify<T>(input: T | T[]): T[] {
   return Array.isArray(input) ? input : [input]
@@ -31,7 +32,7 @@ export function getEnvFilesForMode(
       /** local file */ `.env.local`,
       /** mode file */ `.env.${mode}`,
       /** mode local file */ `.env.${mode}.local`,
-    ].map(file => path.resolve(path.join(envDir, file)).replace(/\\/g, '/'))
+    ].map(file => normalizePath(path.resolve(path.join(envDir, file))))
   }
 
   return []
@@ -110,7 +111,7 @@ export function resolveEnvPrefix(
   }
   if (envPrefix.some(prefix => /\s/.test(prefix))) {
     console.warn(
-      colors.yellow(
+      pc.yellow(
         `[VITE PWA] Warning: envPrefix option contains values with whitespace, which does not work in practice.`,
       ),
     )

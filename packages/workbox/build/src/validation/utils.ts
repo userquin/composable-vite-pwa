@@ -1,5 +1,10 @@
 import * as v from 'valibot'
-import { DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES } from '../utils/constants'
+import {
+  DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES,
+  logLevel,
+  rolldownLogLevel,
+  viteLogLevel,
+} from '../utils/constants'
 
 interface BaseNode {
   type: string
@@ -308,8 +313,20 @@ export const ManifestOptionsSchema = v.strictObject({
    */
   templatedURLs: v.optional(v.record(v.string(), v.union([v.array(v.string()), v.string()]))),
 })
+export const BundlerLogLevelSchema = v.optional(
+  v.object({
+    rolldown: v.optional(v.picklist(rolldownLogLevel), 'warn'),
+    vite: v.optional(v.picklist(viteLogLevel), 'warn'),
+  }),
+  { rolldown: 'warn', vite: 'warn' },
+)
 
 export const BundlerDataSchema = v.object({
+  logLevel: v.optional(
+    v.picklist(logLevel),
+    'info',
+  ),
+  bundlerLogLevel: BundlerLogLevelSchema,
   /**
    * If set to 'production', then an optimized service worker bundle that excludes debugging info will be produced. If not explicitly configured here, the `process.env.NODE_ENV` value will be used, and failing that, it will fall back to `'production'`.
    */

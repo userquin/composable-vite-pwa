@@ -11,7 +11,7 @@ import {
 } from '../../../tsdown-helper'
 
 const require = createRequire(import.meta.url)
-const _packageJson = require('./package.json')
+const { version } = require('./package.json')
 
 const cwd = fileURLToPath(new URL('.', import.meta.url))
 
@@ -38,6 +38,9 @@ export default defineConfig(/* [ */{
   platform: 'node',
   clean: true,
   banner,
+  define: {
+    __VITE_PWA_VERSION__: JSON.stringify(version),
+  },
   attw,
   publint,
   exports: fixTypesVersion,

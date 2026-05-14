@@ -21,12 +21,17 @@ function prepareViteBuilds<T extends SWType>(
   prepareViteBuild: typeof import('./build-utils')['prepareViteBuild'],
   asyncFlatten: typeof import('../bundler/utils')['asyncFlatten'],
 ): Promise<any>[] {
+  const { logLevel: ll, bundlerLogLevel } = options
+  const logLevel = ll === 'silent'
+    ? 'silent'
+    : bundlerLogLevel!.vite!
   return bundlerOptions.map(async (b) => {
     return await prepareBuildSWPlugins(
       options.plugins,
       asyncFlatten,
     ).then((plugins) => {
       return prepareViteBuild(Object.assign(b, {
+        logLevel,
         plugins,
         envDir: options.envDir,
         envPrefix: options.envPrefix,
@@ -40,6 +45,7 @@ function prepareViteBuilds<T extends SWType>(
 export async function buildSW<T extends SWType>(
   options: BuildServiceWorkerOptions<T>,
 ): Promise<BuildResult> {
+  const now = performance.now()
   const [
     internalBuildSW,
     asyncFlatten,
@@ -50,6 +56,8 @@ export async function buildSW<T extends SWType>(
     import('../bundler/utils').then(({ asyncFlatten }) => asyncFlatten),
   ])
   return await internalBuildSW(
+    'vite',
+    now,
     options,
     bundlerOptions => prepareViteBuilds(
       bundlerOptions,

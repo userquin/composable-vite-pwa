@@ -99,10 +99,8 @@ function BuildPlugin2(
         console.log(`Running ${buildType}...`)
         const isBuild = buildType.includes('build-sw')
         const data = isBuild ? buildData : generateData
-        const now = performance.now()
-        const result = await methods[isBuild ? 'buildSW' : 'generateSW'][buildType](data)
-        console.log(result)
-        console.log(performance.now() - now)
+        const buildResult = await methods[isBuild ? 'buildSW' : 'generateSW'][buildType](data)
+        console.log(buildResult)
       },
     },
   }

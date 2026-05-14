@@ -10,6 +10,7 @@ export async function prepareRolldownBuild(
     target,
     minify,
     sourcemap,
+    logLevel,
   } = options
 
   const {
@@ -23,6 +24,7 @@ export async function prepareRolldownBuild(
     platform: 'browser',
     treeshake: true,
     plugins,
+    logLevel,
     transform: {
       define,
       target,

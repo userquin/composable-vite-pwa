@@ -1,7 +1,8 @@
+import type { BuildGenerateSWOptions } from './build/types'
 import type { BuildResult, GenerateSWOptions, SWType } from './types'
 
 export async function generateModernSW<T extends SWType>(
-  options: GenerateSWOptions<T>,
+  options: BuildGenerateSWOptions<T>,
 ): Promise<BuildResult> {
   return await import('./build/generate-sw').then(({
     generateSW,
@@ -24,7 +25,7 @@ export async function generateSW(
 }
 
 export function generateClassicSW(
-  options: GenerateSWOptions<'classic'>,
+  options: BuildGenerateSWOptions<'classic'>,
 ): Promise<BuildResult> {
   return generateModernSW(options)
 }

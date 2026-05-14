@@ -21,6 +21,7 @@ interface PrepareBundlerBuilder<T extends Bundler> {
 
 function GenerateBundlePlugin<T extends Bundler>(
   bundler: T,
+  destFolder: string,
   {
     swType,
     region,
@@ -37,7 +38,7 @@ function GenerateBundlePlugin<T extends Bundler>(
     async generateBundle(_, bundle) {
       let workboxFileName: string | undefined
       for (const [_, chunk] of Object.entries(bundle)) {
-        filePaths.push(chunk.fileName)
+        filePaths.push(path.resolve(destFolder, chunk.fileName))
         if (workboxName && chunk.name === workboxName) {
           workboxFileName = chunk.fileName
         }
@@ -221,6 +222,7 @@ export async function prepareBundlerBuildOptions<T extends Bundler>(
 
   plugins.unshift(GenerateBundlePlugin(
     bundler,
+    path.dirname(options.swDest),
     {
       swType,
       filePaths,

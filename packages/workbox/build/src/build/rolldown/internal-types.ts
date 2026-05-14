@@ -1,6 +1,8 @@
+import type { RolldownLogLevel } from '../../utils/constants'
 import type { BundlerOptions } from '../bundler/bundler-types'
 
 export interface RolldownBuildOptions extends BundlerOptions {
+  logLevel: RolldownLogLevel
   define?: import('rolldown').TransformOptions['define']
   /**
    * The directory from which .env files are loaded.

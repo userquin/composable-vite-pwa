@@ -7,8 +7,13 @@ function prepareRolldownBuilds<T extends SWType>(
   transformESMTargetToRolldown: typeof import('../bundler/utils')['transformESMTargetToRolldown'],
   prepareRolldownBuild: typeof import('./build-utils')['prepareRolldownBuild'],
 ): Promise<any>[] {
+  const { logLevel: ll, bundlerLogLevel } = options
+  const logLevel = ll === 'silent'
+    ? 'silent'
+    : bundlerLogLevel!.rolldown!
   return bundlerOptions.map((b) => {
     return prepareRolldownBuild(Object.assign(b, {
+      logLevel,
       target: transformESMTargetToRolldown(b.swType, b.target),
       sourcemap: options.sourcemap,
       generateSW: true,
@@ -19,6 +24,7 @@ function prepareRolldownBuilds<T extends SWType>(
 export async function generateSW<T extends SWType>(
   options: BuildGenerateSWOptions<T>,
 ): Promise<BuildResult> {
+  const now = performance.now()
   const [
     internalGenerateSW,
     transformESMTargetToRolldown,
@@ -29,6 +35,8 @@ export async function generateSW<T extends SWType>(
     import('./build-utils').then(({ prepareRolldownBuild }) => prepareRolldownBuild),
   ])
   return await internalGenerateSW(
+    'rolldown',
+    now,
     options,
     bundlerOptions => prepareRolldownBuilds(
       bundlerOptions,

@@ -7,9 +7,14 @@ function prepareRolldownBuilds<T extends SWType>(
   transformESMTargetToRolldown: typeof import('../bundler/utils')['transformESMTargetToRolldown'],
   prepareRolldownBuild: typeof import('../rolldown/build-utils')['prepareRolldownBuild'],
 ): Promise<any>[] {
+  const { logLevel: ll, bundlerLogLevel } = options
+  const logLevel = ll === 'silent'
+    ? 'silent'
+    : bundlerLogLevel!.rolldown!
   return bundlerOptions.map((b) => {
     const plugins = options.plugins?.() || []
     return prepareRolldownBuild(Object.assign(b, {
+      logLevel,
       target: transformESMTargetToRolldown(b.swType, b.target),
       plugins: plugins.filter(Boolean),
       sourcemap: options.sourcemap,
@@ -21,6 +26,7 @@ function prepareRolldownBuilds<T extends SWType>(
 export async function buildSWLegacy<T extends SWType>(
   options: LegacyBuildServiceWorkerOptions<T>,
 ): Promise<BuildResult> {
+  const now = performance.now()
   const [
     internalBuildSW,
     transformESMTargetToRolldown,
@@ -31,6 +37,8 @@ export async function buildSWLegacy<T extends SWType>(
     import('../rolldown/build-utils').then(({ prepareRolldownBuild }) => prepareRolldownBuild),
   ])
   return await internalBuildSW(
+    'rolldown',
+    now,
     options,
     bundlerOptions => prepareRolldownBuilds(
       bundlerOptions,

@@ -1,6 +1,24 @@
 import type { GenerateSWOptions, InjectManifestOptions, SWTarget, SWType } from '../types'
+import type { LogLevel, RolldownLogLevel, ViteLogLevel } from '../utils/constants'
+
+export interface BundlerLogLevel {
+  rolldown?: RolldownLogLevel
+  vite?: ViteLogLevel
+}
 
 export interface EnvironmentData {
+  /**
+   * @default 'info'
+   */
+  logLevel?: LogLevel
+  /**
+   * Granular control for underlying bundler `logLevel`.
+   *
+   * If you set `logLevel` to '`silent` then the underline bundler will also be `silent`.
+   *
+   * @default both to 'warn'
+   */
+  bundlerLogLevel?: BundlerLogLevel
   /**
    * If set to 'production', then an optimized service worker bundle that
    * excludes debugging info will be produced. If not explicitly configured

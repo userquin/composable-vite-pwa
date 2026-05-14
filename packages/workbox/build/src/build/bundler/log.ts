@@ -128,7 +128,7 @@ export function throwViteBuildOptionsRequired(): never {
     `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('Vite-specific options detected!')}\n\n`
     + `You are using ${pc.cyan('"buildSW"')}, but you imported ${pc.cyan('buildSW')} from the build subpackage export.\n`
     + `Please import it from the build Vite subpackage export instead:\n\n`
-    + `  ${pc.green('import { buildSW } from \'@composable-vite-pwa/workbox-build/build/vite\'')}\n`,
+    + `  ${pc.green('import { buildSW } from \'@vite-pwa/workbox-build/build/vite\'')}\n`,
   )
 }
 

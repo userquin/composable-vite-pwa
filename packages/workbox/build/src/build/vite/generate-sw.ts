@@ -6,8 +6,13 @@ function prepareViteBuilds<T extends SWType>(
   options: BuildGenerateSWOptions<T>,
   prepareViteBuild: typeof import('./build-utils')['prepareViteBuild'],
 ): Promise<any>[] {
+  const { logLevel: ll, bundlerLogLevel } = options
+  const logLevel = ll === 'silent'
+    ? 'silent'
+    : bundlerLogLevel!.vite!
   return bundlerOptions.map((b) => {
     return prepareViteBuild(Object.assign(b, {
+      logLevel,
       sourcemap: options.sourcemap,
       generateSW: true,
     }))
@@ -17,6 +22,7 @@ function prepareViteBuilds<T extends SWType>(
 export async function generateSW<T extends SWType>(
   options: BuildGenerateSWOptions<T>,
 ): Promise<BuildResult> {
+  const now = performance.now()
   const [
     internalGenerateSW,
     prepareViteBuild,
@@ -25,6 +31,8 @@ export async function generateSW<T extends SWType>(
     import('./build-utils').then(({ prepareViteBuild }) => prepareViteBuild),
   ])
   return await internalGenerateSW(
+    'vite',
+    now,
     options,
     bundlerOptions => prepareViteBuilds(
       bundlerOptions,

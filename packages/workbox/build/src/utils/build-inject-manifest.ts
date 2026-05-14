@@ -13,15 +13,19 @@ import { deepMergeObject, prepareInjectManifestGlobIgnores } from './utils'
 
 export async function buildInjectManifest(
   options: InjectManifestOptions,
-  fromInjectManifest = true,
 ): Promise<BuildResult> {
-  if (fromInjectManifest && (options.injectionPoint === false || options.injectionPoint == null)) {
+  if (options.injectionPoint === false || options.injectionPoint == null) {
     throwInvalidInjectionPoint()
   }
 
-  const optionsWithDefaults = await validateInjectManifest(options)
+  const optionsWithDefaults = await validateInjectManifest(
+    options,
+  )
 
-  deepMergeObject(options, optionsWithDefaults)
+  deepMergeObject(
+    options,
+    optionsWithDefaults,
+  )
 
   let swCode: string
   try {

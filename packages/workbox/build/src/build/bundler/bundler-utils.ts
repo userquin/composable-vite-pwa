@@ -127,7 +127,6 @@ export function prepareBundlerOptions(
       swType: 'classic',
       generateSW: !!generateSW,
       originalEnvironmentData: options.originalEnvironmentData,
-      injectionPoint: options.injectionPoint,
     })
   }
   if (swType === 'classic-and-module' || swType === 'module') {
@@ -164,7 +163,6 @@ export function prepareBundlerOptions(
       swType: 'module',
       generateSW: !!generateSW,
       originalEnvironmentData: options.originalEnvironmentData,
-      injectionPoint: options.injectionPoint,
     })
   }
 

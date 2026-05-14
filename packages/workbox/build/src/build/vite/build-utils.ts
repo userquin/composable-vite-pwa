@@ -15,6 +15,7 @@ export async function prepareViteBuild(
     sourcemap,
     envPrefix,
     envDir,
+    logLevel,
   } = options
 
   const {
@@ -31,6 +32,7 @@ export async function prepareViteBuild(
     forceOptimizeDeps: false,
     envPrefix,
     envDir,
+    logLevel,
     build: {
       emptyOutDir: false,
       outDir: path.dirname(path.resolve(process.cwd(), swDest)),

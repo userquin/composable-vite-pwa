@@ -6,9 +6,14 @@ import { generateManifestEntries } from './generate-manifest-entries'
 import { deepMergeObject } from './utils'
 
 export async function buildGetManifest(options: GetManifestOptions): Promise<GetManifestResult> {
-  const optionsWithDefaults = await validateGetManifest(options)
+  const optionsWithDefaults = await validateGetManifest(
+    options,
+  )
 
-  deepMergeObject(options, optionsWithDefaults)
+  deepMergeObject(
+    options,
+    optionsWithDefaults,
+  )
 
   return await generateManifestEntries(
     options,

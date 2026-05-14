@@ -1,9 +1,10 @@
 import type { BuildResult, SWType } from '../../types'
 import type { BuildGenerateSWOptions } from '../types'
-import type { BundlerOptions } from './bundler-types'
+import type { Bundler, BundlerOptions } from './bundler-types'
 import { deepMergeObject } from '../../utils/utils'
 import { validateGenerateSW } from '../../validation/validation-helper'
 import { prepareBundlerOptions, runBundlerBuild } from './bundler-utils'
+import { logPWAWorkboxResult } from './log-result'
 import { prepareSWCode } from './prepare-sw-code'
 import {
   extractOriginalEnvironmentData,
@@ -12,6 +13,8 @@ import {
 } from './utils'
 
 export async function internalGenerateSW<T extends SWType, Options extends BuildGenerateSWOptions<T>>(
+  bundler: Bundler,
+  buildStart: ReturnType<typeof performance.now>,
   options: Options,
   prepareBuilds: (bundlerOptions: BundlerOptions[]) => Promise<any>[],
 ): Promise<BuildResult> {
@@ -81,7 +84,7 @@ export async function internalGenerateSW<T extends SWType, Options extends Build
     originalEnvironmentData,
   })
 
-  return await runBundlerBuild(
+  const buildResult = await runBundlerBuild(
     count,
     size,
     warnings,
@@ -91,4 +94,15 @@ export async function internalGenerateSW<T extends SWType, Options extends Build
     prepareBuilds,
     tempFiles,
   )
+
+  logPWAWorkboxResult(
+    bundler,
+    'generateSW',
+    buildResult,
+    performance.now() - buildStart,
+    options.logLevel!,
+    options.bundlerLogLevel!,
+  )
+
+  return buildResult
 }
