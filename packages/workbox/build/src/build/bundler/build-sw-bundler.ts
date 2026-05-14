@@ -6,7 +6,7 @@ import { deepMergeObject } from '../../utils/utils'
 import { validateBuildSW } from '../../validation/build-validation-helper'
 import { prepareBundlerOptions, runBundlerBuild } from './bundler-utils'
 import {
-  extractOriginalBuildSWOptions,
+  extractOriginalEnvironmentData,
   prepareSWTargets,
   resolveSWNamesAndGlobIgnores,
 } from './utils'
@@ -19,8 +19,11 @@ export async function internalBuildSW<T extends SWType, Options extends BuildSWO
     options,
   )
 
-  // clone mode, envDir, envPRefix and define
-  const originalBuildSWOptions = extractOriginalBuildSWOptions(options)
+  // clone mode, baseUrl, envDir, envPrefix, define and injectionPoint
+  const originalEnvironmentData = extractOriginalEnvironmentData(
+    options,
+    typeof options.injectionPoint === 'string' && options.injectionPoint ? options.injectionPoint : false,
+  )
 
   deepMergeObject(
     options,
@@ -78,7 +81,8 @@ export async function internalBuildSW<T extends SWType, Options extends BuildSWO
     manifestEntries,
     target: useTargets,
     workboxRuntimeCompatible: workboxRuntimeCompatible!,
-  }, originalBuildSWOptions)
+    originalEnvironmentData,
+  })
 
   return await runBundlerBuild(
     count,

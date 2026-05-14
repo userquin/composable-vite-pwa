@@ -13,7 +13,8 @@ export default defineConfig({
     PWAPlugin2(
       'sw.js',
       'classic-and-module',
-      'legacy-generate-sw',
+      'legacy-build-sw',
+      ['VITE_', 'PUBLIC_'],
     ),
   ],
 })

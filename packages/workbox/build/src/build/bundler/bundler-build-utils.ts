@@ -95,121 +95,100 @@ function GenerateBundlePlugin<T extends Bundler>(
   } as BundlerPluginType<T>
 }
 
+/**
+ * This is a simplified version of Vite logic using:
+ * - [resolved configuration logic](https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts) and
+ * - [definePlugin](https://github.com/vitejs/vite/blob/main/packages/vite/src/node/plugins/define.ts)
+ *
+ * @param options The Rolldown options to use.
+ */
 async function prepareDefineOptions<T extends Bundler>(
-  _bundler: T,
   options: RolldownOptions<T>,
-) {
-  // TODO: review logic at vite:
-  //  - this is the first approach to test Rolldown tree-shaking and
-  //  - import.meta.env support (should also work with generateSW strategy)
-  //  - we can use import.meta.env inside the handlers (generateSW)
+): Promise<Record<string, string>> {
+  // 1. Extract original environment data captured from the plugin
+  const original = options.originalEnvironmentData
 
-  // Use the original options if available, otherwise fallback to the current ones
-  const original = options.originalBuildSWOptions || {}
-
+  // 2. Initial Mode and NODE_ENV resolution
+  // Vite sets NODE_ENV based on the mode if not present in the process
   const mode = options.mode || original.mode || 'production'
-  const envDir = original.envDir ?? options.envDir ?? process.cwd()
+
+  // Use a local variable to avoid mutating the global process.env
+  let resolvedNodeEnv = process.env.NODE_ENV || mode
+
+  // 3. envDir normalization (following Vite's resolveConfig logic)
+  const envDir = original.envDir !== false
+    ? path.resolve(process.cwd(), original.envDir || options.envDir || '.')
+    : false
+
   const envPrefix = original.envPrefix ?? options.envPrefix ?? 'VITE_'
 
-  const define: Record<string, any> = {
-    // 1. Static Replacement for NODE_ENV (Core for many libs)
-    'process.env.NODE_ENV': JSON.stringify(mode),
-    // 2. Workbox Placeholder
-    'self.__WB_MANIFEST': options.generateSW
-      ? JSON.stringify('undefined')
-      : JSON.stringify(options.manifestEntries),
+  // 4. Load .env files using your internal loadEnv
+  let userEnv: Record<string, string> = {}
+  if (envDir !== false) {
+    const resolvedPrefixes = resolveEnvPrefix(envPrefix)
+    userEnv = loadEnv(mode, envDir, resolvedPrefixes)
   }
 
-  // 3. Load Real Environment Variables
-  const resolvedPrefixes = resolveEnvPrefix(envPrefix)
-  const userEnv = loadEnv(mode, envDir, resolvedPrefixes)
+  // 5. Handle VITE_USER_NODE_ENV (Vite's staging/custom mode logic)
+  // If the loaded .env has VITE_USER_NODE_ENV=development, we force NODE_ENV
+  const isNodeEnvSet = !!process.env.NODE_ENV
+  const userNodeEnv = userEnv.VITE_USER_NODE_ENV || process.env.VITE_USER_NODE_ENV
+  if (!isNodeEnvSet && userNodeEnv === 'development') {
+    resolvedNodeEnv = 'development'
+  }
 
-  // 4. Built-in Vite-like Env
+  const isProduction = resolvedNodeEnv === 'production'
+
+  // 6. Build the ENV object (Equivalent to resolved.env in Vite)
   const builtInEnv = {
     MODE: mode,
-    DEV: mode !== 'production',
-    PROD: mode === 'production',
+    DEV: !isProduction,
+    PROD: isProduction,
     SSR: false,
-    BASE_URL: './',
+    BASE_URL: original.baseUrl || './',
   }
 
-  // 5. Merge Strategy: Individual Keys
-  // We prioritize: User Define > User Env (.env) > Built-in Env
-  const mergedEnv = { ...builtInEnv, ...userEnv }
+  const mergedEnv = Object.assign({}, builtInEnv, userEnv)
 
+  // 7. Prepare the final DEFINE object
+  const define: Record<string, any> = {
+    // Process.env.NODE_ENV replacements (matching Vite's definePlugin)
+    'process.env.NODE_ENV': JSON.stringify(resolvedNodeEnv),
+    'global.process.env.NODE_ENV': JSON.stringify(resolvedNodeEnv),
+    'globalThis.process.env.NODE_ENV': JSON.stringify(resolvedNodeEnv),
+  }
+
+  // 8. Static individual replacements for import.meta.env.KEY
   for (const [key, value] of Object.entries(mergedEnv)) {
     define[`import.meta.env.${key}`] = JSON.stringify(value)
   }
 
-  // 6. Full Object Replacement
-  // This allows code like: const x = import.meta.env
+  // 9. Full object replacement for import.meta.env
   define['import.meta.env'] = JSON.stringify(mergedEnv)
 
-  // 7. Apply User-Specific Defines
-  // We do this last so the user can override anything else
+  // 10. Apply User-Specific Defines (Last word)
+  // We prioritize: User Define > User Env (.env) > Built-in Env
   if (original.define) {
     for (const [key, value] of Object.entries(original.define)) {
-      // todo: check if it is an string:
-      //  - Vite: Record<string, any>
-      //  - Rolldown: Record<string, string>
-      define[key] = value // Note: user defines are usually already stringified
+      // If it's already a string that looks serialized, keep it; otherwise, stringify.
+      define[key] = typeof value === 'string' && (value.startsWith('"') || value.startsWith('\''))
+        ? value
+        : JSON.stringify(value)
     }
   }
+
+  // Workbox Placeholder
+  const withInjectPoint = !options.generateSW && !!original.injectionPoint
+  const injectionKey = withInjectPoint
+    ? (original.injectionPoint as string)
+    : 'self.__WB_MANIFEST'
+
+  define[injectionKey] = withInjectPoint
+    ? JSON.stringify(options.manifestEntries)
+    : JSON.stringify('undefined')
 
   return define
 }
-/*
-
-async function prepareDefineOptions<T extends Bundler>(
-  _bundler: T,
-  options: RolldownOptions<T>,
-) {
-  const isDefineProvided = 'define' in options
-    && options.define
-    && Object.keys(options.define).length > 0
-
-  const {
-    mode,
-    define = {},
-    envDir,
-    envPrefix,
-    manifestEntries,
-    generateSW,
-  } = options
-
-  define['process.env.NODE_ENV'] = JSON.stringify(mode || process.env.NODE_ENV || 'production')
-  if (generateSW) {
-    define['self.__WB_MANIFEST'] = JSON.stringify('undefined')
-  }
-  else {
-    define['self.__WB_MANIFEST'] = JSON.stringify(manifestEntries)
-  }
-
-  if (isDefineProvided) {
-    return define
-  }
-
-  /!* let loadEnv:
-
-  if (envDir) {
-    const detection = await detectViteLoadEnvSupport()
-    if (detection) {
-      useEnv = true
-    }
-    else {
-      logViteLoadEnvWarning()
-    }
-  } *!/
-
-  // 1. check if vite is present: we'll need to check min. vite version exporting loadEnv
-  // 2. warn consumer if vite version missing
-  // 3. apply vite logic at:
-  // 3.1. https://github.com/sheremet-va/vite/blob/main/packages/vite/src/node/plugins/define.ts
-  // 3.2. https://github.com/vitejs/vite/blob/main/packages/vite/src/node/config.ts#L1656-L1684
-  // 4. populate env + import.meta.env at define
-  return define
-}
-*/
 
 export async function prepareBundlerBuildOptions<T extends Bundler>(
   bundler: T,
@@ -230,7 +209,7 @@ export async function prepareBundlerBuildOptions<T extends Bundler>(
     filePaths,
   } = options
 
-  const define = await prepareDefineOptions(bundler, options)
+  const define = await prepareDefineOptions(options)
 
   const workboxName = inlineWorkboxRuntime !== true
     ? (inlineWorkboxRuntime.workboxChunkName || (

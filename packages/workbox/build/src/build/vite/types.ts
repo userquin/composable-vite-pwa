@@ -18,4 +18,4 @@ export interface ServiceWorkerOptions {
   sourcemap?: import('vite').BuildOptions['sourcemap']
 }
 
-export type BuildServiceWorkerOptions<T extends SWType> = BuildSWOptions<T> & ServiceWorkerOptions
+export type BuildServiceWorkerOptions<T extends SWType> = Omit<BuildSWOptions<T>, 'define' | 'envDir' | 'envPrefix'> & ServiceWorkerOptions

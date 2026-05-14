@@ -1,10 +1,8 @@
 import type { ManifestEntry, SWTargets, SWType } from '../../types'
+import type { EnvironmentData } from '../types'
 
-export interface OriginalBuildSWOptions {
-  mode?: string | null
-  define?: Record<string, any>
-  envDir?: string | false
-  envPrefix?: string | string[]
+export interface OriginalEnvironmentData extends EnvironmentData {
+  injectionPoint: string | false
 }
 export interface ResolvedSWTargets {
   classic: SWTargets
@@ -27,7 +25,7 @@ export interface BundlerOptions {
   }
   manifestEntries: ManifestEntry[]
   generateSW: boolean
-  originalBuildSWOptions?: OriginalBuildSWOptions
+  originalEnvironmentData: OriginalEnvironmentData
 }
 
 export interface PrepareBundlerOptions {
@@ -50,6 +48,7 @@ export interface PrepareBundlerOptions {
   generateSW?: {
     swCode: string
   }
+  originalEnvironmentData: OriginalEnvironmentData
 }
 
 export interface ClassicRegionReplacement {

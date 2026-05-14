@@ -1,5 +1,29 @@
 import type { GenerateSWOptions, InjectManifestOptions, SWTarget, SWType } from '../types'
 
+export interface EnvironmentData {
+  /**
+   * If set to 'production', then an optimized service worker bundle that
+   * excludes debugging info will be produced. If not explicitly configured
+   * here, the `process.env.NODE_ENV` value will be used, and failing that, it
+   * will fall back to `'production'`.
+   * @default "production"
+   */
+  mode?: string | null
+  baseUrl?: string
+  define?: Record<string, any>
+  /**
+   * @see https://vite.dev/config/shared-options#envdir
+   * @see https://vite.dev/guide/env-and-mode#env-files
+   */
+  envDir?: string | false
+  /**
+   * @default VITE_
+   * @see https://vite.dev/config/shared-options#envdir
+   * @see https://vite.dev/guide/env-and-mode#env-files
+   */
+  envPrefix?: string | string[]
+}
+
 /**
  * Defines a custom code chunk group.
  * Receives the module ID (file path) and returns the desired chunk name
@@ -12,7 +36,7 @@ export type CustomChunkCallback<B extends 'vite' | 'rolldown'>
     ? import('vite').Rolldown.CodeSplittingNameFunction
     : import('rolldown').CodeSplittingNameFunction
 
-export interface BuildSWOptions<T extends SWType, B extends 'vite' | 'rolldown' = 'vite'> extends InjectManifestOptions {
+export interface BuildSWOptions<T extends SWType, B extends 'vite' | 'rolldown' = 'vite'> extends InjectManifestOptions, EnvironmentData {
   /**
    * The type of the service worker.
    *
@@ -28,14 +52,6 @@ export interface BuildSWOptions<T extends SWType, B extends 'vite' | 'rolldown' 
    * @default false
    */
   inlineWorkboxRuntime?: boolean
-  /**
-   * If set to 'production', then an optimized service worker bundle that
-   * excludes debugging info will be produced. If not explicitly configured
-   * here, the `process.env.NODE_ENV` value will be used, and failing that, it
-   * will fall back to `'production'`.
-   * @default "production"
-   */
-  mode?: string | null
   /**
    * When using `classic` or `module` and splitting workbox runtime (inlineWorkboxRuntime set to false), this flag controls the
    * name of the `workbox-**.js` chunk:
@@ -81,4 +97,4 @@ export interface BuildSWOptions<T extends SWType, B extends 'vite' | 'rolldown' 
   customChunks?: CustomChunkCallback<B>
 }
 
-export type BuildGenerateSWOptions<T extends SWType> = GenerateSWOptions<T>
+export type BuildGenerateSWOptions<T extends SWType> = GenerateSWOptions<T> & EnvironmentData

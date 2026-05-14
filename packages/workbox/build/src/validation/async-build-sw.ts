@@ -6,7 +6,7 @@ import {
   validateSWSrc,
   withSmartMinify,
 } from './generation-utils'
-import { SWTargetSchema } from './utils'
+import { BundlerDataSchema, SWTargetSchema } from './utils'
 
 /**
  * We extract the base entries from InjectManifest to reuse them.
@@ -17,6 +17,7 @@ const AsyncBaseInjectManifestEntries = AsyncInjectManifestOptionsSchema.pipe[0]
 
 const BaseInjectManifestEntries = v.pipeAsync(
   v.strictObject({
+    ...BundlerDataSchema.entries,
     ...AsyncBaseInjectManifestEntries.entries,
     /**
      * The type of the service worker.
@@ -31,10 +32,6 @@ const BaseInjectManifestEntries = v.pipeAsync(
      * Whether the runtime code for the Workbox library should be included in the top-level service worker, or split into a separate file that needs to be deployed alongside the service worker. Keeping the runtime separate means that users will not have to re-download the Workbox code each time your top-level service worker changes.
      */
     inlineWorkboxRuntime: v.optional(v.boolean(), false),
-    /**
-     * If set to 'production', then an optimized service worker bundle that excludes debugging info will be produced. If not explicitly configured here, the `process.env.NODE_ENV` value will be used, and failing that, it will fall back to `'production'`.
-     */
-    mode: v.optional(v.nullable(v.string()), 'production'),
     /**
      * When using `classic` or `module` and splitting workbox runtime (inlineWorkboxRuntime set to false), this flag controls the
      * name of the `workbox-**.js` chunk:
@@ -76,19 +73,6 @@ const BaseInjectManifestEntries = v.pipeAsync(
     customChunks: v.optional(
       v.function(),
     ),
-    // Vite specific optional fields
-    define: v.optional(v.record(v.string(), v.any())),
-    /**
-     * The directory from which .env files are loaded.
-     * @default 'root'
-     */
-    envDir: v.optional(v.union([v.string(), v.literal(false)]), 'root'),
-    /**
-     * Env variables starting with this prefix will be exposed to your client code.
-     * @default 'VITE_'
-     */
-    envPrefix: v.optional(v.union([v.string(), v.array(v.string())]), 'VITE_'),
-    plugins: v.optional(v.any()),
   }),
   v.forwardAsync(
     v.checkAsync(

@@ -1,11 +1,12 @@
 import * as v from 'valibot'
 import { validateGlobDirectory, validateSWDestDirectory, withSmartMinify } from './generation-utils'
-import { ManifestOptionsSchema, RuntimeCachingEntrySchema, SWTargetSchema } from './utils'
+import { BundlerDataSchema, ManifestOptionsSchema, RuntimeCachingEntrySchema, SWTargetSchema } from './utils'
 
 export type AsyncGenerateSWOptionsSchemaType = v.InferInput<typeof AsyncGenerateSWOptionsSchema>
 
 const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
   v.strictObject({
+    ...BundlerDataSchema.entries,
     ...ManifestOptionsSchema.entries,
     /**
      * The type of the service worker.
@@ -76,10 +77,6 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
      * Whether the runtime code for the Workbox library should be included in the top-level service worker, or split into a separate file that needs to be deployed alongside the service worker. Keeping the runtime separate means that users will not have to re-download the Workbox code each time your top-level service worker changes.
      */
     inlineWorkboxRuntime: v.optional(v.boolean(), false),
-    /**
-     * If set to 'production', then an optimized service worker bundle that excludes debugging info will be produced. If not explicitly configured here, the `process.env.NODE_ENV` value will be used, and failing that, it will fall back to `'production'`.
-     */
-    mode: v.optional(v.nullable(v.string()), 'production'),
     /**
      * If specified, all [navigation requests](https://developers.google.com/web/fundamentals/primers/service-workers/high-performance-loading#first_what_are_navigation_requests) for URLs that aren't precached will be fulfilled with the HTML at the URL provided. You must pass in the URL of an HTML document that is listed in your precache manifest. This is meant to be used in a Single Page App scenario, in which you want all navigations to use common [App Shell HTML](https://developers.google.com/web/fundamentals/architecture/app-shell).
      */

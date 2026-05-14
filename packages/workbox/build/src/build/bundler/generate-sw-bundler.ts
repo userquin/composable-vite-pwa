@@ -6,6 +6,7 @@ import { validateGenerateSW } from '../../validation/validation-helper'
 import { prepareBundlerOptions, runBundlerBuild } from './bundler-utils'
 import { prepareSWCode } from './prepare-sw-code'
 import {
+  extractOriginalEnvironmentData,
   prepareSWTargets,
   resolveSWNamesAndGlobIgnores,
 } from './utils'
@@ -17,6 +18,9 @@ export async function internalGenerateSW<T extends SWType, Options extends Build
   const optionsWithDefaults = await validateGenerateSW(
     options,
   )
+
+  // clone mode, baseUrl, envDir, envPrefix and define (GenerateSW doesn't have injectionOptions)
+  const originalEnvironmentData = extractOriginalEnvironmentData(options, false)
 
   deepMergeObject(
     options,
@@ -74,6 +78,7 @@ export async function internalGenerateSW<T extends SWType, Options extends Build
     target: useTargets,
     workboxRuntimeCompatible: options.workboxRuntimeCompatible!,
     generateSW: { swCode },
+    originalEnvironmentData,
   })
 
   return await runBundlerBuild(

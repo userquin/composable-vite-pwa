@@ -308,3 +308,28 @@ export const ManifestOptionsSchema = v.strictObject({
    */
   templatedURLs: v.optional(v.record(v.string(), v.union([v.array(v.string()), v.string()]))),
 })
+
+export const BundlerDataSchema = v.object({
+  /**
+   * If set to 'production', then an optimized service worker bundle that excludes debugging info will be produced. If not explicitly configured here, the `process.env.NODE_ENV` value will be used, and failing that, it will fall back to `'production'`.
+   */
+  mode: v.optional(v.nullable(v.string()), 'production'),
+  /**
+   * Base dir.
+   * @default '/'
+   */
+  baseDir: v.optional(v.string(), '/'),
+  // Specific optional fields
+  define: v.optional(v.record(v.string(), v.any())),
+  /**
+   * The directory from which .env files are loaded.
+   * @default 'root'
+   */
+  envDir: v.optional(v.union([v.string(), v.literal(false)]), 'root'),
+  /**
+   * Env variables starting with this prefix will be exposed to your client code.
+   * @default 'VITE_'
+   */
+  envPrefix: v.optional(v.union([v.string(), v.array(v.string())]), 'VITE_'),
+  plugins: v.optional(v.any()),
+})
