@@ -57,6 +57,21 @@ function BuildPlugin2(
           sourcemap: true,
           minify: false,
           inlineWorkboxRuntime: false,
+          runtimeCaching: [{
+            urlPattern: ({ request, sameOrigin }) => {
+              console.log(import.meta.env)
+              return sameOrigin && request.mode === 'navigate'
+            },
+            handler: 'NetworkOnly',
+            options: {
+              plugins: [{
+                /* this callback will be called when the fetch call fails */
+                handlerDidError: async () => Response.redirect('404', 302),
+                /* this callback will prevent caching the response */
+                cacheWillUpdate: async () => null,
+              }],
+            },
+          }],
         }
 
         process.env.VITE_XXX = 'xxxx'
