@@ -8,6 +8,9 @@ import { expand } from 'dotenv-expand'
 import pc from 'picocolors'
 import { normalizePath } from './utils'
 
+// hoist regexps
+const emptyRegexp = /\s/
+
 function arraify<T>(input: T | T[]): T[] {
   return Array.isArray(input) ? input : [input]
 }
@@ -45,10 +48,10 @@ export function loadEnv(
 ): Record<string, string> {
   if (mode === 'local') {
     throw new Error(
-      `"local" cannot be used as a mode name because it conflicts with `
-      + `the .local postfix for .env files.`,
+      '"local" cannot be used as a mode name because it conflicts with the .local postfix for .env files.',
     )
   }
+
   prefixes = arraify(prefixes)
   const env: Record<string, string> = {}
   const envFiles = getEnvFilesForMode(mode, envDir)
@@ -65,32 +68,27 @@ export function loadEnv(
     }),
   )
 
-  // test NODE_ENV override before expand as otherwise process.env.NODE_ENV would override this
-  if (parsed.NODE_ENV && process.env.VITE_USER_NODE_ENV === undefined) {
-    process.env.VITE_USER_NODE_ENV = parsed.NODE_ENV
-  }
-  // support BROWSER and BROWSER_ARGS env variables
-  if (parsed.BROWSER && process.env.BROWSER === undefined) {
-    process.env.BROWSER = parsed.BROWSER
-  }
-  if (parsed.BROWSER_ARGS && process.env.BROWSER_ARGS === undefined) {
-    process.env.BROWSER_ARGS = parsed.BROWSER_ARGS
+  // We create a local workspace for environment variables to avoid mutating global process.env.
+  // This ensures the library is a "good citizen" and doesn't cause side effects in the user's process.
+  const workspaceEnv = Object.assign({}, process.env) as DotenvPopulateInput
+
+  // Handle NODE_ENV override logic locally within our workspace.
+  if (parsed.NODE_ENV && workspaceEnv.VITE_USER_NODE_ENV === undefined) {
+    workspaceEnv.VITE_USER_NODE_ENV = parsed.NODE_ENV
   }
 
-  // let environment variables use each other. make a copy of `process.env` so that `dotenv-expand`
-  // doesn't re-assign the expanded values to the global `process.env`.
-  const processEnv = { ...process.env } as DotenvPopulateInput
-  expand({ parsed, processEnv })
+  // Let environment variables use each other via interpolation.
+  // dotenv-expand uses our workspaceEnv to resolve variables without global assignment.
+  expand({ parsed, processEnv: workspaceEnv })
 
-  // only keys that start with prefix are exposed to client
+  // Priority 1: Expose keys from .env files that match the allowed prefixes.
   for (const [key, value] of Object.entries(parsed)) {
     if (prefixes.some(prefix => key.startsWith(prefix))) {
       env[key] = value
     }
   }
 
-  // check if there are actual env variables starting with VITE_*
-  // these are typically provided inline and should be prioritized
+  // Priority 2: System environment variables always take precedence over .env files.
   for (const key in process.env) {
     if (prefixes.some(prefix => key.startsWith(prefix))) {
       env[key] = process.env[key]!
@@ -104,17 +102,20 @@ export function resolveEnvPrefix(
   envPrefix: string | string[],
 ): string[] {
   envPrefix = arraify(envPrefix)
+
   if (envPrefix.includes('')) {
     throw new Error(
-      `envPrefix option contains value '', which could lead unexpected exposure of sensitive information.`,
+      `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('Invalid envPrefix value!')}\n`
+      + `The ${pc.green('envPrefix')} option contains an empty string ${pc.cyan('\'\'')}, which could lead to unexpected exposure of sensitive information.\n`,
     )
   }
-  if (envPrefix.some(prefix => /\s/.test(prefix))) {
+
+  if (envPrefix.some(prefix => emptyRegexp.test(prefix))) {
     console.warn(
-      pc.yellow(
-        `[VITE PWA] Warning: envPrefix option contains values with whitespace, which does not work in practice.`,
-      ),
+      `\n${pc.yellow(pc.bold('[Vite PWA]'))} ${pc.yellow('Warning:')} `
+      + `The ${pc.green('envPrefix')} option contains values with whitespace, which does not work in practice.\n`,
     )
   }
+
   return envPrefix
 }
