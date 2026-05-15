@@ -27,6 +27,15 @@ export async function buildSWLegacy<T extends SWType>(
   options: LegacyBuildServiceWorkerOptions<T>,
 ): Promise<BuildResult> {
   const now = performance.now()
+
+  const message = await import('./index').then(({
+    checkLegacyBuildSW,
+  }) => checkLegacyBuildSW(options, true))
+
+  if (message) {
+    throw new Error(message)
+  }
+
   const [
     internalBuildSW,
     transformESMTargetToRolldown,

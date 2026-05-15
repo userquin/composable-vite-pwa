@@ -1,4 +1,4 @@
-import type { GenerateSWDependenciesResult } from './detector-types'
+import type { DetectorOptions, DetectorResult, GenerateSWDependenciesResult } from './detector-types'
 import pc from 'picocolors'
 
 /**
@@ -135,12 +135,96 @@ export function throwViteBuildOptionsRequired(): never {
 /**
  * Error when buildSW is called but the Vite version is not compatible (Vite 8+ required).
  */
-export function throwInvalidViteVersion(): never {
-  throw new Error(
-    `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('Incompatible Vite version!')}\n\n`
-    + `The ${pc.cyan('"buildSW"')} strategy requires ${pc.green('Vite ^8.0.0')}.\n`
-    + `Please upgrade your Vite dependency or use ${pc.cyan('"generateSW"')} / ${pc.cyan('"injectManifest"')} instead.\n`,
-  )
+export function buildInvalidViteVersion(
+  strategyName: 'generate' | 'build',
+  forError: boolean,
+): string {
+  const color = forError ? pc.red : pc.yellow
+  return [
+    `\n${color(pc.bold('[Vite PWA]'))} ${color('Incompatible Vite version!')}\n`,
+    `The ${pc.cyan(`"${strategyName}SW"`)} strategy requires ${pc.green('Vite ^8.0.0')}.`,
+    `Please upgrade your Vite dependency or use ${pc.cyan(`"${strategyName}SWLegacy"`)} from '${pc.cyan(`@vite-pwa/workbox-build/vite/legacy-${strategyName}-sw`)}' instead.\n`,
+    forError
+      ? undefined
+      : `${color(pc.bold('POTENTIAL BUILD FAILURE:'))} This warning will become a hard error during the production build.`,
+  ].filter(Boolean).join('\n')
+}
+
+/**
+ * Error when buildSW is called but the Vite version is not compatible (Vite 8+ required).
+ */
+export function buildInvalidViteLegacyVersion(
+  strategyName: 'generate' | 'build',
+  forError: boolean,
+): string {
+  const color = forError ? pc.red : pc.yellow
+  return [
+    `\n${color(pc.bold('[Vite PWA]'))} ${color('Incompatible Rolldown version!')}\n`,
+    `The ${pc.cyan(`"${strategyName}SW"`)} for legacy strategy requires ${pc.green('Rolldown ^1.0.0-0')}.`,
+    `${pc.bold('To resolve this, please run:')}`,
+    `  ${pc.green('npm add -D rolldown')}\n`,
+    forError
+      ? `${color('Error: Build stopped. Rolldown is required for code splitting in the Service Worker.')}`
+      : `${color('POTENTIAL BUILD ERROR: Rolldown is required for code splitting in the Service Worker.')}`,
+  ].filter(Boolean).join('\n')
+}
+
+/**
+ * Validates dependencies specifically for the buildSW strategy (Vite 8+ engine).
+ */
+export function checkViteDependencies(
+  strategyName: 'generate' | 'build',
+  forError: boolean,
+  options: DetectorOptions,
+  { vite, magicast }: DetectorResult,
+): string | undefined {
+  if (vite && (!options.magicast || magicast)) {
+    return undefined
+  }
+
+  if (!vite) {
+    return buildInvalidViteVersion(strategyName, forError)
+  }
+
+  const color = forError ? pc.red : pc.yellow
+  return [
+    `\n${color(pc.bold('[Vite PWA]'))} ${color('MISSING DEPENDENCY')}`,
+    `The ${pc.cyan('customChunks')} option in ${pc.green(`${strategyName}SW`)} requires ${pc.green('magicast')} for AST transformation.\n`,
+    `${pc.bold('To resolve this, please run:')}`,
+    `  ${pc.green('npm add -D magicast')}\n`,
+    forError
+      ? `${color('Error: Build stopped. Magicast is required for code splitting in the Service Worker.')}`
+      : `${color('POTENTIAL BUILD ERROR: Magicast is required for code splitting in the Service Worker.')}`,
+  ].join('\n')
+}
+
+/**
+ * Validates dependencies specifically for the buildSW strategy (Vite 8+ engine).
+ */
+export function checkViteLegacyDependencies(
+  strategyName: 'generate' | 'build',
+  forError: boolean,
+  options: DetectorOptions,
+  { rolldown, magicast }: DetectorResult,
+): string | undefined {
+  if (rolldown && (!options.magicast || magicast)) {
+    return undefined
+  }
+
+  if (!rolldown) {
+    return buildInvalidViteLegacyVersion(strategyName, forError)
+  }
+
+  const color = forError ? pc.red : pc.yellow
+  return [
+    `\n${color(pc.bold('[Vite PWA]'))} ${color('MISSING DEPENDENCY')}`,
+    `The ${pc.cyan('customChunks')} option in ${pc.green(`${strategyName}SW`)} requires ${pc.green('magicast')} for AST transformation.\n`,
+    `${pc.bold('To resolve this, please run:')}`,
+    `  ${pc.green('npm add -D magicast')}\n`,
+    forError
+      ? `${color('Error: Build stopped. Magicast is required for code splitting in the Service Worker.')}`
+      : `${color('POTENTIAL BUILD ERROR: Magicast is required for code splitting in the Service Worker.')}`,
+  ].join('\n')
 }
 
 /**

@@ -46,6 +46,15 @@ export async function buildSW<T extends SWType>(
   options: BuildServiceWorkerOptions<T>,
 ): Promise<BuildResult> {
   const now = performance.now()
+
+  const message = await import('./index').then(({
+    checkBuildSW,
+  }) => checkBuildSW(options, true))
+
+  if (message) {
+    throw new Error(message)
+  }
+
   const [
     internalBuildSW,
     asyncFlatten,

@@ -23,6 +23,15 @@ export async function generateSW<T extends SWType>(
   options: BuildGenerateSWOptions<T>,
 ): Promise<BuildResult> {
   const now = performance.now()
+
+  const message = await import('./index').then(({
+    checkGenerateSW,
+  }) => checkGenerateSW(true))
+
+  if (message) {
+    throw new Error(message)
+  }
+
   const [
     internalGenerateSW,
     prepareViteBuild,

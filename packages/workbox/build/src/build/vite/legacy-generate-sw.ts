@@ -25,6 +25,15 @@ export async function generateSWLegacy<T extends SWType>(
   options: BuildGenerateSWOptions<T>,
 ): Promise<BuildResult> {
   const now = performance.now()
+
+  const message = await import('./index').then(({
+    checkLegacyGenerateSW,
+  }) => checkLegacyGenerateSW(true))
+
+  if (message) {
+    throw new Error(message)
+  }
+
   const [
     internalGenerateSW,
     transformESMTargetToRolldown,
