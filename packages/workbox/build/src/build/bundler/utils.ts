@@ -12,19 +12,23 @@ import type {
 import type {
   Bundler,
   ClassicRegionReplacement,
-  DetectionData,
-  DetectorMode,
-  LoadDetectorReturn,
   OriginalEnvironmentData,
   ResolvedSWTargets,
 } from './bundler-types'
 import path from 'node:path'
 import MagicString from 'magic-string'
 
+// hoist regexp
 export const workboxRegex = [
   /^@composable-vite-pwa\/workbox-swkit\//,
   /[\\/]workbox[\\/]swkit/,
 ]
+// DON'T hoist Regexp used with /g via exec/test/split
+const normalizePathRegexp = /\\/g
+const jsRegexp = /\.js$/
+const tempRegexp = /-temp\.js$/
+const anyJsRegexp = /\.([mc])?[jt]sx?$/
+const asRegexp = /\s+as\s+/
 
 export const BundlerNames: Record<Bundler, string> = {
   vite: 'Vite',
@@ -32,7 +36,7 @@ export const BundlerNames: Record<Bundler, string> = {
 }
 
 export function normalizePath(path: string): string {
-  return path.replace(/\\/g, '/')
+  return path.replace(normalizePathRegexp, '/')
 }
 
 export function extractOriginalEnvironmentData<
@@ -52,40 +56,6 @@ export function extractOriginalEnvironmentData<
   }) as OriginalEnvironmentData
 }
 
-export async function loadDetector<M extends DetectorMode>({
-  mode,
-  bundler: _,
-  throwError = false,
-}: {
-  mode: M
-  bundler: Bundler
-  throwError?: boolean
-  isDev?: boolean
-}): Promise<LoadDetectorReturn<M>> {
-  const [detector, log] = await Promise.all([
-    import('./detector'),
-    import('./log'),
-  ])
-  let message: string | undefined
-  let detection: DetectionData<M>
-  if (mode === 'generate-sw') {
-    detection = await detector.detectGenerateSWDependencies()
-    message = log.checkGenerateSWDependencies(detection, true)
-  }
-  else {
-    detection = await detector.detectRolldownAndVite()
-    // todo: ver que hacemos aquí
-  }
-  if (message) {
-    if (throwError) {
-      throw new Error(message)
-    }
-    console.warn(message)
-  }
-
-  return { detection, warned: !!message } as LoadDetectorReturn<M>
-}
-
 export function restoreClassicGenerateSWRegions(
   { search, replacement }: ClassicRegionReplacement,
   magicString: MagicString,
@@ -96,8 +66,6 @@ export function restoreClassicGenerateSWRegions(
   )
 }
 
-const varRegex = /\b(?:const|let)(?=\s+[_$a-zA-Z])/g
-
 /**
  * GLOBAL TRANSFORMATION: ES6 to Classic (let/const to var).
  *
@@ -106,8 +74,9 @@ const varRegex = /\b(?:const|let)(?=\s+[_$a-zA-Z])/g
  * syntax errors on re-evaluation (Redeclaration Error).
  */
 function replaceLetConstWithVar(magicString: MagicString) {
-  let varMatch
   const currentCode = magicString.original
+  const varRegex = /\b(?:const|let)(?=\s+[_$a-zA-Z])/g
+  let varMatch: RegExpExecArray | null = null
 
   // eslint-disable-next-line no-cond-assign
   while ((varMatch = varRegex.exec(currentCode)) !== null) {
@@ -142,16 +111,20 @@ export async function transformClassicChunk(
     magicString.prepend('(function() {\n')
 
     const exportRegex = /export\s*\{([^}]+)\};?/g
-    let match
+    let match: RegExpExecArray | null = null
     // eslint-disable-next-line no-cond-assign
     while ((match = exportRegex.exec(codeWithoutMap)) !== null) {
       const [fullMatch, content] = match
-      const members = content.split(',').map(e => e.trim().split(/\s+as\s+/)[0].trim()).join(', ')
+      const members = content.split(',').map(e => e.trim().split(asRegexp)[0].trim()).join(', ')
 
       // replace the export with the assigment
       const replacement = `\nself.workbox = self.workbox || {};\nself.workbox.swkit = { ${members} };`
       magicString.overwrite(match.index, match.index + fullMatch.length, replacement)
     }
+
+    // Transform const/let to var inside the Workbox chunk to avoid Redeclaration Errors
+    // in classic Service Workers when the script is re-evaluated.
+    replaceLetConstWithVar(magicString)
 
     magicString.append('\n})();')
 
@@ -177,7 +150,7 @@ export async function transformClassicChunk(
       'g',
     )
 
-    let match
+    let match: RegExpExecArray | null = null
     // eslint-disable-next-line no-cond-assign
     while ((match = importRegex.exec(code)) !== null) {
       const [fullMatch, imports] = match
@@ -206,17 +179,17 @@ export function resolveSWNamesAndGlobIgnores(
   swSrc: string,
   generateSW: boolean,
 ) {
-  const newSWSrc = generateSW ? options.swDest.replace(/\.js$/, '-temp.js') : swSrc
+  const newSWSrc = generateSW ? options.swDest.replace(jsRegexp, '-temp.js') : swSrc
   const swChunkName = generateSW
     ? path.basename(newSWSrc, '.js')
-    : path.basename(swSrc.replace(/\.([mc])?[jt]sx?$/, '.js'), '.js')
+    : path.basename(swSrc.replace(anyJsRegexp, '.js'), '.js')
   const swDestBasename = path.basename(options.swDest)
   const classicSWDest = options.swDest.replace(swDestBasename, `classic-${swDestBasename}`)
   const moduleSWDest = options.swDest.replace(swDestBasename, `module-${swDestBasename}`)
 
-  const classicSWSrc = generateSW ? newSWSrc.replace(/-temp\.js$/, '-classic-temp.js') : undefined
+  const classicSWSrc = generateSW ? newSWSrc.replace(tempRegexp, '-classic-temp.js') : undefined
   const classicSWChunkName = classicSWSrc ? path.basename(classicSWSrc, '.js') : undefined
-  const moduleSWSrc = generateSW ? newSWSrc.replace(/-temp\.js$/, '-module-temp.js') : undefined
+  const moduleSWSrc = generateSW ? newSWSrc.replace(tempRegexp, '-module-temp.js') : undefined
   const moduleSWChunkName = moduleSWSrc ? path.basename(moduleSWSrc, '.js') : undefined
 
   options.globIgnores ??= []
