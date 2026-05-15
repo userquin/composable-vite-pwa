@@ -112,6 +112,9 @@
   "files": [
     "dist"
   ],
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
     "build": "tsdown --config-loader unrun",
     "test:typecheck": "tsc --noEmit",
