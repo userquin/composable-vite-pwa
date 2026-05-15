@@ -115,6 +115,7 @@ describe('common bundler options are correctly generated', () => {
         target: { classic: 'es2015', module: 'esnext' },
         workboxRuntimeCompatible: false,
         generateSW: { swCode: 'console.log("sw")' },
+        originalEnvironmentData: undefined!,
       } satisfies PrepareBundlerOptions
 
       const {
@@ -164,6 +165,7 @@ describe('common bundler options are correctly generated', () => {
         manifestEntries: [],
         target: { classic: 'es2015', module: 'esnext' },
         workboxRuntimeCompatible: false,
+        originalEnvironmentData: undefined!,
       } satisfies PrepareBundlerOptions
 
       const {
