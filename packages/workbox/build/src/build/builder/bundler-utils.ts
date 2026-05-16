@@ -86,7 +86,7 @@ export async function runBundlerBuild(
   builds: BundlerOptions[],
   filePathsMap: Map<'classic' | 'module', string[]>,
   tempFileWrites: Promise<void>[],
-  prepareBuilds: (builds: BundlerOptions[]) => Promise<void>[],
+  prepareBuilds: () => Promise<void>[],
   tempFiles: string[] = [],
 ): Promise<BuildResult> {
   try {
@@ -94,7 +94,7 @@ export async function runBundlerBuild(
       await Promise.all(tempFileWrites)
     }
     if (builds.length > 1) {
-      const buildsResult = await Promise.allSettled(prepareBuilds(builds))
+      const buildsResult = await Promise.allSettled(prepareBuilds())
       // todo: handle circular
       let result: PromiseSettledResult<any>
       for (let i = 0; i < buildsResult.length; i++) {
@@ -108,18 +108,7 @@ export async function runBundlerBuild(
       }
     }
     else {
-      const build = builds[0]
-      if (build.swType === 'classic' && build.detectCircularDeps) {
-        try {
-          await Promise.all(prepareBuilds(builds))
-        }
-        catch (err) {
-          // todo: handle circular deps
-        }
-      }
-      else {
-        await Promise.all(prepareBuilds(builds))
-      }
+      await Promise.all(prepareBuilds())
     }
   }
   finally {

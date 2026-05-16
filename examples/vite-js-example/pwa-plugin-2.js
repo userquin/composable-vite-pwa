@@ -39,6 +39,8 @@ function BuildPlugin2(
   buildType,
   /** @type {string|string[]|undefined} */
   envPrefix,
+  /** @type {string|undefined} */
+  outDir,
 ) {
   /** @type {import('vite').Plugin} */
   return {
@@ -51,9 +53,9 @@ function BuildPlugin2(
         /** @type {import('@composable-vite-pwa/workbox-build/build/types').BuildGenerateSWOptions} */
         const generateData = {
           swType,
-          swDest: `dist/${swName}`,
+          swDest: outDir ? `${outDir}/${swName}` : `dist/${swName}`,
           // globIgnores: ['**!/{sw,workbox,workbox-*,classic-sw,module-sw}.js', '**!/!*.map'],
-          globDirectory: './dist',
+          globDirectory: outDir ? `./${outDir}` : './dist',
           globPatterns: ['**/*.{js,css,html,svg,png}'],
           dontCacheBustURLsMatching: /[\\/]?assets[\\/]/,
           sourcemap: true,
@@ -85,17 +87,61 @@ function BuildPlugin2(
         const buildData = {
           swType,
           swSrc: `src/${swName}`,
-          swDest: `dist/${swName}`,
+          swDest: outDir ? `${outDir}/${swName}` : `dist/${swName}`,
           // globIgnores: ['**!/{sw,workbox,workbox-*,classic-sw,module-sw}.js', '**/*.map'],
           globDirectory: './dist',
           globPatterns: ['**/*.{js,css,html,svg,png}'],
           dontCacheBustURLsMatching: /[\\/]?assets[\\/]/,
           sourcemap: true,
           minify: false,
+          workboxRuntimeCompatible: true,
           inlineWorkboxRuntime: false,
           envPrefix,
           plugins: () => [VirtualPlugin()],
+          customChunks: (moduleId) => {
+            if (moduleId.includes('circular-dep-1.js')) {
+              return 'chunk-circular-1'
+            }
+            if (moduleId.includes('circular-dep-2.js')) {
+              return 'chunk-circular-2'
+            }
+            // console.log(moduleId)
+            if (/[\\/]a\.js$/.test(moduleId)) {
+              return 'chunk-a'
+            }
+            if (/[\\/]b\.js$/.test(moduleId)) {
+              return 'chunk-b'
+            }
+            if (/[\\/]c\.js$/.test(moduleId)) {
+              return 'chunk-c'
+            }
+            return undefined
+          },
         }
+
+        /* , {
+      priority: 1,
+      test: /[\\/]a\.js$/,
+      name: 'chunk-a',
+    }, {
+      priority: 1,
+      test: /[\\/]b\.js$/,
+      name: 'chunk-b',
+    }, {
+      priority: 1,
+      test: /[\\/]c\.js$/,
+      name: 'chunk-c',
+    }, {
+      priority: 1,
+      test: /[\\/]circular-dep-1\.js$/,
+      name: 'chunk-circular-1',
+    }, {
+      priority: 1,
+      test: /[\\/]circular-dep-2\.js$/,
+      name: 'chunk-circular-2',
+    }
+         */
+
         console.log(`Running ${buildType}...`)
         const isBuild = buildType.includes('build-sw')
         const data = isBuild ? buildData : generateData
@@ -152,6 +198,7 @@ function VirtualPWARegister(
  * @param swType {'classic'|'module'|'classic-and-module'}
  * @param buildType {'vite-build-sw'|'legacy-build-sw'|'vite-generate-sw'|'legacy-generate-sw'}
  * @param envPrefix {string|string[]|undefined}
+ * @param outDir {string|undefined}
  * @return {({name: string, apply: string, enforce: string, closeBundle: {enforce: string, handler(): Promise<void>}}|{name: string, enforce: string, config(): {define: {__SW_URL__: *, __SW_TYPE__: *, __SW_CLASSIC_URL__: *, __SW_MODULE_URL__: *, __SW_SCOPE__: *, __SW_AUTO_UPDATE__: *, __SW_SELF_DESTROYING__: *, __SW_UPDATE_VIA_CACHE__: *, "process.env.PWA_ESM_FALLBACK_SW": *}}, resolveId(*): string|undefined, load(*): (Promise<>|undefined)})[]}
  * @constructor
  */
@@ -163,7 +210,10 @@ function PWAPlugin2(
   /** @type {'vite-build-sw'|'legacy-build-sw'|'vite-generate-sw'|'legacy-generate-sw'} */
   buildType,
   /** @type {string|string[]|undefined} */
+  /** @type {string|string[]|undefined} */
   envPrefix,
+  /** @type {string|undefined} */
+  outDir,
 ) {
   /** @type {import('vite').PluginOption} */
   return [
@@ -172,6 +222,7 @@ function PWAPlugin2(
       swName,
       buildType || 'vite-build-sw',
       envPrefix || 'VITE_',
+      outDir,
     ),
     VirtualPWARegister(swType, swName),
   ]

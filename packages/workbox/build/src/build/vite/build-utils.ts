@@ -1,6 +1,7 @@
 import type { ViteBuildOptions } from './internal-types'
 import path from 'node:path'
 import process from 'node:process'
+import { prepareCircularDependencies } from '@composable-vite-pwa/workbox-build/build/bundler/bundler-utils'
 import { build } from 'vite'
 import { prepareBundlerBuildOptions } from '../bundler/bundler-build-utils'
 
@@ -24,6 +25,8 @@ export async function prepareViteBuild(
     rolldownOptions: output,
   } = await prepareBundlerBuildOptions('vite', options)
 
+  const { checks, onLog } = prepareCircularDependencies<'vite'>(options)
+
   return await build({
     plugins,
     configFile: false,
@@ -44,6 +47,8 @@ export async function prepareViteBuild(
         input: swSrc,
         platform: 'browser',
         treeshake: true,
+        checks,
+        onLog,
         output,
         transform: {
           define,

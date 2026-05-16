@@ -1,23 +1,19 @@
-import type { Bundler, ClassicBuild } from './bundler-types'
+import type {
+  Bundler,
+  BundlerPluginType,
+  ClassicBuild,
+  PrepareBundlerBuilder,
+  RolldownOptions,
+} from './bundler-types'
 import path from 'node:path'
 import process from 'node:process'
+
 import MagicString from 'magic-string'
+import {
+  prepareCustomChunksBundlerBuildOptions,
+} from './custom-chunks-plugin'
 import { loadEnv, resolveEnvPrefix } from './env'
 import { restoreClassicGenerateSWRegions, transformClassicChunk, workboxRegex } from './utils'
-
-type BundlerPluginType<T extends Bundler> = T extends 'rolldown'
-  ? import('rolldown').Plugin
-  : import('vite').Plugin
-
-type RolldownOptions<T extends Bundler> = T extends 'rolldown'
-  ? import('../rolldown/internal-types').RolldownBuildOptions
-  : import('../vite/internal-types').ViteBuildOptions
-
-interface PrepareBundlerBuilder<T extends Bundler> {
-  plugins: BundlerPluginType<T>[]
-  define: import('rolldown').TransformOptions['define']
-  rolldownOptions: import('rolldown').OutputOptions
-}
 
 function GenerateBundlePlugin<T extends Bundler>(
   bundler: T,
@@ -208,6 +204,7 @@ export async function prepareBundlerBuildOptions<T extends Bundler>(
     plugins = [],
     generateSW,
     filePaths,
+    manifestEntries,
   } = options
 
   const define = await prepareDefineOptions(options)
@@ -220,24 +217,74 @@ export async function prepareBundlerBuildOptions<T extends Bundler>(
       ))
     : undefined
 
-  plugins.unshift(GenerateBundlePlugin(
-    bundler,
-    path.dirname(options.swDest),
-    {
-      swType,
-      filePaths,
-      generateSW,
-      region: {
-        search: swSrc,
-        replacement: swDest,
-      },
-      swChunkName,
-      workboxName,
-    },
-  ))
-
   // DON'T ADD sourcemap, minify and dir here: will break vite sourcemap
   const rolldownOptions: import('rolldown').OutputOptions = {
+    format: 'esm',
+    comments: {
+      legal: !minify,
+      jsdoc: false,
+      annotation: false,
+    },
+    cleanDir: false,
+    hashCharacters: workboxRuntimeCompatible ? 'hex' : undefined,
+    chunkFileNames: (chunk) => {
+      return workboxName && chunk.name === workboxName
+        ? `${workboxName}-[hash].js`
+        : '[name]-[hash].js'
+    },
+    assetFileNames: '[name]-[hash].[ext]',
+    entryFileNames: (chunk) => {
+      return chunk.name === swChunkName
+        ? swName
+        : '[name]-[hash].js'
+    },
+  }
+
+  const classicBuild: ClassicBuild = {
+    swType,
+    filePaths,
+    generateSW,
+    region: {
+      search: swSrc,
+      replacement: swDest,
+    },
+    swChunkName,
+    workboxName,
+    manifestEntries,
+  }
+
+  const destFolder = path.dirname(options.swDest)
+
+  console.log(swType, options.detectCircularDeps)
+  if (options.detectCircularDeps === true) {
+    plugins.unshift(prepareCustomChunksBundlerBuildOptions({
+      bundler,
+      destFolder,
+      classicBuild,
+      rolldownOptions,
+      options,
+    }))
+  }
+  else {
+    plugins.unshift(GenerateBundlePlugin(
+      bundler,
+      destFolder,
+      classicBuild,
+    ))
+    if (workboxName) {
+      rolldownOptions.codeSplitting = {
+        groups: [{
+          minSize: 0,
+          name: (moduleId) => {
+            return workboxRegex.some(r => r.test(moduleId)) ? workboxName : undefined
+          },
+        }],
+      }
+    }
+  }
+
+  // DON'T ADD sourcemap, minify and dir here: will break vite sourcemap
+  /* const rolldownOptions: import('rolldown').OutputOptions = {
     format: 'esm',
     comments: {
       legal: !minify,
@@ -261,13 +308,24 @@ export async function prepareBundlerBuildOptions<T extends Bundler>(
       ? {
           groups: [{
             minSize: 0,
-            name: (moduleId) => {
-              return workboxRegex.some(r => r.test(moduleId)) ? workboxName : undefined
+            name: (moduleId, ctx) => {
+              const chunk = workboxRegex.some(r => r.test(moduleId)) ? workboxName : undefined
+              if (chunk) {
+                return chunk
+              }
+              const customChunk = options.customChunk
+              if (!customChunk) {
+                return undefined
+              }
+              const customChunkName = customChunk(moduleId, ctx)
+              return customChunkName
+                ? `${swType}-${customChunkName}`
+                : undefined
             },
           }],
         }
       : false,
-  }
+  } */
 
   if (bundler === 'rolldown') {
     rolldownOptions.sourcemap = sourcemap

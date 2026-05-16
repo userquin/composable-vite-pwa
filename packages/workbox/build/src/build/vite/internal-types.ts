@@ -1,5 +1,8 @@
+import type { SWType } from '../../types'
 import type { ViteLogLevel } from '../../utils/constants'
+import type { BuildContext, GenerateContext } from '../bundler/build-context'
 import type { BundlerOptions } from '../bundler/bundler-types'
+import type { CustomChunkCallback } from '../types'
 
 export interface ViteBuildOptions extends BundlerOptions {
   logLevel: ViteLogLevel
@@ -29,4 +32,8 @@ export interface ViteBuildOptions extends BundlerOptions {
   envPrefix?: import('vite').UserConfig['envPrefix']
   sourcemap?: import('vite').BuildOptions['sourcemap']
   generateSW: boolean
+  customChunks?: CustomChunkCallback<'vite'>
 }
+
+export type ViteBuildSWContext<T extends SWType> = BuildContext<T, 'vite', ViteBuildOptions>
+export type ViteGenerateSWContext<T extends SWType> = GenerateContext<T, 'vite'>

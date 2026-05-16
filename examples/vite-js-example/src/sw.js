@@ -10,6 +10,10 @@ import {
   StaleWhileRevalidate,
 } from '@composable-vite-pwa/workbox-swkit'
 import { message2, sayHello2 } from 'virtual:sw-chunk'
+import { runA } from './a'
+import { runC } from './c'
+import { circularDepMessage1, func1 } from './circular-dep-1.js'
+import { circularDepMessage2, func2 } from './circular-dep-2.js'
 import { message, sayHello } from './sw-chunk'
 
 console.log('Message from local sw-chunk', message)
@@ -17,7 +21,13 @@ console.log('sayHello', sayHello('userquin'))
 console.log('Message from virtual:sw-chunk', message2)
 console.log('sayHello2', sayHello2('userquin'))
 
+runA()
+runC()
+
 console.log(import.meta.env)
+
+console.log(circularDepMessage1, typeof func1)
+console.log(circularDepMessage2, typeof func2)
 
 // eslint-disable-next-line no-restricted-globals
 self.skipWaiting()

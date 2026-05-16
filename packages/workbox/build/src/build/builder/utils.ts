@@ -203,8 +203,8 @@ export function resolveSWNamesAndGlobIgnores(
     ? path.basename(newSWSrc, '.js')
     : path.basename(swSrc.replace(anyJsRegexp, '.js'), '.js')
   const swDestBasename = path.basename(options.swDest)
-  const classicSWDest = options.swDest.replace(swDestBasename, `classic-${swDestBasename}`)
-  const moduleSWDest = options.swDest.replace(swDestBasename, `module-${swDestBasename}`)
+  const classicSWDest = options.swDest.replace(swDestBasename, `${swDestBasename}-classic`)
+  const moduleSWDest = options.swDest.replace(swDestBasename, `${swDestBasename}-module`)
 
   const classicSWSrc = generateSW ? newSWSrc.replace(tempRegexp, '-classic-temp.js') : undefined
   const classicSWChunkName = classicSWSrc ? path.basename(classicSWSrc, '.js') : undefined

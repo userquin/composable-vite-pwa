@@ -3,6 +3,7 @@ import type {
   BuildServiceWorkerOptions,
   ServiceWorkerOptions,
 } from './types'
+import { createBuildContext } from './build-context'
 
 async function prepareBuildSWPlugins(
   plugins: ServiceWorkerOptions['plugins'],
@@ -25,12 +26,16 @@ function prepareViteBuilds<T extends SWType>(
   const logLevel = ll === 'silent'
     ? 'silent'
     : bundlerLogLevel!.vite!
+  const withCustomChunks = !!options.customChunks
+
   return bundlerOptions.map(async (b) => {
+    b.detectCircularDeps = withCustomChunks ? true : undefined
     return await prepareBuildSWPlugins(
       options.plugins,
       asyncFlatten,
     ).then((plugins) => {
       return prepareViteBuild(Object.assign(b, {
+        customChunks: options.customChunks,
         logLevel,
         plugins,
         envDir: options.envDir,
@@ -45,7 +50,7 @@ function prepareViteBuilds<T extends SWType>(
 export async function buildSW<T extends SWType>(
   options: BuildServiceWorkerOptions<T>,
 ): Promise<BuildResult> {
-  const now = performance.now()
+  const buildStart = performance.now()
 
   const message = await import('./index').then(({
     checkBuildSW,
@@ -64,9 +69,15 @@ export async function buildSW<T extends SWType>(
     import('./build-utils').then(({ prepareViteBuild }) => prepareViteBuild),
     import('../bundler/utils').then(({ asyncFlatten }) => asyncFlatten),
   ])
+
+  const context = createBuildContext<T>(
+    buildStart,
+    options,
+  )
+
   return await internalBuildSW(
     'vite',
-    now,
+    buildStart,
     options,
     bundlerOptions => prepareViteBuilds(
       bundlerOptions,

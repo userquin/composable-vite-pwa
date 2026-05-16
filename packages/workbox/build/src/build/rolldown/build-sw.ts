@@ -1,5 +1,6 @@
 import type { BuildResult, SWType } from '../../types'
 import type { BuildServiceWorkerOptions } from './types'
+import { createBuildContext } from './build-context'
 
 function prepareRolldownBuilds<T extends SWType>(
   bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
@@ -11,9 +12,13 @@ function prepareRolldownBuilds<T extends SWType>(
   const logLevel = ll === 'silent'
     ? 'silent'
     : bundlerLogLevel!.rolldown!
+  const withCustomChunks = !!options.customChunks
+
   return bundlerOptions.map(async (b) => {
+    b.detectCircularDeps = withCustomChunks ? true : undefined
     const plugins = options.plugins?.() || []
     return await prepareRolldownBuild(Object.assign(b, {
+      customChunks: options.customChunks,
       logLevel,
       target: transformESMTargetToRolldown(b.swType, b.target),
       plugins: plugins.filter(Boolean),
@@ -26,7 +31,7 @@ function prepareRolldownBuilds<T extends SWType>(
 export async function buildSW<T extends SWType>(
   options: BuildServiceWorkerOptions<T>,
 ): Promise<BuildResult> {
-  const now = performance.now()
+  const buildStart = performance.now()
 
   const message = await import('./index').then(({
     checkBuildSW,
@@ -45,9 +50,15 @@ export async function buildSW<T extends SWType>(
     import('../bundler/utils').then(({ transformESMTargetToRolldown }) => transformESMTargetToRolldown),
     import('./build-utils').then(({ prepareRolldownBuild }) => prepareRolldownBuild),
   ])
+
+  const context = createBuildContext<T>(
+    buildStart,
+    options,
+  )
+
   return await internalBuildSW(
     'rolldown',
-    now,
+    buildStart,
     options,
     bundlerOptions => prepareRolldownBuilds(
       bundlerOptions,

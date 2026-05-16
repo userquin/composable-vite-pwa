@@ -1,5 +1,8 @@
 import type { BuildResult, SWType } from '../../types'
 import type { BuildGenerateSWOptions } from '../types'
+import {
+  createGenerateContext,
+} from '@composable-vite-pwa/workbox-build/build/vite/build-context'
 
 function prepareViteBuilds<T extends SWType>(
   bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
@@ -22,7 +25,7 @@ function prepareViteBuilds<T extends SWType>(
 export async function generateSW<T extends SWType>(
   options: BuildGenerateSWOptions<T>,
 ): Promise<BuildResult> {
-  const now = performance.now()
+  const buildStart = performance.now()
 
   const message = await import('./index').then(({
     checkGenerateSW,
@@ -39,9 +42,15 @@ export async function generateSW<T extends SWType>(
     import('../bundler/generate-sw-bundler').then(({ internalGenerateSW }) => internalGenerateSW),
     import('./build-utils').then(({ prepareViteBuild }) => prepareViteBuild),
   ])
+
+  const context = createGenerateContext<T>(
+    buildStart,
+    options,
+  )
+
   return await internalGenerateSW(
     'vite',
-    now,
+    buildStart,
     options,
     bundlerOptions => prepareViteBuilds(
       bundlerOptions,

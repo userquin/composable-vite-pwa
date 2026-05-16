@@ -7,14 +7,17 @@ export default defineConfig({
   mode: 'development',
   build: {
     minify: false,
+    // outDir: 'build',
   },
   plugins: [
     VirtualPlugin(),
     PWAPlugin2(
       'sw.js',
-      'classic-and-module',
-      'legacy-generate-sw',
+      'classic',
+      'legacy-build-sw',
       ['VITE_', 'PUBLIC_'],
+      undefined,
+      // 'build',
     ),
   ],
 })
