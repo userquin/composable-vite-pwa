@@ -27,7 +27,6 @@ export async function internalGenerateSW<
   // clone mode, baseUrl, envDir, envPrefix and define (GenerateSW doesn't have injectionOptions)
   context.originalEnvironmentData = extractOriginalEnvironmentData(
     context.options,
-    false,
   )
 
   deepMergeObject(

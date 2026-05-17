@@ -25,14 +25,9 @@ export async function internalBuildSW<
     context.options,
   )
 
-  const {
-    injectionPoint,
-  } = context.options
-
   // clone mode, baseUrl, envDir, envPrefix, define and injectionPoint
   context.originalEnvironmentData = extractOriginalEnvironmentData(
     context.options,
-    typeof injectionPoint === 'string' && injectionPoint ? injectionPoint : false,
   )
 
   deepMergeObject(

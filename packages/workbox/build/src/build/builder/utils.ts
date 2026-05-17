@@ -45,16 +45,20 @@ export function extractOriginalEnvironmentData<
   Options extends BuildSWOptions<T> | BuildGenerateSWOptions<T>,
 >(
   options: Options,
-  injectionPoint: string | false,
 ): OriginalEnvironmentData {
-  return Object.assign({}, {
+  const data = Object.assign({}, {
     mode: options.mode,
     baseDir: options.baseUrl,
     envDir: options.envDir,
     envPrefix: options.envPrefix,
     define: options.define,
-    injectionPoint,
   }) as OriginalEnvironmentData
+
+  if ('injectionPoint' in options) {
+    data.injectionPoint = typeof options.injectionPoint === 'string' && options.injectionPoint ? options.injectionPoint : false
+  }
+
+  return data
 }
 
 export function restoreClassicGenerateSWRegions(

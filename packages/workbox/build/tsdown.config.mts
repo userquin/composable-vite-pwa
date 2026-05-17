@@ -40,6 +40,13 @@ export default defineConfig(/* [ */{
   platform: 'node',
   clean: true,
   banner,
+  outputOptions: {
+    comments: {
+      jsdoc: false,
+      legal: false,
+      annotation: false,
+    },
+  },
   define: {
     __VITE_PWA_VERSION__: JSON.stringify(version),
   },

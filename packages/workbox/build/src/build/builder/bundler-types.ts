@@ -2,7 +2,7 @@ import type { ManifestEntry, SWTargets, SWType } from '../../types'
 import type { EnvironmentData } from '../types'
 
 export interface OriginalEnvironmentData extends EnvironmentData {
-  injectionPoint: string | false
+  injectionPoint?: string | false
 }
 export interface ResolvedSWTargets {
   classic: SWTargets

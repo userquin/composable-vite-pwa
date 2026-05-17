@@ -161,8 +161,9 @@ function VirtualPWARegister(
 ) {
   const __SW_URL__ = JSON.stringify(swName)
   const __SW_TYPE__ = JSON.stringify(swType === 'classic-and-module' ? 'classic' : swType)
-  const __SW_CLASSIC_URL__ = JSON.stringify(swType === 'classic-and-module' ? `classic-${swName}` : swName)
-  const __SW_MODULE_URL__ = JSON.stringify(swType === 'classic-and-module' ? `module-${swName}` : swName)
+  const swChunkName = path.basename(swName, path.extname(swName))
+  const __SW_CLASSIC_URL__ = JSON.stringify(swType === 'classic-and-module' ? `${swChunkName}-classic.js` : swName)
+  const __SW_MODULE_URL__ = JSON.stringify(swType === 'classic-and-module' ? `${swChunkName}-module.js` : swName)
   const PWA_ESM_FALLBACK_SW = JSON.stringify(swType === 'classic-and-module')
   /** @type {import('vite').Plugin} */
   return {

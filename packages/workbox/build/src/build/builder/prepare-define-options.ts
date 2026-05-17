@@ -88,15 +88,26 @@ export async function prepareDefineOptions<T extends Bundler>(
     }
   }
 
-  // Workbox Placeholder
-  const withInjectPoint = !options.generateSW && !!original.injectionPoint
-  const injectionKey = withInjectPoint
-    ? (original.injectionPoint as string)
-    : 'self.__WB_MANIFEST'
+  if (!options.generateSW) {
+    if ('injectionPoint' in original) {
+      const userInjectionPoint = original.injectionPoint
 
-  define[injectionKey] = withInjectPoint
-    ? JSON.stringify(options.manifestEntries)
-    : JSON.stringify('undefined')
+      console.log(userInjectionPoint)
+
+      if (typeof userInjectionPoint === 'string' && userInjectionPoint) {
+        define[userInjectionPoint] = JSON.stringify(options.manifestEntries)
+      }
+      else {
+        define['self.__WB_MANIFEST'] = JSON.stringify('undefined')
+      }
+    }
+    else {
+      define['self.__WB_MANIFEST'] = JSON.stringify(options.manifestEntries)
+    }
+  }
+  else {
+    define['self.__WB_MANIFEST'] = JSON.stringify('undefined')
+  }
 
   return define
 }
