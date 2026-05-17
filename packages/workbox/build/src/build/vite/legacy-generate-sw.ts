@@ -1,17 +1,19 @@
 import type { BuildResult, SWType } from '../../types'
+import type { RolldownGenerateContext } from '../rolldown/internal-types'
 import type { BuildGenerateSWOptions } from '../types'
+import { createGenerateContext } from '../rolldown/build-context'
 
 function prepareRolldownBuilds<T extends SWType>(
-  bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
+  context: RolldownGenerateContext<T>,
   options: BuildGenerateSWOptions<T>,
-  transformESMTargetToRolldown: typeof import('../bundler/utils')['transformESMTargetToRolldown'],
+  transformESMTargetToRolldown: typeof import('../builder/utils')['transformESMTargetToRolldown'],
   prepareRolldownBuild: typeof import('../rolldown/build-utils')['prepareRolldownBuild'],
 ): Promise<any>[] {
   const { logLevel: ll, bundlerLogLevel } = options
   const logLevel = ll === 'silent'
     ? 'silent'
     : bundlerLogLevel!.rolldown!
-  return bundlerOptions.map((b) => {
+  return context.builds.map((b) => {
     return prepareRolldownBuild(Object.assign(b, {
       logLevel,
       target: transformESMTargetToRolldown(b.swType, b.target),
@@ -24,7 +26,7 @@ function prepareRolldownBuilds<T extends SWType>(
 export async function generateSWLegacy<T extends SWType>(
   options: BuildGenerateSWOptions<T>,
 ): Promise<BuildResult> {
-  const now = performance.now()
+  const buildStart = performance.now()
 
   const message = await import('./index').then(({
     checkLegacyGenerateSW,
@@ -39,16 +41,18 @@ export async function generateSWLegacy<T extends SWType>(
     transformESMTargetToRolldown,
     prepareRolldownBuild,
   ] = await Promise.all([
-    import('../bundler/generate-sw-bundler').then(({ internalGenerateSW }) => internalGenerateSW),
-    import('../bundler/utils').then(({ transformESMTargetToRolldown }) => transformESMTargetToRolldown),
+    import('../builder/internal-generate-sw').then(({ internalGenerateSW }) => internalGenerateSW),
+    import('../builder/utils').then(({ transformESMTargetToRolldown }) => transformESMTargetToRolldown),
     import('../rolldown/build-utils').then(({ prepareRolldownBuild }) => prepareRolldownBuild),
   ])
+
   return await internalGenerateSW(
-    'rolldown',
-    now,
-    options,
-    bundlerOptions => prepareRolldownBuilds(
-      bundlerOptions,
+    createGenerateContext<T>(
+      buildStart,
+      options,
+    ),
+    context => prepareRolldownBuilds(
+      context,
       options,
       transformESMTargetToRolldown,
       prepareRolldownBuild,

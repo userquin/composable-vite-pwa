@@ -1,6 +1,7 @@
 import type { RolldownBuildOptions } from './internal-types'
 import { rolldown } from 'rolldown'
-import { prepareBundlerBuildOptions } from '../bundler/bundler-build-utils'
+import { prepareCircularDependencies } from '../builder/prepare-circular-dependencies'
+import { prepareRolldownOutputOptions } from '../builder/prepare-rolldown-output-options'
 
 export async function prepareRolldownBuild(
   options: RolldownBuildOptions,
@@ -17,7 +18,9 @@ export async function prepareRolldownBuild(
     plugins,
     define,
     rolldownOptions,
-  } = await prepareBundlerBuildOptions('rolldown', options)
+  } = await prepareRolldownOutputOptions('rolldown', options)
+
+  const { checks, onLog } = prepareCircularDependencies<'rolldown'>(options)
 
   const instance = await rolldown({
     input: swSrc,
@@ -25,6 +28,8 @@ export async function prepareRolldownBuild(
     treeshake: true,
     plugins,
     logLevel,
+    checks,
+    onLog,
     transform: {
       define,
       target,

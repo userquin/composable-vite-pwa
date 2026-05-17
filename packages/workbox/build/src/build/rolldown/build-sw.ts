@@ -1,19 +1,25 @@
 import type { BuildResult, SWType } from '../../types'
+import type { RolldownBuildContext } from './internal-types'
 import type { BuildServiceWorkerOptions } from './types'
+import { createBuildContext } from './build-context'
 
 function prepareRolldownBuilds<T extends SWType>(
-  bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
+  context: RolldownBuildContext<T>,
   options: BuildServiceWorkerOptions<T>,
-  transformESMTargetToRolldown: typeof import('../bundler/utils')['transformESMTargetToRolldown'],
+  transformESMTargetToRolldown: typeof import('../builder/utils')['transformESMTargetToRolldown'],
   prepareRolldownBuild: typeof import('./build-utils')['prepareRolldownBuild'],
 ): Promise<any>[] {
   const { logLevel: ll, bundlerLogLevel } = options
   const logLevel = ll === 'silent'
     ? 'silent'
     : bundlerLogLevel!.rolldown!
-  return bundlerOptions.map(async (b) => {
+  const withCustomChunks = !!options.customChunks
+
+  return context.bundlerOptions.map(async (b) => {
+    b.detectCircularDeps = withCustomChunks ? true : undefined
     const plugins = options.plugins?.() || []
     return await prepareRolldownBuild(Object.assign(b, {
+      customChunks: options.customChunks,
       logLevel,
       target: transformESMTargetToRolldown(b.swType, b.target),
       plugins: plugins.filter(Boolean),
@@ -26,7 +32,7 @@ function prepareRolldownBuilds<T extends SWType>(
 export async function buildSW<T extends SWType>(
   options: BuildServiceWorkerOptions<T>,
 ): Promise<BuildResult> {
-  const now = performance.now()
+  const buildStart = performance.now()
 
   const message = await import('./index').then(({
     checkBuildSW,
@@ -41,16 +47,18 @@ export async function buildSW<T extends SWType>(
     transformESMTargetToRolldown,
     prepareRolldownBuild,
   ] = await Promise.all([
-    import('../bundler/build-sw-bundler').then(({ internalBuildSW }) => internalBuildSW),
-    import('../bundler/utils').then(({ transformESMTargetToRolldown }) => transformESMTargetToRolldown),
+    import('../builder/internal-build-sw').then(({ internalBuildSW }) => internalBuildSW),
+    import('../builder/utils').then(({ transformESMTargetToRolldown }) => transformESMTargetToRolldown),
     import('./build-utils').then(({ prepareRolldownBuild }) => prepareRolldownBuild),
   ])
+
   return await internalBuildSW(
-    'rolldown',
-    now,
-    options,
-    bundlerOptions => prepareRolldownBuilds(
-      bundlerOptions,
+    createBuildContext<T>(
+      buildStart,
+      options,
+    ),
+    context => prepareRolldownBuilds(
+      context,
       options,
       transformESMTargetToRolldown,
       prepareRolldownBuild,

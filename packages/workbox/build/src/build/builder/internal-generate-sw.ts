@@ -1,32 +1,37 @@
 import type { BuildResult, SWType } from '../../types'
-import type { BuildGenerateSWOptions } from '../types'
-import type { Bundler, BundlerOptions } from './bundler-types'
+import type { GenerateContext } from './build-context'
+import type { Bundler } from './bundler-types'
 import { deepMergeObject } from '../../utils/utils'
 import { validateGenerateSW } from '../../validation/validation-helper'
-import { prepareBundlerOptions, runBundlerBuild } from './bundler-utils'
 import { logPWAWorkboxResult } from './log-result'
+import { prepareBundlerOptions } from './prepare-bundler-options'
 import { prepareSWCode } from './prepare-sw-code'
+import { runBundlerBuild } from './run-bundler-build'
 import {
   extractOriginalEnvironmentData,
   prepareSWTargets,
   resolveSWNamesAndGlobIgnores,
 } from './utils'
 
-export async function internalGenerateSW<T extends SWType, Options extends BuildGenerateSWOptions<T>>(
-  bundler: Bundler,
-  buildStart: ReturnType<typeof performance.now>,
-  options: Options,
-  prepareBuilds: (bundlerOptions: BundlerOptions[]) => Promise<any>[],
+export async function internalGenerateSW<
+  T extends SWType,
+  B extends Bundler,
+>(
+  context: GenerateContext<T, B>,
+  prepareBuilds: (context: GenerateContext<T, B>) => Promise<any>[],
 ): Promise<BuildResult> {
   const optionsWithDefaults = await validateGenerateSW(
-    options,
+    context.options,
   )
 
   // clone mode, baseUrl, envDir, envPrefix and define (GenerateSW doesn't have injectionOptions)
-  const originalEnvironmentData = extractOriginalEnvironmentData(options, false)
+  context.originalEnvironmentData = extractOriginalEnvironmentData(
+    context.options,
+    false,
+  )
 
   deepMergeObject(
-    options,
+    context.options,
     optionsWithDefaults,
   )
 
@@ -39,13 +44,13 @@ export async function internalGenerateSW<T extends SWType, Options extends Build
     classicSWDest,
     moduleSWDest,
   } = resolveSWNamesAndGlobIgnores(
-    options,
+    context.options,
     '',
     true,
   )
 
   const useTargets = prepareSWTargets(
-    options.target!,
+    context.options.target!,
   )
 
   const {
@@ -54,8 +59,8 @@ export async function internalGenerateSW<T extends SWType, Options extends Build
     warnings,
     swCode,
   } = await prepareSWCode(
-    options,
-    options.globDirectory,
+    context.options,
+    context.options.globDirectory,
   )
 
   const {
@@ -64,8 +69,8 @@ export async function internalGenerateSW<T extends SWType, Options extends Build
     tempFiles,
     tempFileWrites,
   } = prepareBundlerOptions({
-    mode: options.mode || 'production',
-    swType: options.swType!,
+    mode: context.options.mode || 'production',
+    swType: context.options.swType!,
     swSrc: '',
     swChunkName: '',
     swDest,
@@ -75,33 +80,35 @@ export async function internalGenerateSW<T extends SWType, Options extends Build
     classicSWChunkName: classicSWChunkName!,
     moduleSWSrc: moduleSWSrc!,
     moduleSWChunkName: moduleSWChunkName!,
-    inlineWorkboxRuntime: options.inlineWorkboxRuntime,
-    minify: options.minify!,
+    inlineWorkboxRuntime: context.options.inlineWorkboxRuntime,
+    minify: context.options.minify!,
     manifestEntries: [],
     target: useTargets,
-    workboxRuntimeCompatible: options.workboxRuntimeCompatible!,
+    workboxRuntimeCompatible: context.options.workboxRuntimeCompatible!,
     generateSW: { swCode },
-    originalEnvironmentData,
+    originalEnvironmentData: context.originalEnvironmentData,
   })
 
   const buildResult = await runBundlerBuild(
     count,
     size,
     warnings,
+    context.warnings.circular,
+    context.warnings.customChunks,
     builds,
     filePathsMap,
     tempFileWrites,
-    prepareBuilds,
+    () => prepareBuilds(context),
     tempFiles,
   )
 
   logPWAWorkboxResult(
-    bundler,
+    context.bundler,
     'generateSW',
     buildResult,
-    performance.now() - buildStart,
-    options.logLevel!,
-    options.bundlerLogLevel!,
+    performance.now() - context.start,
+    context.options.logLevel!,
+    context.options.bundlerLogLevel!,
   )
 
   return buildResult

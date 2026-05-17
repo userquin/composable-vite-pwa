@@ -1,66 +1,10 @@
-import type { BuildResult } from '../../types'
-import type { BundlerOptions, PrepareBundlerOptions } from './bundler-types'
-import fs from 'node:fs'
+import type {
+  BundlerOptions,
+  PrepareBundlerOptions,
+} from './bundler-types'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
-
-async function retryRm(filePath: string, retries = 3, delay = 50) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      await fsp.access(filePath, fs.constants.R_OK)
-      await fsp.rm(filePath, { force: true })
-    }
-    catch (err: any) {
-      if (err.code === 'ENOENT') {
-        return
-      }
-
-      if (i === retries - 1) {
-        throw err
-      }
-
-      await new Promise(resolve => setTimeout(resolve, delay).unref())
-    }
-  }
-}
-
-export async function runBundlerBuild(
-  count: number,
-  size: number,
-  warnings: string[],
-  builds: BundlerOptions[],
-  filePathsMap: Map<'classic' | 'module', string[]>,
-  tempFileWrites: Promise<void>[],
-  prepareBuilds: (builds: BundlerOptions[]) => Promise<void>[],
-  tempFiles: string[] = [],
-): Promise<BuildResult> {
-  try {
-    if (tempFileWrites.length > 0) {
-      await Promise.all(tempFileWrites)
-    }
-    await Promise.all(prepareBuilds(builds))
-  }
-  finally {
-    if (tempFiles.length > 0) {
-      await Promise.all(
-        tempFiles.map(file => retryRm(path.resolve(process.cwd(), file))),
-      )
-    }
-  }
-
-  const filePaths: string[] = []
-  for (const paths of filePathsMap.values()) {
-    filePaths.push(...paths)
-  }
-
-  return {
-    count,
-    size,
-    filePaths: filePaths.sort((a, b) => a.localeCompare(b)),
-    warnings,
-  }
-}
 
 export function prepareBundlerOptions(
   options: PrepareBundlerOptions,
@@ -97,7 +41,7 @@ export function prepareBundlerOptions(
     if (generateSW) {
       swSrc = classicSWSrc
       swChunkName = classicSWChunkName
-      swDest = swType === 'classic' ? swDest : classicSWDest
+      swDest = swType === 'classic-and-module' || !workboxRuntimeCompatible ? classicSWDest : swDest
       const file = path.resolve(process.cwd(), classicSWSrc)
       tempFiles.push(file)
       tempFileWrites.push(fsp.writeFile(
@@ -107,7 +51,7 @@ export function prepareBundlerOptions(
       ))
     }
     else {
-      swDest = swType === 'classic' ? swDest : classicSWDest
+      swDest = swType === 'classic-and-module' || !workboxRuntimeCompatible ? classicSWDest : swDest
     }
     builds.push({
       mode,
@@ -133,7 +77,7 @@ export function prepareBundlerOptions(
     if (generateSW) {
       swSrc = moduleSWSrc
       swChunkName = moduleSWChunkName
-      swDest = swType === 'module' ? swDest : moduleSWDest
+      swDest = swType === 'classic-and-module' || !workboxRuntimeCompatible ? moduleSWDest : swDest
       const file = path.resolve(process.cwd(), moduleSWSrc)
       tempFiles.push(file)
       tempFileWrites.push(fsp.writeFile(
@@ -143,7 +87,7 @@ export function prepareBundlerOptions(
       ))
     }
     else {
-      swDest = swType === 'module' ? swDest : moduleSWDest
+      swDest = swType === 'classic-and-module' || !workboxRuntimeCompatible ? moduleSWDest : swDest
     }
     builds.push({
       mode,

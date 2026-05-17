@@ -1,0 +1,145 @@
+import type { ManifestEntry } from '../../types'
+import type { Bundler, ClassicBuild, CustomChunksInfo } from './bundler-types'
+import path from 'node:path'
+import MagicString from 'magic-string'
+import pc from 'picocolors'
+import { transformClassicChunk } from './transform-classic-chunk'
+import {
+  restoreClassicGenerateSWRegions,
+} from './utils'
+
+interface CheckManifestOptions {
+  manifestEntries: ManifestEntry[]
+  swChunks: Map<string, string[]>
+}
+
+function checkManifestEntries({
+  manifestEntries,
+  swChunks,
+}: CheckManifestOptions) {
+  if (manifestEntries.length === 0 || swChunks.size === 0) {
+    return
+  }
+
+  const swEntries = Array.from(swChunks.values()).reduce((acc, entry) => {
+    for (const c of entry) {
+      acc.add(c)
+    }
+    return acc
+  }, new Set<string>())
+  const precacheEntriesFound = new Set<string>()
+  for (const entry of manifestEntries) {
+    if (swEntries.has(entry.url)) {
+      precacheEntriesFound.add(entry.url)
+    }
+  }
+  if (precacheEntriesFound.size > 0) {
+    const filesList = Array.from(precacheEntriesFound).map(file => `    • ${pc.yellow(file)}`).join('\n')
+    throw new Error([
+      `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('Critical precache configuration conflict detected!')}\n`,
+      `  The following Service Worker chunks or internal runtime dependencies are targeted for precaching:`,
+      filesList,
+      `\n  ${pc.cyan('Why is this an error?')}`,
+      `  A Service Worker cannot precache itself or its own internal chunk dependencies.`,
+      `  Including them inside "manifestEntries" will trigger redundant network requests and`,
+      `  can cause severe caching or life-cycle issues during service worker registration.`,
+      `\n  ${pc.green('How to fix:')}`,
+      `  Please update your configuration to exclude these file patterns from precaching (e.g., using "globIgnores").`,
+    ].join('\n'))
+  }
+}
+
+type BundleType<T extends Bundler> = T extends 'rolldown'
+  ? import('rolldown').OutputBundle
+  : import('vite').Rolldown.OutputBundle
+
+interface PrepareSWChunksOptions<T extends Bundler> {
+  bundle: BundleType<T>
+  destFolder: string
+  customChunksInfo: CustomChunksInfo
+  classicBuild: ClassicBuild
+}
+
+export async function prepareSWChunks<T extends Bundler>({
+  bundle,
+  destFolder,
+  customChunksInfo,
+  classicBuild: {
+    swType,
+    region,
+    swChunkName,
+    filePaths,
+    generateSW,
+    manifestEntries,
+  },
+}: PrepareSWChunksOptions<T>) {
+  for (const chunk of Object.values(bundle)) {
+    filePaths.push(path.resolve(destFolder, chunk.fileName))
+    if (chunk.name && chunk.type === 'chunk') {
+      customChunksInfo.importedFileChunks.set(chunk.fileName, chunk.name)
+      let imports: string[] | undefined
+      customChunksInfo.mappedChunkFiles.set(chunk.name, chunk.fileName)
+      if (chunk.imports.length > 0) {
+        imports = Array.from(chunk.imports)
+      }
+      if (imports) {
+        customChunksInfo.mappedChunkImports.set(chunk.name, chunk.imports)
+      }
+    }
+  }
+
+  // check precache manifest entries against the generated chunk imports
+  // to prevent critical misconfiguration
+  checkManifestEntries({
+    manifestEntries,
+    swChunks: customChunksInfo.mappedChunkImports,
+  })
+
+  for (const chunk of Object.values(bundle)) {
+    if (chunk.type !== 'chunk')
+      continue
+
+    let magicString: MagicString | undefined
+
+    if (swType === 'classic') {
+      // --- service worker ---
+      if (chunk.name === swChunkName) {
+        magicString = await transformClassicChunk(
+          'sw',
+          chunk.code,
+          generateSW,
+          region,
+          customChunksInfo,
+        ).then(ms => ms)
+      }
+      // --- custom chunks ---
+      else if (customChunksInfo.mappedChunkFiles.has(chunk.name)) {
+        magicString = await transformClassicChunk(
+          chunk.name,
+          chunk.code,
+          generateSW,
+          region,
+          customChunksInfo,
+        ).then(ms => ms)
+      }
+    }
+    else if (generateSW && chunk.name === swChunkName) {
+      magicString = new MagicString(chunk.code)
+      restoreClassicGenerateSWRegions(region, magicString)
+    }
+
+    if (magicString?.hasChanged()) {
+      chunk.code = magicString.toString()
+      if (chunk.map) {
+        Object.assign(
+          chunk.map,
+          magicString.generateMap({
+            source: chunk.fileName,
+            includeContent: true,
+            hires: true,
+          }),
+        )
+      }
+    }
+  }
+}

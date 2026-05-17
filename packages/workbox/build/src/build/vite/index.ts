@@ -1,9 +1,9 @@
 import type { SWType } from '../../types'
-import type { DetectorOptions, DetectorResult } from '../bundler/detector-types'
+import type { DetectorOptions, DetectorResult } from '../builder/detector-types'
 import type { LegacyBuildServiceWorkerOptions } from './legacy-types'
 import type { BuildServiceWorkerOptions } from './types'
-import { detect } from '../bundler/detector'
-import { checkViteDependencies, checkViteLegacyDependencies } from '../bundler/log'
+import { detect } from '../builder/detector'
+import { checkViteDependencies, checkViteLegacyDependencies } from '../builder/log'
 
 export type {
   BuildServiceWorkerOptions,
@@ -24,7 +24,7 @@ export async function checkBuildSW<T extends SWType>(
     magicast: options.customChunks ? true : undefined,
   }
 
-  const detectResult = await import('../bundler/detector').then(({
+  const detectResult = await import('../builder/detector').then(({
     detect,
   }) => detect(detectOptions))
 
@@ -45,7 +45,7 @@ export async function checkLegacyBuildSW<T extends SWType>(
     magicast: options.customChunks ? true : undefined,
   }
 
-  const detectResult = await import('../bundler/detector').then(({
+  const detectResult = await import('../builder/detector').then(({
     detect,
   }) => detect(detectOptions))
 
@@ -64,7 +64,7 @@ export async function checkGenerateSW(
     vite: true,
   }
 
-  const detectResult = await import('../bundler/detector').then(({
+  const detectResult = await import('../builder/detector').then(({
     detect,
   }) => detect(detectOptions))
 
@@ -83,7 +83,7 @@ export async function checkLegacyGenerateSW(
     rolldown: true,
   }
 
-  const detectResult = await import('../bundler/detector').then(({
+  const detectResult = await import('../builder/detector').then(({
     detect,
   }) => detect(detectOptions))
 

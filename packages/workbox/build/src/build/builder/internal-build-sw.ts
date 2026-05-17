@@ -1,35 +1,42 @@
 import type { BuildResult, SWType } from '../../types'
-import type { BuildSWOptions } from '../types'
+import type { BuildContext } from './build-context'
 import type { Bundler, BundlerOptions } from './bundler-types'
 import { generateManifestEntries } from '../../utils/generate-manifest-entries'
 import { deepMergeObject } from '../../utils/utils'
 import { validateBuildSW } from '../../validation/build-validation-helper'
-import { prepareBundlerOptions, runBundlerBuild } from './bundler-utils'
 import { logPWAWorkboxResult } from './log-result'
+import { prepareBundlerOptions } from './prepare-bundler-options'
+import { runBundlerBuild } from './run-bundler-build'
 import {
   extractOriginalEnvironmentData,
   prepareSWTargets,
   resolveSWNamesAndGlobIgnores,
 } from './utils'
 
-export async function internalBuildSW<T extends SWType, Options extends BuildSWOptions<T>>(
-  bundler: Bundler,
-  buildStart: ReturnType<typeof performance.now>,
-  options: Options,
-  prepareBuilds: (bundlerOptions: BundlerOptions[]) => Promise<any>[],
+export async function internalBuildSW<
+  T extends SWType,
+  B extends Bundler,
+  BO extends BundlerOptions,
+>(
+  context: BuildContext<T, B, BO>,
+  prepareBuilds: (context: BuildContext<T, B, BO>) => Promise<any>[],
 ): Promise<BuildResult> {
   const optionsWithDefaults = await validateBuildSW(
-    options,
+    context.options,
   )
 
+  const {
+    injectionPoint,
+  } = context.options
+
   // clone mode, baseUrl, envDir, envPrefix, define and injectionPoint
-  const originalEnvironmentData = extractOriginalEnvironmentData(
-    options,
-    typeof options.injectionPoint === 'string' && options.injectionPoint ? options.injectionPoint : false,
+  context.originalEnvironmentData = extractOriginalEnvironmentData(
+    context.options,
+    typeof injectionPoint === 'string' && injectionPoint ? injectionPoint : false,
   )
 
   deepMergeObject(
-    options,
+    context.options,
     optionsWithDefaults,
   )
 
@@ -39,10 +46,10 @@ export async function internalBuildSW<T extends SWType, Options extends BuildSWO
     target,
     minify,
     ...injectManifest
-  } = options
+  } = context.options
 
-  const useTargets = prepareSWTargets(
-    options.target!,
+  context.resolvedSWTargets = prepareSWTargets(
+    context.options.target!,
   )
 
   const {
@@ -68,8 +75,8 @@ export async function internalBuildSW<T extends SWType, Options extends BuildSWO
   )
 
   const { builds, filePathsMap } = prepareBundlerOptions({
-    mode: mode || 'production',
-    swType: options.swType!,
+    mode: mode!,
+    swType: context.options.swType!,
     swSrc,
     swChunkName,
     swDest,
@@ -79,31 +86,35 @@ export async function internalBuildSW<T extends SWType, Options extends BuildSWO
     classicSWChunkName: '',
     moduleSWSrc: '',
     moduleSWChunkName: '',
-    inlineWorkboxRuntime: options.inlineWorkboxRuntime,
+    inlineWorkboxRuntime: context.options.inlineWorkboxRuntime,
     minify: minify!,
     manifestEntries,
-    target: useTargets,
+    target: context.resolvedSWTargets,
     workboxRuntimeCompatible: workboxRuntimeCompatible!,
-    originalEnvironmentData,
+    originalEnvironmentData: context.originalEnvironmentData,
   })
+
+  context.builds = builds
 
   const buildResult = await runBundlerBuild(
     count,
     size,
     warnings,
+    context.warnings.circular,
+    context.warnings.customChunks,
     builds,
     filePathsMap,
     [],
-    prepareBuilds,
+    () => prepareBuilds(context),
   )
 
   logPWAWorkboxResult(
-    bundler,
+    context.bundler,
     'buildSW',
     buildResult,
-    performance.now() - buildStart,
-    options.logLevel!,
-    options.bundlerLogLevel!,
+    performance.now() - context.start,
+    context.options.logLevel!,
+    context.options.bundlerLogLevel!,
   )
 
   return buildResult

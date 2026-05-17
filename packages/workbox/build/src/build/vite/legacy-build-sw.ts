@@ -1,19 +1,25 @@
 import type { BuildResult, SWType } from '../../types'
+import type { RolldownBuildContext } from '../rolldown/internal-types'
 import type { LegacyBuildServiceWorkerOptions } from './legacy-types'
+import { createBuildContext } from '../rolldown/build-context'
 
 function prepareRolldownBuilds<T extends SWType>(
-  bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
+  context: RolldownBuildContext<T>,
   options: LegacyBuildServiceWorkerOptions<T>,
-  transformESMTargetToRolldown: typeof import('../bundler/utils')['transformESMTargetToRolldown'],
+  transformESMTargetToRolldown: typeof import('../builder/utils')['transformESMTargetToRolldown'],
   prepareRolldownBuild: typeof import('../rolldown/build-utils')['prepareRolldownBuild'],
 ): Promise<any>[] {
   const { logLevel: ll, bundlerLogLevel } = options
   const logLevel = ll === 'silent'
     ? 'silent'
     : bundlerLogLevel!.rolldown!
-  return bundlerOptions.map((b) => {
+  const withCustomChunks = !!options.customChunks
+
+  return context.builds.map((b) => {
     const plugins = options.plugins?.() || []
+    b.detectCircularDeps = withCustomChunks ? true : undefined
     return prepareRolldownBuild(Object.assign(b, {
+      customChunks: options.customChunks,
       logLevel,
       target: transformESMTargetToRolldown(b.swType, b.target),
       plugins: plugins.filter(Boolean),
@@ -26,7 +32,7 @@ function prepareRolldownBuilds<T extends SWType>(
 export async function buildSWLegacy<T extends SWType>(
   options: LegacyBuildServiceWorkerOptions<T>,
 ): Promise<BuildResult> {
-  const now = performance.now()
+  const buildStart = performance.now()
 
   const message = await import('./index').then(({
     checkLegacyBuildSW,
@@ -41,16 +47,18 @@ export async function buildSWLegacy<T extends SWType>(
     transformESMTargetToRolldown,
     prepareRolldownBuild,
   ] = await Promise.all([
-    import('../bundler/build-sw-bundler').then(({ internalBuildSW }) => internalBuildSW),
-    import('../bundler/utils').then(({ transformESMTargetToRolldown }) => transformESMTargetToRolldown),
+    import('../builder/internal-build-sw').then(({ internalBuildSW }) => internalBuildSW),
+    import('../builder/utils').then(({ transformESMTargetToRolldown }) => transformESMTargetToRolldown),
     import('../rolldown/build-utils').then(({ prepareRolldownBuild }) => prepareRolldownBuild),
   ])
+
   return await internalBuildSW(
-    'rolldown',
-    now,
-    options,
-    bundlerOptions => prepareRolldownBuilds(
-      bundlerOptions,
+    createBuildContext<T>(
+      buildStart,
+      options,
+    ),
+    context => prepareRolldownBuilds(
+      context,
       options,
       transformESMTargetToRolldown,
       prepareRolldownBuild,

@@ -16,7 +16,7 @@ export async function generateModernSW<T extends SWType>(
 export async function generateSW(
   options: GenerateSWOptions<'classic'>,
 ): Promise<BuildResult> {
-  return await import('./build/bundler/log').then(({
+  return await import('./build/builder/log').then(({
     logDeprecatedGenerateSW,
   }) => {
     logDeprecatedGenerateSW()

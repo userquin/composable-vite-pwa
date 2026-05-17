@@ -25,6 +25,7 @@ export interface BundlerOptions {
   }
   manifestEntries: ManifestEntry[]
   generateSW: boolean
+  detectCircularDeps?: true
   originalEnvironmentData: OriginalEnvironmentData
 }
 
@@ -63,6 +64,7 @@ export interface ClassicBuild {
   filePaths: string[]
   generateSW: boolean
   workboxName?: string
+  manifestEntries: ManifestEntry[]
 }
 
 export type DetectorMode = 'generate-sw' | 'build-sw'
@@ -73,4 +75,41 @@ export interface LoadDetectorReturn<M extends DetectorMode> {
   detection: DetectionData<M>
   bundler: Bundler
   warned: boolean
+}
+
+export type BundlerPluginType<T extends Bundler> = T extends 'rolldown'
+  ? import('rolldown').Plugin
+  : import('vite').Plugin
+
+export type RolldownOptions<T extends Bundler> = T extends 'rolldown'
+  ? import('../rolldown/internal-types').RolldownBuildOptions
+  : import('../vite/internal-types').ViteBuildOptions
+
+export type OnLogType<T extends Bundler> = T extends 'rolldown'
+  ? import('rolldown').RolldownOptions['onLog']
+  : import('vite').Rolldown.RolldownOptions['onLog']
+export type ChecksType<T extends Bundler> = T extends 'rolldown'
+  ? import('rolldown').RolldownOptions['checks']
+  : import('vite').Rolldown.RolldownOptions['checks']
+export interface CircularDependenciesOptions<T extends Bundler> {
+  onLog?: OnLogType<T>
+  checks?: ChecksType<T>
+}
+export interface PrepareBundlerBuilder<T extends Bundler> {
+  plugins: BundlerPluginType<T>[]
+  define: import('rolldown').TransformOptions['define']
+  rolldownOptions: import('rolldown').OutputOptions
+}
+
+export interface CustomChunksInfo {
+  // original custom chunk name or suffixed with -classic or -module on dual SW builds
+  customChunkNames: Map<string, string>
+  // transformed custom chunk names and the filename
+  mappedChunkFiles: Map<string, string>
+  // transformed custom chunk names and the imports
+  mappedChunkImports: Map<string, string[]>
+  // custom chunk file name and the chunks importing it
+  // we collect chunks imports, that's, where the chunk is imported
+  // for example: custom-chunk-b-<hask>.js: 'custom-chunk-a'
+  importedFileChunks: Map<string, string>
 }
