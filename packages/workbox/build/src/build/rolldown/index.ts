@@ -13,13 +13,11 @@ export type {
 
 export { detect }
 
-export async function checkBuildSW<T extends SWType>(
-  options: BuildServiceWorkerOptions<T>,
+export async function checkBuildSW(
   forError = false,
 ): Promise<string | undefined> {
   const detectOptions: DetectorOptions = {
     rolldown: true,
-    magicast: options.customChunks ? true : undefined,
   }
 
   const detectResult = await import('../builder/detector').then(({
@@ -39,6 +37,7 @@ export async function checkGenerateSW(
 ): Promise<string | undefined> {
   const detectOptions: DetectorOptions = {
     rolldown: true,
+    magicast: true,
   }
 
   const detectResult = await import('../builder/detector').then(({

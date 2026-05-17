@@ -36,7 +36,7 @@ export async function buildSWLegacy<T extends SWType>(
 
   const message = await import('./index').then(({
     checkLegacyBuildSW,
-  }) => checkLegacyBuildSW(options, true))
+  }) => checkLegacyBuildSW(true))
 
   if (message) {
     throw new Error(message)

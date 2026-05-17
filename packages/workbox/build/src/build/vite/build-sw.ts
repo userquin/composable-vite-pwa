@@ -55,7 +55,7 @@ export async function buildSW<T extends SWType>(
 
   const message = await import('./index').then(({
     checkBuildSW,
-  }) => checkBuildSW(options, true))
+  }) => checkBuildSW(true))
 
   if (message) {
     throw new Error(message)
