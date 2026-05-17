@@ -1,6 +1,6 @@
 import type { BuildResult, GenerateSWOptions, SWType } from '../types'
-import { detectGenerateSWDependencies } from './bundler/detector'
-import { checkGenerateSWDependencies } from './bundler/log'
+import { detectGenerateSWDependencies } from './builder/detector'
+import { checkGenerateSWDependencies } from './builder/log'
 
 export async function generateSW<T extends SWType>(
   options: GenerateSWOptions<T>,

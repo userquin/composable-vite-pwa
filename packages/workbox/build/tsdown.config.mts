@@ -25,11 +25,13 @@ export default defineConfig(/* [ */{
       ],
       'build/vite/*': [
         './src/build/vite/*.ts',
+        '!./src/build/vite/build-context.ts',
         '!./src/build/vite/build-utils.ts',
         '!./src/build/vite/internal-types.ts',
       ],
       'build/rolldown/*': [
         './src/build/rolldown/*.ts',
+        '!./src/build/rolldown/build-context.ts',
         '!./src/build/rolldown/build-utils.ts',
         '!./src/build/rolldown/internal-types.ts',
       ],
