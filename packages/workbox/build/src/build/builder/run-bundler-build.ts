@@ -6,6 +6,7 @@ import fs from 'node:fs'
 import fsp from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
+import pc from 'picocolors'
 
 async function retryRm(filePath: string, retries = 3, delay = 50) {
   for (let i = 0; i < retries; i++) {
@@ -56,28 +57,39 @@ export async function runBundlerBuild(
     if (tempFileWrites.length > 0) {
       await Promise.all(tempFileWrites)
     }
-    if (builds.length > 1) {
-      const buildsResult = await Promise.allSettled(prepareBuilds(builds))
-      // todo: handle circular
-      let result: PromiseSettledResult<any>
-      for (let i = 0; i < buildsResult.length; i++) {
-        result = buildsResult[i]
-        if (result.status === 'rejected') {
-          console.log(`SW ${builds[i].swType} build failed: ${result.reason?.message || result.reason}`)
-        }
-        else {
-          console.log(`SW ${builds[i].swType} ok`)
-        }
+    const buildsResult = await Promise.allSettled(prepareBuilds(builds))
+    const errors: { swType: string, reason: any }[] = []
+
+    for (let i = 0; i < buildsResult.length; i++) {
+      const result = buildsResult[i]
+      if (result.status === 'rejected') {
+        errors.push({ swType: builds[i].swType, reason: result.reason })
       }
     }
-    else {
-      await Promise.all(prepareBuilds(builds))
+
+    if (errors.length > 0) {
+      const errorMessages = errors.map(({ swType, reason }) => {
+        const pluginInfo = reason?.plugin ? `[plugin: ${pc.magenta(reason.plugin)}] ` : ''
+        const fileInfo = reason?.id ? `\n  ${pc.dim('File:')} ${pc.cyan(reason.id)}` : ''
+        const frameInfo = reason?.frame ? `\n\n${reason.frame}` : ''
+        const stackInfo = reason?.stack && !reason.frame ? `\n\n${pc.dim(reason.stack)}` : ''
+
+        return [
+          `${pc.red(pc.bold('●'))} ${pc.red(`Service Worker (${pc.yellow(swType)}) build failed:`)} ${pluginInfo}${reason?.message || reason}`,
+          fileInfo,
+          frameInfo,
+          stackInfo,
+        ].filter(Boolean).join('')
+      }).join('\n\n')
+
+      throw new Error(`\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('Compilation failed during dual Service Worker build:')}\n\n${errorMessages}\n`)
     }
   }
   finally {
     if (tempFiles.length > 0) {
+      const cwd = process.cwd()
       await Promise.allSettled(
-        tempFiles.map(file => retryRm(path.resolve(process.cwd(), file))),
+        tempFiles.map(file => retryRm(path.resolve(cwd, file))),
       )
     }
   }
