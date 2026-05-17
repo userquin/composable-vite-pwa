@@ -46,8 +46,6 @@ export async function runBundlerBuild(
   count: number,
   size: number,
   warnings: string[],
-  circular: string[],
-  customChunksWarnings: string[],
   builds: BundlerOptions[],
   filePathsMap: Map<'classic' | 'module', string[]>,
   tempFileWrites: Promise<void>[],
@@ -78,7 +76,7 @@ export async function runBundlerBuild(
   }
   finally {
     if (tempFiles.length > 0) {
-      await Promise.all(
+      await Promise.allSettled(
         tempFiles.map(file => retryRm(path.resolve(process.cwd(), file))),
       )
     }

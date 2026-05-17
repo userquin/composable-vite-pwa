@@ -6,14 +6,18 @@ import fsp from 'node:fs/promises'
 import path from 'node:path'
 import process from 'node:process'
 
-export function prepareBundlerOptions(
-  options: PrepareBundlerOptions,
-): {
+interface PrepareBundlerOptionsType {
   builds: BundlerOptions[]
   filePathsMap: Map<'classic' | 'module', string[]>
   tempFiles: string[]
   tempFileWrites: Promise<void>[]
-} {
+  classicCircularDependencies: string[]
+  moduleCircularDependencies: string[]
+}
+
+export function prepareBundlerOptions(
+  options: PrepareBundlerOptions,
+): PrepareBundlerOptionsType {
   let {
     mode,
     swSrc,
@@ -37,6 +41,8 @@ export function prepareBundlerOptions(
   const swType = options.swType!
   const tempFileWrites: Promise<void>[] = []
   const tempFiles: string[] = []
+  const classicCircularDependencies: string[] = []
+  const moduleCircularDependencies: string[] = []
   if (swType === 'classic-and-module' || swType === 'classic') {
     if (generateSW) {
       swSrc = classicSWSrc
@@ -71,6 +77,7 @@ export function prepareBundlerOptions(
       swType: 'classic',
       generateSW: !!generateSW,
       originalEnvironmentData: options.originalEnvironmentData,
+      circularDependencies: classicCircularDependencies,
     })
   }
   if (swType === 'classic-and-module' || swType === 'module') {
@@ -107,6 +114,7 @@ export function prepareBundlerOptions(
       swType: 'module',
       generateSW: !!generateSW,
       originalEnvironmentData: options.originalEnvironmentData,
+      circularDependencies: moduleCircularDependencies,
     })
   }
 
@@ -115,5 +123,7 @@ export function prepareBundlerOptions(
     filePathsMap,
     tempFiles,
     tempFileWrites,
+    classicCircularDependencies,
+    moduleCircularDependencies,
   }
 }

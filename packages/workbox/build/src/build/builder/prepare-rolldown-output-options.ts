@@ -1,13 +1,14 @@
 import type {
+  Bundler,
   BundlerPluginType,
   ClassicBuild,
   PrepareBundlerBuilder,
-} from '@composable-vite-pwa/workbox-build/build/bundler/bundler-types'
-import type { Bundler, RolldownOptions } from './bundler-types'
+  RolldownOptions,
+} from './bundler-types'
 import path from 'node:path'
 import process from 'node:process'
-import { prepareDefineOptions } from '@composable-vite-pwa/workbox-build/build/builder/prepare-define-options'
 import { prepareCodeSplittingGroups } from './prepare-code-splitting-grups'
+import { prepareDefineOptions } from './prepare-define-options'
 import { RolldownPlugin } from './rolldown-plugin'
 
 export async function prepareRolldownOutputOptions<B extends Bundler>(

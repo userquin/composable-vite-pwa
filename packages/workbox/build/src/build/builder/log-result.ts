@@ -18,6 +18,7 @@ export function logPWAWorkboxResult(
   totalTime: number,
   logLevel: LogLevel,
   bundlersLogLevel: BundlerLogLevel,
+  circularDependencies: string[],
   root: string = process.cwd(),
 ) {
   if (logLevel === 'silent')
@@ -61,12 +62,23 @@ export function logPWAWorkboxResult(
         console.info(`${pc.dim(line.slice(0, maxP + 3))}${pc.bold(line.slice(maxP + 3))}`)
       }
     }
-
-    console.info(`\n${pc.green(`✓ built in ${totalTime.toFixed(4)}ms`)}`)
   }
 
   // Warnings are always shown unless silent
   if (warnings && warnings.length > 0) {
     console.warn(pc.yellow(`\n${pc.bold('PWA Warnings:')}\n${warnings.map(w => `  ! ${w}`).join('\n')}\n`))
   }
+
+  if (circularDependencies && circularDependencies.length > 0) {
+    console.warn([
+      `\n${pc.yellow(pc.bold('[Vite PWA]'))} ${pc.yellow('Highly Experimental Warning:')}\n`,
+      ...circularDependencies.map(message => `  ${pc.yellow(message)}`),
+      `  ${pc.yellow(pc.bold('Note:'))} Rolldown might attempt to flatten these modules, but due to the highly experimental nature`,
+      `  of custom chunks, ${pc.yellow(pc.bold('YOU MUST REVIEW'))} the final asset outputs manually to verify everything is correct.`,
+      `  ${pc.yellow(pc.bold('CRITICAL:'))} Always thoroughly test the generated service worker in a local or staging environment`,
+      `  before deploying this build to production!\n`,
+    ].join('\n'))
+  }
+
+  console.info(`\n${pc.green(`✓ built in ${totalTime.toFixed(4)}ms`)}`)
 }

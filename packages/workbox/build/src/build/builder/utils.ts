@@ -22,7 +22,8 @@ import path from 'node:path'
 export const workboxRegex = [
   /^@composable-vite-pwa\/workbox-swkit\//,
   /[\\/]workbox[\\/]swkit/,
-]
+].filter(Boolean)
+
 // DON'T hoist Regexp used with /g via exec/test/split
 const normalizePathRegexp = /\\/g
 const jsRegexp = /\.js$/

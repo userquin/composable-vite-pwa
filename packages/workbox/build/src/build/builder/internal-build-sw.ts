@@ -74,7 +74,12 @@ export async function internalBuildSW<
     injectManifest.globDirectory!,
   )
 
-  const { builds, filePathsMap } = prepareBundlerOptions({
+  const {
+    builds,
+    filePathsMap,
+    classicCircularDependencies,
+    moduleCircularDependencies,
+  } = prepareBundlerOptions({
     mode: mode!,
     swType: context.options.swType!,
     swSrc,
@@ -100,13 +105,16 @@ export async function internalBuildSW<
     count,
     size,
     warnings,
-    context.warnings.circular,
-    context.warnings.customChunks,
     builds,
     filePathsMap,
     [],
     () => prepareBuilds(context),
   )
+
+  // since the source code is the same, on dual build we pick classic ones
+  const circularDependencies = classicCircularDependencies.length > 0
+    ? classicCircularDependencies
+    : moduleCircularDependencies
 
   logPWAWorkboxResult(
     context.bundler,
@@ -115,6 +123,7 @@ export async function internalBuildSW<
     performance.now() - context.start,
     context.options.logLevel!,
     context.options.bundlerLogLevel!,
+    circularDependencies,
   )
 
   return buildResult

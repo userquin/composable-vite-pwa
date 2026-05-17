@@ -27,6 +27,7 @@ export interface BundlerOptions {
   generateSW: boolean
   detectCircularDeps?: true
   originalEnvironmentData: OriginalEnvironmentData
+  circularDependencies: string[]
 }
 
 export interface PrepareBundlerOptions {

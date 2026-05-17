@@ -68,6 +68,8 @@ export async function internalGenerateSW<
     filePathsMap,
     tempFiles,
     tempFileWrites,
+    classicCircularDependencies,
+    moduleCircularDependencies,
   } = prepareBundlerOptions({
     mode: context.options.mode || 'production',
     swType: context.options.swType!,
@@ -93,14 +95,17 @@ export async function internalGenerateSW<
     count,
     size,
     warnings,
-    context.warnings.circular,
-    context.warnings.customChunks,
     builds,
     filePathsMap,
     tempFileWrites,
     () => prepareBuilds(context),
     tempFiles,
   )
+
+  // since the source code is the same, on dual build we pick classic ones
+  const circularDependencies = classicCircularDependencies.length > 0
+    ? classicCircularDependencies
+    : moduleCircularDependencies
 
   logPWAWorkboxResult(
     context.bundler,
@@ -109,6 +114,7 @@ export async function internalGenerateSW<
     performance.now() - context.start,
     context.options.logLevel!,
     context.options.bundlerLogLevel!,
+    circularDependencies,
   )
 
   return buildResult
