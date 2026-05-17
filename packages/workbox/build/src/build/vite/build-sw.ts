@@ -1,4 +1,5 @@
 import type { BuildResult, SWType } from '../../types'
+import type { ViteBuildSWContext } from './internal-types'
 import type {
   BuildServiceWorkerOptions,
   ServiceWorkerOptions,
@@ -7,7 +8,7 @@ import { createBuildContext } from './build-context'
 
 async function prepareBuildSWPlugins(
   plugins: ServiceWorkerOptions['plugins'],
-  asyncFlatten: typeof import('../bundler/utils')['asyncFlatten'],
+  asyncFlatten: typeof import('../builder/utils')['asyncFlatten'],
 ): Promise<import('vite').PluginOption[]> {
   const pluginsFactoryResult = plugins ? plugins() : []
   const pluginsArray = Array.isArray(pluginsFactoryResult)
@@ -17,10 +18,10 @@ async function prepareBuildSWPlugins(
 }
 
 function prepareViteBuilds<T extends SWType>(
-  bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
+  context: ViteBuildSWContext<T>,
   options: BuildServiceWorkerOptions<T>,
   prepareViteBuild: typeof import('./build-utils')['prepareViteBuild'],
-  asyncFlatten: typeof import('../bundler/utils')['asyncFlatten'],
+  asyncFlatten: typeof import('../builder/utils')['asyncFlatten'],
 ): Promise<any>[] {
   const { logLevel: ll, bundlerLogLevel } = options
   const logLevel = ll === 'silent'
@@ -28,7 +29,7 @@ function prepareViteBuilds<T extends SWType>(
     : bundlerLogLevel!.vite!
   const withCustomChunks = !!options.customChunks
 
-  return bundlerOptions.map(async (b) => {
+  return context.builds.map(async (b) => {
     b.detectCircularDeps = withCustomChunks ? true : undefined
     return await prepareBuildSWPlugins(
       options.plugins,
@@ -65,22 +66,18 @@ export async function buildSW<T extends SWType>(
     asyncFlatten,
     prepareViteBuild,
   ] = await Promise.all([
-    import('../bundler/build-sw-bundler').then(({ internalBuildSW }) => internalBuildSW),
+    import('../builder/internal-build-sw').then(({ internalBuildSW }) => internalBuildSW),
     import('./build-utils').then(({ prepareViteBuild }) => prepareViteBuild),
-    import('../bundler/utils').then(({ asyncFlatten }) => asyncFlatten),
+    import('../builder/utils').then(({ asyncFlatten }) => asyncFlatten),
   ])
 
-  const context = createBuildContext<T>(
-    buildStart,
-    options,
-  )
-
   return await internalBuildSW(
-    'vite',
-    buildStart,
-    options,
-    bundlerOptions => prepareViteBuilds(
-      bundlerOptions,
+    createBuildContext<T>(
+      buildStart,
+      options,
+    ),
+    context => prepareViteBuilds(
+      context,
       options,
       asyncFlatten,
       prepareViteBuild,

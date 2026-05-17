@@ -3,9 +3,10 @@ import type { GenerateContext } from './build-context'
 import type { Bundler } from './bundler-types'
 import { deepMergeObject } from '../../utils/utils'
 import { validateGenerateSW } from '../../validation/validation-helper'
-import { prepareBundlerOptions, runBundlerBuild } from './bundler-utils'
 import { logPWAWorkboxResult } from './log-result'
+import { prepareBundlerOptions } from './prepare-bundler-options'
 import { prepareSWCode } from './prepare-sw-code'
+import { runBundlerBuild } from './run-bundler-build'
 import {
   extractOriginalEnvironmentData,
   prepareSWTargets,
@@ -92,6 +93,8 @@ export async function internalGenerateSW<
     count,
     size,
     warnings,
+    context.warnings.circular,
+    context.warnings.customChunks,
     builds,
     filePathsMap,
     tempFileWrites,

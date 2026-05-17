@@ -1,11 +1,12 @@
 import type { BuildResult, SWType } from '../../types'
 import type { BuildGenerateSWOptions } from '../types'
+import type { ViteGenerateSWContext } from './internal-types'
 import {
   createGenerateContext,
-} from '@composable-vite-pwa/workbox-build/build/vite/build-context'
+} from './build-context'
 
 function prepareViteBuilds<T extends SWType>(
-  bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
+  context: ViteGenerateSWContext<T>,
   options: BuildGenerateSWOptions<T>,
   prepareViteBuild: typeof import('./build-utils')['prepareViteBuild'],
 ): Promise<any>[] {
@@ -13,7 +14,7 @@ function prepareViteBuilds<T extends SWType>(
   const logLevel = ll === 'silent'
     ? 'silent'
     : bundlerLogLevel!.vite!
-  return bundlerOptions.map((b) => {
+  return context.builds.map((b) => {
     return prepareViteBuild(Object.assign(b, {
       logLevel,
       sourcemap: options.sourcemap,
@@ -39,21 +40,17 @@ export async function generateSW<T extends SWType>(
     internalGenerateSW,
     prepareViteBuild,
   ] = await Promise.all([
-    import('../bundler/generate-sw-bundler').then(({ internalGenerateSW }) => internalGenerateSW),
+    import('../builder/internal-generate-sw').then(({ internalGenerateSW }) => internalGenerateSW),
     import('./build-utils').then(({ prepareViteBuild }) => prepareViteBuild),
   ])
 
-  const context = createGenerateContext<T>(
-    buildStart,
-    options,
-  )
-
   return await internalGenerateSW(
-    'vite',
-    buildStart,
-    options,
-    bundlerOptions => prepareViteBuilds(
-      bundlerOptions,
+    createGenerateContext<T>(
+      buildStart,
+      options,
+    ),
+    context => prepareViteBuilds(
+      context,
       options,
       prepareViteBuild,
     ),

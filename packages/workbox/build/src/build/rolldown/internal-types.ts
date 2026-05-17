@@ -1,7 +1,7 @@
 import type { SWType } from '../../types'
 import type { RolldownLogLevel } from '../../utils/constants'
-import type { BuildContext, GenerateContext } from '../bundler/build-context'
-import type { BundlerOptions } from '../bundler/bundler-types'
+import type { BuildContext, GenerateContext } from '../builder/build-context'
+import type { BundlerOptions } from '../builder/bundler-types'
 import type { CustomChunkCallback } from '../types'
 
 export interface RolldownBuildOptions extends BundlerOptions {
@@ -36,4 +36,4 @@ export interface RolldownBuildOptions extends BundlerOptions {
 }
 
 export type RolldownBuildContext<T extends SWType> = BuildContext<T, 'rolldown', RolldownBuildOptions>
-export type RolldownGenerateSWContext<T extends SWType> = GenerateContext<T, 'rolldown'>
+export type RolldownGenerateContext<T extends SWType> = GenerateContext<T, 'rolldown'>

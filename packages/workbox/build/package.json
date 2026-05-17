@@ -31,6 +31,7 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./build/rolldown": "./dist/build/rolldown/index.mjs",
+    "./build/rolldown/build-context": "./dist/build/rolldown/build-context.mjs",
     "./build/rolldown/build-sw": "./dist/build/rolldown/build-sw.mjs",
     "./build/rolldown/generate-sw": "./dist/build/rolldown/generate-sw.mjs",
     "./build/rolldown/types": {
@@ -40,6 +41,7 @@
       "types": "./dist/build/types.d.mts"
     },
     "./build/vite": "./dist/build/vite/index.mjs",
+    "./build/vite/build-context": "./dist/build/vite/build-context.mjs",
     "./build/vite/build-sw": "./dist/build/vite/build-sw.mjs",
     "./build/vite/generate-sw": "./dist/build/vite/generate-sw.mjs",
     "./build/vite/legacy-build-sw": "./dist/build/vite/legacy-build-sw.mjs",
@@ -62,6 +64,9 @@
       "build/rolldown": [
         "./dist/build/rolldown/index.d.mts"
       ],
+      "build/rolldown/build-context": [
+        "./dist/build/rolldown/build-context.d.mts"
+      ],
       "build/rolldown/build-sw": [
         "./dist/build/rolldown/build-sw.d.mts"
       ],
@@ -76,6 +81,9 @@
       ],
       "build/vite": [
         "./dist/build/vite/index.d.mts"
+      ],
+      "build/vite/build-context": [
+        "./dist/build/vite/build-context.d.mts"
       ],
       "build/vite/build-sw": [
         "./dist/build/vite/build-sw.d.mts"

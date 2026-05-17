@@ -1,7 +1,7 @@
 import type { SWType } from '../../types'
 import type { ViteLogLevel } from '../../utils/constants'
-import type { BuildContext, GenerateContext } from '../bundler/build-context'
-import type { BundlerOptions } from '../bundler/bundler-types'
+import type { BuildContext, GenerateContext } from '../builder/build-context'
+import type { BundlerOptions } from '../builder/bundler-types'
 import type { CustomChunkCallback } from '../types'
 
 export interface ViteBuildOptions extends BundlerOptions {

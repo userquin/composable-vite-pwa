@@ -105,7 +105,9 @@ function BuildPlugin2(
             if (moduleId.includes('circular-dep-2.js')) {
               return 'chunk-circular-2'
             }
-            // console.log(moduleId)
+            if (moduleId === '\0virtual:sw-chunk') {
+              return 'virtual-sw-chunk'
+            }
             if (/[\\/]a\.js$/.test(moduleId)) {
               return 'chunk-a'
             }

@@ -101,8 +101,8 @@ export interface PrepareBundlerBuilder<T extends Bundler> {
   rolldownOptions: import('rolldown').OutputOptions
 }
 
-export interface CircularDependenciesDetection {
-  // original custom chunk name or prefixed with classic- or module- on dual SW builds
+export interface CustomChunksInfo {
+  // original custom chunk name or suffixed with -classic or -module on dual SW builds
   customChunkNames: Map<string, string>
   // transformed custom chunk names and the filename
   mappedChunkFiles: Map<string, string>
@@ -110,6 +110,6 @@ export interface CircularDependenciesDetection {
   mappedChunkImports: Map<string, string[]>
   // custom chunk file name and the chunks importing it
   // we collect chunks imports, that's, where the chunk is imported
-  // for example: custom-chunk-a: ['custom-chunk-b-<hask>.js']
-  importedFileChunks: Map<string, string[]>
+  // for example: custom-chunk-b-<hask>.js: 'custom-chunk-a'
+  importedFileChunks: Map<string, string>
 }

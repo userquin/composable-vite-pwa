@@ -1,11 +1,12 @@
 import type { BuildResult, SWType } from '../../types'
+import type { RolldownBuildContext } from '../rolldown/internal-types'
 import type { LegacyBuildServiceWorkerOptions } from './legacy-types'
 import { createBuildContext } from '../rolldown/build-context'
 
 function prepareRolldownBuilds<T extends SWType>(
-  bundlerOptions: import('../bundler/bundler-types').BundlerOptions[],
+  context: RolldownBuildContext<T>,
   options: LegacyBuildServiceWorkerOptions<T>,
-  transformESMTargetToRolldown: typeof import('../bundler/utils')['transformESMTargetToRolldown'],
+  transformESMTargetToRolldown: typeof import('../builder/utils')['transformESMTargetToRolldown'],
   prepareRolldownBuild: typeof import('../rolldown/build-utils')['prepareRolldownBuild'],
 ): Promise<any>[] {
   const { logLevel: ll, bundlerLogLevel } = options
@@ -14,7 +15,7 @@ function prepareRolldownBuilds<T extends SWType>(
     : bundlerLogLevel!.rolldown!
   const withCustomChunks = !!options.customChunks
 
-  return bundlerOptions.map((b) => {
+  return context.builds.map((b) => {
     const plugins = options.plugins?.() || []
     b.detectCircularDeps = withCustomChunks ? true : undefined
     return prepareRolldownBuild(Object.assign(b, {
@@ -46,22 +47,18 @@ export async function buildSWLegacy<T extends SWType>(
     transformESMTargetToRolldown,
     prepareRolldownBuild,
   ] = await Promise.all([
-    import('../bundler/build-sw-bundler').then(({ internalBuildSW }) => internalBuildSW),
-    import('../bundler/utils').then(({ transformESMTargetToRolldown }) => transformESMTargetToRolldown),
+    import('../builder/internal-build-sw').then(({ internalBuildSW }) => internalBuildSW),
+    import('../builder/utils').then(({ transformESMTargetToRolldown }) => transformESMTargetToRolldown),
     import('../rolldown/build-utils').then(({ prepareRolldownBuild }) => prepareRolldownBuild),
   ])
 
-  const context = createBuildContext<T>(
-    buildStart,
-    options,
-  )
-
   return await internalBuildSW(
-    'rolldown',
-    buildStart,
-    options,
-    bundlerOptions => prepareRolldownBuilds(
-      bundlerOptions,
+    createBuildContext<T>(
+      buildStart,
+      options,
+    ),
+    context => prepareRolldownBuilds(
+      context,
       options,
       transformESMTargetToRolldown,
       prepareRolldownBuild,

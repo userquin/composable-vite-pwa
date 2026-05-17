@@ -4,8 +4,9 @@ import type { Bundler, BundlerOptions } from './bundler-types'
 import { generateManifestEntries } from '../../utils/generate-manifest-entries'
 import { deepMergeObject } from '../../utils/utils'
 import { validateBuildSW } from '../../validation/build-validation-helper'
-import { prepareBundlerOptions, runBundlerBuild } from './bundler-utils'
 import { logPWAWorkboxResult } from './log-result'
+import { prepareBundlerOptions } from './prepare-bundler-options'
+import { runBundlerBuild } from './run-bundler-build'
 import {
   extractOriginalEnvironmentData,
   prepareSWTargets,
@@ -98,7 +99,9 @@ export async function internalBuildSW<
   const buildResult = await runBundlerBuild(
     count,
     size,
-    context.warnings.manifest,
+    warnings,
+    context.warnings.circular,
+    context.warnings.customChunks,
     builds,
     filePathsMap,
     [],

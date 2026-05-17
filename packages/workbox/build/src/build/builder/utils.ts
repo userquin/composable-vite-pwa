@@ -1,3 +1,4 @@
+import type MagicString from 'magic-string'
 import type {
   GlobPartial,
   RequiredSWDestPartial,
@@ -11,13 +12,11 @@ import type {
 } from '../types'
 import type {
   Bundler,
-  CircularDependenciesDetection,
   ClassicRegionReplacement,
   OriginalEnvironmentData,
   ResolvedSWTargets,
 } from './bundler-types'
 import path from 'node:path'
-import MagicString from 'magic-string'
 
 // hoist regexp
 export const workboxRegex = [
@@ -29,7 +28,6 @@ const normalizePathRegexp = /\\/g
 const jsRegexp = /\.js$/
 const tempRegexp = /-temp\.js$/
 const anyJsRegexp = /\.([mc])?[jt]sx?$/
-const asRegexp = /\s+as\s+/
 const camelizeRegexp = /-([a-z0-9])/g
 
 export const BundlerNames: Record<Bundler, string> = {
@@ -68,129 +66,8 @@ export function restoreClassicGenerateSWRegions(
   )
 }
 
-/**
- * GLOBAL TRANSFORMATION: ES6 to Classic (let/const to var).
- *
- * Since Rolldown/Vite only supports ES2015+ targets, we must manually
- * transform variable declarations for classic Service Workers to avoid
- * syntax errors on re-evaluation (Redeclaration Error).
- */
-function replaceLetConstWithVar(magicString: MagicString) {
-  const currentCode = magicString.original
-  const varRegex = /\b(?:const|let)(?=\s+[_$a-zA-Z])/g
-  let varMatch: RegExpExecArray | null = null
-
-  // eslint-disable-next-line no-cond-assign
-  while ((varMatch = varRegex.exec(currentCode)) !== null) {
-    const start = varMatch.index
-    const end = start + varMatch[0].length
-    // Overwrite keeping the source map positions intact
-    magicString.overwrite(start, end, 'var')
-  }
-}
-
 export function camelize(str: string): string {
   return str.replace(camelizeRegexp, (_, char) => char.toUpperCase())
-}
-
-type ChunkNameType = 'workbox' | 'sw' | string
-
-export async function transformClassicChunk(
-  name: ChunkNameType,
-  code: string,
-  generateSW: boolean,
-  region: ClassicRegionReplacement,
-  workboxFileName?: string,
-  data?: CircularDependenciesDetection,
-) {
-  let magicString: MagicString | undefined
-  if (name === 'workbox' || data?.mappedChunkFiles.has(name)) {
-    magicString = new MagicString(code)
-
-    // 1. wrap content, beware: search for sourcemap to keep it outside the iife wrapper
-    const mapRegex = /\/\/# sourceMappingURL=.*/
-    const mapMatch = code.match(mapRegex)
-    let codeWithoutMap = code
-
-    if (mapMatch) {
-      codeWithoutMap = code.replace(mapRegex, '')
-      magicString.remove(mapMatch.index!, code.length)
-    }
-
-    magicString.prepend('(function() {\n')
-
-    const exportRegex = /export\s*\{([^}]+)\};?/g
-    let match: RegExpExecArray | null = null
-    // eslint-disable-next-line no-cond-assign
-    while ((match = exportRegex.exec(codeWithoutMap)) !== null) {
-      const [fullMatch, content] = match
-      const members = content.split(',').map(e => e.trim().split(asRegexp)[0].trim()).join(', ')
-
-      const useName = name === 'workbox' ? 'swkit' : data!.customChunkNames!.get(name)
-      // replace the export with the assigment
-      const replacement = name === 'workbox'
-        ? `\nself.workbox = self.workbox || {};\nself.workbox.swkit = { ${members} };`
-        : `\nself.workboxchunks.${useName} = self.workboxchunks.${useName} || {};\nself.workboxchunks.${useName} = { ${members} };`
-      magicString.overwrite(match.index, match.index + fullMatch.length, replacement)
-
-      if (name !== 'workbox') {
-        const imports = data!.mappedChunkImports.get(name)
-        if (imports) {
-          console.log(name, imports)
-        }
-      }
-    }
-
-    // Transform const/let to var inside the Workbox chunk to avoid Redeclaration Errors
-    // in classic Service Workers when the script is re-evaluated.
-    replaceLetConstWithVar(magicString)
-
-    magicString.append('\n})();')
-
-    // 2. there is a sourcemap, add it back outside the IIFE scope
-    if (mapMatch) {
-      magicString.append(`\n${mapMatch[0]}`)
-    }
-  }
-
-  // --- CASE 2: service worker (imports cleanup) ---
-  if (name === 'sw') {
-    if (!workboxFileName) {
-      // todo: add it to log.ts
-      throw new Error('Missing workbox file name!')
-    }
-    // todo: allow add custom chunks mapping, this will work only with workbox runtime
-    // for example, check this repo: https://github.com/userquin/nostroid/blob/master/src/custom-sw.ts#L8
-    magicString = new MagicString(code)
-    magicString.prepend(`importScripts("./${workboxFileName}");\n`)
-
-    const importRegex = new RegExp(
-      `import\\s+\\{([^}]+)\\}\\s+from\\s+['"]\\.\\/${workboxFileName}['"]`,
-      'g',
-    )
-
-    let match: RegExpExecArray | null = null
-    // eslint-disable-next-line no-cond-assign
-    while ((match = importRegex.exec(code)) !== null) {
-      const [fullMatch, imports] = match
-
-      const cleanImports = imports.split(',').map((i) => {
-        const parts = i.trim().split(/\s+as\s+/)
-        return parts.length > 1 ? parts[1].trim() : parts[0].trim()
-      }).join(', ')
-
-      const replacement = `var { ${cleanImports} } = self.workbox.swkit`
-      magicString.overwrite(match.index, match.index + fullMatch.length, replacement)
-    }
-    // replace const/let with var: rolldown only supports ES6
-    replaceLetConstWithVar(magicString)
-    // replace regions with temp SW name
-    if (generateSW) {
-      restoreClassicGenerateSWRegions(region, magicString)
-    }
-  }
-
-  return { ms: magicString }
 }
 
 export function resolveSWNamesAndGlobIgnores(
@@ -203,8 +80,8 @@ export function resolveSWNamesAndGlobIgnores(
     ? path.basename(newSWSrc, '.js')
     : path.basename(swSrc.replace(anyJsRegexp, '.js'), '.js')
   const swDestBasename = path.basename(options.swDest)
-  const classicSWDest = options.swDest.replace(swDestBasename, `${swDestBasename}-classic`)
-  const moduleSWDest = options.swDest.replace(swDestBasename, `${swDestBasename}-module`)
+  const classicSWDest = options.swDest.replace(swDestBasename, `${swChunkName}-classic.js`)
+  const moduleSWDest = options.swDest.replace(swDestBasename, `${swChunkName}-module.js`)
 
   const classicSWSrc = generateSW ? newSWSrc.replace(tempRegexp, '-classic-temp.js') : undefined
   const classicSWChunkName = classicSWSrc ? path.basename(classicSWSrc, '.js') : undefined

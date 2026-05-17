@@ -2,19 +2,15 @@ import type { SWType } from '../../types'
 import type { BuildGenerateSWOptions, BuildSWOptions } from '../types'
 import type { Bundler, BundlerOptions, ClassicBuild, OriginalEnvironmentData, ResolvedSWTargets } from './bundler-types'
 
-export type Strategy = 'GenerateSW' | 'BuildSW'
-
 export interface GeneratedAsset {
   name: string
   size: string
 }
 
 export interface BaseContext<
-  S extends Strategy,
   B extends Bundler,
   BO extends BundlerOptions,
 > {
-  strategy: S
   bundler: B
   start: ReturnType<typeof performance.now>
   end: ReturnType<typeof performance.now>
@@ -29,13 +25,14 @@ export interface BaseContext<
   warnings: {
     manifest: string[]
     circular: string[]
+    customChunks: string[]
   }
 }
 
 export interface GenerateContext<
   T extends SWType,
   B extends Bundler,
-> extends BaseContext<'GenerateSW', B, BundlerOptions> {
+> extends BaseContext<B, BundlerOptions> {
   options: BuildGenerateSWOptions<T>
 }
 
@@ -43,21 +40,18 @@ export interface BuildContext<
   T extends SWType,
   B extends Bundler,
   BO extends BundlerOptions,
-> extends BaseContext<'BuildSW', B, BO> {
+> extends BaseContext<B, BO> {
   options: BuildSWOptions<T, B>
 }
 
 function createBaseContext<
-  S extends Strategy,
   B extends Bundler,
   BO extends BundlerOptions,
 >(
   start: ReturnType<typeof performance.now>,
-  strategy: S,
   bundler: B,
-): BaseContext<S, B, BO> {
+): BaseContext<B, BO> {
   return {
-    strategy,
     bundler,
     start,
     end: start,
@@ -72,6 +66,7 @@ function createBaseContext<
     warnings: {
       manifest: [],
       circular: [],
+      customChunks: [],
     },
   }
 }
@@ -84,7 +79,7 @@ export function createGenerateSWContext<
   bundler: B,
   options: BuildGenerateSWOptions<T>,
 ): GenerateContext<T, B> {
-  return Object.assign(createBaseContext(buildStart, 'GenerateSW', bundler), {
+  return Object.assign(createBaseContext(buildStart, bundler), {
     options,
   })
 }
@@ -98,7 +93,7 @@ export function createBuildSWContext<
   bundler: B,
   options: BuildSWOptions<T, B>,
 ): BuildContext<T, B, BO> {
-  return Object.assign(createBaseContext(buildStart, 'BuildSW', bundler), {
+  return Object.assign(createBaseContext(buildStart, bundler), {
     options,
     bundlerOptions: undefined!,
   })

@@ -1,8 +1,8 @@
-import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
 import type { SWType } from '../../types'
+import type { BuildGenerateSWOptions } from '../types'
 import type { ViteBuildSWContext, ViteGenerateSWContext } from './internal-types'
 import type { BuildServiceWorkerOptions } from './types'
-import { createBuildSWContext, createGenerateSWContext } from '../bundler/build-context'
+import { createBuildSWContext, createGenerateSWContext } from '../builder/build-context'
 
 export function createBuildContext<T extends SWType>(
   buildStart: ReturnType<typeof performance.now>,
