@@ -53,7 +53,7 @@ export class WorkboxPlugin<
   ) {
     await internalWebpackBuild(
       WorkboxPlugin.pluginName,
-      // We extract Rspack's configured output directory to use as our globDirectory
+      // We extract Webpack's configured output directory to use as our globDirectory
       compiler.options.output.path,
       this.#options,
     )
