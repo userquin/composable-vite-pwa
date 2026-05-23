@@ -82,3 +82,6 @@ shellEmulator: true
 strictPeerDependencies: false
 
 trustPolicy: no-downgrade
+
+allowBuilds:
+  sharp: true
