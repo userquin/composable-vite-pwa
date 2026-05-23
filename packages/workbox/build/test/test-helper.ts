@@ -67,7 +67,7 @@ export function createBuildSWOptions<
 ) {
   const swSrc = path.relative(
     process.cwd(),
-    path.resolve(import.meta.dirname, 'fixtures/fixture-build-sw', options.swSrc ?? 'sw.js'),
+    path.resolve(import.meta.dirname, 'fixtures/fixture-build-sw/sw.js'),
   )
   const swDest = path.relative(
     process.cwd(),
