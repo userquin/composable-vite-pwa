@@ -65,6 +65,8 @@ ignoreWorkspaceRootCheck: true
 
 linkWorkspacePackages: true
 
+verifyDepsBeforeRun: install
+
 overrides:
   rolldown: ^1.0.0
 
