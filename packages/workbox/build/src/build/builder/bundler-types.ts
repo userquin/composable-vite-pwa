@@ -17,6 +17,7 @@ export interface BundlerOptions {
   swSrc: string
   swChunkName: string
   swDest: string
+  originalSWType: SWType
   swType: 'classic' | 'module'
   target: SWTargets
   minify: boolean
@@ -66,6 +67,7 @@ export interface ClassicBuild {
   generateSW: boolean
   workboxName?: string
   manifestEntries: ManifestEntry[]
+  addChunksSuffixes: boolean
 }
 
 export type DetectorMode = 'generate-sw' | 'build-sw'

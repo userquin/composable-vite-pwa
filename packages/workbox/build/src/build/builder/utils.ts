@@ -17,6 +17,7 @@ import type {
   ResolvedSWTargets,
 } from './bundler-types'
 import path from 'node:path'
+import process from 'node:process'
 
 // hoist regexp
 export const workboxRegex = [
@@ -75,28 +76,74 @@ export function camelize(str: string): string {
   return str.replace(camelizeRegexp, (_, char) => char.toUpperCase())
 }
 
+/**
+ * This method resolves the names for the SW source and destination files, as well as the globIgnores to exclude the
+ * relevant files from the precache manifest.
+ * @param options The options.
+ * @param swSrc The service worker source file path.
+ * @param generateSW if using generateSW strategy (or buildSW)
+ */
 export function resolveSWNamesAndGlobIgnores(
   options: GlobPartial & RequiredSWDestPartial,
   swSrc: string,
   generateSW: boolean,
 ) {
-  const newSWSrc = generateSW ? options.swDest.replace(jsRegexp, '-temp.js') : swSrc
-  const swChunkName = generateSW
-    ? path.basename(newSWSrc, '.js')
-    : path.basename(swSrc.replace(anyJsRegexp, '.js'), '.js')
-  const swDestBasename = path.basename(options.swDest)
-  const classicSWDest = options.swDest.replace(swDestBasename, `${swChunkName}-classic.js`)
-  const moduleSWDest = options.swDest.replace(swDestBasename, `${swChunkName}-module.js`)
+  // generateSW: we need a temp sw to generate the content from the options
+  // - swSrc requires a new temp file, we need to "compile" it for three-shaking/dce
+  // - swDest must be the <swName>-classic.js or <swName>-module.js extracted from swDest when required
+  // buildSW:
+  // - swSrc is in the codebase
+  // - we need to provide classic and module extracted from swDest when required
 
-  const classicSWSrc = generateSW ? newSWSrc.replace(tempRegexp, '-classic-temp.js') : undefined
-  const classicSWChunkName = classicSWSrc ? path.basename(classicSWSrc, '.js') : undefined
-  const moduleSWSrc = generateSW ? newSWSrc.replace(tempRegexp, '-module-temp.js') : undefined
-  const moduleSWChunkName = moduleSWSrc ? path.basename(moduleSWSrc, '.js') : undefined
+  // path normalization
+  const rootSWDest = path.resolve(process.cwd(), options.swDest)
+  const swDestChunkName = path.basename(rootSWDest, '.js')
+  const destDist = normalizePath(path.relative(process.cwd(), path.dirname(rootSWDest)))
+
+  const prefix = destDist && destDist !== '.' ? `${destDist}/` : ''
+
+  let newSWSrc: string
+  let swChunkName: string
+  let classicSWSrc: string
+  let classicSWChunkName: string
+  let classicSWDest: string
+  let moduleSWSrc: string
+  let moduleSWChunkName: string
+  let moduleSWDest: string
+
+  // swChunkName comes from the swSrc: it is the chunk name at generateBundle hook
+  // dest files are the filename from options.swDest
+
+  if (generateSW) {
+    newSWSrc = options.swDest.replace(jsRegexp, '-temp.js')
+    swChunkName = path.basename(newSWSrc, '.js')
+    classicSWSrc = `${prefix}${swChunkName}-classic.js`
+    classicSWChunkName = `${swChunkName}-classic`
+    classicSWDest = `${prefix}${swDestChunkName}-classic.js`
+    moduleSWSrc = `${prefix}${swChunkName}-module.js`
+    moduleSWChunkName = `${swChunkName}-module`
+    moduleSWDest = `${prefix}${swDestChunkName}-module.js`
+  }
+  else {
+    newSWSrc = swSrc
+    swChunkName = path.basename(swSrc.replace(anyJsRegexp, '.js'), '.js')
+    classicSWSrc = swSrc
+    classicSWChunkName = swChunkName
+    classicSWDest = `${prefix}${swDestChunkName}-classic.js`
+    moduleSWSrc = swSrc
+    moduleSWChunkName = swChunkName
+    moduleSWDest = `${prefix}${swDestChunkName}-module.js`
+  }
 
   options.globIgnores ??= []
-  options.globIgnores.push(swSrc)
-  options.globIgnores.push('**/*-classic-temp.js')
-  options.globIgnores.push('**/*-module-temp.js')
+  if (generateSW) {
+    options.globIgnores.push(newSWSrc)
+  }
+  else {
+    options.globIgnores.push(swSrc)
+  }
+  options.globIgnores.push(classicSWSrc)
+  options.globIgnores.push(moduleSWSrc)
   options.globIgnores.push(options.swDest)
   options.globIgnores.push(`${options.swDest}.map`)
   options.globIgnores.push(classicSWDest)
@@ -109,12 +156,12 @@ export function resolveSWNamesAndGlobIgnores(
   return {
     swSrc: newSWSrc,
     swChunkName,
+    swDest: options.swDest,
     classicSWSrc,
     classicSWChunkName,
+    classicSWDest,
     moduleSWSrc,
     moduleSWChunkName,
-    swDest: options.swDest,
-    classicSWDest,
     moduleSWDest,
   }
 }

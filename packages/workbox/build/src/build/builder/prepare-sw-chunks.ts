@@ -85,6 +85,14 @@ export async function prepareSWChunks<T extends Bundler>({
       if (imports) {
         customChunksInfo.mappedChunkImports.set(chunk.name, chunk.imports)
       }
+      // add 'sw' chunk => we use temp sw names: self.__WB_MANIFEST already injected
+      if (chunk.name === swChunkName) {
+        customChunksInfo.importedFileChunks.set(chunk.fileName, 'sw')
+        customChunksInfo.mappedChunkFiles.set('sw', chunk.fileName)
+        if (imports) {
+          customChunksInfo.mappedChunkImports.set('sw', chunk.imports)
+        }
+      }
     }
   }
 

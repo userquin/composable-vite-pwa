@@ -60,6 +60,7 @@ function BuildPlugin2(
           dontCacheBustURLsMatching: /[\\/]?assets[\\/]/,
           sourcemap: true,
           minify: false,
+          workboxRuntimeCompatible: false,
           inlineWorkboxRuntime: false,
           runtimeCaching: [{
             urlPattern: ({ request, sameOrigin }) => {
@@ -94,8 +95,8 @@ function BuildPlugin2(
           dontCacheBustURLsMatching: /[\\/]?assets[\\/]/,
           sourcemap: true,
           minify: false,
-          workboxRuntimeCompatible: true,
-          inlineWorkboxRuntime: false,
+          workboxRuntimeCompatible: false,
+          inlineWorkboxRuntime: true,
           envPrefix,
           plugins: () => [VirtualPlugin()],
           customChunks: (moduleId) => {

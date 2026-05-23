@@ -80,15 +80,17 @@ export async function transformClassicChunk(
 ) {
   const magicString = new MagicString(code)
   if (name === 'sw') {
-    const importsScripts = customChunksInfo.mappedChunkImports.get('sw')!
-    magicString.prepend(`importScripts(${importsScripts.map(n => `"./${n}"`).join(',')});\n`)
-    for (const importName of importsScripts) {
-      replaceImportsWithGlobalVars(
-        magicString,
-        code,
-        importName,
-        customChunksInfo,
-      )
+    const importsScripts = customChunksInfo.mappedChunkImports.get('sw')
+    if (importsScripts) {
+      magicString.prepend(`importScripts(${importsScripts.map(n => `"./${n}"`).join(',')});\n`)
+      for (const importName of importsScripts) {
+        replaceImportsWithGlobalVars(
+          magicString,
+          code,
+          importName,
+          customChunksInfo,
+        )
+      }
     }
 
     // replace const/let with var: rolldown only supports ES6

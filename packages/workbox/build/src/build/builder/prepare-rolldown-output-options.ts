@@ -7,7 +7,7 @@ import type {
 } from './bundler-types'
 import path from 'node:path'
 import process from 'node:process'
-import { prepareCodeSplittingGroups } from './prepare-code-splitting-grups'
+import { prepareCodeSplittingGroups } from './prepare-code-splitting-groups'
 import { prepareDefineOptions } from './prepare-define-options'
 import { RolldownPlugin } from './rolldown-plugin'
 
@@ -20,6 +20,7 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
 
   const {
     sourcemap,
+    originalSWType,
     swType,
     swSrc,
     swDest,
@@ -79,6 +80,7 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     swChunkName,
     workboxName,
     manifestEntries,
+    addChunksSuffixes: originalSWType === 'classic-and-module' || !workboxRuntimeCompatible,
   }
 
   const customChunksInfo = prepareCodeSplittingGroups(

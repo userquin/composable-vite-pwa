@@ -15,10 +15,10 @@ export function prepareCodeSplittingGroups<B extends Bundler>(
     importedFileChunks: new Map<string, string>(),
   }
 
-  if (options.detectCircularDeps || !options.inlineWorkboxRuntime) {
+  if (options.detectCircularDeps || workboxName) {
     const { customChunks, swChunkName, swType } = options
     const workboxName = classicBuild.workboxName
-    const addPrefix = workboxName?.startsWith('workbox-') ?? false
+    const addChunksSuffixes = classicBuild.addChunksSuffixes
     rolldownOptions.codeSplitting = {
       groups: [{
         name: (moduleId, ctx) => {
@@ -28,7 +28,7 @@ export function prepareCodeSplittingGroups<B extends Bundler>(
           if (workboxName) {
             const chunk = workboxRegex.some(r => r.test(moduleId)) ? workboxName : undefined
             if (chunk) {
-              // handle workbox as a custom chunk: inlineWorkboxRuntime is just a shortcut
+              // handle workbox as a custom chunk: !inlineWorkboxRuntime is just a shortcut
               customChunksInfo.customChunkNames.set(chunk, camelize(chunk))
               customChunksInfo.mappedChunkFiles.set(chunk, chunk)
               return chunk
@@ -57,7 +57,7 @@ export function prepareCodeSplittingGroups<B extends Bundler>(
             ].join('\n'))
           }
 
-          if (addPrefix) {
+          if (addChunksSuffixes) {
             const mappedChunkName = `${customChunkName}-${swType}`
             customChunksInfo.customChunkNames.set(mappedChunkName, camelize(mappedChunkName))
             customChunksInfo.mappedChunkFiles.set(mappedChunkName, mappedChunkName)

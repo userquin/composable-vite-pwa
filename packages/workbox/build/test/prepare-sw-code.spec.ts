@@ -1,7 +1,7 @@
 import type { SWType } from '../src/types'
 import { parseModule } from 'magicast'
 import { describe, expect, it } from 'vitest'
-import { prepareSWCode } from '../src/build/bundler/prepare-sw-code'
+import { prepareSWCode } from '../src/build/builder/prepare-sw-code'
 import { generateSWFixture } from './test-helper'
 
 describe('prepare-sw-code (applies only to generateSW strategy)', () => {
