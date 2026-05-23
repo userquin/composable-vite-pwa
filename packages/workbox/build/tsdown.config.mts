@@ -4,7 +4,6 @@ import { defineConfig } from 'tsdown'
 import {
   attw,
   workboxBanner as banner,
-  // cleanupDualJSTypes,
   cleanupJSTypes,
   fixTypesVersion,
   publint,
@@ -15,7 +14,7 @@ const { version } = require('./package.json')
 
 const cwd = fileURLToPath(new URL('.', import.meta.url))
 
-export default defineConfig(/* [ */{
+export default defineConfig({
   entry: [
     './src/{index,types,generate-sw,get-manifest,inject-manifest}.ts',
     {
@@ -36,6 +35,19 @@ export default defineConfig(/* [ */{
         '!./src/build/rolldown/internal-types.ts',
       ],
     },
+    {
+      'config/*': [
+        './src/config/*.ts',
+      ],
+    },
+    {
+      'build/rspack/*': [
+        './src/build/rspack/*.ts',
+      ],
+      'build/webpack/*': [
+        './src/build/webpack/*.ts',
+      ],
+    },
   ],
   platform: 'node',
   clean: true,
@@ -54,41 +66,11 @@ export default defineConfig(/* [ */{
   publint,
   exports: fixTypesVersion,
   deps: {
-    neverBundle: ['magicast', 'rolldown', 'vite'],
+    neverBundle: ['@rspack/core', 'magicast', 'rolldown', 'unconfig', 'webpack', 'webpack/types', 'rolldown', 'vite'],
   },
   hooks: {
     'build:done': async () => {
       await cleanupJSTypes(cwd)
     },
   },
-}, /* {
-  entry: [
-    {
-      'build/rspack/!*': [
-        './src/build/rspack/!*.ts',
-        '!./src/build/rspack/build-utils.ts',
-        '!./src/build/rspack/internal-types.ts',
-      ],
-      'build/webpack/!*': [
-        './src/build/webpack/!*.ts',
-        '!./src/build/webpack/build-utils.ts',
-        '!./src/build/webpack/internal-types.ts',
-      ],
-    },
-  ],
-  platform: 'node',
-  clean: false,
-  format: ['esm', 'cjs'],
-  banner,
-  attw,
-  publint,
-  exports: fixTypesVersion,
-  deps: {
-    neverBundle: ['@rspack/core', 'magicast', 'rolldown', 'webpack'],
-  },
-  hooks: {
-    'build:done': async () => {
-      await cleanupDualJSTypes(cwd)
-    },
-  },
-}] */)
+})

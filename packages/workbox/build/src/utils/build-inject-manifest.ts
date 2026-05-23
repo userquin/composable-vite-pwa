@@ -39,7 +39,7 @@ export async function buildInjectManifest(
     )
   }
 
-  /// extract clean code without sourcemap if present
+  // extract clean code without sourcemap if present
   const { code: cleanCode, mapComment } = extractSourceMap(swCode)
 
   prepareInjectManifestGlobIgnores(options, !!mapComment)
