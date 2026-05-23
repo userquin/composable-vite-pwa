@@ -2,7 +2,7 @@ import type {
   GenerateSWOptions,
   GetManifestOptions,
   InjectManifestOptions,
-} from '@composable-vite-pwa/workbox-build/types'
+} from '../src/types'
 import { deepMergeObject } from 'magicast/helpers'
 import { describe, expect, it } from 'vitest'
 import { generateManifestEntries } from '../src/utils/generate-manifest-entries'

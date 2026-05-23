@@ -1,8 +1,8 @@
-import type { PrepareBundlerOptions } from '../src/build/bundler/bundler-types'
+import type { PrepareBundlerOptions } from '../src/build/builder/bundler-types'
 import fsp from 'node:fs/promises'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { prepareBundlerOptions } from '../src/build/bundler/bundler-utils'
-import { resolveSWNamesAndGlobIgnores, transformESMTargetToRolldown } from '../src/build/bundler/utils'
+import { prepareBundlerOptions } from '../src/build/builder/prepare-bundler-options'
+import { resolveSWNamesAndGlobIgnores, transformESMTargetToRolldown } from '../src/build/builder/utils'
 
 // Mock de fsp.writeFile
 vi.mock('node:fs/promises', () => ({
@@ -37,49 +37,74 @@ describe('common bundler options are correctly generated', () => {
         { swDest: 'sw.js' },
         '',
         true,
-      )).toEqual({
-        classicSWChunkName: 'sw-classic-temp',
-        classicSWDest: 'classic-sw.js',
-        classicSWSrc: 'sw-classic-temp.js',
-        moduleSWChunkName: 'sw-module-temp',
-        moduleSWDest: 'module-sw.js',
-        moduleSWSrc: 'sw-module-temp.js',
-        swChunkName: 'sw-temp',
-        swDest: 'sw.js',
-        swSrc: 'sw-temp.js',
-      })
+      )).toMatchInlineSnapshot(`
+        {
+          "classicSWChunkName": "sw-temp-classic",
+          "classicSWDest": "sw-classic.js",
+          "classicSWSrc": "sw-temp-classic.js",
+          "moduleSWChunkName": "sw-temp-module",
+          "moduleSWDest": "sw-module.js",
+          "moduleSWSrc": "sw-temp-module.js",
+          "swChunkName": "sw-temp",
+          "swDest": "sw.js",
+          "swSrc": "sw-temp.js",
+        }
+      `)
+    })
+    it('generateSW with custom sw name', () => {
+      expect(resolveSWNamesAndGlobIgnores(
+        { swDest: 'custom-sw.js' },
+        '',
+        true,
+      )).toMatchInlineSnapshot(`
+        {
+          "classicSWChunkName": "custom-sw-temp-classic",
+          "classicSWDest": "custom-sw-classic.js",
+          "classicSWSrc": "custom-sw-temp-classic.js",
+          "moduleSWChunkName": "custom-sw-temp-module",
+          "moduleSWDest": "custom-sw-module.js",
+          "moduleSWSrc": "custom-sw-temp-module.js",
+          "swChunkName": "custom-sw-temp",
+          "swDest": "custom-sw.js",
+          "swSrc": "custom-sw-temp.js",
+        }
+      `)
     })
     it('default buildSW generates custom sw names', () => {
       expect(resolveSWNamesAndGlobIgnores(
         { swDest: 'sw.js' },
         'sw.js',
         false,
-      )).toEqual({
-        classicSWChunkName: undefined,
-        classicSWDest: 'classic-sw.js',
-        classicSWSrc: undefined,
-        moduleSWChunkName: undefined,
-        moduleSWDest: 'module-sw.js',
-        moduleSWSrc: undefined,
-        swChunkName: 'sw',
-        swDest: 'sw.js',
-        swSrc: 'sw.js',
-      })
+      )).toMatchInlineSnapshot(`
+        {
+          "classicSWChunkName": "sw",
+          "classicSWDest": "sw-classic.js",
+          "classicSWSrc": "sw.js",
+          "moduleSWChunkName": "sw",
+          "moduleSWDest": "sw-module.js",
+          "moduleSWSrc": "sw.js",
+          "swChunkName": "sw",
+          "swDest": "sw.js",
+          "swSrc": "sw.js",
+        }
+      `)
     })
     it('buildSW with custom sw dest generates custom sw names', () => {
       expect(resolveSWNamesAndGlobIgnores({
         swDest: 'custom-sw.js',
-      }, 'sw.js', false)).toEqual({
-        classicSWChunkName: undefined,
-        classicSWDest: 'classic-custom-sw.js',
-        classicSWSrc: undefined,
-        moduleSWChunkName: undefined,
-        moduleSWDest: 'module-custom-sw.js',
-        moduleSWSrc: undefined,
-        swChunkName: 'sw',
-        swDest: 'custom-sw.js',
-        swSrc: 'sw.js',
-      })
+      }, 'sw.js', false)).toMatchInlineSnapshot(`
+        {
+          "classicSWChunkName": "sw",
+          "classicSWDest": "custom-sw-classic.js",
+          "classicSWSrc": "sw.js",
+          "moduleSWChunkName": "sw",
+          "moduleSWDest": "custom-sw-module.js",
+          "moduleSWSrc": "sw.js",
+          "swChunkName": "sw",
+          "swDest": "custom-sw.js",
+          "swSrc": "sw.js",
+        }
+      `)
     })
   })
   describe('prepareBundlerOptions', () => {
@@ -133,8 +158,8 @@ describe('common bundler options are correctly generated', () => {
       expect(builds[0].inlineWorkboxRuntime !== true && builds[0].inlineWorkboxRuntime.workboxChunkName).toBe('workbox-classic')
       expect(builds[1].inlineWorkboxRuntime !== true && builds[1].inlineWorkboxRuntime.workboxChunkName).toBe('workbox-module')
 
-      expect(tempFiles[0]).toMatch(/sw-classic-temp\.js$/)
-      expect(tempFiles[1]).toMatch(/sw-module-temp\.js$/)
+      expect(tempFiles[0]).toMatch(/sw-temp-classic\.js$/)
+      expect(tempFiles[1]).toMatch(/sw-temp-module\.js$/)
     })
     it('classic-and-module generates 2 bundler options for buildSW', async () => {
       const {

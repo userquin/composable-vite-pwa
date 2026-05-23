@@ -48,7 +48,7 @@ export async function internalGenerateSW<
     true,
   )
 
-  const useTargets = prepareSWTargets(
+  context.resolvedSWTargets = prepareSWTargets(
     context.options.target!,
   )
 
@@ -84,11 +84,13 @@ export async function internalGenerateSW<
     inlineWorkboxRuntime: context.options.inlineWorkboxRuntime,
     minify: context.options.minify!,
     manifestEntries: [],
-    target: useTargets,
+    target: context.resolvedSWTargets,
     workboxRuntimeCompatible: context.options.workboxRuntimeCompatible!,
     generateSW: { swCode },
     originalEnvironmentData: context.originalEnvironmentData,
   })
+
+  context.builds = builds
 
   const buildResult = await runBundlerBuild(
     count,
