@@ -1,4 +1,10 @@
-import type { GenerateSWOptions, GetManifestOptions, InjectManifestOptions, SWTarget, SWType } from '../src/types'
+import type {
+  GenerateSWOptions,
+  GetManifestOptions,
+  InjectManifestOptions,
+  SWTarget,
+  SWType,
+} from '../src/types'
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import path from 'node:path'
@@ -42,6 +48,49 @@ export function createGenerateSWOptions<T extends SWType>(
       },
       options,
     ) satisfies GenerateSWOptions<T>,
+  }
+}
+
+type BuildSWOptionsType<
+  T extends SWType,
+  B extends 'vite' | 'rolldown' = 'vite',
+> = B extends 'vite'
+  ? import('../src/build/vite/types').BuildServiceWorkerOptions<T>
+  : import('../src/build/rolldown/types').BuildServiceWorkerOptions<T>
+
+export function createBuildSWOptions<
+  T extends SWType,
+  B extends 'vite' | 'rolldown' = 'vite',
+>(
+  swType: T,
+  options: Partial<BuildSWOptionsType<T, B>> = {},
+) {
+  const swSrc = path.relative(
+    process.cwd(),
+    path.resolve(import.meta.dirname, 'fixtures/fixture-build-sw', options.swSrc ?? 'sw.js'),
+  )
+  const swDest = path.relative(
+    process.cwd(),
+    path.resolve(import.meta.dirname, 'fixtures/fixture-build-sw', `generated-${path.basename(swSrc)}`),
+  ).replace(/\\/g, '/')
+  const globDirectory = path.relative(
+    process.cwd(),
+    path.resolve(import.meta.dirname, 'fixtures/fixture-build-sw'),
+  ).replace(/\\/g, '/')
+  return {
+    swSrc,
+    swDest,
+    globDirectory,
+    options: Object.assign(
+      {},
+      {
+        swSrc,
+        swType,
+        globDirectory,
+        swDest,
+      },
+      options,
+    ),
   }
 }
 

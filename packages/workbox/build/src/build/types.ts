@@ -54,7 +54,10 @@ export type CustomChunkCallback<B extends 'vite' | 'rolldown'>
     ? import('vite').Rolldown.CodeSplittingNameFunction
     : import('rolldown').CodeSplittingNameFunction
 
-export interface BuildSWOptions<T extends SWType, B extends 'vite' | 'rolldown' = 'vite'> extends InjectManifestOptions, EnvironmentData {
+export interface BuildSWOptions<
+  T extends SWType,
+  B extends 'vite' | 'rolldown' = 'vite',
+> extends InjectManifestOptions, EnvironmentData {
   /**
    * The type of the service worker.
    *
