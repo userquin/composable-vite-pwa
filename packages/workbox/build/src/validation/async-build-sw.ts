@@ -67,8 +67,9 @@ const BaseInjectManifestEntries = v.pipeAsync(
       true,
     ),
     /**
-     * Custom chunks support (requires magicast).
+     * Custom chunks support.
      * This allows splitting specific modules into separate files.
+     * @experimental
      */
     customChunks: v.optional(
       v.function(),
