@@ -313,6 +313,7 @@ export const ManifestOptionsSchema = v.strictObject({
    */
   templatedURLs: v.optional(v.record(v.string(), v.union([v.array(v.string()), v.string()]))),
 })
+
 export const BundlerLogLevelSchema = v.optional(
   v.object({
     rolldown: v.optional(v.picklist(rolldownLogLevel), 'warn'),
@@ -349,4 +350,38 @@ export const BundlerDataSchema = v.object({
    */
   envPrefix: v.optional(v.union([v.string(), v.array(v.string())]), 'VITE_'),
   plugins: v.optional(v.any()),
+  /**
+   * Specifies the separator style used for code splitting chunk names, assets, and entries.
+   * By default, Vite and Rolldown use the `dash (-)` separator:
+   * - chunkFileNames: `[name]-[hash].js`
+   * - assetFileNames: `[name]-[hash].[ext]`
+   * - entryFileNames: `[name]-[hash].js` (Note: The main Service Worker entry won't include the `-[hash]`)
+   *
+   * Switching to `dot (.)` makes it easier to programmatically extract the `[hash]` from the filename
+   * (e.g., in backend environments). Enabling this changes the naming patterns to:
+   * - chunkFileNames: `[name].[hash].js`
+   * - assetFileNames: `[name].[hash].[ext]`
+   * - entryFileNames: `[name].[hash].js` (Note: The main Service Worker entry won't include the `.[hash]`)
+   *
+   * @default 'dash'
+   */
+  chunkNames: v.optional(
+    v.picklist(['dash', 'dot']),
+    'dash',
+  ),
+  /**
+   * Enables the generation of the build manifest specifically for the Service Worker structure.
+   *
+   * The manifest naming follows the same architectural strategy as the Service Worker assets:
+   * - `sw-manifest.json`: When using a single Service Worker strategy or when `workboxRuntimeCompatible` is enabled.
+   * - `sw-manifest-classic.json`: When using a dual Service Worker build for the classic variant, or when `workboxRuntimeCompatible` is disabled.
+   * - `sw-manifest-module.json`: When using a dual Service Worker build for the module variant, or when `workboxRuntimeCompatible` is disabled.
+   *
+   * The generated files will be emitted to the `.vite-pwa` subfolder within the build output directory,
+   * matching Vite's standard manifest structure (containing only `file`, `name`, `src`, `isEntry`, and `imports`).
+   *
+   * @see https://vite.dev/guide/backend-integration.html
+   * @default false
+   */
+  manifest: v.optional(v.boolean(), false),
 })

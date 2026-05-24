@@ -3,6 +3,7 @@ import path from 'node:path'
 import process from 'node:process'
 import { build } from 'vite'
 import { prepareCircularDependencies } from '../builder/prepare-circular-dependencies'
+import { prepareManifestName } from '../builder/prepare-manifest-name'
 import { prepareRolldownOutputOptions } from '../builder/prepare-rolldown-output-options'
 
 export async function prepareViteBuild(
@@ -18,6 +19,8 @@ export async function prepareViteBuild(
     envDir,
     logLevel,
   } = options
+
+  const manifest = prepareManifestName(options)
 
   const {
     plugins,
@@ -42,7 +45,7 @@ export async function prepareViteBuild(
       target,
       minify,
       sourcemap,
-      manifest: false,
+      manifest,
       rolldownOptions: {
         input: swSrc,
         platform: 'browser',

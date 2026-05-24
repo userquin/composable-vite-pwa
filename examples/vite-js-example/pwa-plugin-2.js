@@ -62,6 +62,8 @@ function BuildPlugin2(
           minify: false,
           workboxRuntimeCompatible: false,
           inlineWorkboxRuntime: false,
+          chunkNames: 'dot',
+          manifest: true,
           runtimeCaching: [{
             urlPattern: ({ request, sameOrigin }) => {
               console.log(import.meta.env)
@@ -96,6 +98,8 @@ function BuildPlugin2(
           sourcemap: true,
           minify: false,
           workboxRuntimeCompatible: false,
+          chunkNames: 'dot',
+          manifest: true,
           inlineWorkboxRuntime: false,
           envPrefix,
           plugins: () => [VirtualPlugin()],

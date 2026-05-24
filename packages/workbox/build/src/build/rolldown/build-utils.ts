@@ -1,4 +1,6 @@
 import type { RolldownBuildOptions } from './internal-types'
+import { prepareManifestName } from '@composable-vite-pwa/workbox-build/build/builder/prepare-manifest-name'
+import { generateManifest } from '@composable-vite-pwa/workbox-build/build/rolldown/generate-manifest'
 import { rolldown } from 'rolldown'
 import { prepareCircularDependencies } from '../builder/prepare-circular-dependencies'
 import { prepareRolldownOutputOptions } from '../builder/prepare-rolldown-output-options'
@@ -36,8 +38,15 @@ export async function prepareRolldownBuild(
     },
   })
 
-  return await instance.write(Object.assign(rolldownOptions, {
+  const output = await instance.write(Object.assign(rolldownOptions, {
     sourcemap,
     minify,
   }))
+
+  const manifestName = prepareManifestName(options)
+  if (manifestName) {
+    await generateManifest(manifestName, options, output)
+  }
+
+  return output
 }

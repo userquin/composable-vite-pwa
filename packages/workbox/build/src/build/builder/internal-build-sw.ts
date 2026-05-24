@@ -40,11 +40,13 @@ export async function internalBuildSW<
     workboxRuntimeCompatible,
     target,
     minify,
+    chunkNames,
+    manifest,
     ...injectManifest
   } = context.options
 
   context.resolvedSWTargets = prepareSWTargets(
-    context.options.target!,
+    target!,
   )
 
   const {
@@ -92,6 +94,8 @@ export async function internalBuildSW<
     target: context.resolvedSWTargets,
     workboxRuntimeCompatible: workboxRuntimeCompatible!,
     originalEnvironmentData: context.originalEnvironmentData,
+    chunkNames,
+    manifest,
   })
 
   context.builds = builds

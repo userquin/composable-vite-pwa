@@ -32,6 +32,7 @@ export default defineConfig({
         './src/build/rolldown/*.ts',
         '!./src/build/rolldown/build-context.ts',
         '!./src/build/rolldown/build-utils.ts',
+        '!./src/build/rolldown/generate-manifest.ts',
         '!./src/build/rolldown/internal-types.ts',
       ],
     },
