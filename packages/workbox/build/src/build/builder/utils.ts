@@ -28,7 +28,6 @@ export const workboxRegex = [
 // DON'T hoist Regexp used with /g via exec/test/split
 const normalizePathRegexp = /\\/g
 const jsRegexp = /\.js$/
-const tempRegexp = /-temp\.js$/
 const anyJsRegexp = /\.([mc])?[jt]sx?$/
 const camelizeRegexp = /-([a-z0-9])/g
 
@@ -49,7 +48,7 @@ export function extractOriginalEnvironmentData<
 ): OriginalEnvironmentData {
   const data = Object.assign({}, {
     mode: options.mode,
-    baseDir: options.baseUrl,
+    baseUrl: options.baseUrl,
     envDir: options.envDir,
     envPrefix: options.envPrefix,
     define: options.define,

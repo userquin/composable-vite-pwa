@@ -333,10 +333,10 @@ export const BundlerDataSchema = v.object({
    */
   mode: v.optional(v.nullable(v.string()), 'production'),
   /**
-   * Base dir.
+   * Base url.
    * @default '/'
    */
-  baseDir: v.optional(v.string(), '/'),
+  baseUrl: v.optional(v.string(), '/'),
   // Specific optional fields
   define: v.optional(v.record(v.string(), v.any())),
   /**

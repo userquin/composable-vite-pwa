@@ -56,7 +56,7 @@ export async function prepareDefineOptions<T extends Bundler>(
     DEV: !isProduction,
     PROD: isProduction,
     SSR: false,
-    BASE_URL: original.baseUrl || './',
+    BASE_URL: original.baseUrl || '/',
   }
 
   const mergedEnv = Object.assign({}, builtInEnv, userEnv)
