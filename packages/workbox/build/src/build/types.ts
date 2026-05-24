@@ -27,6 +27,9 @@ export interface EnvironmentData {
    * @default "production"
    */
   mode?: string | null
+  /**
+   * @experimental
+   */
   baseUrl?: string
   define?: Record<string, any>
   /**
@@ -130,7 +133,7 @@ export interface BuildSWOptions<
    */
   minify?: boolean
   /**
-   * Custom chunks support (**requires magicast**).
+   * Custom chunks support.
    *
    * This allows splitting specific modules into separate files via a callback.
    *
@@ -144,7 +147,7 @@ export interface BuildSWOptions<
    *   }
    * }
    * ```
-   *
+   * @experimental
    * @see https://rolldown.rs/reference/TypeAlias.CodeSplittingNameFunction#type-alias-codesplittingnamefunction
    */
   customChunks?: CustomChunkCallback<B>
