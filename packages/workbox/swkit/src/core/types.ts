@@ -248,6 +248,7 @@ export interface HandlerDidCompleteCallback {
 /**
  * An object with optional lifecycle callback properties for the fetch and
  * cache operations.
+ * // todo: remove this
  */
 export interface WorkboxPlugin {
   cacheDidUpdate?: CacheDidUpdateCallback
@@ -264,6 +265,7 @@ export interface WorkboxPlugin {
   requestWillFetch?: RequestWillFetchCallback
 }
 
+// todo: remove this
 export interface WorkboxPluginCallbackParam {
   cacheDidUpdate: CacheDidUpdateCallbackParam
   cachedResponseWillBeUsed: CachedResponseWillBeUsedCallbackParam

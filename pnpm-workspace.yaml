@@ -59,6 +59,8 @@ catalogs:
 #    webpack: 4.47.0
   webpack5:
     webpack: 5.107.1
+    webpack-cli: 6.0.1
+    html-webpack-plugin: 5.6.7
   vite:
     vite: ^8.0.13
   vue:

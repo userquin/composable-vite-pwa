@@ -20,7 +20,7 @@ export async function internalWebpackBuild<
       const { buildSW: runBuildSW } = await import('../rolldown/build-sw')
 
       // Safely extract options using your null-coalescing strategy and cast to the proper core type
-      const data = (buildSW?.options ?? {}) as BuildServiceWorkerOptions<T>
+      const data = (buildSW ?? {}) as BuildServiceWorkerOptions<T>
       if (!('globDirectory' in data) && globDirectory) {
         Object.assign(data, { globDirectory })
       }
@@ -32,7 +32,7 @@ export async function internalWebpackBuild<
       const { generateSW: runGenerateSW } = await import('../rolldown/generate-sw')
 
       // Safely extract options using your null-coalescing strategy and cast to the proper core type
-      const data = (generateSW?.options ?? {}) as BuildGenerateSWOptions<T>
+      const data = (generateSW ?? {}) as BuildGenerateSWOptions<T>
       if (!('globDirectory' in data) && globDirectory) {
         Object.assign(data, { globDirectory })
       }
@@ -45,7 +45,7 @@ export async function internalWebpackBuild<
       const { injectManifest: runInjectManifest } = await import('../../inject-manifest')
 
       // Safely extract options using your null-coalescing strategy and cast to the proper core type
-      const data = (injectManifest?.options ?? {}) as InjectManifestOptions
+      const data = (injectManifest ?? {}) as InjectManifestOptions
       if (!('globDirectory' in data) && globDirectory) {
         Object.assign(data, { globDirectory })
       }

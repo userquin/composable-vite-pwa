@@ -1,0 +1,20 @@
+{
+  "name": "webpack-5-example",
+  "version": "0.0.0",
+  "description": "Webpack 5 app — CJS + ESM configs, notes for v4",
+  "private": true,
+  "types": "module",
+  "scripts": {
+    "build:cjs": "webpack --config webpack.config.cjs",
+    "build:esm": "webpack --config webpack.config.mjs"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "magic-string": "catalog:utils",
+    "magicast": "catalog:utils",
+    "rolldown": "catalog:utils",
+    "webpack": "catalog:webpack5",
+    "webpack-cli": "catalog:webpack5",
+    "html-webpack-plugin": "catalog:webpack5"
+  }
+}
