@@ -48,8 +48,14 @@ export async function internalGenerateSW<
     true,
   )
 
+  const {
+    target,
+    chunkNames,
+    manifest,
+  } = context.options
+
   context.resolvedSWTargets = prepareSWTargets(
-    context.options.target!,
+    target!,
   )
 
   const {
@@ -88,6 +94,8 @@ export async function internalGenerateSW<
     workboxRuntimeCompatible: context.options.workboxRuntimeCompatible!,
     generateSW: { swCode },
     originalEnvironmentData: context.originalEnvironmentData,
+    chunkNames,
+    manifest,
   })
 
   context.builds = builds

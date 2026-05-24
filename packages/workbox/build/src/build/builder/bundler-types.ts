@@ -29,6 +29,8 @@ export interface BundlerOptions {
   detectCircularDeps?: true
   originalEnvironmentData: OriginalEnvironmentData
   circularDependencies: string[]
+  chunkNames?: 'dash' | 'dot'
+  manifest?: boolean
 }
 
 export interface PrepareBundlerOptions {
@@ -52,6 +54,8 @@ export interface PrepareBundlerOptions {
     swCode: string
   }
   originalEnvironmentData: OriginalEnvironmentData
+  chunkNames?: 'dash' | 'dot'
+  manifest?: boolean
 }
 
 export interface ClassicRegionReplacement {

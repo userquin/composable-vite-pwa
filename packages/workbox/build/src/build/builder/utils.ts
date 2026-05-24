@@ -152,6 +152,7 @@ export function resolveSWNamesAndGlobIgnores(
   options.globIgnores.push(`${moduleSWDest}.map`)
   options.globIgnores.push('**/workbox-*.js')
   options.globIgnores.push('**/workbox-*.js.map')
+  options.globIgnores.push('**/.vite-pwa/sw-manifest*.json')
 
   return {
     swSrc: newSWSrc,

@@ -36,6 +36,7 @@
     "./build/rolldown/types": {
       "types": "./dist/build/rolldown/types.d.mts"
     },
+    "./build/rspack": "./dist/build/rspack/index.mjs",
     "./build/types": {
       "types": "./dist/build/types.d.mts"
     },
@@ -47,6 +48,11 @@
     "./build/vite/legacy-types": "./dist/build/vite/legacy-types.mjs",
     "./build/vite/types": {
       "types": "./dist/build/vite/types.d.mts"
+    },
+    "./build/webpack": "./dist/build/webpack/index.mjs",
+    "./config": "./dist/config/index.mjs",
+    "./config/types": {
+      "types": "./dist/config/types.d.mts"
     },
     "./generate-sw": "./dist/generate-sw.mjs",
     "./get-manifest": "./dist/get-manifest.mjs",
@@ -71,6 +77,9 @@
       "build/rolldown/types": [
         "./dist/build/rolldown/types.d.mts"
       ],
+      "build/rspack": [
+        "./dist/build/rspack/index.d.mts"
+      ],
       "build/types": [
         "./dist/build/types.d.mts"
       ],
@@ -94,6 +103,15 @@
       ],
       "build/vite/types": [
         "./dist/build/vite/types.d.mts"
+      ],
+      "build/webpack": [
+        "./dist/build/webpack/index.d.mts"
+      ],
+      "config": [
+        "./dist/config/index.d.mts"
+      ],
+      "config/types": [
+        "./dist/config/types.d.mts"
       ],
       "generate-sw": [
         "./dist/generate-sw.d.mts"
@@ -123,11 +141,16 @@
     "test": "vitest"
   },
   "peerDependencies": {
+    "@rspack/core": "^1.0.0 || ^2.0.0",
     "magicast": "^0.5.0",
     "rolldown": "^1.0.0-0",
-    "vite": "^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0"
+    "vite": "^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0",
+    "webpack": "^4.4.0 || ^5.91.0"
   },
   "peerDependenciesMeta": {
+    "@rspack/core": {
+      "optional": true
+    },
     "magicast": {
       "optional": true
     },
@@ -135,6 +158,9 @@
       "optional": true
     },
     "vite": {
+      "optional": true
+    },
+    "webpack": {
       "optional": true
     }
   },
@@ -150,12 +176,15 @@
     "valibot": "catalog:utils"
   },
   "devDependencies": {
+    "@rspack/core": "catalog:rspack",
     "@types/semver": "catalog:types",
     "@types/serialize-javascript": "catalog:types",
+    "@types/webpack": "catalog:types",
     "dotenv-expand": "catalog:utils",
     "magicast": "catalog:utils",
     "rolldown": "catalog:utils",
-    "vite": "catalog:vite"
+    "vite": "catalog:vite",
+    "webpack": "catalog:webpack5"
   },
   "inlinedDependencies": {
     "dotenv-expand": "13.0.0"

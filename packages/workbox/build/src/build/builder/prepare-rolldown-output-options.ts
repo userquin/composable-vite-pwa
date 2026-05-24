@@ -32,7 +32,10 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     generateSW,
     filePaths,
     manifestEntries,
+    chunkNames = '-',
   } = options
+
+  const sep = chunkNames === 'dot' ? '.' : '-'
 
   const define = await prepareDefineOptions(
     options,
@@ -58,14 +61,14 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     hashCharacters: workboxRuntimeCompatible ? 'hex' : undefined,
     chunkFileNames: (chunk) => {
       return workboxName && chunk.name === workboxName
-        ? `${workboxName}-[hash].js`
-        : '[name]-[hash].js'
+        ? `${workboxName}${sep}[hash].js`
+        : `[name]${sep}[hash].js`
     },
-    assetFileNames: '[name]-[hash].[ext]',
+    assetFileNames: `[name]${sep}[hash].[ext]`,
     entryFileNames: (chunk) => {
       return chunk.name === swChunkName
         ? swName
-        : '[name]-[hash].js'
+        : `[name]${sep}[hash].js`
     },
   }
 
@@ -101,6 +104,7 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
   if (bundler === 'rolldown') {
     rolldownOptions.sourcemap = sourcemap
     rolldownOptions.minify = minify
+    rolldownOptions.topLevelVar = true
     rolldownOptions.dir = path.resolve(
       process.cwd(),
       path.dirname(swDest),

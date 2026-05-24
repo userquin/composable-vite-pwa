@@ -35,7 +35,10 @@ export function prepareBundlerOptions(
     minify,
     generateSW,
     manifestEntries,
+    chunkNames,
+    manifest,
   } = options
+
   const builds: BundlerOptions[] = []
   const filePathsMap = new Map<'classic' | 'module', string[]>([['classic', []], ['module', []]])
   const swType = options.swType!
@@ -43,6 +46,7 @@ export function prepareBundlerOptions(
   const tempFiles: string[] = []
   const classicCircularDependencies: string[] = []
   const moduleCircularDependencies: string[] = []
+
   if (swType === 'classic-and-module' || swType === 'classic') {
     if (generateSW) {
       swSrc = classicSWSrc
@@ -79,8 +83,11 @@ export function prepareBundlerOptions(
       generateSW: !!generateSW,
       originalEnvironmentData: options.originalEnvironmentData,
       circularDependencies: classicCircularDependencies,
+      chunkNames,
+      manifest,
     })
   }
+
   if (swType === 'classic-and-module' || swType === 'module') {
     if (generateSW) {
       swSrc = moduleSWSrc
@@ -117,6 +124,8 @@ export function prepareBundlerOptions(
       generateSW: !!generateSW,
       originalEnvironmentData: options.originalEnvironmentData,
       circularDependencies: moduleCircularDependencies,
+      chunkNames,
+      manifest,
     })
   }
 

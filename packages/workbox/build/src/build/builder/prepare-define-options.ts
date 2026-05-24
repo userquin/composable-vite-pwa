@@ -92,8 +92,6 @@ export async function prepareDefineOptions<T extends Bundler>(
     if ('injectionPoint' in original) {
       const userInjectionPoint = original.injectionPoint
 
-      console.log(userInjectionPoint)
-
       if (typeof userInjectionPoint === 'string' && userInjectionPoint) {
         define[userInjectionPoint] = JSON.stringify(options.manifestEntries)
       }
