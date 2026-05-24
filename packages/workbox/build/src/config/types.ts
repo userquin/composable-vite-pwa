@@ -51,7 +51,7 @@ export interface WorkboxBuildConfiguration<
    * @default false
    */
   mergeOptions?: boolean
-  buildSW?: BuildSWOptions<T>
-  generateSW?: GenerateSWOptions<T>
-  injectManifest?: InjectManifestStrategyOptions
+  buildSW: BuildSWOptions<T>
+  generateSW: GenerateSWOptions<T>
+  injectManifest: InjectManifestStrategyOptions
 }

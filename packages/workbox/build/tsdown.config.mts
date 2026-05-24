@@ -66,7 +66,14 @@ export default defineConfig({
   publint,
   exports: fixTypesVersion,
   deps: {
-    neverBundle: ['@rspack/core', 'magicast', 'rolldown', 'unconfig', 'webpack', 'webpack/types', 'rolldown', 'vite'],
+    neverBundle: [
+      '@rspack/core',
+      'magicast',
+      'rolldown',
+      'webpack',
+      'rolldown',
+      'vite',
+    ],
   },
   hooks: {
     'build:done': async () => {
