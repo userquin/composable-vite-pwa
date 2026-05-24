@@ -53,8 +53,11 @@ export class WorkboxPlugin<
   ) {
     await internalWebpackBuild(
       WorkboxPlugin.pluginName,
-      // We extract Webpack's configured output directory to use as our globDirectory
-      compiler.options.output.path,
+      {
+        cwd: compiler.context,
+        // We extract Webpack's configured output directory to use as our globDirectory
+        outputPath: compiler.options.output.path,
+      },
       this.#options,
     )
   }

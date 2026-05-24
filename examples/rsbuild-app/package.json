@@ -1,0 +1,16 @@
+{
+  "name": "rsbuild-app",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rsbuild build"
+  },
+  "dependencies": {
+    "@composable-vite-pwa/workbox-swkit": "workspace:*"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "@rsbuild/core": "catalog:rsbuild"
+  }
+}

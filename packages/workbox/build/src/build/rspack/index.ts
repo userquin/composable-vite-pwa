@@ -46,8 +46,11 @@ export class WorkboxPlugin<
   async #executeStrategy(compiler: import('@rspack/core').Compiler) {
     await internalWebpackBuild(
       WorkboxPlugin.pluginName,
-      // We extract Rspack's configured output directory to use as our globDirectory
-      compiler.options.output.path,
+      {
+        cwd: compiler.context,
+        // We extract Rspack's configured output directory to use as our globDirectory
+        outputPath: compiler.options.output.path,
+      },
       this.#options,
     )
   }

@@ -1,9 +1,9 @@
 import type { RolldownBuildOptions } from './internal-types'
-import { prepareManifestName } from '@composable-vite-pwa/workbox-build/build/builder/prepare-manifest-name'
-import { generateManifest } from '@composable-vite-pwa/workbox-build/build/rolldown/generate-manifest'
 import { rolldown } from 'rolldown'
 import { prepareCircularDependencies } from '../builder/prepare-circular-dependencies'
+import { prepareManifestName } from '../builder/prepare-manifest-name'
 import { prepareRolldownOutputOptions } from '../builder/prepare-rolldown-output-options'
+import { generateManifest } from './generate-manifest'
 
 export async function prepareRolldownBuild(
   options: RolldownBuildOptions,
