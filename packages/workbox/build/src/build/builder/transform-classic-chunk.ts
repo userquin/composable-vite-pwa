@@ -148,7 +148,7 @@ export async function transformClassicChunk(
     i++
   }
 
-  /* const imports = customChunksInfo.mappedChunkImports.get(name)
+  const imports = customChunksInfo.mappedChunkImports.get(name)
   if (imports) {
     for (const importName of imports) {
       replaceImportsWithGlobalVars(
@@ -158,7 +158,7 @@ export async function transformClassicChunk(
         customChunksInfo,
       )
     }
-  } */
+  }
 
   // Transform const/let to var inside the Workbox chunk to avoid Redeclaration Errors
   // in classic Service Workers when the script is re-evaluated.
