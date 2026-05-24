@@ -101,6 +101,7 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
   if (bundler === 'rolldown') {
     rolldownOptions.sourcemap = sourcemap
     rolldownOptions.minify = minify
+    rolldownOptions.topLevelVar = true
     rolldownOptions.dir = path.resolve(
       process.cwd(),
       path.dirname(swDest),

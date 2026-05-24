@@ -96,7 +96,7 @@ function BuildPlugin2(
           sourcemap: true,
           minify: false,
           workboxRuntimeCompatible: false,
-          inlineWorkboxRuntime: true,
+          inlineWorkboxRuntime: false,
           envPrefix,
           plugins: () => [VirtualPlugin()],
           customChunks: (moduleId) => {

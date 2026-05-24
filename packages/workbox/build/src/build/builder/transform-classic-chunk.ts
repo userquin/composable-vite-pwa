@@ -13,8 +13,12 @@ const asRegexp = /\s+as\s+/
  * Since Rolldown/Vite only supports ES2015+ targets, we must manually
  * transform variable declarations for classic Service Workers to avoid
  * syntax errors on re-evaluation (Redeclaration Error).
+ *
+ * Replaced with Rolldown output `topLevelVar` enabled when using Rolldown:
+ * - [vite 8 enables this flag](https://github.com/vitejs/vite/blob/main/packages/vite/src/node/build.ts#L774)
+ * - check prepare-rolldown-output-options.ts module
  */
-function replaceLetConstWithVar(magicString: MagicString) {
+/* function replaceLetConstWithVar(magicString: MagicString) {
   const currentCode = magicString.original
   const varRegex = /\b(?:const|let)(?=\s+[_$a-zA-Z])/g
   let varMatch: RegExpExecArray | null = null
@@ -26,8 +30,11 @@ function replaceLetConstWithVar(magicString: MagicString) {
     // Overwrite keeping the source map positions intact
     magicString.overwrite(start, end, 'var')
   }
-}
+} */
 
+/**
+ * Replace `import {} from '<chunk-name>-<hash>.js'` with the corresponding `self.workbox.<chunk-name>`
+ */
 function replaceImportsWithGlobalVars(
   magicString: MagicString,
   code: string,
@@ -94,7 +101,7 @@ export async function transformClassicChunk(
     }
 
     // replace const/let with var: rolldown only supports ES6
-    replaceLetConstWithVar(magicString)
+    // replaceLetConstWithVar(magicString)
     // replace regions with temp SW name
     if (generateSW) {
       restoreClassicGenerateSWRegions(region, magicString)
@@ -141,7 +148,7 @@ export async function transformClassicChunk(
     i++
   }
 
-  const imports = customChunksInfo.mappedChunkImports.get(name)
+  /* const imports = customChunksInfo.mappedChunkImports.get(name)
   if (imports) {
     for (const importName of imports) {
       replaceImportsWithGlobalVars(
@@ -151,11 +158,11 @@ export async function transformClassicChunk(
         customChunksInfo,
       )
     }
-  }
+  } */
 
   // Transform const/let to var inside the Workbox chunk to avoid Redeclaration Errors
   // in classic Service Workers when the script is re-evaluated.
-  replaceLetConstWithVar(magicString)
+  // replaceLetConstWithVar(magicString)
 
   magicString.append('\n})();')
 
