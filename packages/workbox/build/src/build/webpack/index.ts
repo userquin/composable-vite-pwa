@@ -11,6 +11,7 @@ export class WorkboxPlugin<
 > {
   static pluginName = 'VitePWAWorkboxBuildWebpackPlugin'
 
+  #strategy: S
   #options: WorkboxBuildConfiguration<S, T>
 
   /**
@@ -21,7 +22,8 @@ export class WorkboxPlugin<
     strategy: S,
     options: Partial<WorkboxBuildConfiguration<S, T>> = {},
   ) {
-    this.#options = Object.assign(options, { strategy }) as WorkboxBuildConfiguration<S, T>
+    this.#strategy = strategy
+    this.#options = options as WorkboxBuildConfiguration<S, T>
   }
 
   /**
@@ -54,6 +56,8 @@ export class WorkboxPlugin<
     await internalWebpackBuild(
       WorkboxPlugin.pluginName,
       {
+        bundler: 'webpack',
+        strategy: this.#strategy,
         cwd: compiler.context,
         // We extract Webpack's configured output directory to use as our globDirectory
         outputPath: compiler.options.output.path,

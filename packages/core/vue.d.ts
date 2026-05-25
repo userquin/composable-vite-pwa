@@ -11,9 +11,7 @@ declare module 'virtual:pwa-register/vue' {
     offlineReady: Ref<boolean>
     /**
      * Reloads the current window to allow the service worker take the control.
-     *
-     * @param reloadPage From version 0.13.2+ this param is not used anymore.
      */
-    updateServiceWorker: (reloadPage?: boolean) => Promise<void>
+    updateServiceWorker: () => Promise<void>
   }
 }

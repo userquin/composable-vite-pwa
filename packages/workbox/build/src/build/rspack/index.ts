@@ -2,19 +2,25 @@ import type { Strategy, WorkboxBuildConfiguration } from '../../config/types'
 import type { SWType } from '../../types'
 import { internalWebpackBuild } from '../builder/internal-webpack-build'
 
+/**
+ * [rspack plugin](https://rspack.rs/plugins/) for Workbox build strategies.
+ * **WARNING**: strategy from the resolved options will override the strategy used in the plugin constructor.
+ */
 export class WorkboxPlugin<
   S extends Strategy,
   T extends SWType = 'classic',
 > {
   static pluginName = 'VitePWAWorkboxBuildRspackPlugin'
 
+  #strategy: S
   #options: WorkboxBuildConfiguration<S, T>
 
   constructor(
     strategy: S,
     options: Partial<WorkboxBuildConfiguration<S, T>> = {},
   ) {
-    this.#options = Object.assign(options, { strategy }) as WorkboxBuildConfiguration<S, T>
+    this.#strategy = strategy
+    this.#options = options as WorkboxBuildConfiguration<S, T>
   }
 
   /**
@@ -47,6 +53,8 @@ export class WorkboxPlugin<
     await internalWebpackBuild(
       WorkboxPlugin.pluginName,
       {
+        bundler: 'rspack',
+        strategy: this.#strategy,
         cwd: compiler.context,
         // We extract Rspack's configured output directory to use as our globDirectory
         outputPath: compiler.options.output.path,

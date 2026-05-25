@@ -1,5 +1,30 @@
+import process from 'node:process'
 import { WorkboxPlugin } from '@composable-vite-pwa/workbox-build/build/rspack'
 import { defineConfig } from '@rsbuild/core'
+import PWAConfig from './external-pwa.config.mjs'
+
+/** @type {'inline' | 'external' | 'override'} */
+const confType = process.env.PWA_CONFIG || 'inline'
+
+/** @type {Partial<import('@composable-vite-pwa/workbox-build/config/types').WorkboxBuildConfiguration>} */
+const config = confType === 'external'
+  ? { path: 'external-pwa.config.mjs' }
+  : confType === 'inline'
+    ? PWAConfig
+    : Object.assign(
+        {},
+        PWAConfig,
+        {
+          buildSW: {
+            // merging should disable runtime split
+            inlineWorkboxRuntime: true,
+          },
+        },
+        {
+          mergeOptions: true,
+          path: 'external-pwa.config.mjs',
+        },
+      )
 
 export default defineConfig({
   source: {
@@ -24,20 +49,10 @@ export default defineConfig({
   tools: {
     rspack: {
       plugins: [
-        new WorkboxPlugin('build-sw', {
-          buildSW: {
-            options: {
-              swSrc: 'src/sw.js',
-              swDest: 'sw.js',
-              globPatterns: ['**/*.{html,js,css,svg,png}'],
-              injectionPoint: 'globalThis.__WB_MANIFEST',
-              inlineWorkboxRuntime: true,
-              sourcemap: true,
-              mode: 'production',
-              manifest: true,
-            },
-          },
-        }),
+        new WorkboxPlugin(
+          'build-sw',
+          config,
+        ),
       ],
     },
   },

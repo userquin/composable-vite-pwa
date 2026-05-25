@@ -15,17 +15,14 @@ export type BuildStrategyOptions<T extends SWType, S extends BuildStrategy> = S 
     ? Partial<BuildGenerateSWOptions<T>>
     : never
 
-export interface WorkboxBuildOptions<
+export type WorkboxBuildOptions<
   T extends SWType,
   S extends BuildStrategy,
-> {
-  options: BuildStrategyOptions<T, S>
-}
+> = BuildStrategyOptions<T, S>
+
 export type BuildSWOptions<T extends SWType> = WorkboxBuildOptions<T, 'build-sw'>
 export type GenerateSWOptions<T extends SWType> = WorkboxBuildOptions<T, 'generate-sw'>
-export interface InjectManifestStrategyOptions {
-  options: InjectManifestOptions
-}
+export type InjectManifestStrategyOptions = InjectManifestOptions
 
 export interface WorkboxBuildConfiguration<
   S extends Strategy,

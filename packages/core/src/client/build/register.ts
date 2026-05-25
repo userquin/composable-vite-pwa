@@ -35,8 +35,8 @@ export function registerSW(options: RegisterSWOptions = {}) {
         if (process.env.PWA_ESM_FALLBACK_SW) {
           // By default, vite SW build will use classic and the sw.js will be the ESM version.
           // We're generating 2 variants: <sw>.js and classic-<sw>.js.
-          const esmSW = typeof supportsESM === 'function'
-            ? supportsESM()
+          const esmSW = import.meta.env.DEV
+            ? (typeof supportsESM === 'function' ? supportsESM() : isSWModuleSupported())
             : isSWModuleSupported()
           // update entries
           if (esmSW) {

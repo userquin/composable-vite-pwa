@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "rsbuild build"
+    "build": "rsbuild build",
+    "build:external": "PWA_CONFIG=external rsbuild build",
+    "build:override": "PWA_CONFIG=override rsbuild build"
   },
   "dependencies": {
     "@composable-vite-pwa/workbox-swkit": "workspace:*"

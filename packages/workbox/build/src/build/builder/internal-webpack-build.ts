@@ -4,11 +4,14 @@ import type { Strategy, WorkboxBuildConfiguration } from '../../config/types'
 import type { InjectManifestOptions } from '../../types'
 import path from 'node:path'
 import process from 'node:process'
-import { pathToFileURL } from 'node:url'
+import { loadConfiguration } from '../../config/load-configuration'
+import { normalizePath } from './utils'
 
-interface WebpackBuildContext {
+interface WebpackBuildContext<S extends Strategy> {
+  strategy: S
   cwd?: string
   outputPath?: string
+  bundler: 'webpack' | 'rspack'
 }
 
 type StrategyOptions<T extends SWType>
@@ -16,67 +19,17 @@ type StrategyOptions<T extends SWType>
     | BuildGenerateSWOptions<T>
     | InjectManifestOptions
 
-function mergeStrategyOptions<T extends SWType>(
-  left: Partial<WorkboxBuildConfiguration<Strategy, T>>,
-  right: Partial<WorkboxBuildConfiguration<Strategy, T>>,
-): Partial<WorkboxBuildConfiguration<Strategy, T>> {
-  const merged = Object.assign({}, left, right) as Partial<WorkboxBuildConfiguration<Strategy, T>>
-
-  for (const key of ['buildSW', 'generateSW', 'injectManifest'] as const) {
-    const leftValue = left[key] as any
-    const rightValue = right[key] as any
-    if (leftValue || rightValue) {
-      const writableMerged = merged as any
-      writableMerged[key] = {
-        ...leftValue,
-        ...rightValue,
-        options: {
-          ...leftValue?.options,
-          ...rightValue?.options,
-        },
-      }
-    }
-  }
-
-  return merged
-}
-
-async function loadConfiguration<T extends SWType>(
-  options: Partial<WorkboxBuildConfiguration<Strategy, T>>,
-): Promise<Partial<WorkboxBuildConfiguration<Strategy, T>>> {
-  if (!options.path) {
-    return options
-  }
-
-  const cwd = path.resolve(process.cwd(), options.cwd || '.')
-  const configPath = path.isAbsolute(options.path)
-    ? options.path
-    : path.resolve(cwd, options.path)
-  const configModule = await import(pathToFileURL(configPath).href)
-  const loaded = configModule.default ?? configModule.options ?? configModule.config ?? configModule
-  const config = typeof loaded === 'function'
-    ? await loaded()
-    : loaded
-
-  const external = config as Partial<WorkboxBuildConfiguration<Strategy, T>>
-  return options.mergeOptions
-    ? mergeStrategyOptions(external, options)
-    : mergeStrategyOptions(external, {
-        cwd: options.cwd,
-        strategy: options.strategy,
-      })
-}
-
-function resolveFrom(base: string, value: string | undefined): string | undefined {
-  if (!value) {
-    return value
-  }
-
-  return path.isAbsolute(value) ? value : path.resolve(base, value)
+function resolveFrom(base: string, value: string): string {
+  return normalizePath(path.isAbsolute(value) ? path.relative(base, value) : path.join(base, value))
 }
 
 function resolveOutputPath(outputPath: string | undefined, fallbackCwd: string): string {
-  return outputPath ? path.resolve(fallbackCwd, outputPath) : fallbackCwd
+  return normalizePath(path.relative(
+    process.cwd(),
+    outputPath
+      ? path.resolve(fallbackCwd, outputPath)
+      : fallbackCwd,
+  ))
 }
 
 function prepareStrategyOptions<T extends SWType>(
@@ -84,12 +37,22 @@ function prepareStrategyOptions<T extends SWType>(
   {
     cwd,
     outputPath,
-  }: Required<WebpackBuildContext>,
+    bundler,
+  }: Required<WebpackBuildContext<Strategy>>,
 ) {
-  const data = Object.assign({}, strategyOptions) as any
+  const data = Object.assign({}, strategyOptions) as StrategyOptions<T>
   data.globDirectory = data.globDirectory
     ? resolveFrom(cwd, data.globDirectory)
     : outputPath
+
+  if (!('dontCacheBustURLsMatching' in strategyOptions)) {
+    if (bundler === 'rspack') {
+      data.dontCacheBustURLsMatching = /assets[\\/]/
+    }
+    else {
+      data.dontCacheBustURLsMatching = /\.[0-9a-z]{8,}\./i
+    }
+  }
 
   if ('swSrc' in data) {
     data.swSrc = resolveFrom(cwd, data.swSrc)
@@ -107,54 +70,64 @@ export async function internalWebpackBuild<
   T extends SWType = 'classic',
 >(
   pluginName: string,
-  buildContext: WebpackBuildContext = {},
+  buildContext: WebpackBuildContext<S>,
   options: Partial<WorkboxBuildConfiguration<S, T>> = {},
 ) {
-  const resolvedOptions = await loadConfiguration(options as Partial<WorkboxBuildConfiguration<Strategy, T>>)
+  const resolvedOptions = await loadConfiguration(
+    options as Partial<WorkboxBuildConfiguration<Strategy, T>>,
+  )
   const { strategy, buildSW, generateSW, injectManifest } = resolvedOptions
-  const cwd = path.resolve(process.cwd(), resolvedOptions.cwd || buildContext.cwd || '.')
-  const outputPath = resolveOutputPath(buildContext.outputPath, cwd)
-  const context = { cwd, outputPath }
+  const cwd = process.cwd()
+  // everything is relative: workbox-build will use process.cwd() for swSrc/swDest
+  const outputPath = path.relative(cwd, resolveOutputPath(buildContext.outputPath, cwd))
+  const context = {
+    cwd,
+    outputPath,
+    strategy: strategy ?? buildContext.strategy,
+    bundler: buildContext.bundler,
+  } satisfies WebpackBuildContext<Strategy>
 
   // We extract the host compiler output directory to use as the default globDirectory.
 
-  switch (strategy) {
+  switch (context.strategy) {
     case 'build-sw': {
       const { buildSW: runBuildSW } = await import('../rolldown/build-sw')
 
-      const data = prepareStrategyOptions(
-        (buildSW?.options ?? {}) as BuildServiceWorkerOptions<T>,
-        context,
-      ) as BuildServiceWorkerOptions<T>
-      await runBuildSW(data)
+      await runBuildSW(
+        prepareStrategyOptions(
+          (buildSW ?? {}) as BuildServiceWorkerOptions<T>,
+          context,
+        ) as BuildServiceWorkerOptions<T>,
+      )
       break
     }
 
     case 'generate-sw': {
       const { generateSW: runGenerateSW } = await import('../rolldown/generate-sw')
 
-      const data = prepareStrategyOptions(
-        (generateSW?.options ?? {}) as BuildGenerateSWOptions<T>,
-        context,
-      ) as BuildGenerateSWOptions<T>
-
-      await runGenerateSW(data)
+      await runGenerateSW(
+        prepareStrategyOptions(
+          (generateSW ?? {}) as BuildGenerateSWOptions<T>,
+          context,
+        ) as BuildGenerateSWOptions<T>,
+      )
       break
     }
 
     case 'inject-manifest': {
       const { injectManifest: runInjectManifest } = await import('../../inject-manifest')
 
-      const data = prepareStrategyOptions(
-        (injectManifest?.options ?? {}) as InjectManifestOptions,
-        context,
-      ) as InjectManifestOptions
-      await runInjectManifest(data)
+      await runInjectManifest(
+        prepareStrategyOptions(
+          (injectManifest ?? {}) as InjectManifestOptions,
+          context,
+        ) as InjectManifestOptions,
+      )
       break
     }
 
     default: {
-      throw new Error(`[${pluginName}] Unsupported workflow strategy: "${strategy}"`)
+      throw new Error(`[${pluginName}] Unsupported Workbox strategy: "${strategy}"`)
     }
   }
 }
