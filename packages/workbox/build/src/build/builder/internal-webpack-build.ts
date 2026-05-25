@@ -23,6 +23,10 @@ function resolveFrom(base: string, value: string): string {
   return normalizePath(path.isAbsolute(value) ? path.relative(base, value) : path.join(base, value))
 }
 
+function resolveSWSrc(base: string, value: string): string {
+  return normalizePath(path.isAbsolute(value) ? path.relative(base, value) : value)
+}
+
 function resolveOutputPath(outputPath: string | undefined, fallbackCwd: string): string {
   return normalizePath(path.relative(
     process.cwd(),
@@ -55,7 +59,7 @@ function prepareStrategyOptions<T extends SWType>(
   }
 
   if ('swSrc' in data) {
-    data.swSrc = resolveFrom(cwd, data.swSrc)
+    data.swSrc = resolveSWSrc(cwd, data.swSrc)
   }
 
   if ('swDest' in data) {
