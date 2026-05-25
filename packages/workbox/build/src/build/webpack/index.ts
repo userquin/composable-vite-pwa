@@ -5,6 +5,11 @@ import type {
 import type { SWType } from '../../types'
 import { internalWebpackBuild } from '../builder/internal-webpack-build'
 
+/**
+ * [webpack plugin](https://webpack.js.org/plugins/) for Workbox build strategies.
+ * **WARNING**: strategy from the resolved options will override the strategy used in the plugin constructor.
+ */
+
 export class WorkboxPlugin<
   S extends Strategy,
   T extends SWType = 'classic',
