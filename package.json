@@ -18,6 +18,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "pnpm lint --fix",
+    "test:ci": "pnpm --filter @composable-vite-pwa/workbox-build test:ci",
     "test:typecheck": "pnpm -r --filter=\"@composable-vite-pwa/**\" run test:typecheck",
     "build": "pnpm -r --filter=\"./packages/**/\" run build"
   },
