@@ -32,7 +32,7 @@ export class WorkboxPlugin<
   }
 
   /**
-   * Webpack plugin interface — compatible with Webpack 4 and 5.
+   * Webpack plugin interface — compatible with Webpack 5.
    * In Webpack 4 the compiler is un-typed, whereas Webpack 5 provides full type definitions.
    */
   apply(compiler: import('webpack').Compiler) {

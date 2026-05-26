@@ -137,7 +137,7 @@
     "build": "tsdown --config-loader unrun",
     "test:typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build",
-    "test:ci": "vitest run",
+    "test:ci": "CI=true vitest run",
     "test": "vitest"
   },
   "peerDependencies": {
