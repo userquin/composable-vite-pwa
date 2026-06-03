@@ -138,6 +138,8 @@ function runRspack(config: rspack.Configuration): Promise<rspack.Stats> {
   })
 }
 
+const isWatchMode = process.env.VITEST_MODE === 'WATCH';
+
 export const testWebpack = base.extend<{
   sandbox: {
     root: string
@@ -148,7 +150,7 @@ export const testWebpack = base.extend<{
   sandbox: async ({}, use) => {
     await createFixture('webpack', use)
   },
-})
+}).skipIf(isWatchMode)
 
 export const testRspack = base.extend<{
   sandbox: {
@@ -160,7 +162,7 @@ export const testRspack = base.extend<{
   sandbox: async ({}, use) => {
     await createFixture('rspack', use)
   },
-})
+}).skipIf(isWatchMode)
 
 describe('webpack/rspack WorkboxPlugin', () => {
   testWebpack('runs build-sw with webpack compiler context and relative paths', async ({ sandbox }) => {
