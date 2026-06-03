@@ -421,7 +421,7 @@ export interface GeneratePartial<T extends SWType> {
    * - `inline`: The sourcemap will be appended to the output file as a data URL.
    * - `hidden`: A separate sourcemap file will be generated, but the link to the sourcemap (`//# sourceMappingURL` comment) will not be included in the output file.
    *
-   * @default true
+   * @default false
    */
   sourcemap?: boolean | 'hidden' | 'inline'
 }

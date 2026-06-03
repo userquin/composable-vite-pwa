@@ -56,7 +56,7 @@ const BaseInjectManifestEntries = v.pipeAsync(
     minify: v.optional(v.boolean()),
     /**
      * Whether to create a sourcemap.
-     * @default true
+     * @default false
      */
     sourcemap: v.optional(
       v.union([
@@ -64,7 +64,7 @@ const BaseInjectManifestEntries = v.pipeAsync(
         v.literal('hidden'),
         v.literal('inline'),
       ]),
-      true,
+      false,
     ),
     /**
      * Custom chunks support.

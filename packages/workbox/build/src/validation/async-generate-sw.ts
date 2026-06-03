@@ -108,7 +108,7 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
      * - `inline`: The sourcemap will be appended to the output file as a data URL.
      * - `hidden`: A separate sourcemap file will be generated, but the link to the sourcemap (`//# sourceMappingURL` comment) will not be included in the output file.
      *
-     * @default true
+     * @default false
      */
     sourcemap: v.optional(
       v.union([
@@ -116,7 +116,7 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
         v.literal('hidden'),
         v.literal('inline'),
       ]),
-      true,
+      false,
     ),
     /**
      * The path and filename of the service worker file that will be created by the build process, relative to the current working directory. It must end in '.js'.
