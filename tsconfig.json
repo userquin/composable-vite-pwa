@@ -14,11 +14,23 @@
       "@composable-vite-pwa/workbox-build": [
         "./packages/workbox/build/src/index.ts"
       ],
+      "@composable-vite-pwa/workbox-build/build/webpack": [
+        "./packages/workbox/build/src/build/webpack/index.ts"
+      ],
+      "@composable-vite-pwa/workbox-build/build/rspack": [
+        "./packages/workbox/build/src/build/rspack/index.ts"
+      ],
       "@composable-vite-pwa/workbox-build/*": [
         "./packages/workbox/build/src/*.ts"
       ],
       "@composable-vite-pwa/workbox-build/build/*": [
         "./packages/workbox/build/src/build/*.ts"
+      ],
+      "@composable-vite-pwa/workbox-build/config": [
+        "./packages/workbox/build/src/config/index.ts"
+      ],
+      "@composable-vite-pwa/workbox-build/config/types": [
+        "./packages/workbox/build/src/config/types.ts"
       ],
       "@composable-vite-pwa/workbox-swkit": [
         "./packages/workbox/swkit/src/index.ts"

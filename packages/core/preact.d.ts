@@ -11,9 +11,7 @@ declare module 'virtual:pwa-register/preact' {
     offlineReady: [boolean, Dispatch<StateUpdater<boolean>>]
     /**
      * Reloads the current window to allow the service worker take the control.
-     *
-     * @param reloadPage From version 0.13.2+ this param is not used anymore.
      */
-    updateServiceWorker: (reloadPage?: boolean) => Promise<void>
+    updateServiceWorker: () => Promise<void>
   }
 }

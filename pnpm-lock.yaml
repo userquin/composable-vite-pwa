@@ -30,6 +30,10 @@ catalogs:
     react:
       specifier: ^19.2.4
       version: 19.2.5
+  rsbuild:
+    '@rsbuild/core':
+      specifier: ^2.0.7
+      version: 2.0.7
   rspack:
     '@rspack/core':
       specifier: ^2.0.4
@@ -223,6 +227,19 @@ importers:
         specifier: catalog:vue
         version: 3.5.33(typescript@5.9.3)
 
+  examples/rsbuild-app:
+    dependencies:
+      '@composable-vite-pwa/workbox-swkit':
+        specifier: workspace:*
+        version: link:../../packages/workbox/swkit
+    devDependencies:
+      '@composable-vite-pwa/workbox-build':
+        specifier: workspace:*
+        version: link:../../packages/workbox/build
+      '@rsbuild/core':
+        specifier: catalog:rsbuild
+        version: 2.0.7
+
   examples/vite-js-example:
     devDependencies:
       '@composable-vite-pwa/workbox-build':
@@ -240,6 +257,19 @@ importers:
       vite:
         specifier: catalog:vite
         version: 8.0.13(@types/node@24.12.2)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+
+  examples/webpack-app:
+    dependencies:
+      '@composable-vite-pwa/workbox-swkit':
+        specifier: workspace:*
+        version: link:../../packages/workbox/swkit
+    devDependencies:
+      '@composable-vite-pwa/workbox-build':
+        specifier: workspace:*
+        version: link:../../packages/workbox/build
+      webpack:
+        specifier: catalog:webpack5
+        version: 5.107.1
 
   examples/workbox-cli:
     dependencies:
@@ -327,7 +357,7 @@ importers:
     devDependencies:
       '@rspack/core':
         specifier: catalog:rspack
-        version: 2.0.4
+        version: 2.0.4(@swc/helpers@0.5.21)
       '@types/semver':
         specifier: catalog:types
         version: 7.7.1
@@ -884,6 +914,16 @@ packages:
   '@rolldown/pluginutils@1.0.0':
     resolution: {integrity: sha512-aKs/3GSWyV0mrhNmt/96/Z3yczC3yvrzYATCiCXQebBsGyYzjNdUphRVLeJQ67ySKVXRfMxt2lm12pmXvbPFQQ==}
 
+  '@rsbuild/core@2.0.7':
+    resolution: {integrity: sha512-LsBONEzsjzOAqO72ot39eI7g53zSfF9QuDXTu4ks8IUX+EZsxRSniQfc+1zVA6a6y3b9KUUtG96avoMLKbWklQ==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    hasBin: true
+    peerDependencies:
+      core-js: '>= 3.0.0'
+    peerDependenciesMeta:
+      core-js:
+        optional: true
+
   '@rspack/binding-darwin-arm64@2.0.4':
     resolution: {integrity: sha512-0Q1QXFEsZfDc4opiDnb8q50KlBbC2VovViDaYlMJZBzvjAo325mh3itXPfz7YZ31M+TxRE7TUiJXH3ltiV1Hdg==}
     cpu: [arm64]
@@ -973,6 +1013,9 @@ packages:
     resolution: {integrity: sha512-lVJX6qEgs/4DOcRTpo56tmKzVPtoWAaVbL4hfO7t7NVwl9AAXzQR6cihesW1BmNMPl+bK6dreu2sOKBP2Q9CIA==}
     peerDependencies:
       acorn: ^8.9.0
+
+  '@swc/helpers@0.5.21':
+    resolution: {integrity: sha512-jI/VAmtdjB/RnI8GTnokyX7Ug8c+g+ffD6QRLa6XQewtnGyukKkKSk3wLTM3b5cjt1jNh9x0jfVlagdN2gDKQg==}
 
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
@@ -3469,6 +3512,13 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.0': {}
 
+  '@rsbuild/core@2.0.7':
+    dependencies:
+      '@rspack/core': 2.0.4(@swc/helpers@0.5.21)
+      '@swc/helpers': 0.5.21
+    transitivePeerDependencies:
+      - '@module-federation/runtime-tools'
+
   '@rspack/binding-darwin-arm64@2.0.4':
     optional: true
 
@@ -3516,9 +3566,11 @@ snapshots:
       '@rspack/binding-win32-ia32-msvc': 2.0.4
       '@rspack/binding-win32-x64-msvc': 2.0.4
 
-  '@rspack/core@2.0.4':
+  '@rspack/core@2.0.4(@swc/helpers@0.5.21)':
     dependencies:
       '@rspack/binding': 2.0.4
+    optionalDependencies:
+      '@swc/helpers': 0.5.21
 
   '@sindresorhus/base62@1.0.0': {}
 
@@ -3539,6 +3591,10 @@ snapshots:
   '@sveltejs/acorn-typescript@1.0.9(acorn@8.16.0)':
     dependencies:
       acorn: 8.16.0
+
+  '@swc/helpers@0.5.21':
+    dependencies:
+      tslib: 2.8.1
 
   '@tybys/wasm-util@0.10.1':
     dependencies:
@@ -5582,8 +5638,7 @@ snapshots:
       - synckit
       - vue-tsc
 
-  tslib@2.8.1:
-    optional: true
+  tslib@2.8.1: {}
 
   type-check@0.4.0:
     dependencies:

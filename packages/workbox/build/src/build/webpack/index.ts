@@ -5,12 +5,18 @@ import type {
 import type { SWType } from '../../types'
 import { internalWebpackBuild } from '../builder/internal-webpack-build'
 
+/**
+ * [webpack plugin](https://webpack.js.org/plugins/) for Workbox build strategies.
+ * **WARNING**: strategy from the resolved options will override the strategy used in the plugin constructor.
+ */
+
 export class WorkboxPlugin<
   S extends Strategy,
   T extends SWType = 'classic',
 > {
   static pluginName = 'VitePWAWorkboxBuildWebpackPlugin'
 
+  #strategy: S
   #options: WorkboxBuildConfiguration<S, T>
 
   /**
@@ -21,11 +27,12 @@ export class WorkboxPlugin<
     strategy: S,
     options: Partial<WorkboxBuildConfiguration<S, T>> = {},
   ) {
-    this.#options = Object.assign(options, { strategy }) as WorkboxBuildConfiguration<S, T>
+    this.#strategy = strategy
+    this.#options = options as WorkboxBuildConfiguration<S, T>
   }
 
   /**
-   * Webpack plugin interface — compatible with Webpack 4 and 5.
+   * Webpack plugin interface — compatible with Webpack 5.
    * In Webpack 4 the compiler is un-typed, whereas Webpack 5 provides full type definitions.
    */
   apply(compiler: import('webpack').Compiler) {
@@ -53,8 +60,13 @@ export class WorkboxPlugin<
   ) {
     await internalWebpackBuild(
       WorkboxPlugin.pluginName,
-      // We extract Webpack's configured output directory to use as our globDirectory
-      compiler.options.output.path,
+      {
+        bundler: 'webpack',
+        strategy: this.#strategy,
+        cwd: compiler.context,
+        // We extract Webpack's configured output directory to use as our globDirectory
+        outputPath: compiler.options.output.path,
+      },
       this.#options,
     )
   }

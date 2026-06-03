@@ -1,0 +1,18 @@
+{
+  "name": "webpack-app",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node ./build.mjs",
+    "build:external": "PWA_CONFIG=external node ./build.mjs",
+    "build:override": "PWA_CONFIG=override node ./build.mjs"
+  },
+  "dependencies": {
+    "@composable-vite-pwa/workbox-swkit": "workspace:*"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "webpack": "catalog:webpack5"
+  }
+}

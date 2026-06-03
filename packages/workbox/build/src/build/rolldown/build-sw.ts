@@ -15,7 +15,7 @@ function prepareRolldownBuilds<T extends SWType>(
     : bundlerLogLevel!.rolldown!
   const withCustomChunks = !!options.customChunks
 
-  return context.bundlerOptions.map(async (b) => {
+  return context.builds.map(async (b) => {
     b.detectCircularDeps = withCustomChunks ? true : undefined
     const plugins = options.plugins?.() || []
     return await prepareRolldownBuild(Object.assign(b, {

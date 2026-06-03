@@ -9,7 +9,9 @@ import process from 'node:process'
 import pc from 'picocolors'
 import { BundlerNames, normalizePath } from './utils'
 
-const version = __VITE_PWA_VERSION__
+const version = typeof __VITE_PWA_VERSION__ === 'string'
+  ? __VITE_PWA_VERSION__
+  : '0.0.0'
 
 export function logPWAWorkboxResult(
   bundler: Bundler,

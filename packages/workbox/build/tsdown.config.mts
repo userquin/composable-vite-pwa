@@ -39,6 +39,7 @@ export default defineConfig({
     {
       'config/*': [
         './src/config/*.ts',
+        '!./src/config/load-configuration.ts',
       ],
     },
     {
