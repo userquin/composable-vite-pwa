@@ -22,14 +22,23 @@ export async function transformManifest({
   warnings: string[]
 }): Promise<InternalManifestEntry[]> {
   if (additionalManifestEntriesGenerator) {
-    const generator = additionalManifestEntriesGenerator()
-    for await (const entry of generator) {
-      manifestEntries.push({
-        ...entry,
-        size: 0,
-      })
+    for await (const entry of additionalManifestEntriesGenerator) {
+      manifestEntries.push({ ...entry, size: 0 })
     }
   }
+
+  const seen = new Set<string>()
+  const uniqueEntries: InternalManifestEntry[] = []
+  for (const entry of manifestEntries) {
+    if (seen.has(entry.url)) {
+      warnings.push(`Duplicate precache entry skipped: ${entry.url}`)
+      continue
+    }
+    seen.add(entry.url)
+    uniqueEntries.push(entry)
+  }
+  manifestEntries = uniqueEntries
+  
   const transformsToApply: ManifestTransform[] = []
   if (modifyURLPrefix) {
     transformsToApply.push(modifyURLPrefixTransform(modifyURLPrefix))

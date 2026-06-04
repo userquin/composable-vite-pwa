@@ -169,9 +169,11 @@ export interface BasePartial {
   additionalManifestEntries?: Array<string | ManifestEntry>
   /**
    * Async generator that yields additional entries to be preached.
-   * runs after `additionalManifestEntries` and glob patterns, but before `manifestTransforms`
+   * runs **after** `additionalManifestEntries` and glob patterns, but **before** `manifestTransforms`
+   * If the same URL appears more than once (e.g. from both static array and generator),
+   * a warning will be logged and the duplicate will be skipped.
    */
-  additionalManifestEntriesGenerator?: () => AsyncGenerator<ManifestEntry, void, unknown>
+  additionalManifestEntriesGenerator?: AsyncGenerator<ManifestEntry>
   /**
    * Assets that match this will be assumed to be uniquely versioned via their
    * URL, and exempted from the normal HTTP cache-busting that's done when

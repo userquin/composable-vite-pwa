@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { generateManifestEntries } from '../src/utils/generate-manifest-entries'
 import { generateSWFixture } from './test-helper'
 
@@ -6,10 +7,10 @@ describe('additionalManifestEntriesGenerator', () => {
     const result = await generateManifestEntries(
       {
         globPatterns: ['**/*.js'],
-        async* additionalManifestEntriesGenerator() {
+        additionalManifestEntriesGenerator: (async function* () {
           yield { url: '/generated-1.js', revision: 'abc123' }
           yield { url: '/generated-2.js', revision: 'def456' }
-        },
+        })(),
       },
       generateSWFixture,
     )
