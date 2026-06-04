@@ -8,13 +8,10 @@ import { normalizePath } from '../src/build/builder/utils'
 import { WorkboxPlugin as RspackWorkboxPlugin } from '../src/build/rspack'
 import { WorkboxPlugin as WebpackWorkboxPlugin } from '../src/build/webpack'
 
-const tempRoots: string[] = []
-
 async function createFixture(prefix: string, use: (paths: { root: string, dist: string }) => Promise<void>) {
   let root: string | undefined
   try {
     root = await fs.mkdtemp(path.resolve(process.cwd(), 'test', 'temp-fixtures', `${prefix}-pwa-`))
-    tempRoots.push(root)
     const src = path.resolve(root, 'src')
     const dist = path.resolve(root, 'dist')
 
@@ -80,7 +77,7 @@ precacheAndRoute(globalThis.__WB_MANIFEST)
     })
   }
   finally {
-    if (!process.env.CI && root) {
+    if (root) {
       await fs.rm(root, {
         recursive: true,
         force: true,
@@ -91,21 +88,6 @@ precacheAndRoute(globalThis.__WB_MANIFEST)
       })
     }
   }
-}
-
-if (process.env.CI) {
-  afterEach(async () => {
-    await Promise.allSettled(
-      tempRoots.splice(0).map(root => fs.rm(root, {
-        recursive: true,
-        force: true,
-        maxRetries: 3,
-        retryDelay: 100,
-      }).catch((err) => {
-        console.error(`Failed to cleanup sandbox at ${root}:`, err)
-      })),
-    )
-  })
 }
 
 function runWebpack(config: webpack.Configuration): Promise<webpack.Stats> {
@@ -138,7 +120,7 @@ function runRspack(config: rspack.Configuration): Promise<rspack.Stats> {
   })
 }
 
-const isWatchMode = process.env.VITEST_MODE === 'WATCH';
+const isWatchMode = process.env.VITEST_MODE === 'WATCH'
 
 export const testWebpack = base.extend<{
   sandbox: {
