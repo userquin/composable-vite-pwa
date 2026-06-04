@@ -1,4 +1,3 @@
-import type { ManifestEntry } from '../types'
 import * as v from 'valibot'
 import {
   DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES,
@@ -307,6 +306,11 @@ export const ManifestOptionsSchema = v.strictObject({
    * using whatever logic you provide.
    */
   modifyURLPrefix: v.optional(v.record(v.string(), v.string())),
+  /**
+   * When true, throw an error listing all duplicate precache entry URLs.
+   * @default false
+   */
+  failOnDuplicateManifestEntries: v.optional(v.boolean(), false),
   /**
    * If a URL is rendered based on some server-side logic, its contents may
    * depend on multiple files or on some other unique string value. The keys in

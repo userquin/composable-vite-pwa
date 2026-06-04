@@ -224,6 +224,11 @@ export interface BasePartial {
   modifyURLPrefix?: {
     [key: string]: string
   }
+  /**
+   * When true, throw an error listing all duplicate precache entry URLs.
+   * @default false
+   */
+  failOnDuplicateManifestEntries?: boolean
 }
 
 export type SWType = 'classic' | 'module' | 'classic-and-module'

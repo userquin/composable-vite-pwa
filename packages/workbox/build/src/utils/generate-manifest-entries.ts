@@ -152,6 +152,7 @@ export async function generateManifestEntries(
     modifyURLPrefix: options.modifyURLPrefix,
     warnings,
     manifestEntries,
+    failOnDuplicateManifestEntries: options.failOnDuplicateManifestEntries,
   })
 
   const size = manifestEntries.reduce((acc, entry) => acc + entry.size, 0)
