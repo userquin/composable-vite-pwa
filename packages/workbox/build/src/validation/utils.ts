@@ -1,3 +1,4 @@
+import type { ManifestEntry } from '../types'
 import * as v from 'valibot'
 import {
   DEFAULT_MAXIMUM_FILE_SIZE_TO_CACHE_IN_BYTES,
@@ -278,6 +279,15 @@ export const ManifestOptionsSchema = v.strictObject({
    * generated as part of the build configuration.
    */
   additionalManifestEntries: AdditionalManifestEntriesSchema,
+  /**
+   * Async generator that yields additional entries to be preached
+   */
+  additionalManifestEntriesGenerator: v.optional(
+    v.custom<() => AsyncGenerator<ManifestEntry, void, unknown>>(
+      input => typeof input === 'function',
+      'must be a function that returns an AsyncGenerator',
+    ),
+  ),
   /**
    * Assets that match this will be assumed to be uniquely versioned via their
    * URL, and exempted from the normal HTTP cache-busting that's done when

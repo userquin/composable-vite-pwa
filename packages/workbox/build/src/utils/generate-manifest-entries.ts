@@ -145,6 +145,7 @@ export async function generateManifestEntries(
 
   manifestEntries = await transformManifest({
     additionalManifestEntries: options.additionalManifestEntries,
+    additionalManifestEntriesGenerator: options.additionalManifestEntriesGenerator,
     dontCacheBustURLsMatching: options.dontCacheBustURLsMatching,
     manifestTransforms: options.manifestTransforms,
     maximumFileSizeToCacheInBytes: options.maximumFileSizeToCacheInBytes,

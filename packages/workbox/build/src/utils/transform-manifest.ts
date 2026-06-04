@@ -11,6 +11,7 @@ import {
 
 export async function transformManifest({
   additionalManifestEntries,
+  additionalManifestEntriesGenerator,
   dontCacheBustURLsMatching,
   manifestEntries,
   manifestTransforms,
@@ -20,6 +21,15 @@ export async function transformManifest({
   manifestEntries: InternalManifestEntry[]
   warnings: string[]
 }): Promise<InternalManifestEntry[]> {
+  if (additionalManifestEntriesGenerator) {
+    const generator = additionalManifestEntriesGenerator()
+    for await (const entry of generator) {
+      manifestEntries.push({
+        ...entry,
+        size: 0,
+      })
+    }
+  }
   const transformsToApply: ManifestTransform[] = []
   if (modifyURLPrefix) {
     transformsToApply.push(modifyURLPrefixTransform(modifyURLPrefix))

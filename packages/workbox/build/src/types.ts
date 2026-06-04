@@ -168,6 +168,11 @@ export interface BasePartial {
    */
   additionalManifestEntries?: Array<string | ManifestEntry>
   /**
+   * Async generator that yields additional entries to be preached.
+   * runs after `additionalManifestEntries` and glob patterns, but before `manifestTransforms`
+   */
+  additionalManifestEntriesGenerator?: () => AsyncGenerator<ManifestEntry, void, unknown>
+  /**
    * Assets that match this will be assumed to be uniquely versioned via their
    * URL, and exempted from the normal HTTP cache-busting that's done when
    * populating the precache. While not required, it's recommended that if your
