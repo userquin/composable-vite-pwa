@@ -6,7 +6,7 @@ import { normalizePath } from '../src/build/builder/utils'
 import { buildSW as rolldownBuildSW } from '../src/build/rolldown/build-sw'
 import { testWithSandbox } from './utils/test-sandbox'
 
-describe('buildSW with Rolldown (direct)', () => {
+describe('buildSW with Rolldown', () => {
   testWithSandbox('generates a service worker directly', async ({ sandbox }) => {
     const { root, dist } = sandbox
 
