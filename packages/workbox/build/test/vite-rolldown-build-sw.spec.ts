@@ -61,28 +61,40 @@ export const testRolldown = base.extend<{ sandbox: { root: string, dist: string 
 }).skipIf(isWatchMode)
 
 describe('buildSW with Vite (modern)', () => {
-  testVite('generates a service worker after building the app', async ({ sandbox }) => {
+  testVite('generates a service worker using a plugin with closeBundle', async ({ sandbox }) => {
     const { root, dist } = sandbox
+
+    const swPlugin = {
+      name: 'vite-pwa-test-plugin',
+      closeBundle: {
+        async handler() {
+          const swSrc = normalizePath(path.resolve(root, 'src/sw.js'))
+          const swDest = normalizePath(path.resolve(dist, 'sw.js'))
+          const globDirectory = normalizePath(dist)
+          await viteBuildSW({
+            swSrc,
+            swDest,
+            globDirectory,
+            globPatterns: ['**/*.js'],
+            injectionPoint: 'self.__WB_MANIFEST',
+            inlineWorkboxRuntime: true,
+            sourcemap: false,
+            mode: 'production',
+            logLevel: 'silent',
+            bundlerLogLevel: { vite: 'silent' },
+          })
+        }
+      }
+    }
+
     await viteBuild({
       root,
-      build: { outDir: dist, rollupOptions: { input: path.resolve(root, 'src/index.js') } },
+      build: { outDir: dist, rolldownOptions: { input: path.resolve(root, 'src/index.js') } },
+      plugins: [swPlugin],
       logLevel: 'silent',
     })
-    const swSrc = normalizePath(path.resolve(root, 'src/sw.js'))
+
     const swDest = normalizePath(path.resolve(dist, 'sw.js'))
-    const globDirectory = normalizePath(dist)
-    await viteBuildSW({
-      swSrc,
-      swDest,
-      globDirectory,
-      globPatterns: ['**/*.js'],
-      injectionPoint: 'self.__WB_MANIFEST',
-      inlineWorkboxRuntime: true,
-      sourcemap: false,
-      mode: 'production',
-      logLevel: 'silent',
-      bundlerLogLevel: { vite: 'silent' },
-    })
     const swFilePromise = fs.readFile(swDest, 'utf8')
     await expect(swFilePromise).resolves.not.toThrow()
     const swContent = await swFilePromise
