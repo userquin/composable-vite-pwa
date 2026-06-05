@@ -31,9 +31,11 @@ async function createFixture(
     const src = path.resolve(root, 'src')
     const dist = path.resolve(root, 'dist')
     await fs.mkdir(src, { recursive: true })
-    await fs.writeFile(path.resolve(src, 'index.js'), 'console.log("PWA test");\n')
-    await fs.writeFile(path.resolve(src, 'sw.js'), swCode, 'utf-8')
-    await fs.writeFile(path.resolve(root, 'package.json'), '{}')
+    await Promise.all([
+      fs.writeFile(path.resolve(src, 'index.js'), 'console.log("PWA test");\n'),
+      fs.writeFile(path.resolve(src, 'sw.js'), swCode, 'utf-8'),
+      fs.writeFile(path.resolve(root, 'package.json'), '{}'),
+    ])
     await use({ root, dist })
   }
   finally {
