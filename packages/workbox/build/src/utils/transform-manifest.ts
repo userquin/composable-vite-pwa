@@ -4,6 +4,7 @@ import { errors } from '../validation/errors'
 import {
   additionalManifestEntriesTransform,
 } from './additional-manifest-entries-transform'
+import { createDuplicatedEntriesMessage } from './log'
 import { modifyURLPrefixTransform } from './modify-url-prefix-transform'
 import {
   noRevisionForURLsMatchingTransform,
@@ -23,7 +24,10 @@ export async function transformManifest({
   warnings: string[]
 }): Promise<InternalManifestEntry[]> {
   if (additionalManifestEntries) {
-    const staticTransform = additionalManifestEntriesTransform(additionalManifestEntries)
+    const staticTransform = additionalManifestEntriesTransform(
+      additionalManifestEntries,
+      additionalManifestEntriesGenerator,
+    )
     const result = await staticTransform(manifestEntries)
     if (!('manifest' in result)) {
       throw new Error(errors['bad-manifest-transforms-return-value'])
@@ -31,12 +35,6 @@ export async function transformManifest({
     manifestEntries = result.manifest
     if (result.warnings) {
       warnings.push(...result.warnings)
-    }
-  }
-
-  if (additionalManifestEntriesGenerator) {
-    for await (const entry of additionalManifestEntriesGenerator) {
-      manifestEntries.push({ ...entry, size: 0 })
     }
   }
 
@@ -62,22 +60,27 @@ export async function transformManifest({
     }
   }
 
-  if (failOnDuplicateManifestEntries) {
-    const seen = new Set<string>()
-    const duplicates: string[] = []
-    const uniqueEntries: InternalManifestEntry[] = []
-    for (const entry of manifestEntries) {
-      if (seen.has(entry.url)) {
-        duplicates.push(entry.url)
-        continue
-      }
-      seen.add(entry.url)
-      uniqueEntries.push(entry)
+  const seen = new Set<string>()
+  const duplicates: string[] = []
+  for (const entry of manifestEntries) {
+    if (seen.has(entry.url)) {
+      duplicates.push(entry.url)
+      continue
     }
-    if (duplicates.length > 0) {
-      throw new Error(`Duplicate precache entries found:\n${duplicates.map(u => `  - ${u}`).join('\n')}`)
+    seen.add(entry.url)
+  }
+
+  if (duplicates.length > 0) {
+    const message = createDuplicatedEntriesMessage(
+      duplicates,
+      failOnDuplicateManifestEntries === true,
+    )
+    if (failOnDuplicateManifestEntries) {
+      throw new Error(message)
     }
-    manifestEntries = uniqueEntries
+    else {
+      warnings.push(...message)
+    }
   }
 
   return manifestEntries

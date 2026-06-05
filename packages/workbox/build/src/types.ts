@@ -173,7 +173,7 @@ export interface BasePartial {
    * If the same URL appears more than once (e.g. from both static array and generator),
    * a warning will be logged and the duplicate will be skipped.
    */
-  additionalManifestEntriesGenerator?: AsyncGenerator<ManifestEntry>
+  additionalManifestEntriesGenerator?: () => AsyncGenerator<string | ManifestEntry, undefined, void>
   /**
    * Assets that match this will be assumed to be uniquely versioned via their
    * URL, and exempted from the normal HTTP cache-busting that's done when

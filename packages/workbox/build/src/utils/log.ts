@@ -1,3 +1,4 @@
+import type { ManifestEntry } from '../types'
 import type { InternalManifestEntry } from './types'
 import pc from 'picocolors'
 import { errors } from '../validation/errors'
@@ -22,6 +23,20 @@ export function checkMaximumFileSizeToCacheExceeded(
     `  2. Exclude these files from the precache using ${pc.green('"globIgnores"')}.\n\n`,
     `${pc.dim('For more information, please check the official FAQ:')}\n`,
     `👉 ${pc.cyan('https://vite-pwa-org.netlify.app/guide/faq.html#missing-assets-from-sw-precache-manifest')}\n`,
+  ].join('')
+}
+
+export function createDuplicatedEntriesMessage(
+  duplicated: (string | ManifestEntry)[],
+  error: boolean,
+) {
+  const color = error ? pc.red : pc.yellow
+  return [
+    `\n${color(pc.bold('[Vite PWA]'))} ${color('Duplicate precache manifest entries found!')}\n\n`,
+    `The following url assets are duplicated:\n`,
+    `${duplicated.map(e =>
+      `  -  ${pc.magenta(typeof e === 'string' ? e : e.url)}`,
+    ).join('\n')}\n\n`,
   ].join('')
 }
 
