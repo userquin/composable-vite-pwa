@@ -179,7 +179,11 @@ describe('webpack/rspack WorkboxPlugin', () => {
     })
 
     expect(stats.toJson({ errors: true }).errors).toEqual([])
-    await expect(fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')).resolves.toContain('main.js')
+
+    const swFilePromise = fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')
+    await expect(swFilePromise).resolves.not.toThrow()
+    const swContent = await swFilePromise
+    expect(swContent).toContain('main.js')
   })
 
   testRspack('runs build-sw with rspack compiler context and relative paths', async ({ sandbox }) => {
@@ -214,6 +218,7 @@ describe('webpack/rspack WorkboxPlugin', () => {
     })
 
     expect(stats.toJson({ errors: true }).errors).toEqual([])
+
     await expect(fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')).resolves.toContain('main.js')
   })
 
@@ -265,6 +270,7 @@ describe('webpack/rspack WorkboxPlugin', () => {
     })
 
     expect(stats.toJson({ errors: true }).errors).toEqual([])
+
     await expect(fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')).resolves.toContain('main.js')
   })
 })
