@@ -281,7 +281,7 @@ export const ManifestOptionsSchema = v.strictObject({
   /**
    * Async generator that yields additional entries to be preached
    */
-  additionalManifestEntriesGenerator: v.optional(v.any()),
+  additionalManifestEntriesGenerator: v.optional(v.function()),
   /**
    * Assets that match this will be assumed to be uniquely versioned via their
    * URL, and exempted from the normal HTTP cache-busting that's done when
