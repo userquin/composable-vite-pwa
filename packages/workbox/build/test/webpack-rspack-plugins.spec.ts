@@ -16,25 +16,16 @@ async function createFixture(prefix: string, use: (paths: { root: string, dist: 
     const dist = path.resolve(root, 'dist')
 
     await fs.mkdir(src)
-    await fs.writeFile(
-      path.resolve(src, 'index.js'),
-      'document.body.textContent = "PWA compiler smoke"\n',
-    )
-    await fs.writeFile(
-      path.resolve(src, 'sw.js'),
-      `import { clientsClaim } from "@composable-vite-pwa/workbox-swkit/core"
+
+    const indexContent = 'document.body.textContent = "PWA compiler smoke"\n'
+    const swContent = `import { clientsClaim } from "@composable-vite-pwa/workbox-swkit/core"
 import { precacheAndRoute } from "@composable-vite-pwa/workbox-swkit/precaching"
 
 globalThis.skipWaiting()
 clientsClaim()
 precacheAndRoute(globalThis.__WB_MANIFEST)
-`,
-      'utf-8',
-    )
-    if (prefix === 'rspack') {
-      await fs.writeFile(
-        path.resolve(root, 'package.json'),
-        `{
+`
+    const rspackPackageJson = `{
   "name": "rsbuild-app",
   "type": "module",
   "version": "0.0.0",
@@ -47,14 +38,8 @@ precacheAndRoute(globalThis.__WB_MANIFEST)
     "@rsbuild/core": "catalog:rsbuild"
   }
 }
-`,
-        'utf-8',
-      )
-    }
-    else {
-      await fs.writeFile(
-        path.resolve(root, 'package.json'),
-        `{
+`
+    const webpackPackageJson = `{
   "name": "webpack-app",
   "type": "module",
   "version": "0.0.0",
@@ -67,14 +52,20 @@ precacheAndRoute(globalThis.__WB_MANIFEST)
     "webpack": "catalog:webpack5"
   }
 }
-`,
-      )
+`
+    const writePromises = [
+      fs.writeFile(path.resolve(src, 'index.js'), indexContent),
+      fs.writeFile(path.resolve(src, 'sw.js'), swContent, 'utf-8'),
+    ]
+    if (prefix === 'rspack') {
+      writePromises.push(fs.writeFile(path.resolve(root, 'package.json'), rspackPackageJson, 'utf-8'))
     }
+    else {
+      writePromises.push(fs.writeFile(path.resolve(root, 'package.json'), webpackPackageJson, 'utf-8'))
+    }
+    await Promise.all(writePromises)
 
-    await use({
-      root,
-      dist,
-    })
+    await use({ root, dist })
   }
   finally {
     if (root) {
@@ -123,10 +114,7 @@ function runRspack(config: rspack.Configuration): Promise<rspack.Stats> {
 const isWatchMode = process.env.VITEST_MODE === 'WATCH'
 
 export const testWebpack = base.extend<{
-  sandbox: {
-    root: string
-    dist: string
-  }
+  sandbox: { root: string, dist: string }
 }>({
   // eslint-disable-next-line no-empty-pattern
   sandbox: async ({}, use) => {
@@ -135,10 +123,7 @@ export const testWebpack = base.extend<{
 }).skipIf(isWatchMode)
 
 export const testRspack = base.extend<{
-  sandbox: {
-    root: string
-    dist: string
-  }
+  sandbox: { root: string, dist: string }
 }>({
   // eslint-disable-next-line no-empty-pattern
   sandbox: async ({}, use) => {
@@ -154,32 +139,29 @@ describe('webpack/rspack WorkboxPlugin', () => {
       context: root,
       devtool: false,
       entry: './src/index.js',
-      output: {
-        filename: 'main.js',
-        path: dist,
-      },
+      output: { filename: 'main.js', path: dist },
       plugins: [
-        new WebpackWorkboxPlugin(
-          'build-sw',
-          {
-            buildSW: {
-              swSrc: normalizePath(path.relative(process.cwd(), path.resolve(root, 'src/sw.js'))),
-              swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),
-              globPatterns: ['**/*.js'],
-              injectionPoint: 'globalThis.__WB_MANIFEST',
-              inlineWorkboxRuntime: true,
-              sourcemap: false,
-              mode: 'development',
-              logLevel: 'silent',
-              bundlerLogLevel: { rolldown: 'silent' },
-            },
+        new WebpackWorkboxPlugin('build-sw', {
+          buildSW: {
+            swSrc: normalizePath(path.relative(process.cwd(), path.resolve(root, 'src/sw.js'))),
+            swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),
+            globPatterns: ['**/*.js'],
+            injectionPoint: 'globalThis.__WB_MANIFEST',
+            inlineWorkboxRuntime: true,
+            sourcemap: false,
+            mode: 'development',
+            logLevel: 'silent',
+            bundlerLogLevel: { rolldown: 'silent' },
           },
-        ),
+        }),
       ],
     })
-
     expect(stats.toJson({ errors: true }).errors).toEqual([])
-    await expect(fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')).resolves.toContain('main.js')
+
+    const swFilePromise = fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')
+    await expect(swFilePromise).resolves.not.toThrow()
+    const swContent = await swFilePromise
+    expect(swContent).toContain('main.js')
   })
 
   testRspack('runs build-sw with rspack compiler context and relative paths', async ({ sandbox }) => {
@@ -189,37 +171,30 @@ describe('webpack/rspack WorkboxPlugin', () => {
       context: root,
       devtool: false,
       entry: './src/index.js',
-      output: {
-        filename: 'main.js',
-        path: dist,
-      },
+      output: { filename: 'main.js', path: dist },
       plugins: [
-        new RspackWorkboxPlugin(
-          'build-sw',
-          {
-            buildSW: {
-              swSrc: normalizePath(path.relative(process.cwd(), path.resolve(root, 'src/sw.js'))),
-              swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),
-              globPatterns: ['**/*.js'],
-              injectionPoint: 'globalThis.__WB_MANIFEST',
-              inlineWorkboxRuntime: true,
-              sourcemap: false,
-              mode: 'development',
-              logLevel: 'silent',
-              bundlerLogLevel: { rolldown: 'silent' },
-            },
+        new RspackWorkboxPlugin('build-sw', {
+          buildSW: {
+            swSrc: normalizePath(path.relative(process.cwd(), path.resolve(root, 'src/sw.js'))),
+            swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),
+            globPatterns: ['**/*.js'],
+            injectionPoint: 'globalThis.__WB_MANIFEST',
+            inlineWorkboxRuntime: true,
+            sourcemap: false,
+            mode: 'development',
+            logLevel: 'silent',
+            bundlerLogLevel: { rolldown: 'silent' },
           },
-        ),
+        }),
       ],
     })
-
     expect(stats.toJson({ errors: true }).errors).toEqual([])
+
     await expect(fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')).resolves.toContain('main.js')
   })
 
   testWebpack('loads external config files for webpack builds', async ({ sandbox }) => {
     const { dist, root } = sandbox
-
     const swSrc = normalizePath(path.relative(process.cwd(), path.resolve(root, 'src/sw.js')))
     const swDest = normalizePath(path.relative(process.cwd(), 'sw.js'))
 
@@ -249,22 +224,16 @@ describe('webpack/rspack WorkboxPlugin', () => {
       context: root,
       devtool: false,
       entry: './src/index.js',
-      output: {
-        filename: 'main.js',
-        path: dist,
-      },
+      output: { filename: 'main.js', path: dist },
       plugins: [
-        new WebpackWorkboxPlugin(
-          'build-sw',
-          {
-            cwd: root,
-            path: 'external-pwa.config.mjs',
-          },
-        ),
+        new WebpackWorkboxPlugin('build-sw', {
+          cwd: root,
+          path: 'external-pwa.config.mjs',
+        }),
       ],
     })
-
     expect(stats.toJson({ errors: true }).errors).toEqual([])
+
     await expect(fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')).resolves.toContain('main.js')
   })
 })
