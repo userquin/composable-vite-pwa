@@ -11,10 +11,11 @@ export function createBuildSWPlugin(
   dist: string,
   buildSWFn: BuildSWFunction,
   bundlerLogLevel: BundlerLogLevel,
+  hook: 'closeBundle' | 'writeBundle' = 'closeBundle',
 ) {
   return {
     name: 'vite-pwa-test-plugin',
-    async closeBundle() {
+    async [hook]() {
       const swSrc = normalizePath(path.resolve(root, 'src/sw.js'))
       const swDest = normalizePath(path.resolve(dist, 'sw.js'))
       const globDirectory = normalizePath(dist)
