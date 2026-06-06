@@ -7,6 +7,7 @@ import { normalizePath } from '../src/build/builder/utils'
 import { WorkboxPlugin as WebpackWorkboxPlugin } from '../src/build/webpack'
 import { createFixture } from './utils/webpack-utils'
 
+// ======================== buildSW ========================
 const isWatchMode = process.env.VITEST_MODE === 'WATCH'
 
 function runWebpack(config: webpack.Configuration): Promise<webpack.Stats> {
@@ -108,5 +109,39 @@ describe('webpack WorkboxPlugin', () => {
     expect(stats.toJson({ errors: true }).errors).toEqual([])
 
     await expect(fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')).resolves.toContain('main.js')
+  })
+})
+
+// ======================== generateSW ========================
+describe('webpack WorkboxPlugin (generate-sw)', () => {
+  testWebpack('generates a service worker from scratch with webpack compiler context', async ({ sandbox }) => {
+    const { dist, root } = sandbox
+    const stats = await runWebpack({
+      mode: 'development',
+      context: root,
+      devtool: false,
+      entry: './src/index.js',
+      output: { filename: 'main.js', path: dist },
+      plugins: [
+        new WebpackWorkboxPlugin('generate-sw', {
+          generateSW: {
+            swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),
+            globPatterns: ['**/*.js'],
+            inlineWorkboxRuntime: true,
+            sourcemap: false,
+            mode: 'production',
+            logLevel: 'silent',
+            bundlerLogLevel: { rolldown: 'silent' },
+          },
+        }),
+      ],
+    })
+    expect(stats.toJson({ errors: true }).errors).toEqual([])
+
+    const swFilePromise = fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')
+    await expect(swFilePromise).resolves.not.toThrow()
+    const swContent = await swFilePromise
+    expect(swContent).toContain('main.js')
+    expect(swContent).not.toContain('__WB_MANIFEST')
   })
 })
