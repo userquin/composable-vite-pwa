@@ -1,15 +1,16 @@
 ## TODO
 
 ### buildSW tests — done (#16, merged)
-- [x] Vite modern (`buildSW`) · Vite legacy <8 (`buildSWLegacy`) · Rolldown (`writeBundle`) · webpack · rspack
+- [x] Vite modern (`buildSW`) · Vite legacy <8 (`buildSWLegacy`) · Rolldown · webpack · rspack
 - [x] Manifest injection asserted (not just file existence)
 
-### generateSW tests
-- [ ] Vite modern (`generateSW`)
-- [ ] Vite legacy <8 (`generateSWLegacy`)
-- [ ] Rolldown
-- [ ] webpack
-- [ ] rspack
+### generateSW tests — done (this branch)
+- [x] Vite modern (`generateSW`) · Vite legacy <8 (`generateSWLegacy`) · Rolldown
+- [x] Precache entry asserted (`index.js` in output, no `self.__WB_MANIFEST`)
+- [x] `createGenerateSWPlugin` added to `test/utils/plugin-utils.ts`
+- [ ] webpack — needs `WorkboxPlugin ('generate-sw', {...})` variant
+- [ ] rspack — needs `WorkboxPlugin('generate-sw', {...})` variant
+- [ ] Note: Vite modern `generateSW` requires `workbox-swkit` to be built (`pnpm --filter @composable-vite-pwa/workbox-swkit build`) because its inner Vite build resolves packages strictly via `exports` (no fallback to source)
 
 ### injectManifest tests
 - [ ] Vite (modern)
@@ -31,6 +32,17 @@
 - [ ] Bootstrap using Vite CLI as base (same deps + prompts)
 - [ ] Add Vite + Rolldown plugins (removes test-utils dependency)
 - [ ] Single spec scoped to CLI for all three strategies
+
+### `workbox-types` (new package)
+- [ ] Create a dedicated `workbox-types` package that generates JSON files from JSDoc/types
+- [ ] Style reference: https://router.vuejs.org/api/type-aliases/NavigationGuardReturn.html
+- [ ] Check `docs:api` script at vue-router repo for the generation pipeline
+- [ ] The vite-pwa docs repo is a separate GH repo, it cannot import `workbox-swkit` or
+      `workbox-build` directly, so `workbox-types` must be a standalone package that:
+        1. Reads types from `workbox-swkit` / `workbox-build`
+        2. Generates JSON output files
+        3. Gets published so the docs repo can consume it as a dependency
+- [ ] VitePress will then include the generated JSON as API reference pages
 
 ### Known issues / follow-ups
 - [ ] Add service worker tests
