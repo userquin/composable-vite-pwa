@@ -1,9 +1,12 @@
-# composable-vite-pwa
-
 ## TODO
 
+### buildSW tests — done (#16, merged)
+- [x] Vite modern (`buildSW`) · Vite legacy <8 (`buildSWLegacy`) · Rolldown (`writeBundle`) · webpack · rspack
+- [x] Manifest injection asserted (not just file existence)
+
 ### generateSW tests
-- [ ] Vite (modern)
+- [ ] Vite modern (`generateSW`)
+- [ ] Vite legacy <8 (`generateSWLegacy`)
 - [ ] Rolldown
 - [ ] webpack
 - [ ] rspack
