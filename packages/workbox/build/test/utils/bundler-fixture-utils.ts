@@ -20,13 +20,11 @@ export async function createBundlerFixture(prefix: string, packageJson: string, 
     precacheAndRoute(globalThis.__WB_MANIFEST)
     `
 
-    const writePromises = [
+    await Promise.all([
       fs.writeFile(path.resolve(src, 'index.js'), indexContent),
       fs.writeFile(path.resolve(src, 'sw.js'), swContent, 'utf-8'),
       fs.writeFile(path.resolve(root, 'package.json'), packageJson, 'utf-8'),
-    ]
-
-    await Promise.all(writePromises)
+    ])
 
     await use({ root, dist })
   }
