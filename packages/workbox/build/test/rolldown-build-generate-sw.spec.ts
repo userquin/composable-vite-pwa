@@ -7,8 +7,6 @@ import { buildSW as rolldownBuildSW } from '../src/build/rolldown/build-sw'
 import { createBuildSWPlugin } from './utils/plugin-utils'
 import { testWithSandbox } from './utils/test-sandbox'
 
-// TODO: Use `closeBundle` when Rolldown's race condition is resolved (see https://github.com/rolldown/rolldown/issues/3025)
-
 describe('buildSW with Rolldown', () => {
   testWithSandbox('generates a service worker directly', async ({ sandbox }) => {
     const { root, dist } = sandbox
