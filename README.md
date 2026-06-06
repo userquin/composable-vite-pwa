@@ -1,10 +1,10 @@
 ## TODO
 
-### buildSW tests — done (#16, merged)
+### buildSW tests — done
 - [x] Vite modern (`buildSW`) · Vite legacy <8 (`buildSWLegacy`) · Rolldown · webpack · rspack
 - [x] Manifest injection asserted (not just file existence)
 
-### generateSW tests — done (this branch)
+### generateSW tests — done
 - [x] Vite modern (`generateSW`) · Vite legacy <8 (`generateSWLegacy`) · Rolldown
 - [x] webpack · rspack (`WorkboxPlugin('generate-sw', { generateSW })`)
 - [x] Precache entry asserted (output filename in SW, no `__WB_MANIFEST` placeholder)
