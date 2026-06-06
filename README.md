@@ -35,4 +35,3 @@
 ### Known issues / follow-ups
 - [ ] Switch `writeBundle` → `closeBundle` once Rolldown fixes the hook (https://github.com/rolldown/rolldown/issues/3025)
 - [ ] Add service worker tests
-- [ ] Review and clean up `BuildContext` type (unused options)
