@@ -14,7 +14,7 @@ describe('buildSW with Vite (modern)', () => {
     async ({ sandbox }) => {
       const { root, dist } = sandbox
 
-      const swPlugin = createBuildSWPlugin(root, dist, viteBuildSW, { vite: 'silent' })
+      const swPlugin = createBuildSWPlugin<'vite'>(root, dist, viteBuildSW, { vite: 'silent' })
       await viteBuild({
         root,
         build: {
@@ -38,7 +38,7 @@ describe('buildSW with Vite (modern)', () => {
 describe('generates a service worker using legacy buildSW (Vite <8)', () => {
   testWithSandbox('generates a service worker using legacy buildSW (Vite <8 via Rolldown)', async ({ sandbox }) => {
     const { root, dist } = sandbox
-    const swPlugin = createBuildSWPlugin(root, dist, buildSWLegacy, { rolldown: 'silent' })
+    const swPlugin = createBuildSWPlugin<'vite'>(root, dist, buildSWLegacy, { rolldown: 'silent' })
     await viteBuild({
       root,
       build: { outDir: dist, rolldownOptions: { input: path.resolve(root, 'src/index.js'), output: { entryFileNames: 'index.js' } } },

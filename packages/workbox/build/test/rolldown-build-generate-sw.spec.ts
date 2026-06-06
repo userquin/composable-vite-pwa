@@ -23,7 +23,6 @@ describe('buildSW with Rolldown', () => {
       plugins: [swPlugin],
     }).then(build => build
       .write({ dir: dist })
-      .catch(() => Promise.resolve(false))
       .then(() => build
         .close()
         .catch(() => Promise.resolve(false))
