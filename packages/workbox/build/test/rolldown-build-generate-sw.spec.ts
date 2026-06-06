@@ -13,13 +13,14 @@ describe('buildSW with Rolldown', () => {
   testWithSandbox('generates a service worker directly', async ({ sandbox }) => {
     const { root, dist } = sandbox
 
-    const swPlugin = createBuildSWPlugin(root, dist, rolldownBuildSW, { rolldown: 'silent' }, 'writeBundle')
+    const swPlugin = createBuildSWPlugin(root, dist, rolldownBuildSW, { rolldown: 'silent' })
 
     const build = await rolldown({
       input: path.resolve(root, 'src/index.js'),
       plugins: [swPlugin],
     })
     await build.write({ dir: dist })
+    await build.close()
 
     const swDest = normalizePath(path.resolve(dist, 'sw.js'))
     const swFilePromise = fs.readFile(swDest, 'utf8')
