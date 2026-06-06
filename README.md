@@ -6,11 +6,11 @@
 
 ### generateSW tests — done (this branch)
 - [x] Vite modern (`generateSW`) · Vite legacy <8 (`generateSWLegacy`) · Rolldown
-- [x] Precache entry asserted (`index.js` in output, no `self.__WB_MANIFEST`)
-- [x] `createGenerateSWPlugin` added to `test/utils/plugin-utils.ts`
-- [ ] webpack — needs `WorkboxPlugin ('generate-sw', {...})` variant
-- [ ] rspack — needs `WorkboxPlugin('generate-sw', {...})` variant
-- [ ] Note: Vite modern `generateSW` requires `workbox-swkit` to be built (`pnpm --filter @composable-vite-pwa/workbox-swkit build`) because its inner Vite build resolves packages strictly via `exports` (no fallback to source)
+- [x] webpack · rspack (`WorkboxPlugin('generate-sw', { generateSW })`)
+- [x] Precache entry asserted (output filename in SW, no `__WB_MANIFEST` placeholder)
+- [x] `createGenerateSWPlugin` added to `test/utils/plugin-utils.ts` (Vite/Rolldown only) 
+
+Note: Vite modern `generateSW` requires `workbox-swkit` to be built (`pnpm --filter @composable-vite-pwa/workbox-swkit build`) because its inner Vite build resolves packages strictly via `exports` (no source fallback). webpack/rspack route through the same Rolldown engine, which also needs the built `swkit`.
 
 ### injectManifest tests
 - [ ] Vite (modern)
