@@ -13,7 +13,7 @@ describe('buildSW with Rolldown', () => {
   testWithSandbox('generates a service worker directly', async ({ sandbox }) => {
     const { root, dist } = sandbox
 
-    const swPlugin = createBuildSWPlugin(
+    const swPlugin = createBuildSWPlugin<'rolldown'>(
       root,
       dist,
       rolldownBuildSW,
