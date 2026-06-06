@@ -46,6 +46,11 @@
     "./build/vite/legacy-build-sw": "./dist/build/vite/legacy-build-sw.mjs",
     "./build/vite/legacy-generate-sw": "./dist/build/vite/legacy-generate-sw.mjs",
     "./build/vite/legacy-types": "./dist/build/vite/legacy-types.mjs",
+    "./build/vite/plugin": "./dist/build/vite/plugin/index.mjs",
+    "./build/vite/plugin/dev": "./dist/build/vite/plugin/dev.mjs",
+    "./build/vite/plugin/types": {
+      "types": "./dist/build/vite/plugin/types.d.mts"
+    },
     "./build/vite/types": {
       "types": "./dist/build/vite/types.d.mts"
     },
@@ -100,6 +105,15 @@
       ],
       "build/vite/legacy-types": [
         "./dist/build/vite/legacy-types.d.mts"
+      ],
+      "build/vite/plugin": [
+        "./dist/build/vite/plugin/index.d.mts"
+      ],
+      "build/vite/plugin/dev": [
+        "./dist/build/vite/plugin/dev.d.mts"
+      ],
+      "build/vite/plugin/types": [
+        "./dist/build/vite/plugin/types.d.mts"
       ],
       "build/vite/types": [
         "./dist/build/vite/types.d.mts"

@@ -28,6 +28,10 @@ export default defineConfig({
         '!./src/build/vite/build-utils.ts',
         '!./src/build/vite/internal-types.ts',
       ],
+      'build/vite/plugin/*': [
+        './src/build/vite/plugin/*.ts',
+        '!./src/build/vite/plugin-context.ts',
+      ],
       'build/rolldown/*': [
         './src/build/rolldown/*.ts',
         '!./src/build/rolldown/build-context.ts',
