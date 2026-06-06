@@ -25,7 +25,7 @@ describe('buildSW with Rolldown', () => {
     const swFilePromise = fs.readFile(swDest, 'utf8')
     await expect(swFilePromise).resolves.not.toThrow()
     const swContent = await swFilePromise
-    expect(swContent).toContain('self.addEventListener')
-    expect(swContent.length).toBeGreaterThan(0)
+    expect(swContent).toContain('index.js')
+    expect(swContent).not.toContain('self.__WB_MANIFEST')
   })
 })

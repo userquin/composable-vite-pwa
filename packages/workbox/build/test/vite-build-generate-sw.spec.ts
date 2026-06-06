@@ -19,7 +19,7 @@ describe('buildSW with Vite (modern)', () => {
         root,
         build: {
           outDir: dist,
-          rolldownOptions: { input: path.resolve(root, 'src/index.js') },
+          rolldownOptions: { input: path.resolve(root, 'src/index.js'), output: { entryFileNames: 'index.js' } },
         },
         plugins: [swPlugin],
         logLevel: 'silent',
@@ -29,8 +29,8 @@ describe('buildSW with Vite (modern)', () => {
       const swFilePromise = fs.readFile(swDest, 'utf8')
       await expect(swFilePromise).resolves.not.toThrow()
       const swContent = await swFilePromise
-      expect(swContent).toContain('self.addEventListener')
-      expect(swContent.length).toBeGreaterThan(0)
+      expect(swContent).toContain('index.js')
+      expect(swContent).not.toContain('self.__WB_MANIFEST')
     },
   )
 })
@@ -41,7 +41,7 @@ describe('generates a service worker using legacy buildSW (Vite <8)', () => {
     const swPlugin = createBuildSWPlugin(root, dist, buildSWLegacy, { rolldown: 'silent' })
     await viteBuild({
       root,
-      build: { outDir: dist, rolldownOptions: { input: path.resolve(root, 'src/index.js') } },
+      build: { outDir: dist, rolldownOptions: { input: path.resolve(root, 'src/index.js'), output: { entryFileNames: 'index.js' } } },
       plugins: [swPlugin],
       logLevel: 'silent',
     })
@@ -49,7 +49,7 @@ describe('generates a service worker using legacy buildSW (Vite <8)', () => {
     const swFilePromise = fs.readFile(swDest, 'utf8')
     await expect(swFilePromise).resolves.not.toThrow()
     const swContent = await swFilePromise
-    expect(swContent).toContain('self.addEventListener')
-    expect(swContent.length).toBeGreaterThan(0)
+    expect(swContent).toContain('index.js')
+    expect(swContent).not.toContain('self.__WB_MANIFEST')
   })
 })
