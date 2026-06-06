@@ -5,16 +5,16 @@ import type { DetectorResult } from '../../builder/detector-types'
 import type { BuildGenerateSWOptions } from '../../types'
 import type { LegacyBuildServiceWorkerOptions } from '../legacy-types'
 import type { BuildServiceWorkerOptions } from '../types'
-import type { VitePWAPluginOptions } from './types'
+import type { VitePWAOptions } from './types'
 import process from 'node:process'
 
-export interface VitePWAPluginContext<
+export interface VitePWAContext<
   S extends Strategy,
   T extends SWType,
 > {
   isDev: boolean
-  options: VitePWAPluginOptions<S, T>
-  resolvedOptions: Promise<VitePWAPluginOptions<S, T>>
+  options: VitePWAOptions<S, T>
+  resolvedOptions: Promise<VitePWAOptions<S, T>>
   detectionResult: Promise<DetectorResult>
   resolvedViteConfig: import('vite').ResolvedConfig
 }
@@ -25,8 +25,8 @@ export function preparePluginContext<
   S extends Strategy,
   T extends SWType,
 >(
-  options: VitePWAPluginOptions<S, T>,
-): VitePWAPluginContext<S, T> {
+  options: VitePWAOptions<S, T>,
+): VitePWAContext<S, T> {
   return {
     isDev: false,
     options,
@@ -49,7 +49,7 @@ export async function checkStrategy<
   T extends SWType,
 >(
   atDev: boolean,
-  pluginContext: VitePWAPluginContext<S, T>,
+  pluginContext: VitePWAContext<S, T>,
   resolvedConfig: ResolvedConfig,
 ) {
   pluginContext.isDev = atDev
@@ -124,24 +124,24 @@ export async function checkStrategy<
   }
 }
 
-export type StrategyOptions<T extends SWType>
+type StrategyOptions<T extends SWType>
   = | BuildServiceWorkerOptions<T>
     | LegacyBuildServiceWorkerOptions<T>
     | BuildGenerateSWOptions<T>
     | InjectManifestOptions
 
-export type StrategyOptionsReturn<S extends Strategy, T extends SWType>
+type StrategyOptionsReturn<S extends Strategy, T extends SWType>
   = S extends 'build-sw'
     ? BuildServiceWorkerOptions<T>
     : S extends 'generate-sw'
       ? BuildGenerateSWOptions<T> | LegacyBuildServiceWorkerOptions<T>
       : InjectManifestOptions
 
-export async function prepareStrategyOptions<
+async function prepareStrategyOptions<
   S extends Strategy,
   T extends SWType,
 >(
-  pluginContext: VitePWAPluginContext<S, T>,
+  pluginContext: VitePWAContext<S, T>,
   strategyOptions: StrategyOptions<T>,
 ): Promise<StrategyOptionsReturn<S, T>> {
   const { build, define } = pluginContext.resolvedViteConfig
@@ -184,4 +184,97 @@ export async function prepareStrategyOptions<
   }
 
   return data
+}
+
+export async function handleBuild<
+  S extends Strategy,
+  T extends SWType,
+>(
+  pluginContext: VitePWAContext<S, T>,
+  resolvedPluginOptions: VitePWAOptions<S, T>,
+  vite: boolean,
+) {
+  switch (resolvedPluginOptions.strategy) {
+    case 'build-sw': {
+      if (vite) {
+        const [
+          buildSW,
+          buildSWOptions,
+        ] = await Promise.all([
+          import('../build-sw').then(({ buildSW }) => buildSW),
+          prepareStrategyOptions(
+            pluginContext,
+            (resolvedPluginOptions.buildSW ?? {}) as StrategyOptions<T>,
+          ),
+        ])
+        await buildSW(
+          buildSWOptions as import('../types').BuildServiceWorkerOptions<T>,
+        )
+      }
+      else {
+        const [
+          buildSWLegacy,
+          buildSWLegacyOptions,
+        ] = await Promise.all([
+          import('../legacy-build-sw').then(({ buildSWLegacy }) => buildSWLegacy),
+          prepareStrategyOptions(
+            pluginContext,
+            (resolvedPluginOptions.buildSW ?? {}) as StrategyOptions<T>,
+          ),
+        ])
+        await buildSWLegacy(
+          buildSWLegacyOptions as import('../legacy-types').LegacyBuildServiceWorkerOptions<T>,
+        )
+      }
+      break
+    }
+    case 'generate-sw': {
+      if (vite) {
+        const [
+          generateSW,
+          generateSWOptions,
+        ] = await Promise.all([
+          import('../generate-sw').then(({ generateSW }) => generateSW),
+          prepareStrategyOptions(
+            pluginContext,
+            (resolvedPluginOptions.generateSW ?? {}) as StrategyOptions<T>,
+          ),
+        ])
+        await generateSW(
+          generateSWOptions,
+        )
+      }
+      else {
+        const [
+          generateSWLegacy,
+          generateSWLegacyOptions,
+        ] = await Promise.all([
+          import('../legacy-generate-sw').then(({ generateSWLegacy }) => generateSWLegacy),
+          prepareStrategyOptions(
+            pluginContext,
+            (resolvedPluginOptions.generateSW ?? {}) as StrategyOptions<T>,
+          ),
+        ])
+        await generateSWLegacy(
+          generateSWLegacyOptions,
+        )
+      }
+      break
+    }
+    case 'inject-manifest': {
+      const [
+        injectManifest,
+        injectManifestOptions,
+      ] = await Promise.all([
+        import('../../../inject-manifest').then(({ injectManifest }) => injectManifest),
+        prepareStrategyOptions(
+          pluginContext,
+          (resolvedPluginOptions.injectManifest ?? {}) as StrategyOptions<T>,
+        ),
+      ])
+      await injectManifest(
+        injectManifestOptions as InjectManifestOptions,
+      )
+    }
+  }
 }

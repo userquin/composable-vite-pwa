@@ -30,7 +30,7 @@ export default defineConfig({
       ],
       'build/vite/plugin/*': [
         './src/build/vite/plugin/*.ts',
-        '!./src/build/vite/plugin-context.ts',
+        '!./src/build/vite/plugin/plugin-context.ts',
       ],
       'build/rolldown/*': [
         './src/build/rolldown/*.ts',

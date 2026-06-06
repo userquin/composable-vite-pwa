@@ -1,23 +1,22 @@
 import type { PluginOption } from 'vite'
 import type { Strategy } from '../../../config/types'
-import type { InjectManifestOptions, SWType } from '../../../types'
-import type { StrategyOptions } from './plugin-context'
-import type { VitePWAPluginOptions } from './types'
+import type { SWType } from '../../../types'
+import type { VitePWAOptions } from './types'
 import { devPluginName } from './plugin-context'
 
-export type { VitePWAPluginOptions }
+export type { VitePWAOptions }
 
-export function VitePWAPlugin<
+export function VitePWA<
   S extends Strategy,
   T extends SWType = 'classic',
 >(
-  options: VitePWAPluginOptions<S, T> = {},
+  options: VitePWAOptions<S, T> = {},
 ): PluginOption {
   return async () => {
     const {
       checkStrategy,
       preparePluginContext,
-      prepareStrategyOptions,
+      handleBuild,
     } = await import('./plugin-context')
     const pluginContext = preparePluginContext(options)
     return [{
@@ -93,64 +92,13 @@ export function VitePWAPlugin<
           if (!vite && pluginContext.resolvedViteConfig.build.ssr) {
             return
           }
-          switch (resolvedPluginOptions.strategy) {
-            case 'build-sw': {
-              const buildSWOptions = prepareStrategyOptions(
-                pluginContext,
-                (resolvedPluginOptions.buildSW ?? {}) as StrategyOptions<T>,
-              )
-              if (vite) {
-                await import('../build-sw').then(({
-                  buildSW,
-                }) => buildSW(
-                  buildSWOptions as import('../types').BuildServiceWorkerOptions<T>,
-                ))
-              }
-              else {
-                await import('../legacy-build-sw').then(({
-                  buildSWLegacy,
-                }) => buildSWLegacy(
-                  buildSWOptions as import('../legacy-types').LegacyBuildServiceWorkerOptions<T>,
-                ))
-              }
-              break
-            }
-            case 'generate-sw': {
-              if (vite) {
-                await import('../generate-sw').then(({
-                  generateSW,
-                }) => generateSW(
-                  prepareStrategyOptions(
-                    pluginContext,
-                    (resolvedPluginOptions.generateSW ?? {}) as StrategyOptions<T>,
-                  ),
-                ))
-              }
-              else {
-                await import('../legacy-generate-sw').then(({
-                  generateSWLegacy,
-                }) => generateSWLegacy(
-                  prepareStrategyOptions(
-                    pluginContext,
-                    (resolvedPluginOptions.generateSW ?? {}) as StrategyOptions<T>,
-                  ),
-                ))
-              }
-              break
-            }
-            case 'inject-manifest': {
-              await import('../../../inject-manifest').then(({
-                injectManifest,
-              }) => injectManifest(
-                prepareStrategyOptions(
-                  pluginContext,
-                  (resolvedPluginOptions.injectManifest ?? {}) as StrategyOptions<T>,
-                ) as InjectManifestOptions,
-              ))
-            }
-          }
+          await handleBuild(
+            pluginContext,
+            resolvedPluginOptions,
+            vite,
+          )
         },
       },
-    }] satisfies PluginOption[]
+    }] satisfies PluginOption
   }
 }
