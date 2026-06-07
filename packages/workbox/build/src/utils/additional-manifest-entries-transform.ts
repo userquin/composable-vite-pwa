@@ -33,15 +33,17 @@ function addAdditionalManifestEntry(
 }
 
 export function additionalManifestEntriesTransform(
-  additionalManifestEntries: Array<ManifestEntry | string>,
+  additionalManifestEntries?: Array<ManifestEntry | string>,
   additionalManifestEntriesGenerator?: () => AsyncGenerator<ManifestEntry | string, undefined, void>,
 ): AdditionalManifestEntriesTransform {
   return async (manifest: InternalManifestEntry[]) => {
     const warnings: string[] = []
     const stringEntries = new Set<string>()
 
-    for (const additionalEntry of additionalManifestEntries) {
-      addAdditionalManifestEntry(manifest, stringEntries, additionalEntry)
+    if (additionalManifestEntries) {
+      for (const additionalEntry of additionalManifestEntries) {
+        addAdditionalManifestEntry(manifest, stringEntries, additionalEntry)
+      }
     }
 
     if (additionalManifestEntriesGenerator) {

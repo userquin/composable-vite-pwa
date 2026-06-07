@@ -45,7 +45,6 @@
     "taze": "catalog:utils",
     "tsdown": "catalog:build",
     "typescript": "catalog:typescript",
-    "vite": "catalog:vite",
     "vitest": "catalog:test",
     "vue": "catalog:vue"
   }

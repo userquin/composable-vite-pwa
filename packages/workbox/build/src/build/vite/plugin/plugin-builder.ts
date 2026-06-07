@@ -5,7 +5,9 @@ import type { LegacyBuildServiceWorkerOptions } from '../legacy-types'
 import type { BuildServiceWorkerOptions } from '../types'
 import type { VitePWAContext } from './plugin-context'
 import type { VitePWAOptions } from './types'
+import path from 'node:path'
 import process from 'node:process'
+import { normalizePath } from '../../builder/utils'
 
 type StrategyOptions<T extends SWType>
   = | BuildServiceWorkerOptions<T>
@@ -42,11 +44,11 @@ async function prepareStrategyOptions<
 
   const data = Object.assign({}, strategyOptions) as StrategyOptionsReturn<S, T>
   data.globDirectory = data.globDirectory
-    ? resolveFrom(cwd, data.globDirectory)
-    : outputPath
+    ? normalizePath(path.relative(cwd, resolveFrom(cwd, data.globDirectory)))
+    : normalizePath(path.relative(cwd, resolveFrom(cwd, outputPath)))
 
   if (!('dontCacheBustURLsMatching' in strategyOptions)) {
-    let assetsOutputDir = resolveFrom(cwd, assetsDir)
+    let assetsOutputDir = resolveFrom(outputPath, assetsDir)
     if (assetsOutputDir.at(-1) !== '/')
       assetsOutputDir += '/'
 

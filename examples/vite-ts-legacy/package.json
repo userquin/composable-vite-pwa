@@ -1,0 +1,24 @@
+{
+  "name": "vite-ts-legacy",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/workbox-build": "workspace:../../packages/workbox/build",
+    "magic-string": "catalog:utils",
+    "magicast": "catalog:utils",
+    "rolldown": "catalog:utils",
+    "vite": "catalog:vite5"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "catalog:vite5",
+      "@composable-vite-pwa/workbox-build>vite": "catalog:vite5"
+    }
+  }
+}
