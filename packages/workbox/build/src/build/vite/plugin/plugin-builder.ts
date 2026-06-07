@@ -27,7 +27,7 @@ async function prepareStrategyOptions<
   pluginContext: VitePWAContext<S, T>,
   strategyOptions: StrategyOptions<T>,
 ): Promise<StrategyOptionsReturn<S, T>> {
-  const { build, define } = pluginContext.resolvedViteConfig
+  const { build, define: _ } = pluginContext.resolvedViteConfig
 
   const { outDir = 'dist', assetsDir = 'assets' } = build
 
@@ -62,8 +62,8 @@ async function prepareStrategyOptions<
     data.swDest = resolveFrom(outputPath, data.swDest)
   }
 
-  if (pluginContext.options.strategy === 'generate-sw') {
-    // data. define
+  if (pluginContext.options.strategy !== 'inject-manifest') {
+    // TODO: check if we need to include here vite define options
   }
 
   return data
