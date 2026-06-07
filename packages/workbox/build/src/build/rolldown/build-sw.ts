@@ -47,9 +47,15 @@ export async function buildSW<T extends SWType>(
     transformESMTargetToRolldown,
     prepareRolldownBuild,
   ] = await Promise.all([
-    import('../builder/internal-build-sw').then(({ internalBuildSW }) => internalBuildSW),
-    import('../builder/utils').then(({ transformESMTargetToRolldown }) => transformESMTargetToRolldown),
-    import('./build-utils').then(({ prepareRolldownBuild }) => prepareRolldownBuild),
+    import('../builder/internal-build-sw').then(({
+      internalBuildSW,
+    }) => internalBuildSW),
+    import('../builder/utils').then(({
+      transformESMTargetToRolldown,
+    }) => transformESMTargetToRolldown),
+    import('./build-utils').then(({
+      prepareRolldownBuild,
+    }) => prepareRolldownBuild),
   ])
 
   return await internalBuildSW(
