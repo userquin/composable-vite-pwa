@@ -1,0 +1,163 @@
+import type { Strategy } from '../../../config/types'
+import type { InjectManifestOptions, SWType } from '../../../types'
+import type { BuildGenerateSWOptions } from '../../types'
+import type { LegacyBuildServiceWorkerOptions } from '../legacy-types'
+import type { BuildServiceWorkerOptions } from '../types'
+import type { VitePWAContext } from './plugin-context'
+import type { VitePWAOptions } from './types'
+import process from 'node:process'
+
+type StrategyOptions<T extends SWType>
+  = | BuildServiceWorkerOptions<T>
+    | LegacyBuildServiceWorkerOptions<T>
+    | BuildGenerateSWOptions<T>
+    | InjectManifestOptions
+
+type StrategyOptionsReturn<S extends Strategy, T extends SWType>
+  = S extends 'build-sw'
+    ? BuildServiceWorkerOptions<T>
+    : S extends 'generate-sw'
+      ? BuildGenerateSWOptions<T> | LegacyBuildServiceWorkerOptions<T>
+      : InjectManifestOptions
+
+async function prepareStrategyOptions<
+  S extends Strategy,
+  T extends SWType,
+>(
+  pluginContext: VitePWAContext<S, T>,
+  strategyOptions: StrategyOptions<T>,
+): Promise<StrategyOptionsReturn<S, T>> {
+  const { build, define } = pluginContext.resolvedViteConfig
+
+  const { outDir = 'dist', assetsDir = 'assets' } = build
+
+  const {
+    resolveSWSrc,
+    resolveFrom,
+    resolveOutputPath,
+  } = await import('../../../utils/resolve-paths')
+
+  const cwd = process.cwd()
+  const outputPath = resolveOutputPath(cwd, outDir)
+
+  const data = Object.assign({}, strategyOptions) as StrategyOptionsReturn<S, T>
+  data.globDirectory = data.globDirectory
+    ? resolveFrom(cwd, data.globDirectory)
+    : outputPath
+
+  if (!('dontCacheBustURLsMatching' in strategyOptions)) {
+    let assetsOutputDir = resolveFrom(cwd, assetsDir)
+    if (assetsOutputDir.at(-1) !== '/')
+      assetsOutputDir += '/'
+
+    // remove './' prefix from assetsDir
+    data.dontCacheBustURLsMatching = new RegExp(`^${assetsOutputDir.replace(/^\.*\//, '')}`)
+  }
+
+  if ('swSrc' in data) {
+    data.swSrc = resolveSWSrc(cwd, data.swSrc)
+  }
+
+  if ('swDest' in data) {
+    data.swDest = resolveFrom(outputPath, data.swDest)
+  }
+
+  if (pluginContext.options.strategy === 'generate-sw') {
+    // data. define
+  }
+
+  return data
+}
+
+export async function handleBuild<
+  S extends Strategy,
+  T extends SWType,
+>(
+  pluginContext: VitePWAContext<S, T>,
+  resolvedPluginOptions: VitePWAOptions<S, T>,
+  vite: boolean,
+) {
+  switch (resolvedPluginOptions.strategy) {
+    case 'build-sw': {
+      if (vite) {
+        const [
+          buildSW,
+          buildSWOptions,
+        ] = await Promise.all([
+          import('../build-sw').then(({ buildSW }) => buildSW),
+          prepareStrategyOptions(
+            pluginContext,
+            (resolvedPluginOptions.buildSW ?? {}) as StrategyOptions<T>,
+          ),
+        ])
+        await buildSW(
+          buildSWOptions as import('../types').BuildServiceWorkerOptions<T>,
+        )
+      }
+      else {
+        const [
+          buildSWLegacy,
+          buildSWLegacyOptions,
+        ] = await Promise.all([
+          import('../legacy-build-sw').then(({ buildSWLegacy }) => buildSWLegacy),
+          prepareStrategyOptions(
+            pluginContext,
+            (resolvedPluginOptions.buildSW ?? {}) as StrategyOptions<T>,
+          ),
+        ])
+        await buildSWLegacy(
+          buildSWLegacyOptions as import('../legacy-types').LegacyBuildServiceWorkerOptions<T>,
+        )
+      }
+      break
+    }
+    case 'generate-sw': {
+      if (vite) {
+        const [
+          generateSW,
+          generateSWOptions,
+        ] = await Promise.all([
+          import('../generate-sw').then(({ generateSW }) => generateSW),
+          prepareStrategyOptions(
+            pluginContext,
+            (resolvedPluginOptions.generateSW ?? {}) as StrategyOptions<T>,
+          ),
+        ])
+        await generateSW(
+          generateSWOptions,
+        )
+      }
+      else {
+        const [
+          generateSWLegacy,
+          generateSWLegacyOptions,
+        ] = await Promise.all([
+          import('../legacy-generate-sw').then(({ generateSWLegacy }) => generateSWLegacy),
+          prepareStrategyOptions(
+            pluginContext,
+            (resolvedPluginOptions.generateSW ?? {}) as StrategyOptions<T>,
+          ),
+        ])
+        await generateSWLegacy(
+          generateSWLegacyOptions,
+        )
+      }
+      break
+    }
+    case 'inject-manifest': {
+      const [
+        injectManifest,
+        injectManifestOptions,
+      ] = await Promise.all([
+        import('../../../inject-manifest').then(({ injectManifest }) => injectManifest),
+        prepareStrategyOptions(
+          pluginContext,
+          (resolvedPluginOptions.injectManifest ?? {}) as StrategyOptions<T>,
+        ),
+      ])
+      await injectManifest(
+        injectManifestOptions as InjectManifestOptions,
+      )
+    }
+  }
+}
