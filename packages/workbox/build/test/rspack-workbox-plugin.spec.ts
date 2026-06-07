@@ -98,3 +98,35 @@ describe('rspack WorkboxPlugin (generate-sw)', () => {
     expect(swContent).not.toContain('__WB_MANIFEST')
   })
 })
+
+// ======================== InjectManifest ========================
+describe('rspack WorkboxPlugin (inject-manifest)', () => {
+  testRspack('inject-manifest', async ({ sandbox }) => {
+    const { dist, root } = sandbox
+    const stats = await runRspack({
+      mode: 'development',
+      context: root,
+      devtool: false,
+      entry: './src/index.js',
+      output: { filename: 'main.js', path: dist },
+      plugins: [
+        new RspackWorkboxPlugin('inject-manifest', {
+          injectManifest: {
+            swSrc: normalizePath(path.relative(process.cwd(), path.resolve(root, 'src/sw.js'))),
+            swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),
+            globPatterns: ['**/*.js'],
+            injectionPoint: 'globalThis.__WB_MANIFEST',
+            logLevel: 'silent',
+          },
+        }),
+      ],
+    })
+    expect(stats.toJson({ errors: true }).errors).toEqual([])
+
+    const swFilePromise = fs.readFile(path.resolve(dist, 'sw.js'), 'utf8')
+    await expect(swFilePromise).resolves.not.toThrow()
+    const swContent = await swFilePromise
+    expect(swContent).toContain('main.js')
+    expect(swContent).not.toContain('__WB_MANIFEST')
+  })
+})
