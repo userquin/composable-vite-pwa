@@ -43,7 +43,7 @@ export function createBuildSWPlugin(
       swDest,
       globDirectory,
       globPatterns: ['**/*.js'],
-      injectionPoint: 'globalThis.__WB_MANIFEST',
+      injectionPoint: 'self.__WB_MANIFEST',
       logLevel: 'silent',
     },
   })

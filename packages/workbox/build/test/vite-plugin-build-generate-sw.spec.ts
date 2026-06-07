@@ -52,7 +52,7 @@ describe('generateSW via VitePWA plugin', () => {
   })
 })
 
-describe.skip('injectManifest via VitePWA plugin', () => {
+describe('injectManifest via VitePWA plugin', () => {
   testWithSandbox('using inject-manifest injects the service worker precache manifest', async ({ sandbox }) => {
     const { root, dist } = sandbox
     const swPlugin = createBuildSWPlugin(root, dist, 'inject-manifest', { vite: 'silent' })
