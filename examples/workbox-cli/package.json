@@ -11,7 +11,7 @@
     "build-split": "pnpx tsx ./build-split.ts"
   },
   "dependencies": {
-    "@composable-vite-pwa/workbox-swkit": "workspace:*",
-    "@composable-vite-pwa/workbox-build": "workspace:*"
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "@composable-vite-pwa/workbox-swkit": "workspace:*"
   }
 }

@@ -8,7 +8,7 @@
 - [x] Vite modern (`generateSW`) · Vite legacy <8 (`generateSWLegacy`) · Rolldown
 - [x] webpack · rspack (`WorkboxPlugin('generate-sw', { generateSW })`)
 - [x] Precache entry asserted (output filename in SW, no `__WB_MANIFEST` placeholder)
-- [x] `createGenerateSWPlugin` added to `test/utils/plugin-utils.ts` (Vite/Rolldown only) 
+- [x] `createGenerateSWPlugin` added to `test/utils/plugin-utils.ts` (Vite/Rolldown only)
 
 Note: Vite modern `generateSW` requires `workbox-swkit` to be built (`pnpm --filter @composable-vite-pwa/workbox-swkit build`) because its inner Vite build resolves packages strictly via `exports` (no source fallback). webpack/rspack route through the same Rolldown engine, which also needs the built `swkit`.
 
