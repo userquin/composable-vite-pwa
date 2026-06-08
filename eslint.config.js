@@ -11,4 +11,10 @@ export default antfu({
     'examples/workbox-cli/workbox.js',
     'examples/workbox-cli/workbox*.js',
   ],
+}, {
+  files: ['**/sw.ts', '**/*.sw.ts'],
+  rules: {
+    'no-console': 'off',
+    'no-restricted-globals': 'off',
+  },
 })

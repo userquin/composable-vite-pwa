@@ -1,45 +1,57 @@
 import type { BuildSWResult, DetectorOptions, DetectorResult, GenerateSWDependenciesResult } from './detector-types'
+import { readFileSync } from 'node:fs'
+import { findPackageJSON } from 'node:module'
+import process from 'node:process'
+import { pathToFileURL } from 'node:url'
 import semver from 'semver'
+
+const base = pathToFileURL(`${process.cwd()}/`).href
+
+type Specifier = 'magicast' | 'vite' | 'rolldown'
+function readPkgVersion(specifier: Specifier): string | undefined {
+  const p = findPackageJSON(specifier, base)
+  if (!p) {
+    return undefined
+  }
+
+  const pkg = JSON.parse(readFileSync(p, 'utf8')) as { version?: unknown }
+  if (pkg === undefined) {
+    return undefined
+  }
+  return typeof pkg.version === 'string' ? pkg.version : undefined
+}
 
 export async function detectRolldown(): Promise<boolean | undefined> {
   try {
-    const r = await import('rolldown/config')
-    if (!r || !('VERSION' in r)) {
+    const version = readPkgVersion('rolldown')
+    if (!version) {
       return false
     }
-    return semver.major(r.VERSION) >= 1
+    return semver.major(version) >= 1
   }
-  catch {
-    return undefined
-  }
+  catch { return undefined }
 }
 
 export async function detectMagicast(): Promise<boolean | undefined> {
   try {
-    const m = await import('node:module').then(({ createRequire }) => {
-      return createRequire(import.meta.url)('magicast/package.json')
-    })
-    if (!m || !('version' in m)) {
+    const version = readPkgVersion('magicast')
+    if (!version) {
       return false
     }
-    return semver.gte(m.version, '0.5.0')
+    return semver.gte(version, '0.5.0')
   }
-  catch {
-    return undefined
-  }
+  catch { return undefined }
 }
 
 export async function detectVite(): Promise<boolean | undefined> {
   try {
-    const v = await import('vite')
-    if (!v || !('version' in v) || !('rolldownVersion' in v)) {
+    const version = readPkgVersion('vite')
+    if (!version) {
       return false
     }
-    return semver.major(v.version) >= 8
+    return semver.major(version) >= 8
   }
-  catch {
-    return undefined
-  }
+  catch { return undefined }
 }
 
 export async function detect(options: DetectorOptions): Promise<DetectorResult> {

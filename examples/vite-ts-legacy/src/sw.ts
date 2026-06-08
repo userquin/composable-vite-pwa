@@ -1,10 +1,17 @@
+/// <reference lib="webworker" />
+import type { PrecacheEntry } from '@composable-vite-pwa/workbox-swkit/precaching'
 import { clientsClaim } from '@composable-vite-pwa/workbox-swkit/core'
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from '@composable-vite-pwa/workbox-swkit/precaching'
 import { NavigationRoute, registerRoute } from '@composable-vite-pwa/workbox-swkit/routing'
 import { message } from 'virtual:message'
 import { hello, sayHello } from './sw-helper.ts'
 
-declare let self: ServiceWorkerGlobalScope
+declare global {
+  interface Window {
+    __WB_MANIFEST: Array<PrecacheEntry | string>
+    skipWaiting: () => Promise<void>
+  }
+}
 
 console.log(message)
 console.log(hello)
