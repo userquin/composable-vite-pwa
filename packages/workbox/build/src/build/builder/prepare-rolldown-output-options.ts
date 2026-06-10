@@ -99,6 +99,8 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     destFolder,
     customChunksInfo,
     classicBuild,
+    define,
+    sourcemap,
   }))
 
   if (bundler === 'rolldown') {
