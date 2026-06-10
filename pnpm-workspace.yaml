@@ -41,6 +41,7 @@ catalogs:
     '@antfu/ni': ^25.0.0
     '@arethetypeswrong/cli': ^0.17.4
     '@vite-pwa/assets-generator': ^1.0.2
+    '@clack/prompts': ^1.5.1
     ansis: ^4.2.0
     cac: ^7.0.0
     consola: ^3.4.2

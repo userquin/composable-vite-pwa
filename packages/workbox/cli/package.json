@@ -35,11 +35,12 @@
   "scripts": {
     "build": "tsdown --config-loader unrun",
     "test:typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build",
-    "node:test": "node ./dist/generate-sw.mjs",
-    "tsx:test": "tsx ./src/generate-sw.ts"
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@composable-vite-pwa/workbox-build": "workspace:*"
+    "@clack/prompts": "catalog:utils",
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "cac": "catalog:utils",
+    "picocolors": "catalog:utils"
   }
 }
