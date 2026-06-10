@@ -1,9 +1,22 @@
+import type { OutputOptions, RolldownBuild, RolldownOutput } from 'rolldown'
 import type { RolldownBuildOptions } from './internal-types'
 import { rolldown } from 'rolldown'
 import { prepareCircularDependencies } from '../builder/prepare-circular-dependencies'
 import { prepareManifestName } from '../builder/prepare-manifest-name'
 import { prepareRolldownOutputOptions } from '../builder/prepare-rolldown-output-options'
 import { generateManifest } from './generate-manifest'
+
+async function writeServiceWorker(
+  instance: RolldownBuild,
+  options: OutputOptions,
+): Promise<RolldownOutput> {
+  try {
+    return await instance.write(options)
+  }
+  finally {
+    await instance.close()
+  }
+}
 
 export async function prepareRolldownBuild(
   options: RolldownBuildOptions,
@@ -38,7 +51,7 @@ export async function prepareRolldownBuild(
     },
   })
 
-  const output = await instance.write(Object.assign(rolldownOptions, {
+  const output = await writeServiceWorker(instance, Object.assign(rolldownOptions, {
     sourcemap,
     minify,
   }))
