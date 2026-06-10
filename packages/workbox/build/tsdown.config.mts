@@ -70,7 +70,6 @@ export default defineConfig({
   },
   attw,
   publint,
-  exports: fixTypesVersion,
   deps: {
     neverBundle: [
       '@rspack/core',
@@ -81,9 +80,15 @@ export default defineConfig({
       'vite',
     ],
   },
+  exports: fixTypesVersion,
   hooks: {
     'build:done': async () => {
       await cleanupJSTypes(cwd)
+      // at cjs stubs for webpack and rspack
     },
   },
 })
+
+async function buildCJSStub(mode: 'webpack' | 'rspack'): Promise<void> {
+
+}

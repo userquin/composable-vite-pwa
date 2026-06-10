@@ -17,7 +17,7 @@ export async function generateSW<
 ) {
   await resolvedConfig.plugins.find(
     p => p && 'name' in p && p.name === devPluginName,
-  )?.api?.generateSWAtDev?.(options)
+  )?.api?.generateSW?.(options)
 }
 
 /**

@@ -99,11 +99,15 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     destFolder,
     customChunksInfo,
     classicBuild,
-    define,
-    sourcemap,
   }))
 
   if (bundler === 'rolldown') {
+    plugins.unshift(await import('./rolldown-render-chunk-plugin').then(({
+      RolldownRenderChunkPlugin,
+    }) => RolldownRenderChunkPlugin(
+      define,
+      sourcemap,
+    )))
     rolldownOptions.sourcemap = sourcemap
     rolldownOptions.minify = minify
     rolldownOptions.topLevelVar = true
