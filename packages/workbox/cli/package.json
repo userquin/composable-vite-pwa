@@ -40,7 +40,6 @@
   "dependencies": {
     "@clack/prompts": "catalog:utils",
     "@composable-vite-pwa/workbox-build": "workspace:*",
-    "cac": "catalog:utils",
     "picocolors": "catalog:utils"
   }
 }

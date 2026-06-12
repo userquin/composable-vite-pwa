@@ -1,10 +1,36 @@
+autoInstallPeers: true
+
+catalogMode: prefer
+
+cleanupUnusedCatalogs: true
+
+ignoreDepScripts: true
+
+ignoreWorkspaceRootCheck: true
+
+linkWorkspacePackages: true
+
+verifyDepsBeforeRun: install
+
+preferWorkspacePackages: true
+
+shamefullyHoist: true
+
+shellEmulator: true
+
+strictPeerDependencies: false
+
+trustPolicy: no-downgrade
+
 packages:
   - examples/**
   - packages/core/**
   - packages/workbox/**
-autoInstallPeers: true
+overrides:
+  rolldown: ^1.0.0
 
-catalogMode: prefer
+patchedDependencies:
+  dotenv-expand@13.0.0: patches/dotenv-expand@13.0.0.patch
 
 catalogs:
   build:
@@ -40,8 +66,8 @@ catalogs:
   utils:
     '@antfu/ni': ^25.0.0
     '@arethetypeswrong/cli': ^0.17.4
-    '@vite-pwa/assets-generator': ^1.0.2
     '@clack/prompts': ^1.5.1
+    '@vite-pwa/assets-generator': ^1.0.2
     ansis: ^4.2.0
     cac: ^7.0.0
     consola: ^3.4.2
@@ -64,32 +90,6 @@ catalogs:
     vue: ^3.5.31
   webpack5:
     webpack: 5.107.1
-
-cleanupUnusedCatalogs: true
-
-ignoreDepScripts: true
-
-ignoreWorkspaceRootCheck: true
-
-linkWorkspacePackages: true
-
-verifyDepsBeforeRun: install
-
-overrides:
-  rolldown: ^1.0.0
-
-patchedDependencies:
-  dotenv-expand@13.0.0: patches/dotenv-expand@13.0.0.patch
-
-preferWorkspacePackages: true
-
-shamefullyHoist: true
-
-shellEmulator: true
-
-strictPeerDependencies: false
-
-trustPolicy: no-downgrade
 
 allowBuilds:
   sharp: true

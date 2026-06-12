@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker", "WebWorker.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker", "WebWorker.Iterable"],
     "paths": {
       "@composable-vite-pwa/vite-plugin-pwa": [
         "./packages/core/vite/src/index.ts"

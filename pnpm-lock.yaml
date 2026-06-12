@@ -394,9 +394,6 @@ importers:
       '@composable-vite-pwa/workbox-build':
         specifier: workspace:*
         version: link:../build
-      cac:
-        specifier: catalog:utils
-        version: 7.0.0
       picocolors:
         specifier: catalog:utils
         version: 1.1.1
