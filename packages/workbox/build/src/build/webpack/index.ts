@@ -8,6 +8,10 @@ import { internalWebpackBuild } from '../builder/internal-webpack-build'
 /**
  * [webpack plugin](https://webpack.js.org/plugins/) for Workbox build strategies.
  * **WARNING**: strategy from the resolved options will override the strategy used in the plugin constructor.
+ *
+ * TODO: review this, should be reversed — a strategy provided at the plugin constructor
+ * must override the default strategy from the resolved options
+ * (`strategy ?? buildContext.strategy` in `builder/internal-webpack-build.ts`).
  */
 
 export class WorkboxPlugin<
