@@ -52,3 +52,7 @@ required (no bundling = imports left as text).
 
 ### Known issues / follow-ups
 - [ ] Add service worker tests
+- [ ] Reverse strategy precedence in the `@build/webpack` and `@build/rspack` plugins: a strategy
+  passed to the plugin constructor must override the config file's default strategy (currently
+  the resolved config wins — `strategy ?? buildContext.strategy` in
+  `build/builder/internal-webpack-build.ts`; update the `**WARNING**` JSDoc in both plugins when fixed)
