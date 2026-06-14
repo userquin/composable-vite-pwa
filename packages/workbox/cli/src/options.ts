@@ -1,9 +1,9 @@
 import type { BuildServiceWorkerOptions } from '@composable-vite-pwa/workbox-build/build/rolldown/types'
 import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
 import type { Strategy, WorkboxBuildConfiguration } from '@composable-vite-pwa/workbox-build/config/types'
-import type { InjectManifestOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { GetManifestOptions, InjectManifestOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
 
-export type WorkboxCliConfig = Partial<WorkboxBuildConfiguration<Strategy>>
+// export type WorkboxCliConfig = Partial<WorkboxBuildConfiguration<Strategy>>
 
 function missingOptions(section: string, keys: readonly string[]): never {
   throw new Error(
@@ -33,4 +33,19 @@ export function assertBuildSWOptions<T extends SWType>(
   const missing = (['swSrc', 'swDest', 'globDirectory'] as const).filter(key => !options?.[key])
   if (missing.length)
     missingOptions('buildSW', missing)
+}
+
+export type CliStrategy = Strategy | 'get-manifest'
+
+export type WorkboxCliConfig
+  = Omit<Partial<WorkboxBuildConfiguration<Strategy>>, 'strategy'> & {
+    strategy?: CliStrategy
+    getManifest?: Partial<GetManifestOptions>
+  }
+
+export function assertGetManifestOptions(
+  options: Partial<GetManifestOptions> | undefined,
+): asserts options is GetManifestOptions {
+  if (!options?.globDirectory)
+    missingOptions('getManifest', ['globDirectory'])
 }
