@@ -305,6 +305,19 @@ importers:
         specifier: catalog:webpack5
         version: 5.107.1
 
+  examples/webpack-cjs-app:
+    dependencies:
+      '@composable-vite-pwa/workbox-swkit':
+        specifier: workspace:*
+        version: link:../../packages/workbox/swkit
+    devDependencies:
+      '@composable-vite-pwa/workbox-build':
+        specifier: workspace:*
+        version: link:../../packages/workbox/build
+      webpack:
+        specifier: catalog:webpack5
+        version: 5.107.1
+
   examples/workbox-cli:
     dependencies:
       '@composable-vite-pwa/workbox-build':
