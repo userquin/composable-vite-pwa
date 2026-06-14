@@ -4,7 +4,7 @@ const config = {
     swSrc: 'src/sw.js',
     swDest: 'sw.js',
     globPatterns: ['**/*.{html,js,css,svg,png}'],
-    injectionPoint: 'globalThis.__WB_MANIFEST',
+    // injectionPoint: 'globalThis.__WB_MANIFEST',
     inlineWorkboxRuntime: false,
     sourcemap: true,
     minify: false,

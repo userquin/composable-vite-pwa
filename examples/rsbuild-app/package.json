@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "build": "rsbuild build",
+    "build:serve": "pnpm run build && pnpx serve dist",
     "build:external": "PWA_CONFIG=external rsbuild build",
     "build:override": "PWA_CONFIG=override rsbuild build"
   },

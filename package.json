@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@11.3.0",
+  "packageManager": "pnpm@11.5.3",
   "description": "Composable Vite PWA",
   "author": "userquin <userquin@gmail.com>",
   "license": "MIT",
@@ -45,7 +45,6 @@
     "taze": "catalog:utils",
     "tsdown": "catalog:build",
     "typescript": "catalog:typescript",
-    "vite": "catalog:vite",
     "vitest": "catalog:test",
     "vue": "catalog:vue"
   }

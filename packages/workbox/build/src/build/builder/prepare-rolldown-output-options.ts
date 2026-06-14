@@ -99,9 +99,18 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     destFolder,
     customChunksInfo,
     classicBuild,
+    sourcemap,
   }))
 
   if (bundler === 'rolldown') {
+    // TODO: check rolldown version to include this plugin once
+    //       https://github.com/oxc-project/oxc/issues/23224 at rolldown
+    plugins.unshift(await import('./rolldown-render-chunk-plugin').then(({
+      RolldownRenderChunkPlugin,
+    }) => RolldownRenderChunkPlugin(
+      define,
+      sourcemap,
+    )))
     rolldownOptions.sourcemap = sourcemap
     rolldownOptions.minify = minify
     rolldownOptions.topLevelVar = true

@@ -5,7 +5,11 @@ import type { InjectManifestOptions } from '../../types'
 import path from 'node:path'
 import process from 'node:process'
 import { loadConfiguration } from '../../config/load-configuration'
-import { normalizePath } from './utils'
+import {
+  resolveFrom,
+  resolveOutputPath,
+  resolveSWSrc,
+} from '../../utils/resolve-paths'
 
 interface WebpackBuildContext<S extends Strategy> {
   strategy: S
@@ -18,23 +22,6 @@ type StrategyOptions<T extends SWType>
   = | BuildServiceWorkerOptions<T>
     | BuildGenerateSWOptions<T>
     | InjectManifestOptions
-
-function resolveFrom(base: string, value: string): string {
-  return normalizePath(path.isAbsolute(value) ? path.relative(base, value) : path.join(base, value))
-}
-
-function resolveSWSrc(base: string, value: string): string {
-  return normalizePath(path.isAbsolute(value) ? path.relative(base, value) : value)
-}
-
-function resolveOutputPath(outputPath: string | undefined, fallbackCwd: string): string {
-  return normalizePath(path.relative(
-    process.cwd(),
-    outputPath
-      ? path.resolve(fallbackCwd, outputPath)
-      : fallbackCwd,
-  ))
-}
 
 function prepareStrategyOptions<T extends SWType>(
   strategyOptions: StrategyOptions<T>,

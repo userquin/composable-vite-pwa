@@ -1,5 +1,6 @@
 import type { ManifestEntry } from '../../types'
 import type { Bundler, ClassicBuild, CustomChunksInfo } from './bundler-types'
+import fsp from 'node:fs/promises'
 import path from 'node:path'
 import MagicString from 'magic-string'
 import pc from 'picocolors'
@@ -58,6 +59,7 @@ interface PrepareSWChunksOptions<T extends Bundler> {
   destFolder: string
   customChunksInfo: CustomChunksInfo
   classicBuild: ClassicBuild
+  writeFiles?: true
 }
 
 export async function prepareSWChunks<T extends Bundler>({
@@ -72,6 +74,7 @@ export async function prepareSWChunks<T extends Bundler>({
     generateSW,
     manifestEntries,
   },
+  writeFiles,
 }: PrepareSWChunksOptions<T>) {
   for (const chunk of Object.values(bundle)) {
     filePaths.push(path.resolve(destFolder, chunk.fileName))
@@ -104,8 +107,9 @@ export async function prepareSWChunks<T extends Bundler>({
   })
 
   for (const chunk of Object.values(bundle)) {
-    if (chunk.type !== 'chunk')
+    if (chunk.type !== 'chunk') {
       continue
+    }
 
     let magicString: MagicString | undefined
 
@@ -149,5 +153,27 @@ export async function prepareSWChunks<T extends Bundler>({
         )
       }
     }
+  }
+
+  if (writeFiles) {
+    const promises: Promise<void>[] = []
+    const chunks = new Map<string, string | undefined>()
+    for (const chunk of Object.values(bundle)) {
+      if (chunk.type === 'chunk') {
+        chunks.set(chunk.fileName, chunk.map?.toString())
+        promises.push(fsp.writeFile(path.resolve(destFolder, chunk.fileName), chunk.code, 'utf-8'))
+      }
+    }
+    for (const chunk of Object.values(bundle)) {
+      if (chunk.type === 'asset' && chunk.fileName.endsWith('.map')) {
+        const mapFileName = path.basename(chunk.fileName.replace(/\.map$/, ''))
+        const map = chunks.get(mapFileName)
+        if (map) {
+          promises.push(fsp.writeFile(path.resolve(destFolder, chunk.fileName), map, 'utf-8'))
+        }
+      }
+    }
+
+    await Promise.all(promises)
   }
 }
