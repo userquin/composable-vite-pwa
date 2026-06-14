@@ -84,11 +84,6 @@ export default defineConfig({
   hooks: {
     'build:done': async () => {
       await cleanupJSTypes(cwd)
-      // at cjs stubs for webpack and rspack
     },
   },
 })
-
-async function buildCJSStub(mode: 'webpack' | 'rspack'): Promise<void> {
-
-}
