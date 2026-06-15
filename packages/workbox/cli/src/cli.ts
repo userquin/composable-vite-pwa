@@ -1,3 +1,4 @@
+import type { WorkboxCliConfig } from './options'
 import process from 'node:process'
 import { version } from '../package.json'
 import { loadCliConfiguration } from './config'
@@ -13,6 +14,13 @@ const STRATEGIES = {
 type StrategyName = keyof typeof STRATEGIES
 
 const STRATEGY_NAMES = Object.keys(STRATEGIES) as StrategyName[]
+
+const STRATEGY_OPTION_KEYS: Record<StrategyName, keyof WorkboxCliConfig> = {
+  'generate-sw': 'generateSW',
+  'build-sw': 'buildSW',
+  'inject-manifest': 'injectManifest',
+  'get-manifest': 'getManifest',
+}
 
 const USAGE = `Usage: workbox-cli [config] [options]
 
@@ -81,13 +89,19 @@ if (command !== undefined) {
 }
 
 try {
+  const config = await loadCliConfiguration(positionals[0])
+
   if (!strategy && interactive) {
     if (!process.stdout.isTTY || process.env.CI)
       throw new Error('--interactive requires a TTY (not available in CI)')
     const { isCancel, cancel, select } = await import('@clack/prompts')
     const choice = await select({
       message: 'Which strategy should run?',
-      options: STRATEGY_NAMES.map(value => ({ value, label: value })),
+      options: STRATEGY_NAMES.map(s => ({
+        value: s,
+        label: s,
+        hint: config[STRATEGY_OPTION_KEYS[s]] == null ? 'not configured' : undefined,
+      })),
     })
     if (isCancel(choice)) {
       cancel('Cancelled')
@@ -96,7 +110,6 @@ try {
     strategy = choice
   }
 
-  const config = await loadCliConfiguration(positionals[0])
   strategy ??= config.strategy
 
   if (!isStrategyName(strategy)) {
