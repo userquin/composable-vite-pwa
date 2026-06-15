@@ -1,6 +1,6 @@
 import process from 'node:process'
-import { loadConfiguration } from '@composable-vite-pwa/workbox-build/config'
 import { version } from '../package.json'
+import { loadCliConfiguration } from './config'
 import { logger } from './logger'
 
 const STRATEGIES = {
@@ -12,12 +12,19 @@ const STRATEGIES = {
 
 type StrategyName = keyof typeof STRATEGIES
 
+const STRATEGY_NAMES = Object.keys(STRATEGIES) as StrategyName[]
+
 const USAGE = `Usage: workbox-cli [config] [options]
+
+Arguments:
+  config                    Path to the workbox config file. When omitted, the
+                            cwd is scanned for workbox.config.{js,mjs,cjs,ts,mts,cts}.
 
 Options:
   -c, --command <strategy>  Run a specific strategy from the config:
-                            ${Object.keys(STRATEGIES).join(' | ')}
-  -i, --interactive         Prompt for anything missing (TTY only)
+                            ${STRATEGY_NAMES.join(' | ')}
+  -i, --interactive         Prompt to choose the strategy, overriding the
+                            config but not -c (TTY only)
   -h, --help                Show this help
   -v, --version             Show version`
 
@@ -25,6 +32,10 @@ function fail(message: string): never {
   logger.error(message)
   console.log(USAGE)
   process.exit(1)
+}
+
+function isStrategyName(value: unknown): value is StrategyName {
+  return typeof value === 'string' && value in STRATEGIES
 }
 
 const argv = process.argv.slice(2)
@@ -62,33 +73,43 @@ for (let i = 0; i < argv.length; i++) {
   }
 }
 
-if (command && !(command in STRATEGIES))
-  fail(`Unknown strategy '${command}': use ${Object.keys(STRATEGIES).join(' | ')}`)
+let strategy: string | undefined
+if (command !== undefined) {
+  if (!isStrategyName(command))
+    fail(`Unknown strategy '${command}': use ${STRATEGY_NAMES.join(' | ')}`)
+  strategy = command
+}
 
 try {
-  const config = await loadConfiguration({ path: positionals[0] })
-  let strategy = (command ?? config.strategy) as StrategyName | undefined
-
   if (!strategy && interactive) {
     if (!process.stdout.isTTY || process.env.CI)
       throw new Error('--interactive requires a TTY (not available in CI)')
     const { isCancel, cancel, select } = await import('@clack/prompts')
     const choice = await select({
       message: 'Which strategy should run?',
-      options: Object.keys(STRATEGIES).map(value => ({ value, label: value })),
+      options: STRATEGY_NAMES.map(value => ({ value, label: value })),
     })
     if (isCancel(choice)) {
       cancel('Cancelled')
       process.exit(1)
     }
-    strategy = choice as StrategyName
+    strategy = choice
   }
 
-  if (!strategy)
-    throw new Error(`No strategy: set it in the config, pass -c <strategy>, or run with -i`)
+  const config = await loadCliConfiguration(positionals[0])
+  strategy ??= config.strategy
+
+  if (!isStrategyName(strategy)) {
+    throw new Error(
+      strategy === undefined
+        ? 'No strategy: set it in the config, pass -c <strategy>, or run with -i'
+        : `Unknown strategy '${strategy}': use ${STRATEGY_NAMES.join(' | ')}`,
+    )
+  }
 
   const { run } = await STRATEGIES[strategy]()
   await run(config)
+  logger.success(`${strategy} complete`)
 }
 catch (err) {
   logger.error(err instanceof Error ? err.message : String(err))

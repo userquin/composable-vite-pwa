@@ -3,8 +3,6 @@ import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/
 import type { Strategy, WorkboxBuildConfiguration } from '@composable-vite-pwa/workbox-build/config/types'
 import type { GetManifestOptions, InjectManifestOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
 
-// export type WorkboxCliConfig = Partial<WorkboxBuildConfiguration<Strategy>>
-
 function missingOptions(section: string, keys: readonly string[]): never {
   throw new Error(
     `Missing required option${keys.length > 1 ? 's' : ''} "${keys.join('", "')}" `
@@ -48,4 +46,11 @@ export function assertGetManifestOptions(
 ): asserts options is GetManifestOptions {
   if (!options?.globDirectory)
     missingOptions('getManifest', ['globDirectory'])
+}
+
+export function defineCliOptions<S extends CliStrategy>(
+  strategy: S,
+  options: Omit<WorkboxCliConfig, 'strategy'> = {},
+): WorkboxCliConfig {
+  return Object.assign(options, { strategy })
 }
