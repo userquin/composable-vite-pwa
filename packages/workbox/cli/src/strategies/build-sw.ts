@@ -1,8 +1,8 @@
 import type { WorkboxCliConfig } from '../options'
-import { buildModernSW } from '@composable-vite-pwa/workbox-build'
+import { buildSW } from '@composable-vite-pwa/workbox-build/build/rolldown/build-sw'
 import { assertBuildSWOptions } from '../options'
 
 export async function run(config: WorkboxCliConfig) {
   assertBuildSWOptions(config.buildSW)
-  await buildModernSW(config.buildSW)
+  await buildSW(config.buildSW)
 }

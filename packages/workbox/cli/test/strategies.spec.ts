@@ -6,14 +6,17 @@ import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vites
 
 // Mock the build package so strategy dispatch + reporting can be tested without
 // running real (rolldown/swkit-backed) service-worker builds.
+// build/generate are now mocked at their rolldown subpaths, while the other two stay at the root package
 const build = vi.hoisted(() => ({
-  generateModernSW: vi.fn(),
-  buildModernSW: vi.fn(),
+  generateSW: vi.fn(),
+  buildSW: vi.fn(),
   injectManifest: vi.fn(),
   getManifest: vi.fn(),
 }))
 
-vi.mock('@composable-vite-pwa/workbox-build', () => build)
+vi.mock('@composable-vite-pwa/workbox-build/build/rolldown/build-sw', () => ({ buildSW: build.buildSW }))
+vi.mock('@composable-vite-pwa/workbox-build/build/rolldown/generate-sw', () => ({ generateSW: build.generateSW }))
+vi.mock('@composable-vite-pwa/workbox-build', () => ({ injectManifest: build.injectManifest, getManifest: build.getManifest }))
 
 const { run: runGenerate } = await import('../src/strategies/generate-sw')
 const { run: runBuild } = await import('../src/strategies/build-sw')
@@ -30,8 +33,8 @@ let warn: ReturnType<typeof vi.spyOn>
 
 beforeEach(() => {
   vi.clearAllMocks()
-  build.generateModernSW.mockResolvedValue(buildResult)
-  build.buildModernSW.mockResolvedValue(buildResult)
+  build.generateSW.mockResolvedValue(buildResult)
+  build.buildSW.mockResolvedValue(buildResult)
   build.injectManifest.mockResolvedValue(buildResult)
   build.getManifest.mockResolvedValue({
     count: 1,
@@ -53,27 +56,27 @@ afterAll(() => {
 })
 
 describe('generate-sw', () => {
-  it('dispatches to generateModernSW with the generateSW options', async () => {
+  it('dispatches to generateSW with the generateSW options', async () => {
     await runGenerate({ strategy: 'generate-sw', generateSW: { swDest: 'sw.js' } } as WorkboxCliConfig)
-    expect(build.generateModernSW).toHaveBeenCalledWith({ swDest: 'sw.js' })
+    expect(build.generateSW).toHaveBeenCalledWith({ swDest: 'sw.js' })
   })
 
   it('throws when required options are missing', async () => {
     await expect(runGenerate({ strategy: 'generate-sw' })).rejects.toThrow('swDest')
-    expect(build.generateModernSW).not.toHaveBeenCalled()
+    expect(build.generateSW).not.toHaveBeenCalled()
   })
 })
 
 describe('build-sw', () => {
-  it('dispatches to buildModernSW with the buildSW options', async () => {
+  it('dispatches to buildSW with the buildSW options', async () => {
     const buildSW = { swSrc: 'src.js', swDest: 'sw.js', globDirectory: '.' }
     await runBuild({ strategy: 'build-sw', buildSW } as WorkboxCliConfig)
-    expect(build.buildModernSW).toHaveBeenCalledWith(buildSW)
+    expect(build.buildSW).toHaveBeenCalledWith(buildSW)
   })
 
   it('throws when required options are missing', async () => {
     await expect(runBuild({ strategy: 'build-sw' })).rejects.toThrow('swSrc')
-    expect(build.buildModernSW).not.toHaveBeenCalled()
+    expect(build.buildSW).not.toHaveBeenCalled()
   })
 })
 

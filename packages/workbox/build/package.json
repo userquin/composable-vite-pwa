@@ -30,7 +30,6 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.mjs",
-    "./build/build-sw": "./dist/build/build-sw.mjs",
     "./build/rolldown": "./dist/build/rolldown/index.mjs",
     "./build/rolldown/build-sw": "./dist/build/rolldown/build-sw.mjs",
     "./build/rolldown/generate-sw": "./dist/build/rolldown/generate-sw.mjs",
@@ -66,9 +65,6 @@
   "types": "./dist/index.d.mts",
   "typesVersions": {
     "*": {
-      "build/build-sw": [
-        "./dist/build/build-sw.d.mts"
-      ],
       "build/rolldown": [
         "./dist/build/rolldown/index.d.mts"
       ],
