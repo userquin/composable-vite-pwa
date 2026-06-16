@@ -16,8 +16,5 @@
   "dependencies": {
     "@composable-vite-pwa/workbox-build": "workspace:*",
     "@composable-vite-pwa/workbox-swkit": "workspace:*"
-  },
-  "devDependencies": {
-    "@composable-vite-pwa/workbox-cli": "workspace:*"
   }
 }

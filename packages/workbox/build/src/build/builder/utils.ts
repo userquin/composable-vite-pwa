@@ -21,8 +21,8 @@ import process from 'node:process'
 
 // hoist regexp
 export const workboxRegex = [
-  /^@composable-vite-pwa\/workbox-swkit\//,
-  /[\\/]workbox[\\/]swkit/,
+  /@composable-vite-pwa[\\/]workbox-swkit[\\/]/,
+  /vite-pwa[\\/]packages[\\/]workbox[\\/]swkit[\\/]/,
 ].filter(Boolean)
 
 // DON'T hoist Regexp used with /g via exec/test/split

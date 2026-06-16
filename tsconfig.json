@@ -20,6 +20,12 @@
       "@composable-vite-pwa/workbox-build/build/rspack": [
         "./packages/workbox/build/src/build/rspack/index.ts"
       ],
+      "@composable-vite-pwa/workbox-build/build/vite/plugin": [
+        "./packages/workbox/build/src/build/vite/plugin/index.ts"
+      ],
+      "@composable-vite-pwa/workbox-build/build/vite/plugin/*": [
+        "./packages/workbox/build/src/build/vite/plugin/*.ts"
+      ],
       "@composable-vite-pwa/workbox-build/*": [
         "./packages/workbox/build/src/*.ts"
       ],

@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "build": "node ./build.mjs",
+    "build:serve": "pnpm run build && pnpx serve dist",
     "build:external": "PWA_CONFIG=external node ./build.mjs",
     "build:override": "PWA_CONFIG=override node ./build.mjs"
   },

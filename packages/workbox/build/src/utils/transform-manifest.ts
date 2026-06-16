@@ -23,7 +23,7 @@ export async function transformManifest({
   manifestEntries: InternalManifestEntry[]
   warnings: string[]
 }): Promise<InternalManifestEntry[]> {
-  if (additionalManifestEntries) {
+  if (additionalManifestEntries || additionalManifestEntriesGenerator) {
     const staticTransform = additionalManifestEntriesTransform(
       additionalManifestEntries,
       additionalManifestEntriesGenerator,

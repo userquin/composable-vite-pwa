@@ -28,6 +28,10 @@ export default defineConfig({
         '!./src/build/vite/build-utils.ts',
         '!./src/build/vite/internal-types.ts',
       ],
+      'build/vite/plugin/*': [
+        './src/build/vite/plugin/*.ts',
+        '!./src/build/vite/plugin/plugin-*.ts',
+      ],
       'build/rolldown/*': [
         './src/build/rolldown/*.ts',
         '!./src/build/rolldown/build-context.ts',
@@ -66,7 +70,6 @@ export default defineConfig({
   },
   attw,
   publint,
-  exports: fixTypesVersion,
   deps: {
     neverBundle: [
       '@rspack/core',
@@ -77,6 +80,7 @@ export default defineConfig({
       'vite',
     ],
   },
+  exports: fixTypesVersion,
   hooks: {
     'build:done': async () => {
       await cleanupJSTypes(cwd)

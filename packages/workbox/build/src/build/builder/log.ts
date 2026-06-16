@@ -169,6 +169,19 @@ export function buildInvalidViteLegacyVersion(
   ].filter(Boolean).join('\n')
 }
 
+export function missingStrategy(
+  forError: boolean,
+  bundlerMessage: string,
+) {
+  const color = forError ? pc.red : pc.yellow
+  return [
+    `\n${color(pc.bold('[Vite PWA]'))} ${color(`${bundlerMessage}!`)}\n`,
+    forError
+      ? `${color('Error: Build stopped. Strategy is required.')}`
+      : `${color('POTENTIAL BUILD ERROR: Strategy is required.')}`,
+  ].filter(Boolean).join('\n')
+}
+
 /**
  * Validates dependencies specifically for the buildSW strategy (Vite 8+ engine).
  */
