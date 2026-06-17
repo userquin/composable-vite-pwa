@@ -51,7 +51,8 @@
   "dependencies": {
     "@clack/prompts": "catalog:utils",
     "@composable-vite-pwa/workbox-build": "workspace:*",
-    "picocolors": "catalog:utils"
+    "picocolors": "catalog:utils",
+    "std-env": "catalog:utils"
   },
   "publishConfig": {
     "access": "public"

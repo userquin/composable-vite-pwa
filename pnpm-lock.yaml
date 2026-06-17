@@ -122,6 +122,9 @@ catalogs:
     serialize-javascript:
       specifier: ^7.0.5
       version: 7.0.5
+    std-env:
+      specifier: ^4.1.0
+      version: 4.1.0
     taze:
       specifier: ^19.10.0
       version: 19.11.0
@@ -444,6 +447,9 @@ importers:
       picocolors:
         specifier: catalog:utils
         version: 1.1.1
+      std-env:
+        specifier: catalog:utils
+        version: 4.1.0
 
   packages/workbox/swkit:
     dependencies:

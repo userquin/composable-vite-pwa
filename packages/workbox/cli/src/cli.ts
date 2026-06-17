@@ -1,5 +1,6 @@
 import type { WorkboxCliConfig } from './options'
 import process from 'node:process'
+import { hasTTY, isCI } from 'std-env'
 import { loadCliConfiguration } from './config'
 import { logger } from './logger'
 import { runBuildSW } from './strategies/build-sw'
@@ -96,7 +97,7 @@ async function init() {
     const config = await loadCliConfiguration(positionals[0])
 
     if (!strategy && interactive) {
-      if (!process.stdout.isTTY || process.env.CI)
+      if (!hasTTY || isCI)
         throw new Error('--interactive requires a TTY (not available in CI)')
       const { isCancel, cancel, select } = await import('@clack/prompts')
       const choice = await select({
