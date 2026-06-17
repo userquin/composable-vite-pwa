@@ -37,7 +37,7 @@ required (no bundling = imports left as text).
 ### `workbox-cli` — done
 - [x] Bootstrap using Vite CLI as base (same deps + prompts)
 - [x] Add Vite + Rolldown plugins (removes test-utils dependency)
-- [x] Single spec scoped to CLI for all three strategies
+- [x] Single spec scoped to CLI for all three(+1) strategies
 
 ### `workbox-types` (new package)
 - [ ] Create a dedicated `workbox-types` package that generates JSON files from JSDoc/types
