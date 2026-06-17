@@ -39,7 +39,7 @@
     "dist"
   ],
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.14.0"
   },
   "scripts": {
     "build": "tsdown --config-loader unrun",
@@ -51,7 +51,8 @@
   "dependencies": {
     "@clack/prompts": "catalog:utils",
     "@composable-vite-pwa/workbox-build": "workspace:*",
-    "picocolors": "catalog:utils"
+    "picocolors": "catalog:utils",
+    "std-env": "catalog:utils"
   },
   "publishConfig": {
     "access": "public"
