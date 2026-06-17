@@ -1,23 +1,37 @@
-import { fileURLToPath } from 'node:url'
+import { createRequire } from 'node:module'
 import { defineConfig } from 'tsdown'
 import {
   attw,
   workboxBanner as banner,
-  cleanupCliFiles,
   publint,
 } from '../../../tsdown-helper'
 
-const cwd = fileURLToPath(new URL('.', import.meta.url))
+const require = createRequire(import.meta.url)
 
-export default defineConfig({
-  entry: ['./src/index.ts', './src/cli.ts'],
+export default defineConfig([{
+  entry: './src/cli.ts',
   platform: 'node',
-  banner,
-  attw,
-  publint,
-  hooks: {
-    'build:done': async () => {
-      await cleanupCliFiles(cwd)
-    },
+  target: 'node20',
+  clean: true,
+  dts: false,
+  minify: false,
+  deps: {
+    onlyBundle: false,
   },
-})
+  define: {
+    __VERSION__: JSON.stringify(require('./package.json').version),
+  },
+  banner,
+}, {
+  entry: './src/index.ts',
+  platform: 'node',
+  target: 'node20',
+  dts: true,
+  clean: false,
+  publint,
+  attw,
+  deps: {
+    onlyBundle: false,
+  },
+  banner,
+}])

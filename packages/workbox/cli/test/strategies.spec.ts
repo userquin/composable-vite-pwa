@@ -18,10 +18,10 @@ vi.mock('@composable-vite-pwa/workbox-build/build/rolldown/build-sw', () => ({ b
 vi.mock('@composable-vite-pwa/workbox-build/build/rolldown/generate-sw', () => ({ generateSW: build.generateSW }))
 vi.mock('@composable-vite-pwa/workbox-build', () => ({ injectManifest: build.injectManifest, getManifest: build.getManifest }))
 
-const { run: runGenerate } = await import('../src/strategies/generate-sw')
-const { run: runBuild } = await import('../src/strategies/build-sw')
-const { run: runInject } = await import('../src/strategies/inject-manifest')
-const { run: runGetManifest } = await import('../src/strategies/get-manifest')
+const { runGenerateSW } = await import('../src/strategies/generate-sw')
+const { runBuildSW } = await import('../src/strategies/build-sw')
+const { runInjectManifest } = await import('../src/strategies/inject-manifest')
+const { runGetManifest } = await import('../src/strategies/get-manifest')
 
 const dir = mkdtempSync(path.join(tmpdir(), 'wbx-strat-'))
 const swFile = path.join(dir, 'sw.js')
@@ -57,12 +57,12 @@ afterAll(() => {
 
 describe('generate-sw', () => {
   it('dispatches to generateSW with the generateSW options', async () => {
-    await runGenerate({ strategy: 'generate-sw', generateSW: { swDest: 'sw.js' } } as WorkboxCliConfig)
+    await runGenerateSW({ strategy: 'generate-sw', generateSW: { swDest: 'sw.js' } } as WorkboxCliConfig)
     expect(build.generateSW).toHaveBeenCalledWith({ swDest: 'sw.js' })
   })
 
   it('throws when required options are missing', async () => {
-    await expect(runGenerate({ strategy: 'generate-sw' })).rejects.toThrow('swDest')
+    await expect(runGenerateSW({ strategy: 'generate-sw' })).rejects.toThrow('swDest')
     expect(build.generateSW).not.toHaveBeenCalled()
   })
 })
@@ -70,12 +70,12 @@ describe('generate-sw', () => {
 describe('build-sw', () => {
   it('dispatches to buildSW with the buildSW options', async () => {
     const buildSW = { swSrc: 'src.js', swDest: 'sw.js', globDirectory: '.' }
-    await runBuild({ strategy: 'build-sw', buildSW } as WorkboxCliConfig)
+    await runBuildSW({ strategy: 'build-sw', buildSW } as WorkboxCliConfig)
     expect(build.buildSW).toHaveBeenCalledWith(buildSW)
   })
 
   it('throws when required options are missing', async () => {
-    await expect(runBuild({ strategy: 'build-sw' })).rejects.toThrow('swSrc')
+    await expect(runBuildSW({ strategy: 'build-sw' })).rejects.toThrow('swSrc')
     expect(build.buildSW).not.toHaveBeenCalled()
   })
 })
@@ -83,13 +83,13 @@ describe('build-sw', () => {
 describe('inject-manifest', () => {
   it('dispatches to injectManifest with the injectManifest options and reports', async () => {
     const injectManifest = { swSrc: 'src.js', swDest: 'sw.js', globDirectory: '.' }
-    await runInject({ strategy: 'inject-manifest', injectManifest } as WorkboxCliConfig)
+    await runInjectManifest({ strategy: 'inject-manifest', injectManifest } as WorkboxCliConfig)
     expect(build.injectManifest).toHaveBeenCalledWith(injectManifest)
     expect(info).toHaveBeenCalledWith(expect.stringContaining('inject-manifest'))
   })
 
   it('throws when required options are missing', async () => {
-    await expect(runInject({ strategy: 'inject-manifest' })).rejects.toThrow('swSrc')
+    await expect(runInjectManifest({ strategy: 'inject-manifest' })).rejects.toThrow('swSrc')
     expect(build.injectManifest).not.toHaveBeenCalled()
   })
 })
