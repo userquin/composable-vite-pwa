@@ -34,10 +34,10 @@ required (no bundling = imports left as text).
 - [ ] Expose `context.ts` in core package
 - [ ] Remove deprecated Workbox entry/option from core types
 
-### `workbox-cli` (new package)
-- [ ] Bootstrap using Vite CLI as base (same deps + prompts)
-- [ ] Add Vite + Rolldown plugins (removes test-utils dependency)
-- [ ] Single spec scoped to CLI for all three strategies
+### `workbox-cli` — done
+- [x] Bootstrap using Vite CLI as base (same deps + prompts)
+- [x] Add Vite + Rolldown plugins (removes test-utils dependency)
+- [x] Single spec scoped to CLI for all three strategies
 
 ### `workbox-types` (new package)
 - [ ] Create a dedicated `workbox-types` package that generates JSON files from JSDoc/types
