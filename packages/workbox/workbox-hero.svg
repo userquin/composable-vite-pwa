@@ -2,7 +2,7 @@
 <style>
 .shape1 {
     fill: #616161;
-    fill: light-dark(#616161, #ffffff);
+    fill: light-dark(#616161, #616161);
 }
 .shape2 {
     fill: #F57C00;
