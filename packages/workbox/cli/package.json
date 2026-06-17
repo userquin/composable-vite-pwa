@@ -25,6 +25,12 @@
     "offline",
     "cli"
   ],
+  "sideEffects": false,
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.mts",
   "bin": {
     "workbox-cli": "./bin/workbox-cli.mjs"
   },
@@ -32,14 +38,23 @@
     "bin",
     "dist"
   ],
+  "engines": {
+    "node": ">=22.14.0"
+  },
   "scripts": {
     "build": "tsdown --config-loader unrun",
+    "test": "pnpm run build && vitest",
+    "test:ci": "pnpm run build && vitest run",
     "test:typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build",
-    "node:test": "node ./dist/generate-sw.mjs",
-    "tsx:test": "tsx ./src/generate-sw.ts"
+    "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@composable-vite-pwa/workbox-build": "workspace:*"
+    "@clack/prompts": "catalog:utils",
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "picocolors": "catalog:utils",
+    "std-env": "catalog:utils"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

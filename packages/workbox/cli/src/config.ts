@@ -1,0 +1,33 @@
+import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
+import type { WorkboxCliConfig } from './options'
+import { existsSync } from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
+import { loadConfiguration } from '@composable-vite-pwa/workbox-build/config'
+import { logger } from './logger'
+
+export const DEFAULT_CONFIG_FILES = [
+  'workbox.config.js',
+  'workbox.config.mjs',
+  'workbox.config.cjs',
+  'workbox.config.ts',
+  'workbox.config.mts',
+  'workbox.config.cts',
+] as const
+
+export function resolveDefaultConfig(cwd: string = process.cwd()): string | undefined {
+  for (const name of DEFAULT_CONFIG_FILES) {
+    const candidate = path.resolve(cwd, name)
+    if (existsSync(candidate))
+      return candidate
+  }
+  return undefined
+}
+
+export async function loadCliConfiguration(configPath?: string): Promise<WorkboxCliConfig> {
+  const resolvedPath = configPath ?? resolveDefaultConfig()
+  if (!configPath && resolvedPath)
+    logger.info(`Using config ${path.relative(process.cwd(), resolvedPath)}`)
+  const config = await loadConfiguration<Strategy>({ path: resolvedPath })
+  return config as WorkboxCliConfig
+}

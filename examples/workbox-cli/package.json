@@ -8,7 +8,10 @@
     "inject": "pnpx tsx ./inject.ts",
     "manifest": "pnpx tsx ./manifest.ts",
     "build": "pnpx tsx ./build.ts",
-    "build-split": "pnpx tsx ./build-split.ts"
+    "build-split": "pnpx tsx ./build-split.ts",
+    "cli": "workbox-cli",
+    "cli:manifest": "workbox-cli manifest.config.ts",
+    "cli:build-sw": "workbox-cli build-sw.config.ts"
   },
   "dependencies": {
     "@composable-vite-pwa/workbox-build": "workspace:*",
