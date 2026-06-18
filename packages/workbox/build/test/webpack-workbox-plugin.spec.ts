@@ -4,7 +4,7 @@ import process from 'node:process'
 import { it as base, describe, expect } from 'vitest'
 import webpack from 'webpack'
 import { normalizePath } from '../src/build/builder/utils'
-import { WorkboxPlugin as WebpackWorkboxPlugin } from '../src/build/webpack'
+import { WebpackWorkboxPWAPlugin } from '../src/build/webpack'
 import { createFixture } from './utils/webpack-utils'
 
 // ======================== buildSW ========================
@@ -44,7 +44,7 @@ describe('webpack WorkboxPlugin', () => {
       entry: './src/index.js',
       output: { filename: 'main.js', path: dist },
       plugins: [
-        new WebpackWorkboxPlugin('build-sw', {
+        new WebpackWorkboxPWAPlugin('build-sw', {
           buildSW: {
             swSrc: normalizePath(path.relative(process.cwd(), path.resolve(root, 'src/sw.js'))),
             swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),
@@ -100,7 +100,7 @@ describe('webpack WorkboxPlugin', () => {
       entry: './src/index.js',
       output: { filename: 'main.js', path: dist },
       plugins: [
-        new WebpackWorkboxPlugin('build-sw', {
+        new WebpackWorkboxPWAPlugin('build-sw', {
           cwd: root,
           path: 'external-pwa.config.mjs',
         }),
@@ -123,7 +123,7 @@ describe('webpack WorkboxPlugin (generate-sw)', () => {
       entry: './src/index.js',
       output: { filename: 'main.js', path: dist },
       plugins: [
-        new WebpackWorkboxPlugin('generate-sw', {
+        new WebpackWorkboxPWAPlugin('generate-sw', {
           generateSW: {
             swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),
             globPatterns: ['**/*.js'],
@@ -158,7 +158,7 @@ describe('webpack WorkboxPlugin (inject-manifest)', () => {
       entry: './src/index.js',
       output: { filename: 'main.js', path: dist },
       plugins: [
-        new WebpackWorkboxPlugin('inject-manifest', {
+        new WebpackWorkboxPWAPlugin('inject-manifest', {
           injectManifest: {
             swSrc: normalizePath(path.relative(process.cwd(), path.resolve(root, 'src/sw.js'))),
             swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),

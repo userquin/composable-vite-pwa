@@ -10,11 +10,11 @@ import { internalWebpackBuild } from '../builder/internal-webpack-build'
  * must override the default strategy from the resolved options
  * (`strategy ?? buildContext.strategy` in `builder/internal-webpack-build.ts`).
  */
-export class WorkboxPlugin<
+export class RspackWorkboxPWAPlugin<
   S extends Strategy,
   T extends SWType = 'classic',
 > {
-  static pluginName = 'VitePWAWorkboxBuildRspackPlugin'
+  static pluginName = 'RspackWorkboxPWAPlugin'
 
   #strategy: S
   #options: WorkboxBuildConfiguration<S, T>
@@ -33,7 +33,7 @@ export class WorkboxPlugin<
    * the host application files to disk before we run our Rolldown compiler.
    */
   apply(compiler: import('@rspack/core').Compiler) {
-    const pluginName = WorkboxPlugin.pluginName
+    const pluginName = RspackWorkboxPWAPlugin.pluginName
 
     // Rspack implements the exact same tapPromise 'afterEmit' hook as Webpack in Rust
     compiler.hooks.afterEmit.tapPromise(
@@ -55,7 +55,7 @@ export class WorkboxPlugin<
    */
   async #executeStrategy(compiler: import('@rspack/core').Compiler) {
     await internalWebpackBuild(
-      WorkboxPlugin.pluginName,
+      RspackWorkboxPWAPlugin.pluginName,
       {
         bundler: 'rspack',
         strategy: this.#strategy,

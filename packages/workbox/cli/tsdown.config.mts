@@ -1,12 +1,9 @@
-import { createRequire } from 'node:module'
 import { defineConfig } from 'tsdown'
 import {
   attw,
   workboxBanner as banner,
   publint,
 } from '../../../tsdown-helper'
-
-const require = createRequire(import.meta.url)
 
 export default defineConfig([{
   entry: './src/cli.ts',
@@ -17,9 +14,6 @@ export default defineConfig([{
   minify: false,
   deps: {
     onlyBundle: false,
-  },
-  define: {
-    __VERSION__: JSON.stringify(require('./package.json').version),
   },
   banner,
 }, {

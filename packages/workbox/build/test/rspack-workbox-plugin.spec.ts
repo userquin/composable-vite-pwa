@@ -4,7 +4,7 @@ import process from 'node:process'
 import * as rspack from '@rspack/core'
 import { it as base, describe, expect } from 'vitest'
 import { normalizePath } from '../src/build/builder/utils'
-import { WorkboxPlugin as RspackWorkboxPlugin } from '../src/build/rspack'
+import { RspackWorkboxPWAPlugin } from '../src/build/rspack'
 import { createFixture } from './utils/rspack-utils'
 
 // ======================== buildSW ========================
@@ -34,7 +34,7 @@ export const testRspack = base.extend<{
   },
 }).skipIf(isWatchMode)
 
-describe('rspack WorkboxPlugin', () => {
+describe('rspack RspackWorkboxPWAPlugin', () => {
   testRspack('runs build-sw with rspack compiler context and relative paths', async ({ sandbox }) => {
     const { dist, root } = sandbox
     const stats = await runRspack({
@@ -44,7 +44,7 @@ describe('rspack WorkboxPlugin', () => {
       entry: './src/index.js',
       output: { filename: 'main.js', path: dist },
       plugins: [
-        new RspackWorkboxPlugin('build-sw', {
+        new RspackWorkboxPWAPlugin('build-sw', {
           buildSW: {
             swSrc: normalizePath(path.relative(process.cwd(), path.resolve(root, 'src/sw.js'))),
             swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),
@@ -76,7 +76,7 @@ describe('rspack WorkboxPlugin (generate-sw)', () => {
       entry: './src/index.js',
       output: { filename: 'main.js', path: dist },
       plugins: [
-        new RspackWorkboxPlugin('generate-sw', {
+        new RspackWorkboxPWAPlugin('generate-sw', {
           generateSW: {
             swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),
             globPatterns: ['**/*.js'],
@@ -110,7 +110,7 @@ describe('rspack WorkboxPlugin (inject-manifest)', () => {
       entry: './src/index.js',
       output: { filename: 'main.js', path: dist },
       plugins: [
-        new RspackWorkboxPlugin('inject-manifest', {
+        new RspackWorkboxPWAPlugin('inject-manifest', {
           injectManifest: {
             swSrc: normalizePath(path.relative(process.cwd(), path.resolve(root, 'src/sw.js'))),
             swDest: normalizePath(path.relative(process.cwd(), 'sw.js')),

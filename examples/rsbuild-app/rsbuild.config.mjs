@@ -1,5 +1,5 @@
 import process from 'node:process'
-import { WorkboxPlugin } from '@composable-vite-pwa/workbox-build/build/rspack'
+import { RspackWorkboxPWAPlugin } from '@composable-vite-pwa/workbox-build/build/rspack'
 import { defineConfig } from '@rsbuild/core'
 import PWAConfig from './external-pwa.config.mjs'
 
@@ -49,7 +49,7 @@ export default defineConfig({
   tools: {
     rspack: {
       plugins: [
-        new WorkboxPlugin(
+        new RspackWorkboxPWAPlugin(
           'build-sw',
           config,
         ),

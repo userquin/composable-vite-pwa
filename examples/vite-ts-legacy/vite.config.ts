@@ -1,7 +1,7 @@
 import type { ManifestEntry } from '@composable-vite-pwa/workbox-build/types'
 import type { Plugin as RolldownPlugin } from 'rolldown'
 import type { Plugin, PluginOption } from 'vite'
-import { VitePWA } from '@composable-vite-pwa/workbox-build/build/vite/plugin'
+import { ViteWorkboxPWAPlugin } from '@composable-vite-pwa/workbox-build/build/vite/plugin'
 import { defineConfig } from 'vite'
 
 const swSrc = 'src/sw.ts'
@@ -37,7 +37,7 @@ async function* additionalManifestEntriesGenerator(): AsyncGenerator<string | Ma
 export default defineConfig({
   plugins: [
     virtualMessagePlugin(),
-    VitePWA({
+    ViteWorkboxPWAPlugin({
       strategy: 'build-sw',
       buildSW: {
         minify: false,

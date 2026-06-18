@@ -2,7 +2,7 @@ import type { BundlerLogLevel } from '../../src/build/types'
 import type { Strategy } from '../../src/config/types'
 import path from 'node:path'
 import { normalizePath } from '../../src/build/builder/utils'
-import { VitePWA } from '../../src/build/vite/plugin'
+import { ViteWorkboxPWAPlugin } from '../../src/build/vite/plugin'
 
 export function createBuildSWPlugin(
   root: string,
@@ -14,7 +14,7 @@ export function createBuildSWPlugin(
   const swDest = normalizePath(path.resolve(dist, 'sw.js'))
   const globDirectory = normalizePath(dist)
 
-  return VitePWA({
+  return ViteWorkboxPWAPlugin({
     strategy,
     buildSW: {
       swSrc,

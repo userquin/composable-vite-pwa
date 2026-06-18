@@ -1,4 +1,3 @@
-import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'tsdown'
 import {
@@ -8,9 +7,6 @@ import {
   fixTypesVersion,
   publint,
 } from '../../../tsdown-helper'
-
-const require = createRequire(import.meta.url)
-const { version } = require('./package.json')
 
 const cwd = fileURLToPath(new URL('.', import.meta.url))
 
@@ -64,9 +60,6 @@ export default defineConfig({
       legal: false,
       annotation: false,
     },
-  },
-  define: {
-    __VITE_PWA_VERSION__: JSON.stringify(version),
   },
   attw,
   publint,

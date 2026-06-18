@@ -7,11 +7,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import pc from 'picocolors'
+import pkg from '../../../package.json' with { type: 'json' }
 import { BundlerNames, normalizePath } from './utils'
 
-const version = typeof __VITE_PWA_VERSION__ === 'string'
-  ? __VITE_PWA_VERSION__
-  : '0.0.0'
+const version = pkg.version
 
 export function logPWAWorkboxResult(
   bundler: Bundler,
