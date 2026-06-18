@@ -24,10 +24,19 @@ export function resolveDefaultConfig(cwd: string = process.cwd()): string | unde
   return undefined
 }
 
-export async function loadCliConfiguration(configPath?: string): Promise<WorkboxCliConfig> {
+export async function loadCliConfiguration(
+  configPath?: string,
+  cliSelfDestroying?: boolean,
+): Promise<WorkboxCliConfig> {
   const resolvedPath = configPath ?? resolveDefaultConfig()
   if (!configPath && resolvedPath)
     logger.info(`Using config ${path.relative(process.cwd(), resolvedPath)}`)
-  const config = await loadConfiguration<Strategy>({ path: resolvedPath })
-  return config as WorkboxCliConfig
+  const config: WorkboxCliConfig = await loadConfiguration<Strategy>({ path: resolvedPath })
+
+  const enabled = cliSelfDestroying || (config.selfDestroying?.selfDestroying ?? false)
+  if (enabled || config.selfDestroying) {
+    config.selfDestroying = { ...config.selfDestroying, selfDestroying: enabled }
+  }
+
+  return config
 }

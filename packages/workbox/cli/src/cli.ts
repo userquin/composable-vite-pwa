@@ -1,20 +1,23 @@
-import type { WorkboxCliConfig } from './options'
+import type { CliStrategy, WorkboxCliConfig } from './options'
 import process from 'node:process'
 import { hasTTY, isCI } from 'std-env'
 import pkg from '../package.json' with { type: 'json' }
 import { loadCliConfiguration } from './config'
 import { logger } from './logger'
+import { assertSelfDestroyingSW } from './options'
 import { runBuildSW } from './strategies/build-sw'
 import { runGenerateSW } from './strategies/generate-sw'
 import { runGetManifest } from './strategies/get-manifest'
 import { runInjectManifest } from './strategies/inject-manifest'
+import { runSelfDestroyingSW } from './strategies/self-destroy-sw'
 
 const STRATEGIES = {
   'generate-sw': runGenerateSW,
   'inject-manifest': runInjectManifest,
   'build-sw': runBuildSW,
   'get-manifest': runGetManifest,
-} as const
+  'self-destroy-sw': runSelfDestroyingSW,
+} as const satisfies Record<CliStrategy, (config: WorkboxCliConfig) => Promise<unknown>>
 
 type StrategyName = keyof typeof STRATEGIES
 
@@ -25,6 +28,7 @@ const STRATEGY_OPTION_KEYS: Record<StrategyName, keyof WorkboxCliConfig> = {
   'build-sw': 'buildSW',
   'inject-manifest': 'injectManifest',
   'get-manifest': 'getManifest',
+  'self-destroy-sw': 'selfDestroying',
 }
 
 const USAGE = `Usage: workbox-cli [config] [options]
@@ -36,6 +40,8 @@ Arguments:
 Options:
   -c, --command <strategy>  Run a specific strategy from the config:
                             ${STRATEGY_NAMES.join(' | ')}
+  -s, --self-destroy        Also emit a self-destroying SW after the main
+                            strategy (or run the self-destroy-sw strategy)
   -i, --interactive         Prompt to choose the strategy, overriding the
                             config but not -c (TTY only)
   -h, --help                Show this help
@@ -55,6 +61,7 @@ async function init() {
   const argv = process.argv.slice(2)
   const positionals: string[] = []
   let command: string | undefined
+  let selfDestroying = false
   let interactive = false
 
   for (let i = 0; i < argv.length; i++) {
@@ -67,6 +74,9 @@ async function init() {
     }
     else if (arg.startsWith('--command=')) {
       command = arg.slice('--command='.length)
+    }
+    else if (arg === '-s' || arg === '--self-destroy') {
+      selfDestroying = true
     }
     else if (arg === '-i' || arg === '--interactive') {
       interactive = true
@@ -95,7 +105,7 @@ async function init() {
   }
 
   try {
-    const config = await loadCliConfiguration(positionals[0])
+    const config = await loadCliConfiguration(positionals[0], selfDestroying)
 
     if (!strategy && interactive) {
       if (!hasTTY || isCI)
@@ -125,9 +135,19 @@ async function init() {
           : `Unknown strategy '${strategy}': use ${STRATEGY_NAMES.join(' | ')}`,
       )
     }
+    const emitSelfDestroying = strategy !== 'self-destroy-sw'
+      && !!config.selfDestroying?.selfDestroying
+
+    if (emitSelfDestroying)
+      assertSelfDestroyingSW(config.selfDestroying)
 
     await STRATEGIES[strategy](config)
     logger.success(`${strategy} complete`)
+
+    if (emitSelfDestroying) {
+      await runSelfDestroyingSW(config)
+      logger.success('self-destroying SW complete')
+    }
   }
   catch (err) {
     logger.error(err instanceof Error ? err.message : String(err))

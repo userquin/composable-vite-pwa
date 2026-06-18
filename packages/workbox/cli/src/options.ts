@@ -1,7 +1,7 @@
 import type { BuildServiceWorkerOptions } from '@composable-vite-pwa/workbox-build/build/rolldown/types'
 import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
 import type { Strategy, WorkboxBuildConfiguration } from '@composable-vite-pwa/workbox-build/config/types'
-import type { GetManifestOptions, InjectManifestOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { GetManifestOptions, InjectManifestOptions, SelfDestroyingOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
 
 function missingOptions(section: string, keys: readonly string[]): never {
   throw new Error(
@@ -36,9 +36,10 @@ export function assertBuildSWOptions<T extends SWType>(
 export type CliStrategy = Strategy | 'get-manifest'
 
 export type WorkboxCliConfig
-  = Omit<Partial<WorkboxBuildConfiguration<Strategy>>, 'strategy'> & {
+  = Omit<Partial<WorkboxBuildConfiguration<Strategy>>, 'strategy' | 'selfDestroying'> & {
     strategy?: CliStrategy
     getManifest?: Partial<GetManifestOptions>
+    selfDestroying?: Partial<SelfDestroyingOptions> & { selfDestroying?: boolean }
   }
 
 export function assertGetManifestOptions(
@@ -46,6 +47,13 @@ export function assertGetManifestOptions(
 ): asserts options is GetManifestOptions {
   if (!options?.globDirectory)
     missingOptions('getManifest', ['globDirectory'])
+}
+
+export function assertSelfDestroyingSW(
+  options: Partial<SelfDestroyingOptions> | undefined,
+): asserts options is SelfDestroyingOptions {
+  if (!options?.swDest)
+    missingOptions('selfDestroying', ['swDest'])
 }
 
 export function defineCliOptions<S extends CliStrategy>(
