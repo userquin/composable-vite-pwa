@@ -1,6 +1,7 @@
 import type { WorkboxCliConfig } from './options'
 import process from 'node:process'
 import { hasTTY, isCI } from 'std-env'
+import pkg from '../package.json' with { type: 'json' }
 import { loadCliConfiguration } from './config'
 import { logger } from './logger'
 import { runBuildSW } from './strategies/build-sw'
@@ -75,7 +76,7 @@ async function init() {
       process.exit(0)
     }
     else if (arg === '-v' || arg === '--version') {
-      console.log(__VERSION__)
+      console.log(pkg.version)
       process.exit(0)
     }
     else if (arg.startsWith('-')) {

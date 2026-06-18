@@ -14,11 +14,11 @@ import { internalWebpackBuild } from '../builder/internal-webpack-build'
  * (`strategy ?? buildContext.strategy` in `builder/internal-webpack-build.ts`).
  */
 
-export class WorkboxPlugin<
+export class WebpackWorkboxPWAPlugin<
   S extends Strategy,
   T extends SWType = 'classic',
 > {
-  static pluginName = 'VitePWAWorkboxBuildWebpackPlugin'
+  static pluginName = 'WebpackWorkboxPWAPlugin'
 
   #strategy: S
   #options: WorkboxBuildConfiguration<S, T>
@@ -40,7 +40,7 @@ export class WorkboxPlugin<
    * In Webpack 4 the compiler is un-typed, whereas Webpack 5 provides full type definitions.
    */
   apply(compiler: import('webpack').Compiler) {
-    const pluginName = WorkboxPlugin.pluginName
+    const pluginName = WebpackWorkboxPWAPlugin.pluginName
 
     compiler.hooks.afterEmit.tapPromise(
       pluginName,
@@ -63,7 +63,7 @@ export class WorkboxPlugin<
     compiler: import('webpack').Compiler,
   ) {
     await internalWebpackBuild(
-      WorkboxPlugin.pluginName,
+      WebpackWorkboxPWAPlugin.pluginName,
       {
         bundler: 'webpack',
         strategy: this.#strategy,

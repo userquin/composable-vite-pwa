@@ -8,14 +8,11 @@ export interface VitePWAContext<
   S extends Strategy,
   T extends SWType,
 > {
-  isDev: boolean
   options: VitePWAOptions<S, T>
   resolvedOptions: Promise<VitePWAOptions<S, T>>
   detectionResult: Promise<DetectorResult>
   resolvedViteConfig: import('vite').ResolvedConfig
 }
-
-export const devPluginName = 'vite-pwa:detector:plugin'
 
 export function preparePluginContext<
   S extends Strategy,
@@ -24,7 +21,6 @@ export function preparePluginContext<
   options: VitePWAOptions<S, T>,
 ): VitePWAContext<S, T> {
   return {
-    isDev: false,
     options,
     resolvedOptions: import('../../../config/load-configuration').then(({
       loadConfiguration,
@@ -44,11 +40,9 @@ export async function checkStrategy<
   S extends Strategy,
   T extends SWType,
 >(
-  atDev: boolean,
   pluginContext: VitePWAContext<S, T>,
   resolvedConfig: ResolvedConfig,
 ) {
-  pluginContext.isDev = atDev
   pluginContext.resolvedViteConfig = resolvedConfig
   const [options] = await Promise.all([
     pluginContext.resolvedOptions,
@@ -59,14 +53,10 @@ export async function checkStrategy<
     const message = await import('../../builder/log').then(({
       missingStrategy,
     }) => missingStrategy(
-      !atDev,
-      'Missing strategy at VitePWAPluginOptions',
+      true,
+      'Missing strategy at VitePWAOptions',
     ))
     if (message) {
-      if (atDev) {
-        console.warn(message)
-        return
-      }
       throw new Error(message)
     }
   }
@@ -80,14 +70,14 @@ export async function checkStrategy<
         message = await import('../index').then(({
           checkBuildSW,
         }) => checkBuildSW(
-          !atDev,
+          true,
         ))
       }
       else {
         message = await import('../index').then(({
           checkLegacyBuildSW,
         }) => checkLegacyBuildSW(
-          !atDev,
+          true,
         ))
       }
       break
@@ -97,25 +87,19 @@ export async function checkStrategy<
         message = await import('../index').then(({
           checkGenerateSW,
         }) => checkGenerateSW(
-          !atDev,
+          true,
         ))
       }
       else {
         message = await import('../index').then(({
           checkLegacyGenerateSW,
         }) => checkLegacyGenerateSW(
-          !atDev,
+          true,
         ))
       }
       break
     }
   }
 
-  if (message) {
-    if (atDev) {
-      console.warn(message)
-      return
-    }
-    throw new Error(message)
-  }
+  return message
 }

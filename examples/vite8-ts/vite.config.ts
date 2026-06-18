@@ -1,12 +1,11 @@
 import type { ManifestEntry } from '@composable-vite-pwa/workbox-build/types'
 import type { Plugin as RolldownPlugin } from 'rolldown'
 import type { Plugin, PluginOption } from 'vite'
-import { VitePWA } from '@composable-vite-pwa/workbox-build/build/vite/plugin'
+import { ViteWorkboxPWAPlugin } from '@composable-vite-pwa/workbox-build/build/vite/plugin'
 import { defineConfig } from 'vite'
 
 const swSrc = 'src/sw.ts'
-const swDest = 'dist/sw.js'
-const globDirectory = 'dist'
+const swDest = 'sw.js'
 
 function virtualMessagePlugin(): Plugin {
   const virtual = 'virtual:message'
@@ -37,7 +36,7 @@ async function* additionalManifestEntriesGenerator(): AsyncGenerator<string | Ma
 export default defineConfig({
   plugins: [
     virtualMessagePlugin(),
-    VitePWA({
+    ViteWorkboxPWAPlugin({
       strategy: 'build-sw',
       buildSW: {
         minify: false,
@@ -45,7 +44,6 @@ export default defineConfig({
         swType: 'classic-and-module',
         swSrc,
         swDest,
-        globDirectory,
         customChunks: (moduleId, ctx) => {
           if (ctx.getModuleInfo(moduleId)?.id.includes('sw-helper')) {
             return 'sw-helper'

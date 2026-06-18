@@ -2,37 +2,33 @@ import type { PluginOption } from 'vite'
 import type { Strategy } from '../../../config/types'
 import type { SWType } from '../../../types'
 import type { VitePWAOptions } from './types'
-import { createApi } from './plugin-api'
-import { checkStrategy, devPluginName, preparePluginContext } from './plugin-context'
+import { checkStrategy, preparePluginContext } from './plugin-context'
 
 export type { VitePWAOptions }
 
-export function VitePWA<
+export function ViteWorkboxPWAPlugin<
   S extends Strategy,
   T extends SWType = 'classic',
 >(
   options: VitePWAOptions<S, T> = {},
 ): PluginOption {
   const pluginContext = preparePluginContext(options)
-  return [{
-    name: devPluginName,
-    apply: 'serve',
-    applyToEnvironment(environment) {
-      return environment.config.consumer === 'client'
-    },
-    async configResolved(config) {
-      await checkStrategy(true, pluginContext, config)
-    },
-    api: createApi(pluginContext),
-  }, {
-    name: 'vite-pwa:builder:plugin',
+  return {
+    name: 'vite-workbox:pwa-build:plugin',
     apply: 'build',
     enforce: 'post',
     applyToEnvironment(environment) {
       return environment.config.consumer === 'client'
     },
     async configResolved(config) {
-      await checkStrategy(false, pluginContext, config)
+      const message = await checkStrategy(pluginContext, config)
+      const { vite } = await pluginContext.detectionResult
+      if (!vite && pluginContext.resolvedViteConfig.build.ssr) {
+        return
+      }
+      if (message) {
+        throw new Error(message)
+      }
     },
     closeBundle: {
       sequential: true,
@@ -57,5 +53,5 @@ export function VitePWA<
         )
       },
     },
-  }] satisfies PluginOption
+  } satisfies PluginOption
 }

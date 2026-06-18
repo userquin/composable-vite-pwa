@@ -36,11 +36,10 @@ async function prepareStrategyOptions<
   const {
     resolveSWSrc,
     resolveFrom,
-    resolveOutputPath,
   } = await import('../../../utils/resolve-paths')
 
   const cwd = process.cwd()
-  const outputPath = resolveOutputPath(cwd, outDir)
+  const outputPath = path.resolve(cwd, outDir)
 
   const data = Object.assign({}, strategyOptions) as StrategyOptionsReturn<S, T>
   data.globDirectory = data.globDirectory
@@ -61,7 +60,10 @@ async function prepareStrategyOptions<
   }
 
   if ('swDest' in data) {
-    data.swDest = resolveFrom(outputPath, data.swDest)
+    const resolvedSwDest = path.dirname(path.resolve(cwd, data.swDest))
+    if (resolvedSwDest !== outputPath) {
+      data.swDest = resolveFrom(outputPath, data.swDest)
+    }
   }
 
   if (pluginContext.options.strategy !== 'inject-manifest') {
