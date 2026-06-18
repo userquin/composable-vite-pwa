@@ -1,4 +1,4 @@
-import type { Strategy } from '../../../config/types'
+import type { SelfDestroyingStrategyOptions, Strategy } from '../../../config/types'
 import type { InjectManifestOptions, SWType } from '../../../types'
 import type { BuildGenerateSWOptions } from '../../types'
 import type { LegacyBuildServiceWorkerOptions } from '../legacy-types'
@@ -82,6 +82,14 @@ export async function handleBuild<
   vite: boolean,
 ) {
   switch (resolvedPluginOptions.strategy) {
+    case 'self-destroy-sw':{
+      const { selfDestroyingSW: runSelfDestroyingSW } = await import('../../../self-destroying-sw')
+
+      await runSelfDestroyingSW(
+        resolvedPluginOptions.selfDestroying as SelfDestroyingStrategyOptions,
+      )
+      break
+    }
     case 'build-sw': {
       if (vite) {
         const [
