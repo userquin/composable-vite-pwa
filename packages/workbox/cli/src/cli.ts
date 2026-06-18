@@ -17,7 +17,7 @@ const STRATEGIES = {
   'build-sw': runBuildSW,
   'get-manifest': runGetManifest,
   'self-destroy-sw': runSelfDestroyingSW,
-} as const satisfies Record<CliStrategy, (config: WorkboxCliConfig) => Promise<unknown>>
+} as const satisfies Record<CliStrategy, (config: WorkboxCliConfig) => Promise<void>>
 
 type StrategyName = keyof typeof STRATEGIES
 
