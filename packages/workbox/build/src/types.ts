@@ -554,6 +554,15 @@ export type InjectManifestOptions = BasePartial
   & RequiredSWDestPartial
   & RequiredGlobDirectoryPartial
 
+export interface SelfDestroyingOptions {
+  /**
+   * The path and filename of the service worker file that will be created by
+   * the build process, relative to the current working directory. It must end
+   * in '.js'.
+   */
+  swDest: string | string[]
+}
+
 export interface GetManifestResult {
   count: number
   manifestEntries: Array<ManifestEntry>
