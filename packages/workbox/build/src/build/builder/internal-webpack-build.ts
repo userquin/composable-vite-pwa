@@ -1,6 +1,6 @@
 import type { BuildServiceWorkerOptions, SWType } from '../../build/rolldown/index'
 import type { BuildGenerateSWOptions } from '../../build/types'
-import type { Strategy, WorkboxBuildConfiguration } from '../../config/types'
+import type { SelfDestroyingStrategyOptions, Strategy, WorkboxBuildConfiguration } from '../../config/types'
 import type { InjectManifestOptions } from '../../types'
 import path from 'node:path'
 import process from 'node:process'
@@ -67,7 +67,7 @@ export async function internalWebpackBuild<
   const resolvedOptions = await loadConfiguration(
     options as Partial<WorkboxBuildConfiguration<Strategy, T>>,
   )
-  const { strategy, buildSW, generateSW, injectManifest } = resolvedOptions
+  const { strategy, buildSW, generateSW, injectManifest, selfDestroying } = resolvedOptions
   const cwd = process.cwd()
   // everything is relative: workbox-build will use process.cwd() for swSrc/swDest
   const outputPath = path.relative(cwd, resolveOutputPath(buildContext.outputPath, cwd))
@@ -81,6 +81,15 @@ export async function internalWebpackBuild<
   // We extract the host compiler output directory to use as the default globDirectory.
 
   switch (context.strategy) {
+    case 'self-destroy-sw': {
+      const { selfDestroyingSW: runSelfDestroyingSW } = await import('../../self-destroying-sw')
+
+      await runSelfDestroyingSW(
+        selfDestroying as SelfDestroyingStrategyOptions,
+      )
+      break
+    }
+
     case 'build-sw': {
       const { buildSW: runBuildSW } = await import('../rolldown/build-sw')
 

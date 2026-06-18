@@ -1,9 +1,9 @@
 import type { BuildServiceWorkerOptions } from '../build/rolldown/types'
 import type { BuildGenerateSWOptions } from '../build/types'
-import type { InjectManifestOptions, SWType } from '../types'
+import type { InjectManifestOptions, SelfDestroyingOptions, SWType } from '../types'
 
 export type BuildStrategy = 'build-sw' | 'generate-sw'
-export type Strategy = BuildStrategy | 'inject-manifest'
+export type Strategy = BuildStrategy | 'inject-manifest' | 'self-destroy-sw'
 
 export interface WorkboxOptions<S extends Strategy> {
   strategy: S
@@ -23,6 +23,7 @@ export type WorkboxBuildOptions<
 export type BuildSWOptions<T extends SWType> = WorkboxBuildOptions<T, 'build-sw'>
 export type GenerateSWOptions<T extends SWType> = WorkboxBuildOptions<T, 'generate-sw'>
 export type InjectManifestStrategyOptions = InjectManifestOptions
+export type SelfDestroyingStrategyOptions = SelfDestroyingOptions
 
 export interface WorkboxBuildConfiguration<
   S extends Strategy,
@@ -51,4 +52,5 @@ export interface WorkboxBuildConfiguration<
   buildSW: BuildSWOptions<T>
   generateSW: GenerateSWOptions<T>
   injectManifest: InjectManifestStrategyOptions
+  selfDestroying?: SelfDestroyingStrategyOptions
 }

@@ -62,6 +62,7 @@
     "./generate-sw": "./dist/generate-sw.mjs",
     "./get-manifest": "./dist/get-manifest.mjs",
     "./inject-manifest": "./dist/inject-manifest.mjs",
+    "./self-destroying-sw": "./dist/self-destroying-sw.mjs",
     "./types": {
       "types": "./dist/types.d.mts"
     },
@@ -135,6 +136,9 @@
       ],
       "inject-manifest": [
         "./dist/inject-manifest.d.mts"
+      ],
+      "self-destroying-sw": [
+        "./dist/self-destroying-sw.d.mts"
       ],
       "types": [
         "./dist/types.d.mts"
