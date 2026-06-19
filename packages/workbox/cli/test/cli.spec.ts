@@ -187,12 +187,14 @@ describe('error flows', () => {
     expect(stderr).toContain('Unknown strategy \'bogus\'')
   })
 
+  // get-manifest builds a manifest with no bundler; generate/build-sw require Rolldown at the
+  // CLI, so they'd surface the toolchain error before validation ever runs.
   it('fails a valid strategy that is missing required options', () => {
     const dir = makeDir()
-    write(dir, 'workbox.config.mjs', `export default { strategy: 'generate-sw', generateSW: {} }\n`)
+    write(dir, 'workbox.config.mjs', `export default { strategy: 'get-manifest', getManifest: {} }\n`)
     const { status, stderr } = runCli([], dir)
     expect(status).toBe(1)
-    expect(stderr).toContain('swDest')
+    expect(stderr).toContain('globDirectory')
   })
 
   it('requires a value for --command', () => {

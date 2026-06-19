@@ -14,7 +14,7 @@ import { deepMergeObject, prepareInjectManifestGlobIgnores } from './utils'
 export async function buildInjectManifest(
   options: InjectManifestOptions,
 ): Promise<BuildResult> {
-  if (options.injectionPoint === false || options.injectionPoint == null) {
+  if (options.injectionPoint === false || options.injectionPoint === null) {
     throwInvalidInjectionPoint()
   }
 

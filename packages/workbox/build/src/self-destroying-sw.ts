@@ -1,6 +1,7 @@
 import type { SelfDestroyingOptions } from './types'
 import fsp from 'node:fs/promises'
 import pc from 'picocolors'
+import { errors } from './validation/errors'
 import { validateSWDestDirectory } from './validation/generation-utils'
 
 const selfDestroyingCode = `
@@ -30,6 +31,8 @@ self.addEventListener('activate', (e) => {
 `
 
 export async function selfDestroyingSW(options: SelfDestroyingOptions): Promise<void> {
+  if (!options?.swDest)
+    throw new Error(errors['missing-sw-dest'])
   const entries = typeof options.swDest === 'string' ? [options.swDest] : options.swDest
 
   const validatedEntries = await Promise.all(

@@ -11,27 +11,27 @@ export async function runStrategy(
   switch (strategy) {
     case 'generate-sw': {
       const { generateSW } = await import('@composable-vite-pwa/workbox-build/build/rolldown/generate-sw')
-      await generateSW(config.generateSW as BuildGenerateSWOptions<any>)
+      await generateSW((config.generateSW ?? {}) as BuildGenerateSWOptions<any>)
       break
     }
     case 'build-sw': {
       const { buildSW } = await import('@composable-vite-pwa/workbox-build/build/rolldown/build-sw')
-      await buildSW(config.buildSW as BuildServiceWorkerOptions<any>)
+      await buildSW((config.buildSW ?? {}) as BuildServiceWorkerOptions<any>)
       break
     }
     case 'inject-manifest': {
       const { injectManifest } = await import('@composable-vite-pwa/workbox-build')
-      reportBuildResult('inject-manifest', await injectManifest(config.injectManifest as InjectManifestOptions))
+      reportBuildResult('inject-manifest', await injectManifest((config.injectManifest ?? {}) as InjectManifestOptions))
       break
     }
     case 'get-manifest': {
       const { getManifest } = await import('@composable-vite-pwa/workbox-build')
-      reportManifest(await getManifest(config.getManifest as GetManifestOptions))
+      reportManifest(await getManifest((config.getManifest ?? {}) as GetManifestOptions))
       break
     }
     case 'self-destroy-sw': {
       const { selfDestroyingSW } = await import('@composable-vite-pwa/workbox-build/self-destroying-sw')
-      await selfDestroyingSW(config.selfDestroying as SelfDestroyingOptions)
+      await selfDestroyingSW((config.selfDestroying ?? {}) as SelfDestroyingOptions)
       break
     }
     default: {
