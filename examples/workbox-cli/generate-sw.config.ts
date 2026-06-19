@@ -1,6 +1,6 @@
 import { defineOptions } from '@composable-vite-pwa/workbox-build/config'
-import { runtimeCaching } from './cache.ts'
-import { globIgnores } from './globIgnores.ts'
+import { runtimeCaching } from './cache'
+import { globIgnores } from './globIgnores'
 
 export default defineOptions('generate-sw', {
   generateSW: {
