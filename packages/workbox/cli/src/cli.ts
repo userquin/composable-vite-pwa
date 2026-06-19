@@ -1,27 +1,20 @@
-import type { CliStrategy, WorkboxCliConfig } from './options'
+import type { WorkboxCliConfig } from './options.js'
 import process from 'node:process'
 import { hasTTY, isCI } from 'std-env'
 import pkg from '../package.json' with { type: 'json' }
-import { loadCliConfiguration } from './config'
-import { logger } from './logger'
-import { assertSelfDestroyingSW } from './options'
-import { runBuildSW } from './strategies/build-sw'
-import { runGenerateSW } from './strategies/generate-sw'
-import { runGetManifest } from './strategies/get-manifest'
-import { runInjectManifest } from './strategies/inject-manifest'
-import { runSelfDestroyingSW } from './strategies/self-destroy-sw'
+import { loadCliConfiguration } from './config.js'
+import { logger } from './logger.js'
+import { runStrategy } from './run-strategy.js'
 
-const STRATEGIES = {
-  'generate-sw': runGenerateSW,
-  'inject-manifest': runInjectManifest,
-  'build-sw': runBuildSW,
-  'get-manifest': runGetManifest,
-  'self-destroy-sw': runSelfDestroyingSW,
-} as const satisfies Record<CliStrategy, (config: WorkboxCliConfig) => Promise<void>>
+type StrategyName = 'generate-sw' | 'inject-manifest' | 'build-sw' | 'get-manifest' | 'self-destroy-sw'
 
-type StrategyName = keyof typeof STRATEGIES
-
-const STRATEGY_NAMES = Object.keys(STRATEGIES) as StrategyName[]
+const STRATEGY_NAMES: StrategyName[] = [
+  'generate-sw',
+  'inject-manifest',
+  'build-sw',
+  'get-manifest',
+  'self-destroy-sw',
+]
 
 const STRATEGY_OPTION_KEYS: Record<StrategyName, keyof WorkboxCliConfig> = {
   'generate-sw': 'generateSW',
@@ -54,7 +47,7 @@ function fail(message: string): never {
 }
 
 function isStrategyName(value: unknown): value is StrategyName {
-  return typeof value === 'string' && value in STRATEGIES
+  return typeof value === 'string' && STRATEGY_NAMES.includes(value as StrategyName)
 }
 
 async function init() {
@@ -135,18 +128,16 @@ async function init() {
           : `Unknown strategy '${strategy}': use ${STRATEGY_NAMES.join(' | ')}`,
       )
     }
-    const SW_BUILDERS = ['generate-sw', 'build-sw', 'inject-manifest'] as const
-    const emitSelfDestroying = SW_BUILDERS.includes(strategy as any)
+
+    const SW_BUILDERS: readonly StrategyName[] = ['generate-sw', 'build-sw', 'inject-manifest']
+    const shouldSelfDestroy = SW_BUILDERS.includes(strategy)
       && !!config.selfDestroying?.selfDestroying
 
-    if (emitSelfDestroying)
-      assertSelfDestroyingSW(config.selfDestroying)
-
-    await STRATEGIES[strategy](config)
+    await runStrategy(strategy, config)
     logger.success(`${strategy} complete`)
 
-    if (emitSelfDestroying) {
-      await runSelfDestroyingSW(config)
+    if (shouldSelfDestroy) {
+      await runStrategy('self-destroy-sw', config)
       logger.success('self-destroying SW complete')
     }
   }
