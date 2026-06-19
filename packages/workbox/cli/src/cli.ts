@@ -135,7 +135,8 @@ async function init() {
           : `Unknown strategy '${strategy}': use ${STRATEGY_NAMES.join(' | ')}`,
       )
     }
-    const emitSelfDestroying = strategy !== 'self-destroy-sw'
+    const SW_BUILDERS = ['generate-sw', 'build-sw', 'inject-manifest'] as const
+    const emitSelfDestroying = SW_BUILDERS.includes(strategy as any)
       && !!config.selfDestroying?.selfDestroying
 
     if (emitSelfDestroying)
