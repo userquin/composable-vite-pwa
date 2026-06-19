@@ -1,3 +1,4 @@
+/// <reference path="./globals.ts" />
 /*
   Copyright 2018 Google LLC, Vite PWA's Team
 
