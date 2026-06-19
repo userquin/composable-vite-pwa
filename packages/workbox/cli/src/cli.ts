@@ -1,4 +1,5 @@
-import type { WorkboxCliConfig } from './options.js'
+import type { SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { CliStrategy, WorkboxCliConfig } from './options.js'
 import process from 'node:process'
 import { hasTTY, isCI } from 'std-env'
 import pkg from '../package.json' with { type: 'json' }
@@ -16,7 +17,7 @@ const STRATEGY_NAMES: StrategyName[] = [
   'self-destroy-sw',
 ]
 
-const STRATEGY_OPTION_KEYS: Record<StrategyName, keyof WorkboxCliConfig> = {
+const STRATEGY_OPTION_KEYS: Record<StrategyName, keyof WorkboxCliConfig<CliStrategy, SWType>> = {
   'generate-sw': 'generateSW',
   'build-sw': 'buildSW',
   'inject-manifest': 'injectManifest',

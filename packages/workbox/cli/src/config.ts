@@ -1,5 +1,6 @@
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
-import type { WorkboxCliConfig } from './options'
+import type { SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { CliStrategy, WorkboxCliConfig } from './options'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -27,11 +28,11 @@ export function resolveDefaultConfig(cwd: string = process.cwd()): string | unde
 export async function loadCliConfiguration(
   configPath?: string,
   cliSelfDestroying?: boolean,
-): Promise<WorkboxCliConfig> {
+): Promise<WorkboxCliConfig<CliStrategy, SWType>> {
   const resolvedPath = configPath ?? resolveDefaultConfig()
   if (!configPath && resolvedPath)
     logger.info(`Using config ${path.relative(process.cwd(), resolvedPath)}`)
-  const config: WorkboxCliConfig = await loadConfiguration<Strategy>({ path: resolvedPath })
+  const config: WorkboxCliConfig<CliStrategy, SWType> = await loadConfiguration<Strategy>({ path: resolvedPath })
 
   const enabled = cliSelfDestroying || (config.selfDestroying?.selfDestroying ?? false)
   if (enabled || config.selfDestroying) {

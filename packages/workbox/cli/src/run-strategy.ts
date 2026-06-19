@@ -1,6 +1,6 @@
 import type { BuildServiceWorkerOptions } from '@composable-vite-pwa/workbox-build/build/rolldown/types'
 import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
-import type { GetManifestOptions, InjectManifestOptions, SelfDestroyingOptions } from '@composable-vite-pwa/workbox-build/types'
+import type { GetManifestOptions, InjectManifestOptions, SelfDestroyingOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { CliStrategy, WorkboxCliConfig } from './options.js'
 import { getManifest, injectManifest } from '@composable-vite-pwa/workbox-build'
 import { buildSW } from '@composable-vite-pwa/workbox-build/build/rolldown/build-sw'
@@ -8,17 +8,17 @@ import { generateSW } from '@composable-vite-pwa/workbox-build/build/rolldown/ge
 import { selfDestroyingSW } from '@composable-vite-pwa/workbox-build/self-destroying-sw'
 import { reportBuildResult, reportManifest } from './report.js'
 
-export async function runStrategy(
-  strategy: CliStrategy,
-  config: WorkboxCliConfig,
+export async function runStrategy<S extends CliStrategy, T extends SWType>(
+  strategy: S,
+  config: WorkboxCliConfig<S, T>,
 ): Promise<void> {
   switch (strategy) {
     case 'generate-sw': {
-      await generateSW((config.generateSW ?? {}) as BuildGenerateSWOptions<any>)
+      await generateSW((config.generateSW ?? {}) as BuildGenerateSWOptions<T>)
       break
     }
     case 'build-sw': {
-      await buildSW((config.buildSW ?? {}) as BuildServiceWorkerOptions<any>)
+      await buildSW((config.buildSW ?? {}) as BuildServiceWorkerOptions<T>)
       break
     }
     case 'inject-manifest': {
