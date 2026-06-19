@@ -12,10 +12,12 @@ const build = vi.hoisted(() => ({
   buildSW: vi.fn(),
   injectManifest: vi.fn(),
   getManifest: vi.fn(),
+  selfDestroyingSW: vi.fn(),
 }))
 
 vi.mock('@composable-vite-pwa/workbox-build/build/rolldown/build-sw', () => ({ buildSW: build.buildSW }))
 vi.mock('@composable-vite-pwa/workbox-build/build/rolldown/generate-sw', () => ({ generateSW: build.generateSW }))
+vi.mock('@composable-vite-pwa/workbox-build/self-destroying-sw', () => ({ selfDestroyingSW: build.selfDestroyingSW }))
 vi.mock('@composable-vite-pwa/workbox-build', () => ({ injectManifest: build.injectManifest, getManifest: build.getManifest }))
 
 const { runStrategy } = await import('../src/run-strategy')
@@ -83,5 +85,12 @@ describe('get-manifest', () => {
     expect(info).toHaveBeenCalledWith(expect.stringContaining('manifest entries'))
     expect(info).toHaveBeenCalledWith(expect.stringContaining('/a.css'))
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('heads up'))
+  })
+})
+
+describe('self-destroy-sw', () => {
+  it('dispatches to selfDestroyingSW with the selfDestroying options', async () => {
+    await runStrategy('self-destroy-sw', { strategy: 'self-destroy-sw', selfDestroying: { swDest: 'sw.js' } })
+    expect(build.selfDestroyingSW).toHaveBeenCalledWith({ swDest: 'sw.js' })
   })
 })
