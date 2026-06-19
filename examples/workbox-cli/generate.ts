@@ -2,7 +2,7 @@
 
 import { generateModernSW } from '@composable-vite-pwa/workbox-build/generate-sw'
 import { runtimeCaching } from './cache'
-import { globIgnores } from './glogIgnores'
+import { globIgnores } from './globIgnores'
 
 /* prepareSWCode({
   globDirectory: './',

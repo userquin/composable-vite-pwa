@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import { injectManifest } from '@composable-vite-pwa/workbox-build/inject-manifest'
 import { rolldown } from 'rolldown'
-import { globIgnores } from './glogIgnores'
+import { globIgnores } from './globIgnores'
 
 rolldown({
   input: 'custom-sw.js',
