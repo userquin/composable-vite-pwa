@@ -1,11 +1,11 @@
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { CliStrategy, WorkboxCliConfig } from './options.js'
+import type { CliStrategy, WorkboxCliConfig } from './options'
 import process from 'node:process'
 import { hasTTY, isCI } from 'std-env'
 import pkg from '../package.json' with { type: 'json' }
-import { loadCliConfiguration } from './config.js'
-import { logger } from './logger.js'
-import { runStrategy } from './run-strategy.js'
+import { loadCliConfiguration } from './config'
+import { logger } from './logger'
+import { runStrategy } from './run-strategy'
 
 type StrategyName = 'generate-sw' | 'inject-manifest' | 'build-sw' | 'get-manifest' | 'self-destroy-sw'
 

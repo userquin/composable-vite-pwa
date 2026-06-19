@@ -1,12 +1,12 @@
 import type { BuildServiceWorkerOptions } from '@composable-vite-pwa/workbox-build/build/rolldown/types'
 import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
 import type { GetManifestOptions, InjectManifestOptions, SelfDestroyingOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { CliStrategy, WorkboxCliConfig } from './options.js'
+import type { CliStrategy, WorkboxCliConfig } from './options'
 import { getManifest, injectManifest } from '@composable-vite-pwa/workbox-build'
 import { buildSW } from '@composable-vite-pwa/workbox-build/build/rolldown/build-sw'
 import { generateSW } from '@composable-vite-pwa/workbox-build/build/rolldown/generate-sw'
 import { selfDestroyingSW } from '@composable-vite-pwa/workbox-build/self-destroying-sw'
-import { reportBuildResult, reportManifest } from './report.js'
+import { reportBuildResult, reportManifest } from './report'
 
 export async function runStrategy<S extends CliStrategy, T extends SWType>(
   strategy: S,
