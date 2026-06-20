@@ -35,7 +35,7 @@ export default defineConfig([{
   clean: false,
   banner,
   define: {
-    'process.env.PWA_ESM_FALLBACK_SW': 'process.env.PWA_ESM_FALLBACK_SW',
+    'import.meta.PWA_ESM_FALLBACK_SW': 'import.meta.PWA_ESM_FALLBACK_SW',
     'import.meta.PWA_SW_URL': 'import.meta.PWA_SW_URL',
     'import.meta.PWA_SW_CLASSIC_URL': 'import.meta.PWA_SW_CLASSIC_URL',
     'import.meta.PWA_SW_MODULE_URL': 'import.meta.PWA_SW_MODULE_URL',
@@ -46,13 +46,6 @@ export default defineConfig([{
     'import.meta.PWA_SW_AUTO_UPDATE': 'import.meta.PWA_SW_AUTO_UPDATE',
     'import.meta.PWA_DEV_ENABLED': 'import.meta.PWA_DEV_ENABLED',
     'import.meta.PWA_DEV_UI_ENABLED': 'import.meta.PWA_DEV_UI_ENABLED',
-    '__SW_URL__': '__SW_URL__',
-    '__SW_CLASSIC_URL__': '__SW_CLASSIC_URL__',
-    '__SW_MODULE_URL__': '__SW_MODULE_URL__',
-    '__SW_SCOPE__': '__SW_SCOPE__',
-    '__SW_UPDATE_VIA_CACHE__': '__SW_UPDATE_VIA_CACHE__',
-    '__SW_AUTO_UPDATE__': '__SW_AUTO_UPDATE__',
-    '__SW_SELF_DESTROYING__': '__SW_SELF_DESTROYING__',
   },
   deps: {
     neverBundle: [
