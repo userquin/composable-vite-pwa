@@ -32,7 +32,11 @@ export async function loadCliConfiguration(
   const resolvedPath = configPath ?? resolveDefaultConfig()
   if (!configPath && resolvedPath)
     logger.info(`Using config ${path.relative(process.cwd(), resolvedPath)}`)
-  const config: WorkboxCliConfig<CliStrategy, SWType> = await loadConfiguration<Strategy>({ path: resolvedPath })
+  // loadConfiguration() resolves via dynamic import(), which Node caches per
+  // path — repeated calls with the same path return the *same* object. Clone
+  // before mutating selfDestroying below, or the mutation leaks across calls.
+  const loaded = await loadConfiguration<Strategy>({ path: resolvedPath })
+  const config: WorkboxCliConfig<CliStrategy, SWType> = { ...loaded }
 
   const enabled = cliSelfDestroying || (config.selfDestroying?.selfDestroying ?? false)
   if (enabled || config.selfDestroying) {

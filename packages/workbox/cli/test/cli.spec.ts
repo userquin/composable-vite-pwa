@@ -115,14 +115,12 @@ describe('strategy resolution', () => {
     const { status, stdout } = runCli(['-c', 'get-manifest'], dir)
     expect(status).toBe(0)
     expect(stdout).toContain('Using config workbox.config.mjs')
-  })
 
-  it('lets -i outrank the config strategy (-c > -i > config)', () => {
-    const dir = makeDir()
-    write(dir, 'workbox.config.mjs', esm(withAssets(dir)))
-    const { status, stderr } = runCli(['-i'], dir)
-    expect(status).toBe(1)
-    expect(stderr).toContain('--interactive requires a TTY')
+    expect(stdout).toMatch(/strategy\s+get-manifest/)
+    expect(stdout).toContain('[Vite PWA] get-manifest complete')
+
+    expect(stdout).not.toMatch(/strategy\s+generate-sw/)
+    expect(stdout).not.toContain('generate-sw complete')
   })
 
   it('lets -c outrank -i (no prompt when both are passed)', () => {

@@ -1,29 +1,11 @@
-import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { CliStrategy, WorkboxCliConfig } from './options'
+import type { StrategyName } from './options'
 import process from 'node:process'
-import { hasTTY, isCI } from 'std-env'
 import pkg from '../package.json' with { type: 'json' }
 import { loadCliConfiguration } from './config'
+import { executeStrategy } from './execute'
 import { logger } from './logger'
-import { runStrategy } from './run-strategy'
-
-type StrategyName = 'generate-sw' | 'inject-manifest' | 'build-sw' | 'get-manifest' | 'self-destroy-sw'
-
-const STRATEGY_NAMES: StrategyName[] = [
-  'generate-sw',
-  'inject-manifest',
-  'build-sw',
-  'get-manifest',
-  'self-destroy-sw',
-]
-
-const STRATEGY_OPTION_KEYS: Record<StrategyName, keyof WorkboxCliConfig<CliStrategy, SWType>> = {
-  'generate-sw': 'generateSW',
-  'build-sw': 'buildSW',
-  'inject-manifest': 'injectManifest',
-  'get-manifest': 'getManifest',
-  'self-destroy-sw': 'selfDestroying',
-}
+import { STRATEGY_NAMES } from './options'
+import { resolveInteractiveStrategy } from './resolve-interactive-strategy'
 
 const USAGE = `Usage: workbox-cli [config] [options]
 
@@ -102,22 +84,7 @@ async function init() {
     const config = await loadCliConfiguration(positionals[0], selfDestroying)
 
     if (!strategy && interactive) {
-      if (!hasTTY || isCI)
-        throw new Error('--interactive requires a TTY (not available in CI)')
-      const { isCancel, cancel, select } = await import('@clack/prompts')
-      const choice = await select({
-        message: 'Which strategy should run?',
-        options: STRATEGY_NAMES.map(s => ({
-          value: s,
-          label: s,
-          hint: config[STRATEGY_OPTION_KEYS[s]] == null ? 'not configured' : undefined,
-        })),
-      })
-      if (isCancel(choice)) {
-        cancel('Cancelled')
-        process.exit(1)
-      }
-      strategy = choice
+      strategy = await resolveInteractiveStrategy(config)
     }
 
     strategy ??= config.strategy
@@ -130,17 +97,7 @@ async function init() {
       )
     }
 
-    const SW_BUILDERS: readonly StrategyName[] = ['generate-sw', 'build-sw', 'inject-manifest']
-    const shouldSelfDestroy = SW_BUILDERS.includes(strategy)
-      && !!config.selfDestroying?.selfDestroying
-
-    await runStrategy(strategy, config)
-    logger.success(`${strategy} complete`)
-
-    if (shouldSelfDestroy) {
-      await runStrategy('self-destroy-sw', config)
-      logger.success('self-destroying SW complete')
-    }
+    await executeStrategy(strategy, config)
   }
   catch (err) {
     logger.error(err instanceof Error ? err.message : String(err))
