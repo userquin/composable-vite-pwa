@@ -1,4 +1,4 @@
-import type { PWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/context-types'
+import type { PWAPluginContext } from './context-types'
 import type { ResolvedVitePWAOptions } from './types'
 import pc from 'picocolors'
 import {

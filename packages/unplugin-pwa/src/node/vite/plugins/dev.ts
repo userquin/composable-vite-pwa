@@ -1,8 +1,8 @@
-import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/types'
-import type { ViteBundler, VitePWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/vite/vite-context'
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { PluginOption } from 'vite'
+import type { VitePWAStrategy } from '../../types'
+import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 
 export function DevPlugin<
   UserStrategy extends VitePWAStrategy,

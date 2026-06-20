@@ -10,9 +10,9 @@ import type { ResolvedConfig } from 'vite'
 import type { ResolvedVitePWAOptions, VitePWAStrategy } from '../types'
 import type { ViteBundler, VitePWAPluginContext } from './vite-context'
 import path from 'node:path'
-import { additionalManifestEntriesFactory } from '@composable-vite-pwa/unplugin-pwa/additional-manifest-entries'
-import { prepareManifest } from '@composable-vite-pwa/unplugin-pwa/config'
 import pc from 'picocolors'
+import { additionalManifestEntriesFactory } from '../additional-manifest-entries'
+import { prepareManifest } from '../config'
 
 const normalizePathRegexp = /\\/g
 

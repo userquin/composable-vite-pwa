@@ -1,5 +1,5 @@
 declare module 'virtual:pwa-register/solid' {
-  import type { PWATrustedScriptURL, RegisterSWOptions } from '@composable-vite-pwa/vite-plugin-pwa/types'
+  import type { PWATrustedScriptURL, RegisterSWOptions } from '@composable-vite-pwa/unplugin-pwa/types'
   // eslint-disable-next-line ts/ban-ts-comment
   // @ts-ignore ignore when solid-js is not installed
   import type { Accessor, Setter } from 'solid-js'

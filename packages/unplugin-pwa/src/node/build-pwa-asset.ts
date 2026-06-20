@@ -26,6 +26,7 @@ export async function buildPwaAsset<
     buildSW,
     injectManifest,
     generateSW,
+    updateViaCache,
   } = ctx.resolvedOptions
   const useGenerateSW = strategy === 'generate-sw'
 
@@ -67,7 +68,7 @@ export async function buildPwaAsset<
     'import.meta.PWA_SW_MODULE_URL': JSON.stringify(moduleSWDestPath),
     'import.meta.PWA_SW_SCOPE': JSON.stringify(scope),
     'import.meta.PWA_SW_TYPE': JSON.stringify(swType),
-    'import.meta.PWA_SW_UPDATE_VIA_CACHE': JSON.stringify(scope),
+    'import.meta.PWA_SW_UPDATE_VIA_CACHE': JSON.stringify(updateViaCache),
     'import.meta.PWA_DEV_SERVER': JSON.stringify(ctx.devEnvironment),
     'import.meta.PWA_SW_AUTO_UPDATE': JSON.stringify(ctx.resolvedOptions.registerType === 'autoUpdate'),
     'import.meta.PWA_DEV_ENABLED': JSON.stringify(devEnabled),

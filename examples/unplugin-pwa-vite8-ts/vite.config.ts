@@ -30,12 +30,10 @@ export default defineConfig({
     VitePWA({
       swType: 'classic-and-module',
       strategies: 'build-sw',
-      includeAssets: ['favicon.svg'],
+      includeAssets: ['favicon.ico', 'favicon.svg'],
       // includeManifestIcons: true,
       minify: false,
       manifest: {
-        name: 'unplugin-pwa-vite8-ts',
-        short_name: 'unplugin-pwa-vite8-ts',
         icons: [
           {
             src: 'pwa-64x64.png',

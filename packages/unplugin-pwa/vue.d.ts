@@ -1,5 +1,5 @@
 declare module 'virtual:pwa-register/vue' {
-  import type { PWATrustedScriptURL, RegisterSWOptions } from '@composable-vite-pwa/vite-plugin-pwa/types'
+  import type { PWATrustedScriptURL, RegisterSWOptions } from '@composable-vite-pwa/unplugin-pwa/types'
   // eslint-disable-next-line ts/ban-ts-comment
   // @ts-ignore ignore when vue is not installed
   import type { Ref } from 'vue'

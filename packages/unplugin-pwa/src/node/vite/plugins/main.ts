@@ -5,13 +5,13 @@ import type {
 import type { PluginOption } from 'vite'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
-import { generateVirtualModule } from '@composable-vite-pwa/unplugin-pwa/generate-virtual-module'
 import { prefixRegex } from '@rolldown/pluginutils'
 import {
   VIRTUAL_MODULES,
   VIRTUAL_MODULES_MAP,
   VIRTUAL_MODULES_RESOLVE_PREFIX,
 } from '../../constants'
+import { generateVirtualModule } from '../../generate-virtual-module'
 import { prepareDefaults } from '../helpers'
 // import { generateRegisterSW } from '../modules'
 // import { swDevOptions } from './dev'

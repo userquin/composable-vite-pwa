@@ -133,6 +133,7 @@ export async function resolvePwaConfiguration<
     additionalManifestEntries,
     additionalManifestEntriesGenerator,
     manifest,
+    updateViaCache = 'imports',
     ...rest
   } = config
   switch (config.strategies) {
@@ -153,6 +154,7 @@ export async function resolvePwaConfiguration<
         manifest,
         manifestFilename,
         minify,
+        updateViaCache,
       }, {
         generateSW: Object.assign(generateSW ?? workbox ?? {}, {
           swType,
@@ -177,6 +179,7 @@ export async function resolvePwaConfiguration<
         manifest,
         manifestFilename,
         minify,
+        updateViaCache,
       }, {
         buildSW: Object.assign(rest.injectManifest ?? {}, {
           swType,
@@ -201,6 +204,7 @@ export async function resolvePwaConfiguration<
         manifest,
         manifestFilename,
         minify,
+        updateViaCache,
       }, {
         buildSW: Object.assign(rest.buildSW ?? {}, {
           swType,

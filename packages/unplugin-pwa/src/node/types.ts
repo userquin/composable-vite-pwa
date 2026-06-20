@@ -222,6 +222,10 @@ export interface VitePWAOptions<
    */
   scope?: string
   /**
+   * The update via cache
+   */
+  updateViaCache?: ServiceWorkerUpdateViaCache
+  /**
    * Inject the service worker register inlined in the index.html
    *
    * With `auto` set, depends on whether you used the `import { registerSW } from 'virtual:pwa-register'`

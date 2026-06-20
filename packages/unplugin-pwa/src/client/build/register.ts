@@ -12,6 +12,7 @@ export function registerSW(options: RegisterSWOptions = {}) {
     onOfflineReady,
     onRegisteredSW,
     onRegisterError,
+    updateViaCache = import.meta.PWA_SW_UPDATE_VIA_CACHE || 'imports',
   } = options
 
   let wb: import('@composable-vite-pwa/workbox-window').Workbox | undefined
@@ -59,7 +60,7 @@ export function registerSW(options: RegisterSWOptions = {}) {
         return new Workbox(useSWURL, {
           scope: import.meta.PWA_SW_SCOPE,
           type: useSWType,
-          updateViaCache: import.meta.PWA_SW_UPDATE_VIA_CACHE,
+          updateViaCache,
         })
       }).catch((e) => {
         onRegisterError?.(e)

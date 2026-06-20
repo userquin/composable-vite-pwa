@@ -8,7 +8,7 @@
       "@composable-vite-pwa/unplugin-pwa": [
         "./packages/unplugin-pwa/src/node/vite/index.ts"
       ],
-      "@composable-vite-pwa/unplugin-pwa/*": [
+      "@composable-vite-pwa/unplugin-pwa/node/*": [
         "./packages/unplugin-pwa/src/node/*.ts"
       ],
       "@composable-vite-pwa/workbox-build": [

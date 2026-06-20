@@ -1,11 +1,11 @@
-import type { ResolvedVitePWAOptions, VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/types'
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { PluginOption } from 'vite'
+import type { ResolvedVitePWAOptions, VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
-import { generateWebManifestFile } from '@composable-vite-pwa/unplugin-pwa/assets'
-import { FILE_SW_REGISTER } from '@composable-vite-pwa/unplugin-pwa/constants'
-import { generateRegisterSW } from '@composable-vite-pwa/unplugin-pwa/generate-register-sw'
+import { generateWebManifestFile } from '../../assets'
+import { FILE_SW_REGISTER } from '../../constants'
+import { generateRegisterSW } from '../../generate-register-sw'
 import { injectManifest, injectServiceWorker } from '../../html'
 
 export function BuildPlugin<

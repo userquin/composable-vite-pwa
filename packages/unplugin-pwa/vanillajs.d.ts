@@ -1,5 +1,5 @@
 declare module 'virtual:pwa-register' {
-  import type { PWATrustedScriptURL, RegisterSWOptions } from '@composable-vite-pwa/vite-plugin-pwa/types'
+  import type { PWATrustedScriptURL, RegisterSWOptions } from '@composable-vite-pwa/unplugin-pwa/types'
 
   export type { PWATrustedScriptURL, RegisterSWOptions }
 

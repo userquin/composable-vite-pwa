@@ -45,4 +45,8 @@ export interface RegisterSWOptions {
    */
   onRegisteredSW?: (swScriptUrl: string, registration: ServiceWorkerRegistration | undefined) => void
   onRegisterError?: (error: unknown) => void
+  /**
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/updateViaCache
+   */
+  updateViaCache?: ServiceWorkerUpdateViaCache
 }

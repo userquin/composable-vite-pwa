@@ -8,8 +8,8 @@ import type {
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { BuildSWType, Bundler, PWAPluginContext } from './context-types'
 import type { RegisterSWData, ResolvedVitePWAOptions, VitePWAStrategy, WebManifestData } from './types'
-import { DEV_SW_NAME, FILE_SW_REGISTER } from '@composable-vite-pwa/unplugin-pwa/constants'
-import { generateRegisterDevSW, generateRegisterSW, generateWebManifest } from '@composable-vite-pwa/unplugin-pwa/html'
+import { DEV_SW_NAME, FILE_SW_REGISTER } from './constants'
+import { generateRegisterDevSW, generateRegisterSW, generateWebManifest } from './html'
 
 export function preparePWAContext<
   B extends Bundler,
