@@ -1,4 +1,3 @@
-/// <reference path="./globals.ts" />
 /*
   Copyright 2018 Google LLC, Vite PWA's Team
 
@@ -12,6 +11,30 @@ import type { QueueStoreEntry, UnidentifiedQueueStoreEntry } from './lib/QueueDb
 import { assert, getFriendlyURL, logger, WorkboxError } from '../core/internals'
 import { QueueStore } from './lib/QueueStore'
 import { StorableRequest } from './lib/StorableRequest'
+
+// Background Sync API — not in TypeScript's lib.webworker.d.ts. Declared inline
+// here (not via a separate `/// <reference>`d file) so the ambient types are
+// emitted to dist and reach consumers, same as `__WB_MANIFEST` in
+// precaching/PrecacheController.ts. See GoogleChrome/workbox#2946 and #2393.
+declare global {
+  interface SyncManager {
+    getTags: () => Promise<string[]>
+    register: (tag: string) => Promise<void>
+  }
+
+  interface SyncEvent extends ExtendableEvent {
+    readonly lastChance: boolean
+    readonly tag: string
+  }
+
+  interface ServiceWorkerRegistration {
+    readonly sync: SyncManager
+  }
+
+  interface ServiceWorkerGlobalScopeEventMap {
+    sync: SyncEvent
+  }
+}
 
 // Give TypeScript the correct global.
 declare let self: ServiceWorkerGlobalScope
