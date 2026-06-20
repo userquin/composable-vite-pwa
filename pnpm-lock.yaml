@@ -357,51 +357,6 @@ importers:
         specifier: workspace:*
         version: link:../../packages/workbox/swkit
 
-  packages/core:
-    dependencies:
-      '@composable-vite-pwa/workbox-build':
-        specifier: workspace:*
-        version: link:../workbox/build
-      '@composable-vite-pwa/workbox-window':
-        specifier: workspace:*
-        version: link:../workbox/window
-      '@types/trusted-types':
-        specifier: catalog:types
-        version: 2.0.7
-      picocolors:
-        specifier: catalog:utils
-        version: 1.1.1
-    devDependencies:
-      '@types/react':
-        specifier: catalog:react
-        version: 19.2.14
-      '@vite-pwa/assets-generator':
-        specifier: catalog:utils
-        version: 1.0.2
-      preact:
-        specifier: catalog:preact
-        version: 10.29.1
-      publint:
-        specifier: catalog:utils
-        version: 0.3.18
-      react:
-        specifier: catalog:react
-        version: 19.2.5
-      solid-js:
-        specifier: catalog:solid-js
-        version: 1.9.12
-      svelte:
-        specifier: catalog:svelte
-        version: 5.55.4(@typescript-eslint/types@8.59.0)
-      vite:
-        specifier: catalog:vite
-        version: 8.1.0-beta.0(@types/node@24.12.2)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
-      vue:
-        specifier: catalog:vue
-        version: 3.5.33(typescript@5.9.3)
-
-  packages/core/types: {}
-
   packages/unplugin-pwa:
     dependencies:
       '@composable-vite-pwa/workbox-build':

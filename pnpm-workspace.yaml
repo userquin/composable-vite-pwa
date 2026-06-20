@@ -24,7 +24,6 @@ trustPolicy: no-downgrade
 
 packages:
   - examples/**
-  - packages/core/**
   - packages/unplugin-pwa/**
   - packages/workbox/**
 overrides:
