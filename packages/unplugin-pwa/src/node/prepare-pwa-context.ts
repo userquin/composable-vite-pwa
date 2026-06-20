@@ -211,7 +211,7 @@ export function preparePWAContext<
   }
 
   ctx.runBuild = async () => {
-    switch (ctx.resolvedOptions.strategy) {
+    switch (ctx.strategy) {
       case 'self-destroy-sw':
         await ctx.build.selfDestroyingSW()
         break
