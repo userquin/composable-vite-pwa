@@ -10,8 +10,6 @@ import {
   FILE_SW_REGISTER,
 } from './constants'
 
-// TODO: review ResolvedVitePWAOptions, we'll need some generics
-
 export function generateSimpleSWRegister(
   options: ResolvedVitePWAOptions<any, any>,
   swType: string,

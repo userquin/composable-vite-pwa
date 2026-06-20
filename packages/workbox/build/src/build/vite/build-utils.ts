@@ -38,7 +38,7 @@ export async function prepareViteBuild(
     envDir,
     logLevel,
     build: {
-      // don't copy anything from public dir
+      // don't clear outDir folder
       emptyOutDir: false,
       // don't copy anything from public dir
       copyPublicDir: false,
