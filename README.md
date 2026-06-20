@@ -56,9 +56,9 @@
 
 ## CLI & Strategies
 
-- [ ] **Add `self-destroy-sw` CLI option** - the CLI option and some tests.
-- [ ] The strategy already exists as a standalone case in `internal-webpack-build.ts`. The CLI should expose it as a top-level option (e.g., `--self-destroy` or `strategy: 'self-destroy-sw'`).
-- [ ] Tests: add coverage for the `self-destroy-sw` strategy path in CLI.
+- [x] **Add `self-destroy-sw` CLI option** - the CLI option and some tests.
+- [x] The strategy already exists as a standalone case in `internal-webpack-build.ts`. The CLI should expose it as a top-level option (e.g., `--self-destroy` or `strategy: 'self-destroy-sw'`).
+- [x] Tests: add coverage for the `self-destroy-sw` strategy path in CLI.
 - [ ] Reverse strategy precedence in `@build/webpack` and `@build/rspack` plugins
   *A strategy passed to the plugin constructor must override the config file's default strategy (currently the resolved config wins – `strategy ?? buildContext.strategy` in `build/builder/internal-webpack-build.ts`). Update the **WARNING** JSDoc in both plugins when fixed.*
 
