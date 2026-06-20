@@ -7,6 +7,7 @@ import type {
 } from './bundler-types'
 import path from 'node:path'
 import process from 'node:process'
+import { includeRolldownOxcPlugin } from '@composable-vite-pwa/workbox-build/build/builder/detector'
 import { prepareCodeSplittingGroups } from './prepare-code-splitting-groups'
 import { prepareDefineOptions } from './prepare-define-options'
 import { RolldownPlugin } from './rolldown-plugin'
@@ -103,14 +104,14 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
   }))
 
   if (bundler === 'rolldown') {
-    // TODO: check rolldown version to include this plugin once
-    //       https://github.com/oxc-project/oxc/issues/23224 at rolldown
-    plugins.unshift(await import('./rolldown-render-chunk-plugin').then(({
-      RolldownRenderChunkPlugin,
-    }) => RolldownRenderChunkPlugin(
-      define,
-      sourcemap,
-    )))
+    if (includeRolldownOxcPlugin()) {
+      plugins.unshift(await import('./rolldown-render-chunk-plugin').then(({
+        RolldownRenderChunkPlugin,
+      }) => RolldownRenderChunkPlugin(
+        define,
+        sourcemap,
+      )))
+    }
     rolldownOptions.sourcemap = sourcemap
     rolldownOptions.minify = minify
     rolldownOptions.topLevelVar = true

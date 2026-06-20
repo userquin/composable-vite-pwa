@@ -1,0 +1,122 @@
+import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
+import type { GlobPartial, RequiredSWDestPartial, SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { Bundler, PWAPluginContext } from './context-types'
+import type { VitePWAStrategy } from './types'
+import { resolveSWNames } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
+
+type SWNames = GlobPartial & RequiredSWDestPartial
+
+/**
+ * This module will build `registerSW` or any virtual module.
+ * @param code The code to build.
+ * @param ctx The context of the PWA bundler.
+ */
+export async function buildPwaAsset<
+  B extends Bundler,
+  UserStrategy extends VitePWAStrategy,
+  T extends SWType,
+  S extends Strategy,
+>(
+  code: string,
+  ctx: PWAPluginContext<B, UserStrategy, S, T>,
+): Promise<string> {
+  const {
+    strategy,
+    scope,
+    buildSW,
+    injectManifest,
+    generateSW,
+  } = ctx.resolvedOptions
+  const useGenerateSW = strategy === 'generate-sw'
+
+  const {
+    swDestPath,
+    classicSWDestPath,
+    moduleSWDestPath,
+  } = resolveSWNames(
+    strategy === 'generate-sw'
+      ? generateSW as SWNames
+      : strategy === 'build-sw'
+        ? buildSW as SWNames
+        : injectManifest as SWNames,
+    strategy === 'generate-sw'
+      ? ''
+      : strategy === 'build-sw'
+        ? buildSW!.swSrc!
+        : injectManifest!.swSrc!,
+    useGenerateSW,
+  )
+
+  let swType: 'classic' | 'module' = 'classic'
+  if (ctx.devEnvironment) {
+    if (ctx.resolvedOptions.devOptions?.type === 'module') {
+      swType = 'module'
+    }
+  }
+  else if (ctx.resolvedOptions.swType === 'module') {
+    swType = 'module'
+  }
+
+  const devEnabled = ctx.resolvedOptions.devOptions?.enabled === true
+
+  return await buildPwaAssetWithRolldown(code, {
+    'import.meta.PWA_ESM_FALLBACK_SW': JSON.stringify(ctx.resolvedOptions.swType === 'classic-and-module'),
+    'import.meta.PWA_SELF_DESTROYING_SW': JSON.stringify(ctx.strategy === 'self-destroy-sw'),
+    'import.meta.PWA_SW_URL': JSON.stringify(swDestPath),
+    'import.meta.PWA_SW_CLASSIC_URL': JSON.stringify(classicSWDestPath),
+    'import.meta.PWA_SW_MODULE_URL': JSON.stringify(moduleSWDestPath),
+    'import.meta.PWA_SW_SCOPE': JSON.stringify(scope),
+    'import.meta.PWA_SW_TYPE': JSON.stringify(swType),
+    'import.meta.PWA_SW_UPDATE_VIA_CACHE': JSON.stringify(scope),
+    'import.meta.PWA_DEV_SERVER': JSON.stringify(ctx.devEnvironment),
+    'import.meta.PWA_SW_AUTO_UPDATE': JSON.stringify(ctx.resolvedOptions.registerType === 'autoUpdate'),
+    'import.meta.PWA_DEV_ENABLED': JSON.stringify(devEnabled),
+    'import.meta.PWA_DEV_UI_ENABLED': JSON.stringify(devEnabled && ctx.resolvedOptions.devOptions?.enableUISwitcher === true),
+  }, ctx.resolvedOptions.minify!)
+}
+
+async function buildPwaAssetWithRolldown(
+  code: string,
+  define: Record<string, any>,
+  minify: boolean,
+): Promise<string> {
+  const { rolldown } = await import('rolldown')
+
+  const input = 'asset.js'
+
+  const bundle = await rolldown({
+    input,
+    platform: 'browser',
+    treeshake: true,
+    logLevel: 'warn',
+    plugins: [{
+      name: 'asset-builder',
+      resolveId(id) {
+        return id === input ? input : undefined
+      },
+      load(id) {
+        return id === input ? code : undefined
+      },
+    }],
+    transform: {
+      define,
+    },
+  })
+
+  const result = await bundle.generate({
+    format: 'esm',
+    topLevelVar: true,
+    cleanDir: false,
+    comments: {
+      legal: !minify,
+      jsdoc: false,
+      annotation: false,
+    },
+    minify,
+    codeSplitting: false,
+  })
+
+  const chunk = result.output.find(e => e.fileName === input && e.type === 'chunk') as import('rolldown').OutputChunk
+
+  return chunk.code
+}

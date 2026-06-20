@@ -1,0 +1,59 @@
+import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
+import type { InjectManifestStrategyOptions, SelfDestroyingStrategyOptions, Strategy } from '@composable-vite-pwa/workbox-build/config/types'
+import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { PWAAssetsGenerator } from './pwa-assets/types'
+import type { ResolvedVitePWAOptions, VitePWAOptions, VitePWAStrategy } from './types'
+
+export type Bundler = 'vite' | 'vite-legacy' | 'webpack' | 'rspack'
+
+export type BuildSWType<B extends Bundler, T extends SWType> = B extends 'vite'
+  ? import('@composable-vite-pwa/workbox-build/build/vite/types').BuildServiceWorkerOptions<T>
+  : B extends 'vite-legacy'
+    ? import('@composable-vite-pwa/workbox-build/build/vite/legacy-types').LegacyBuildServiceWorkerOptions<T>
+    : import('@composable-vite-pwa/workbox-build/build/rolldown/types').BuildServiceWorkerOptions<T>
+
+export interface PWABuildContext {
+  generateSW: () => Promise<BuildResult>
+  buildSW: () => Promise<BuildResult>
+  injectManifest: () => Promise<BuildResult>
+  selfDestroyingSW: () => Promise<boolean>
+}
+
+export interface PWABuildDevContext<
+  B extends Bundler,
+  T extends SWType,
+> {
+  options: {
+    swName: string
+    swType: WorkerType
+    swGenerated: boolean
+    registerSWGenerated: boolean
+    swAssetsPaths: Map<string, string>
+  }
+  generateSW: (options: Partial<BuildGenerateSWOptions<T>>) => Promise<BuildResult>
+  buildSW: (options: Partial<BuildSWType<B, T>>) => Promise<BuildResult>
+  injectManifest: (options: Partial<InjectManifestStrategyOptions>) => Promise<BuildResult>
+  selfDestroyingSW: (options: SelfDestroyingStrategyOptions) => Promise<boolean>
+}
+export interface PWAPluginContext<
+  B extends Bundler,
+  UserStrategy extends VitePWAStrategy,
+  S extends Strategy,
+  T extends SWType,
+> {
+  bundler: B
+  version: string
+  strategy: S
+  consumerOptions: Partial<VitePWAOptions<UserStrategy, T>>
+  resolvedOptions: Partial<ResolvedVitePWAOptions<S, T>>
+  useImportRegister: boolean
+  devEnvironment: boolean
+  pwaAssetsGenerator: Promise<PWAAssetsGenerator | undefined>
+  build: PWABuildContext
+  dev: PWABuildDevContext<B, T>
+  publicDir: string
+  rootDir: string
+  outDir: string
+  base: string
+  runBuild: () => Promise<void>
+}

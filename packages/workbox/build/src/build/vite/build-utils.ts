@@ -33,14 +33,15 @@ export async function prepareViteBuild(
   return await build({
     plugins,
     configFile: false,
-    // don't copy anything from public dir
-    publicDir: false,
     forceOptimizeDeps: false,
     envPrefix,
     envDir,
     logLevel,
     build: {
+      // don't copy anything from public dir
       emptyOutDir: false,
+      // don't copy anything from public dir
+      copyPublicDir: false,
       outDir: path.dirname(path.resolve(process.cwd(), swDest)),
       target,
       minify,

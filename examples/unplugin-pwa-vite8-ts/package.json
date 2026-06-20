@@ -1,0 +1,18 @@
+{
+  "name": "unplugin-pwa-vite8-ts",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/unplugin-pwa": "workspace:../../packages/unplugin-pwa",
+    "@composable-vite-pwa/workbox-build": "workspace:../../packages/workbox/build",
+    "magic-string": "catalog:utils",
+    "magicast": "catalog:utils",
+    "vite": "catalog:vite"
+  }
+}

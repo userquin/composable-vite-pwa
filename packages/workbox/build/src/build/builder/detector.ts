@@ -96,6 +96,19 @@ export async function detectBuildSWDependencies(): Promise<BuildSWResult> {
   }
 }
 
+export function includeRolldownOxcPlugin() {
+  try {
+    const version = readPkgVersion('rolldown')
+    if (!version) {
+      return true
+    }
+    return semver.lt(version, '1.1.2')
+  }
+  catch {
+    return false
+  }
+}
+
 export async function detectGenerateSWDependencies(): Promise<GenerateSWDependenciesResult> {
   const [rolldown, magicast, vite] = await Promise.allSettled([
     detectRolldown(),

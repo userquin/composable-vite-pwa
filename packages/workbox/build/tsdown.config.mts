@@ -13,6 +13,7 @@ const cwd = fileURLToPath(new URL('.', import.meta.url))
 export default defineConfig({
   entry: [
     './src/{index,types,generate-sw,get-manifest,inject-manifest,self-destroying-sw}.ts',
+    './src/utils/resolve-sw-names.ts',
     {
       'build/*': [
         './src/build/*.ts',
