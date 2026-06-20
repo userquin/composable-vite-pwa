@@ -99,11 +99,11 @@ export function generateWebManifest(options: ResolvedVitePWAOptions<any, any>, d
 
 export function generateRegisterSW(ctx: PWAPluginContext<any, any, any, any>, dev: boolean) {
   if (ctx.resolvedOptions.injectRegister === 'inline') {
-    return `<script id="vite-plugin-pwa:inline-sw">${generateSimpleSWRegister(ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>, ctx.resolvedOptions.swType!, dev)}</script>`
+    return `<script id="unplugin-pwa:inline-sw">${generateSimpleSWRegister(ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>, ctx.resolvedOptions.swType!, dev)}</script>`
   }
   else if (ctx.resolvedOptions.injectRegister === 'script' || ctx.resolvedOptions.injectRegister === 'script-defer') {
     const hasDefer = ctx.resolvedOptions.injectRegister === 'script-defer'
-    return `<script id="vite-plugin-pwa:register-sw" src="${dev ? ctx.resolvedOptions.base : ctx.resolvedOptions.buildBase}${FILE_SW_REGISTER}"${hasDefer ? ' defer' : ''}></script>`
+    return `<script id="unplugin-pwa:register-sw" src="${dev ? ctx.resolvedOptions.base : ctx.resolvedOptions.buildBase}${FILE_SW_REGISTER}"${hasDefer ? ' defer' : ''}></script>`
   }
 
   return undefined
@@ -111,7 +111,7 @@ export function generateRegisterSW(ctx: PWAPluginContext<any, any, any, any>, de
 
 export function generateRegisterDevSW(base: string) {
   const path = `${base.endsWith('/') ? base : `${base}/`}${DEV_SW_VIRTUAL.slice(1)}`
-  return `<script id="vite-plugin-pwa:register-dev-sw" type="module">
+  return `<script id="unplugin-pwa:register-dev-sw" type="module">
 import registerDevSW from '${path}';
 registerDevSW();
 </script>`

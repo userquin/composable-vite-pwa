@@ -6,7 +6,7 @@ declare global {
     PWA_SW_CLASSIC_URL: string
     PWA_SW_MODULE_URL: string
     PWA_SW_SCOPE: string
-    PWA_SW_TYPE: string
+    PWA_SW_TYPE: WorkerType
     PWA_SW_UPDATE_VIA_CACHE: ServiceWorkerUpdateViaCache | undefined
     PWA_DEV_SERVER: boolean
     PWA_SW_AUTO_UPDATE: boolean

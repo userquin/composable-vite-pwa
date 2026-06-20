@@ -2,7 +2,7 @@ import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/
 import type { InjectManifestStrategyOptions, SelfDestroyingStrategyOptions, Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { PWAAssetsGenerator } from './pwa-assets/types'
-import type { ResolvedVitePWAOptions, VitePWAOptions, VitePWAStrategy } from './types'
+import type { RegisterSWData, ResolvedVitePWAOptions, VitePWAOptions, VitePWAStrategy, WebManifestData } from './types'
 
 export type Bundler = 'vite' | 'vite-legacy' | 'webpack' | 'rspack'
 
@@ -55,5 +55,19 @@ export interface PWAPluginContext<
   rootDir: string
   outDir: string
   base: string
+  /**
+   * Returns the PWA web manifest url for the manifest link:
+   * <link rel="manifest" href="<webManifestUrl>" />
+   *
+   * Will also return if the manifest will require credentials:
+   * <link rel="manifest" href="<webManifestUrl>" crossorigin="use-credentials" />
+   */
+  webManifestData: () => WebManifestData | undefined
+  /**
+   * How the service worker is being registered in the application.
+   *
+   * This option will help some integrations to inject the corresponding script in the head.
+   */
+  registerSWData: () => RegisterSWData | undefined
   runBuild: () => Promise<void>
 }

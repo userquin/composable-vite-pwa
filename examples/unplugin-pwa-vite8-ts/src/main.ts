@@ -10,6 +10,10 @@ app.innerHTML = `
 
 // registerSW()
 
-import('virtual:pwa-register').then(({
+/* import('virtual:pwa-register').then(({
   registerSW,
-}) => registerSW())
+}) => registerSW()) */
+
+import('virtual:pwa-info').then(({ pwaInfo }) => {
+  console.log('PWA info: ', pwaInfo)
+})

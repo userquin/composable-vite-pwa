@@ -8,7 +8,11 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "types": ["vite/client", "@composable-vite-pwa/unplugin-pwa/vanillajs"],
+    "types": [
+      "vite/client",
+      "@composable-vite-pwa/unplugin-pwa/info",
+      "@composable-vite-pwa/unplugin-pwa/vanillajs"
+    ],
     "allowImportingTsExtensions": true,
 
     /* Linting */

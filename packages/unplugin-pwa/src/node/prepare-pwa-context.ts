@@ -7,8 +7,9 @@ import type {
 } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { BuildSWType, Bundler, PWAPluginContext } from './context-types'
-import type { VitePWAStrategy } from './types'
-import { DEV_SW_NAME } from '@composable-vite-pwa/unplugin-pwa/constants'
+import type { RegisterSWData, ResolvedVitePWAOptions, VitePWAStrategy, WebManifestData } from './types'
+import { DEV_SW_NAME, FILE_SW_REGISTER } from '@composable-vite-pwa/unplugin-pwa/constants'
+import { generateRegisterDevSW, generateRegisterSW, generateWebManifest } from '@composable-vite-pwa/unplugin-pwa/html'
 
 export function preparePWAContext<
   B extends Bundler,
@@ -16,6 +17,71 @@ export function preparePWAContext<
   S extends Strategy,
   T extends SWType,
 >(ctx: PWAPluginContext<B, UserStrategy, S, T>) {
+  ctx.webManifestData = () => {
+    const options = ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>
+    if (!options || options.disable || !options.manifest || (ctx.devEnvironment && !options.devOptions?.enabled))
+      return undefined
+
+    let url = options.manifestFilename
+    let manifest: string
+    if (ctx.devEnvironment && options.devOptions?.enabled === true) {
+      url = options.manifestFilename
+      manifest = generateWebManifest(options, true)
+    }
+    else {
+      manifest = generateWebManifest(options, false)
+    }
+
+    return <WebManifestData>{
+      href: `${ctx.devEnvironment ? options.base : options.buildBase}${url}`,
+      useCredentials: options.useCredentials,
+      toLinkTag: () => {
+        return manifest
+      },
+    }
+  }
+
+  ctx.registerSWData = () => {
+  // we'll return the info only when it is required
+    // 1: exclude if not enabled
+    const options = ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>
+    if (!options || options.disable || (ctx.devEnvironment && !options.devOptions?.enabled))
+      return undefined
+
+    // 2: if manual registration or using virtual
+    const mode = options.injectRegister
+    if (!mode || ctx.useImportRegister)
+      return undefined
+
+    // 3: otherwise we always return the info
+    let type: WorkerType = 'classic'
+    let script: string | undefined
+    let shouldRegisterSW = options.injectRegister === 'inline' || options.injectRegister === 'script' || options.injectRegister === 'script-defer'
+    if (ctx.devEnvironment && options.devOptions?.enabled === true) {
+      type = options.devOptions?.type ?? 'classic'
+      script = generateRegisterDevSW(options.base!)
+      shouldRegisterSW = true
+    }
+    else if (shouldRegisterSW) {
+      script = generateRegisterSW(ctx, false)
+    }
+
+    const base = ctx.devEnvironment ? options.base : options.buildBase
+
+    return <RegisterSWData>{
+      // hint when required
+      shouldRegisterSW,
+      inline: options.injectRegister === 'inline',
+      mode: mode === 'auto' ? 'script' : mode,
+      scope: options.scope,
+      inlinePath: `${base}${ctx.devEnvironment ? DEV_SW_NAME : options.filename}`,
+      registerPath: `${base}${FILE_SW_REGISTER}`,
+      type,
+      toScriptTag: () => {
+        return script
+      },
+    }
+  }
   ctx.build = {
     generateSW: async () => {
       switch (ctx.bundler) {

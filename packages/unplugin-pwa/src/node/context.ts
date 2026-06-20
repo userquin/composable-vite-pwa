@@ -30,6 +30,8 @@ export function createPWAContext<
     outDir: undefined!,
     publicDir: undefined!,
     rootDir: process.cwd(),
+    webManifestData: undefined!,
+    registerSWData: undefined!,
     runBuild: undefined!,
   })
 }

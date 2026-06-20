@@ -1,11 +1,11 @@
-import { isSWModuleSupported } from '@composable-vite-pwa/workbox-window/esm-sw-detector'
+import { isServiceWorkerModuleSupported } from '@composable-vite-pwa/workbox-window/esm-sw-detector'
 
 if (import.meta.PWA_DEV_ENABLED) {
   function registerSW() {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         if (import.meta.PWA_ESM_FALLBACK_SW) {
-          if (isSWModuleSupported()) {
+          if (isServiceWorkerModuleSupported()) {
             navigator.serviceWorker.register(import.meta.PWA_SW_MODULE_URL, {
               scope: import.meta.PWA_SW_SCOPE,
               type: 'module',
@@ -23,7 +23,7 @@ if (import.meta.PWA_DEV_ENABLED) {
         else {
           navigator.serviceWorker.register(import.meta.PWA_SW_URL, {
             scope: import.meta.PWA_SW_SCOPE,
-            type: 'module',
+            type: import.meta.PWA_SW_TYPE,
             updateViaCache: import.meta.PWA_SW_UPDATE_VIA_CACHE,
           })
         }

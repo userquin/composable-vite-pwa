@@ -1,6 +1,6 @@
 import type { TrustedScriptURL } from 'trusted-types/lib'
 import type { RegisterSWOptions } from '../types'
-import { isSWModuleSupported } from '@composable-vite-pwa/workbox-window/esm-sw-detector'
+import { isServiceWorkerModuleSupported } from '@composable-vite-pwa/workbox-window/esm-sw-detector'
 
 export function registerSW(options: RegisterSWOptions = {}) {
   const {
@@ -26,8 +26,8 @@ export function registerSW(options: RegisterSWOptions = {}) {
           // By default, vite SW build will use classic and the sw.js will be the ESM version.
           // We're generating 2 variants: <sw>.js and classic-<sw>.js.
           const esmSW = import.meta.PWA_DEV_SERVER
-            ? (typeof supportsESM === 'function' ? supportsESM() : isSWModuleSupported())
-            : isSWModuleSupported()
+            ? (typeof supportsESM === 'function' ? supportsESM() : isServiceWorkerModuleSupported())
+            : isServiceWorkerModuleSupported()
           // update entries
           if (esmSW) {
             useSWType = 'module'

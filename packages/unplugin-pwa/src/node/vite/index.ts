@@ -6,6 +6,7 @@ import type { VitePWAPluginContext } from './vite-context'
 import { createPWAContext } from '../context'
 import { BuildPlugin } from './plugins/build'
 import { DevPlugin } from './plugins/dev'
+import { InfoPlugin } from './plugins/info'
 import { MainPlugin } from './plugins/main'
 import { AssetsPlugin } from './plugins/pwa-assets'
 
@@ -25,6 +26,7 @@ export function VitePWA<
 
   return [
     MainPlugin(ctx),
+    InfoPlugin(ctx),
     DevPlugin(ctx),
     BuildPlugin(ctx),
     AssetsPlugin(ctx),
