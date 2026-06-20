@@ -1,8 +1,8 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { describe, expect } from 'vitest'
-import { normalizePath } from '../src/build/builder/utils'
 import { injectManifest } from '../src/inject-manifest'
+import { normalizePath } from '../src/utils/resolve-sw-names'
 import { errors } from '../src/validation/errors'
 import { testInjectManifest } from './test-helper'
 

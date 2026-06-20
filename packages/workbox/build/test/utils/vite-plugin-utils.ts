@@ -1,8 +1,8 @@
 import type { BundlerLogLevel } from '../../src/build/types'
 import type { Strategy } from '../../src/config/types'
 import path from 'node:path'
-import { normalizePath } from '../../src/build/builder/utils'
 import { ViteWorkboxPWAPlugin } from '../../src/build/vite/plugin'
+import { normalizePath } from '../../src/utils/resolve-sw-names'
 
 export function createBuildSWPlugin(
   root: string,

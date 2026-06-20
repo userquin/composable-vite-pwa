@@ -7,7 +7,7 @@ import type {
 } from './bundler-types'
 import path from 'node:path'
 import process from 'node:process'
-import { includeRolldownOxcPlugin } from '@composable-vite-pwa/workbox-build/build/builder/detector'
+import { includeRolldownOxcPlugin } from './detector'
 import { prepareCodeSplittingGroups } from './prepare-code-splitting-groups'
 import { prepareDefineOptions } from './prepare-define-options'
 import { RolldownPlugin } from './rolldown-plugin'

@@ -3,8 +3,8 @@ import path from 'node:path'
 import process from 'node:process'
 import * as rspack from '@rspack/core'
 import { it as base, describe, expect } from 'vitest'
-import { normalizePath } from '../src/build/builder/utils'
 import { RspackWorkboxPWAPlugin } from '../src/build/rspack'
+import { normalizePath } from '../src/utils/resolve-sw-names'
 import { createFixture } from './utils/rspack-utils'
 
 // ======================== buildSW ========================
