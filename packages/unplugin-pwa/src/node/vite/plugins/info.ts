@@ -33,10 +33,10 @@ export function InfoPlugin<
     },
     load: {
       filter: { id: exactRegex(RESOLVED_PWA_INFO_VIRTUAL) },
-      handler(id) {
+      async handler(id) {
         // condition is kept for backward compatibility for below Vite v6.3
         if (id === RESOLVED_PWA_INFO_VIRTUAL)
-          return generatePwaInfo(ctx)
+          return await generatePwaInfo(ctx)
       },
     },
   } satisfies PluginOption
@@ -60,7 +60,7 @@ interface VirtualPwaInfo {
   }
 }
 
-function generatePwaInfo<
+async function generatePwaInfo<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
@@ -70,7 +70,7 @@ function generatePwaInfo<
     return 'export const pwaInfo = undefined;'
 
   const { href, useCredentials, toLinkTag } = webManifestData
-  const registerSWData = ctx.registerSWData()
+  const registerSWData = await ctx.registerSWData()
 
   const entry: VirtualPwaInfo = {
     pwaInDevEnvironment: ctx.devEnvironment,

@@ -31,17 +31,34 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./dist/index.mjs",
+    ".": "./dist/node/vite/index.mjs",
     "./node/types": {
       "types": "./dist/node/types.d.mts"
     },
+    "./node/additional-manifest-entries": "./dist/node/additional-manifest-entries.mjs",
+    "./node/assets": "./dist/node/assets.mjs",
+    "./node/build-pwa-asset": "./dist/node/build-pwa-asset.mjs",
     "./node/config": "./dist/node/config.mjs",
+    "./node/constants": "./dist/node/constants.mjs",
     "./node/context": "./dist/node/context.mjs",
     "./node/context-types": {
       "types": "./dist/node/context-types.d.mts"
     },
+    "./node/create-generate-register-sw-script": "./dist/node/create-generate-register-sw-script.mjs",
+    "./node/create-web-manifest-html-link": "./dist/node/create-web-manifest-html-link.mjs",
+    "./node/generate-register-sw": "./dist/node/generate-register-sw.mjs",
+    "./node/generate-virtual-module": "./dist/node/generate-virtual-module.mjs",
+    "./node/html": "./dist/node/html.mjs",
+    "./node/inject-generate-register-sw": "./dist/node/inject-generate-register-sw.mjs",
+    "./node/inject-web-manifest-html-link": "./dist/node/inject-web-manifest-html-link.mjs",
+    "./node/prepare-pwa-context": "./dist/node/prepare-pwa-context.mjs",
+    "./node/vite/helpers": "./dist/node/vite/helpers.mjs",
+    "./node/vite/vite-context": "./dist/node/vite/vite-context.mjs",
     "./node/vite/plugins/build": "./dist/node/vite/plugins/build.mjs",
+    "./node/vite/plugins/dev": "./dist/node/vite/plugins/dev.mjs",
+    "./node/vite/plugins/info": "./dist/node/vite/plugins/info.mjs",
     "./node/vite/plugins/main": "./dist/node/vite/plugins/main.mjs",
+    "./node/vite/plugins/pwa-assets": "./dist/node/vite/plugins/pwa-assets.mjs",
     "./types": {
       "types": "./types/index.d.ts"
     },
@@ -77,9 +94,12 @@
     },
     "./package.json": "./package.json"
   },
-  "types": "dist/index.d.mts",
+  "types": "dist/node/types.d.mts",
   "typesVersions": {
     "*": {
+      "node/*": [
+        "./dist/node/*.d.mts"
+      ],
       "types/core-client": [
         "./types/core-client.d.ts"
       ]

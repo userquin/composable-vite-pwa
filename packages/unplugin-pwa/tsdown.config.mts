@@ -3,10 +3,10 @@ import { pwaBanner as banner } from '../../tsdown-helper'
 
 export default defineConfig([{
   entry: [
-    './src/node/vite/index.ts',
     {
       'node/*': ['./src/node/*.ts'],
-      'node/vite/plugins/*': './src/node/vite/plugins/*.ts',
+      'node/vite/*': ['./src/node/vite/*.ts'],
+      'node/vite/plugins/*': ['./src/node/vite/plugins/*.ts'],
     },
   ],
   platform: 'node',

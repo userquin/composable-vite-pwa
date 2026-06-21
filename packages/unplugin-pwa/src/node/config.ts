@@ -119,6 +119,7 @@ export async function resolvePwaConfiguration<
     { path: resolvedPath },
   ))
   const {
+    filename = 'sw.js',
     strategies,
     swType,
     includeManifestIcons = true,
@@ -157,6 +158,7 @@ export async function resolvePwaConfiguration<
         updateViaCache,
       }, {
         generateSW: Object.assign(generateSW ?? workbox ?? {}, {
+          swDest: filename,
           swType,
           minify,
           maximumFileSizeToCacheInBytes,
@@ -182,6 +184,7 @@ export async function resolvePwaConfiguration<
         updateViaCache,
       }, {
         buildSW: Object.assign(rest.injectManifest ?? {}, {
+          swDest: filename,
           swType,
           minify,
           maximumFileSizeToCacheInBytes,
@@ -207,6 +210,7 @@ export async function resolvePwaConfiguration<
         updateViaCache,
       }, {
         buildSW: Object.assign(rest.buildSW ?? {}, {
+          swDest: filename,
           swType,
           minify,
           maximumFileSizeToCacheInBytes,

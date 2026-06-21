@@ -7,7 +7,13 @@ import type {
   SWType,
 } from '@composable-vite-pwa/workbox-build/types'
 import type { ResolvedConfig } from 'vite'
-import type { ResolvedVitePWAOptions, VitePWAStrategy } from '../types'
+import type {
+  ResolvedBuildSW,
+  ResolvedGenerateSW,
+  ResolvedInjectManifest,
+  ResolvedVitePWAOptions,
+  VitePWAStrategy,
+} from '../types'
 import type { ViteBundler, VitePWAPluginContext } from './vite-context'
 import path from 'node:path'
 import pc from 'picocolors'
@@ -97,7 +103,7 @@ export function normalizeManifest(
   }
 }
 
-export async function prepareDefaults<
+export async function preparePWAContextDefaults<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
@@ -142,15 +148,15 @@ export async function prepareDefaults<
   let options: Partial<BasePartial & OptionalGlobDirectoryPartial & RequiredSWDestPartial> | undefined
   switch (ctx.strategy) {
     case 'generate-sw':
-      ctx.resolvedOptions.generateSW ??= {}
+      ctx.resolvedOptions.generateSW ??= {} as ResolvedGenerateSW<S, T>
       options = ctx.resolvedOptions.generateSW
       break
     case 'inject-manifest':
-      ctx.resolvedOptions.injectManifest ??= {}
+      ctx.resolvedOptions.injectManifest ??= {} as ResolvedInjectManifest<S, T>
       options = ctx.resolvedOptions.injectManifest
       break
     case 'build-sw':
-      ctx.resolvedOptions.buildSW ??= {}
+      ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<S, T>
       options = ctx.resolvedOptions.buildSW
       break
   }
@@ -164,11 +170,6 @@ export async function prepareDefaults<
         ? normalizePath(path.relative(cwd, resolveFrom(cwd, options.globDirectory)))
         : normalizePath(path.relative(cwd, resolveFrom(cwd, outputPath))),
     })
-    /*
-        options.globDirectory = options.globDirectory
-          ? normalizePath(path.relative(cwd, resolveFrom(cwd, options.globDirectory)))
-          : normalizePath(path.relative(cwd, resolveFrom(cwd, outputPath)))
-    */
     if (!('dontCacheBustURLsMatching' in options)) {
       let assetsOutputDir = path.relative(outputPath, path.resolve(outputPath, assetsDir))
       if (assetsOutputDir.at(-1) !== '/')
@@ -178,14 +179,12 @@ export async function prepareDefaults<
       Object.assign(options, {
         dontCacheBustURLsMatching: new RegExp(`^${assetsOutputDir.replace(/^\.*\//, '')}`),
       })
-      // options.dontCacheBustURLsMatching = new RegExp(`^${assetsOutputDir.replace(/^\.*\//, '')}`)
     }
     if (ctx.strategy !== 'generate-sw') {
       if ('swSrc' in options) {
         Object.assign(options, {
           swSrc: resolveSWSrc(cwd, options.swSrc as string),
         })
-        // options.swSrc = resolveSWSrc(cwd, options.swSrc as string)
       }
     }
 
@@ -195,14 +194,12 @@ export async function prepareDefaults<
         Object.assign(options, {
           swDest: resolveFrom(outputPath, options.swDest),
         })
-        // options.swDest = resolveFrom(outputPath, options.swDest)
       }
     }
     else {
       Object.assign(options, {
         swDest: resolveFrom(outputPath, 'sw.js'),
       })
-      // options.swDest = resolveFrom(outputPath, 'sw.js')
     }
   }
   else if (ctx.strategy === 'self-destroy-sw' && ctx.resolvedOptions.selfDestroying) {

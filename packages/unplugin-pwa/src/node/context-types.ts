@@ -68,6 +68,6 @@ export interface PWAPluginContext<
    *
    * This option will help some integrations to inject the corresponding script in the head.
    */
-  registerSWData: () => RegisterSWData | undefined
+  registerSWData: () => Promise<RegisterSWData | undefined>
   runBuild: () => Promise<void>
 }

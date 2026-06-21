@@ -12,9 +12,7 @@ import {
   VIRTUAL_MODULES_RESOLVE_PREFIX,
 } from '../../constants'
 import { generateVirtualModule } from '../../generate-virtual-module'
-import { prepareDefaults } from '../helpers'
-// import { generateRegisterSW } from '../modules'
-// import { swDevOptions } from './dev'
+import { preparePWAContextDefaults } from '../helpers'
 
 export function MainPlugin<
   UserStrategy extends VitePWAStrategy,
@@ -31,7 +29,7 @@ export function MainPlugin<
       ctx.devEnvironment = true
     },
     async configResolved(config) {
-      await prepareDefaults(config, ctx)
+      await preparePWAContextDefaults(config, ctx)
     },
     resolveId: {
       filter: { id: prefixRegex('virtual:pwa-register') },

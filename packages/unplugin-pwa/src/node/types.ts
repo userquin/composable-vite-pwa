@@ -21,7 +21,7 @@ import type { HtmlLinkPreset } from '@vite-pwa/assets-generator/api'
 import type { BuiltInPreset, Preset } from '@vite-pwa/assets-generator/config'
 import type { OutputBundle, PluginContext, RollupOptions } from 'rollup'
 import type { Plugin } from 'vite'
-// import type { PWAAssetsGenerator } from './vite/pwa-assets/types'
+import type { PWAAssetsGenerator } from './pwa-assets/types'
 
 /**
  * PWA assets generation and injection options.
@@ -270,22 +270,22 @@ export interface VitePWAOptions<
    * The workbox object for `generateSW`
    * @deprecated use `generateSW` instead
    */
-  workbox: Partial<Omit<BuildGenerateSWOptions<T>, 'swType' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
+  workbox: Partial<Omit<BuildGenerateSWOptions<T>, 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
   /**
    * The workbox object for `generateSW` strategy
    */
-  generateSW: Partial<Omit<BuildGenerateSWOptions<T>, 'swType' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
+  generateSW: Partial<Omit<BuildGenerateSWOptions<T>, 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
   /**
    * The workbox object for `buildSW` strategy
    */
   buildSW:
-    | Partial<Omit<BuildServiceWorkerOptions<T>, 'swType' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
-    | Partial<Omit<LegacyBuildServiceWorkerOptions<T>, 'swType' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
-    | Partial<Omit<RolldownBuildServiceWorkerOptions<T>, 'swType' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
+    | Partial<Omit<BuildServiceWorkerOptions<T>, 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
+    | Partial<Omit<LegacyBuildServiceWorkerOptions<T>, 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
+    | Partial<Omit<RolldownBuildServiceWorkerOptions<T>, 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
   /**
    * The workbox object for `injectManifest` strategy
    */
-  injectManifest: Partial<Omit<BuildSWOptions<T>, 'swType' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
+  injectManifest: Partial<Omit<BuildSWOptions<T>, 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
   /**
    * The workbox object for `selfDestroying` strategy.
    */
@@ -375,31 +375,55 @@ export interface ResolvedServiceWorkerOptions {
   rollupOptions: RollupOptions
 }
 
+export type ResolvedGenerateSW<
+  S extends Strategy,
+  T extends SWType,
+> = S extends 'generate-sw'
+  ? Required<Partial<BuildGenerateSWOptions<T>>>
+  : Partial<BuildGenerateSWOptions<T>> | undefined
+export type ResolvedBuildSW<
+  S extends Strategy,
+  T extends SWType,
+> = S extends 'build-sw'
+  ? Required<Partial<BuildServiceWorkerOptions<T>> | Partial<LegacyBuildServiceWorkerOptions<T>> | Partial<RolldownBuildServiceWorkerOptions<T>>>
+  : Partial<BuildServiceWorkerOptions<T>> | Partial<LegacyBuildServiceWorkerOptions<T>> | Partial<RolldownBuildServiceWorkerOptions<T>> | undefined
+export type ResolvedInjectManifest<
+  S extends Strategy,
+  T extends SWType,
+> = S extends 'generate-sw'
+  ? Required<Partial<BuildSWOptions<T>>>
+  : Partial<BuildSWOptions<T>> | undefined
+
 export interface ResolvedVitePWAOptions<
   S extends Strategy,
   T extends SWType,
-> extends Omit<
+> extends Required<Omit<
     VitePWAOptions<S, T>,
     | 'strategies'
     | 'maximumFileSizeToCacheInBytes'
     | 'throwMaximumFileSizeToCacheInBytes'
     | 'sourcemap'
-  > {
+    | 'filename'
+    | 'workbox'
+    | 'generateSW'
+    | 'buildSW'
+    | 'injectManifest'
+  >> {
   strategy: S
   swSrc: string
   swDest: string
   /**
    * The workbox object for `generateSW` strategy
    */
-  generateSW: Partial<BuildGenerateSWOptions<T>>
+  generateSW: ResolvedGenerateSW<S, T>
   /**
    * The workbox object for `buildSW` strategy
    */
-  buildSW: Partial<BuildServiceWorkerOptions<T>> | Partial<LegacyBuildServiceWorkerOptions<T>> | Partial<RolldownBuildServiceWorkerOptions<T>>
+  buildSW: ResolvedBuildSW<S, T>
   /**
    * The workbox object for `injectManifest` strategy
    */
-  injectManifest: Partial<BuildSWOptions<T>>
+  injectManifest: ResolvedInjectManifest<S, T>
 }
 
 export interface ShareTargetFiles {
@@ -688,7 +712,7 @@ export interface VitePluginPWAAPI {
      * Explicitly generate the PWA services worker.
      */
   generateSW: () => Promise<void>
-  // pwaAssetsGenerator: () => Promise<PWAAssetsGenerator | undefined>
+  pwaAssetsGenerator: () => Promise<PWAAssetsGenerator | undefined>
 }
 
 export type ExtendManifestEntriesHook = (manifestEntries: (string | ManifestEntry)[]) => (string | ManifestEntry)[] | undefined

@@ -62,7 +62,6 @@ export default defineConfig({
         sourcemap: true,
         manifest: true,
         swSrc,
-        swDest,
         customChunks: (moduleId, ctx) => {
           if (ctx.getModuleInfo(moduleId)?.id.includes('sw-helper')) {
             return 'sw-helper'
@@ -72,7 +71,6 @@ export default defineConfig({
       },
       generateSW: {
         sourcemap: true,
-        swDest,
       },
     }) as PluginOption,
   ],

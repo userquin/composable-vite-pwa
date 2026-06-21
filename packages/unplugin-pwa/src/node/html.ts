@@ -1,35 +1,9 @@
-import type { PWAPluginContext } from './context-types'
-import type { ResolvedVitePWAOptions } from './types'
 import pc from 'picocolors'
 import {
   DEV_PWA_ASSETS_NAME,
   DEV_READY_NAME,
   DEV_REGISTER_SW_NAME,
-  DEV_SW_NAME,
-  DEV_SW_VIRTUAL,
-  FILE_SW_REGISTER,
 } from './constants'
-
-export function generateSimpleSWRegister(
-  options: ResolvedVitePWAOptions<any, any>,
-  swType: string,
-  dev: boolean,
-): string {
-  const path = dev ? `${options.base}${DEV_SW_NAME}` : `${options.buildBase}${options.filename}`
-
-  // we are using HMR to load this script: DO NOT ADD window::load event listener
-  if (dev) {
-    const swType = options.devOptions?.type ?? 'classic'
-    return `if('serviceWorker' in navigator) navigator.serviceWorker.register('${path}', { scope: '${options.scope}', type: '${swType}' })`
-  }
-
-  return `
-if('serviceWorker' in navigator) {
-window.addEventListener('load', () => {
-navigator.serviceWorker.register('${path}', { scope: '${options.scope}', type: '${swType}' })
-})
-}`.replace(/\n/g, '')
-}
 
 export function checkForHtmlHead(html: string) {
   if (!html.includes('</head>')) {
@@ -52,67 +26,6 @@ export function checkForHtmlHead(html: string) {
   }
 
   return html
-}
-
-export function injectServiceWorker(
-  html: string,
-  ctx: PWAPluginContext<any, any, any, any>,
-  dev: boolean,
-) {
-  if (!dev) {
-    const script = generateRegisterSW(ctx, dev)
-    if (script) {
-      return checkForHtmlHead(html).replace(
-        '</head>',
-        `${script}</head>`,
-      )
-    }
-  }
-
-  return html
-}
-export function injectManifest(
-  html: string,
-  options: ResolvedVitePWAOptions<any, any>,
-  dev: boolean,
-) {
-  const manifest = generateWebManifest(options, dev)
-
-  return checkForHtmlHead(html).replace(
-    '</head>',
-    `${manifest}</head>`,
-  )
-}
-
-export function generateWebManifest(options: ResolvedVitePWAOptions<any, any>, dev: boolean) {
-  const crossorigin = options.useCredentials ? ' crossorigin="use-credentials"' : ''
-  if (dev) {
-    const name = options.devOptions?.webManifestUrl ?? `${options.base}${options.manifestFilename}`
-    return options.manifest ? `<link rel="manifest" href="${name}"${crossorigin}>` : ''
-  }
-  else {
-    return options.manifest ? `<link rel="manifest" href="${options.buildBase}${options.manifestFilename}"${crossorigin}>` : ''
-  }
-}
-
-export function generateRegisterSW(ctx: PWAPluginContext<any, any, any, any>, dev: boolean) {
-  if (ctx.resolvedOptions.injectRegister === 'inline') {
-    return `<script id="unplugin-pwa:inline-sw">${generateSimpleSWRegister(ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>, ctx.resolvedOptions.swType!, dev)}</script>`
-  }
-  else if (ctx.resolvedOptions.injectRegister === 'script' || ctx.resolvedOptions.injectRegister === 'script-defer') {
-    const hasDefer = ctx.resolvedOptions.injectRegister === 'script-defer'
-    return `<script id="unplugin-pwa:register-sw" src="${dev ? ctx.resolvedOptions.base : ctx.resolvedOptions.buildBase}${FILE_SW_REGISTER}"${hasDefer ? ' defer' : ''}></script>`
-  }
-
-  return undefined
-}
-
-export function generateRegisterDevSW(base: string) {
-  const path = `${base.endsWith('/') ? base : `${base}/`}${DEV_SW_VIRTUAL.slice(1)}`
-  return `<script id="unplugin-pwa:register-dev-sw" type="module">
-import registerDevSW from '${path}';
-registerDevSW();
-</script>`
 }
 
 export function generateSWHMR() {

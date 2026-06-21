@@ -9,7 +9,8 @@ import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { BuildSWType, Bundler, PWAPluginContext } from './context-types'
 import type { RegisterSWData, ResolvedVitePWAOptions, VitePWAStrategy, WebManifestData } from './types'
 import { DEV_SW_NAME, FILE_SW_REGISTER } from './constants'
-import { generateRegisterDevSW, generateRegisterSW, generateWebManifest } from './html'
+import { createGenerateRegisterSW } from './create-generate-register-sw-script'
+import { createWebManifestHtmlLink } from './create-web-manifest-html-link'
 
 export function preparePWAContext<
   B extends Bundler,
@@ -17,20 +18,14 @@ export function preparePWAContext<
   S extends Strategy,
   T extends SWType,
 >(ctx: PWAPluginContext<B, UserStrategy, S, T>) {
+  // pwa web manifest always generated if present
   ctx.webManifestData = () => {
     const options = ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>
-    if (!options || options.disable || !options.manifest || (ctx.devEnvironment && !options.devOptions?.enabled))
+    if (!options.manifest)
       return undefined
 
-    let url = options.manifestFilename
-    let manifest: string
-    if (ctx.devEnvironment && options.devOptions?.enabled === true) {
-      url = options.manifestFilename
-      manifest = generateWebManifest(options, true)
-    }
-    else {
-      manifest = generateWebManifest(options, false)
-    }
+    const url = options.manifestFilename
+    const manifest = createWebManifestHtmlLink(ctx)
 
     return <WebManifestData>{
       href: `${ctx.devEnvironment ? options.base : options.buildBase}${url}`,
@@ -41,11 +36,11 @@ export function preparePWAContext<
     }
   }
 
-  ctx.registerSWData = () => {
+  ctx.registerSWData = async () => {
   // we'll return the info only when it is required
     // 1: exclude if not enabled
     const options = ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>
-    if (!options || options.disable || (ctx.devEnvironment && !options.devOptions?.enabled))
+    if (options.disable || (ctx.devEnvironment && !options.devOptions?.enabled))
       return undefined
 
     // 2: if manual registration or using virtual
@@ -59,11 +54,11 @@ export function preparePWAContext<
     let shouldRegisterSW = options.injectRegister === 'inline' || options.injectRegister === 'script' || options.injectRegister === 'script-defer'
     if (ctx.devEnvironment && options.devOptions?.enabled === true) {
       type = options.devOptions?.type ?? 'classic'
-      script = generateRegisterDevSW(options.base!)
+      script = await createGenerateRegisterSW(ctx, true, true)
       shouldRegisterSW = true
     }
     else if (shouldRegisterSW) {
-      script = generateRegisterSW(ctx, false)
+      script = await createGenerateRegisterSW(ctx, true, true)
     }
 
     const base = ctx.devEnvironment ? options.base : options.buildBase
@@ -71,10 +66,9 @@ export function preparePWAContext<
     return <RegisterSWData>{
       // hint when required
       shouldRegisterSW,
-      inline: options.injectRegister === 'inline',
       mode: mode === 'auto' ? 'script' : mode,
       scope: options.scope,
-      inlinePath: `${base}${ctx.devEnvironment ? DEV_SW_NAME : options.filename}`,
+      inlinePath: `${base}${ctx.devEnvironment ? DEV_SW_NAME : FILE_SW_REGISTER}`,
       registerPath: `${base}${FILE_SW_REGISTER}`,
       type,
       toScriptTag: () => {
@@ -156,20 +150,20 @@ export function preparePWAContext<
           return await import('@composable-vite-pwa/workbox-build/build/vite/generate-sw').then(({
             generateSW: runGenerateSW,
           }) => runGenerateSW(
-            Object.assign({}, ctx.resolvedOptions.generateSW, options) as BuildGenerateSWOptions<T>,
+            Object.assign({}, ctx.resolvedOptions.generateSW ?? {}, options) as BuildGenerateSWOptions<T>,
           ))
         case 'vite-legacy':
           return await import('@composable-vite-pwa/workbox-build/build/vite/legacy-generate-sw').then(({
             generateSWLegacy: runGenerateSWLegacy,
           }) => runGenerateSWLegacy(
-            Object.assign({}, ctx.resolvedOptions.generateSW, options) as LegacyBuildServiceWorkerOptions<T>,
+            Object.assign({}, ctx.resolvedOptions.generateSW ?? {}, options) as LegacyBuildServiceWorkerOptions<T>,
           ))
         case 'rspack':
         case 'webpack':
           return await import('@composable-vite-pwa/workbox-build/build/rolldown/generate-sw').then(({
             generateSW: runGenerateSW,
           }) => runGenerateSW(
-            Object.assign({}, ctx.resolvedOptions.generateSW, options) as BuildGenerateSWOptions<T>,
+            Object.assign({}, ctx.resolvedOptions.generateSW ?? {}, options) as BuildGenerateSWOptions<T>,
           ))
       }
     },
@@ -179,13 +173,13 @@ export function preparePWAContext<
           return await import('@composable-vite-pwa/workbox-build/build/vite/build-sw').then(({
             buildSW: runBuildSW,
           }) => runBuildSW(
-            Object.assign({}, ctx.resolvedOptions.buildSW, options) as BuildSWType<'vite', T>,
+            Object.assign({}, ctx.resolvedOptions.buildSW ?? {}, options) as BuildSWType<'vite', T>,
           ))
         case 'vite-legacy':
           return await import('@composable-vite-pwa/workbox-build/build/vite/legacy-build-sw').then(({
             buildSWLegacy: runBuildSWLegacy,
           }) => runBuildSWLegacy(
-            Object.assign({}, ctx.resolvedOptions.buildSW, options) as BuildSWType<'vite-legacy', T>,
+            Object.assign({}, ctx.resolvedOptions.buildSW ?? {}, options) as BuildSWType<'vite-legacy', T>,
           ))
         case 'rspack':
         case 'webpack':
@@ -193,15 +187,15 @@ export function preparePWAContext<
             buildSW: runBuildSW,
           }) => runBuildSW(
             ctx.bundler === 'webpack'
-              ? Object.assign({}, ctx.resolvedOptions.buildSW, options) as BuildSWType<'webpack', T>
-              : Object.assign({}, ctx.resolvedOptions.buildSW, options) as BuildSWType<'rspack', T>,
+              ? Object.assign({}, ctx.resolvedOptions.buildSW ?? {}, options) as BuildSWType<'webpack', T>
+              : Object.assign({}, ctx.resolvedOptions.buildSW ?? {}, options) as BuildSWType<'rspack', T>,
           ))
       }
     },
     injectManifest: options => import('@composable-vite-pwa/workbox-build/inject-manifest').then(({
       injectManifest: runInjectManifest,
     }) => runInjectManifest(
-      Object.assign({}, ctx.resolvedOptions.injectManifest, options) as InjectManifestStrategyOptions,
+      Object.assign({}, ctx.resolvedOptions.injectManifest ?? {}, options) as InjectManifestStrategyOptions,
     )),
     selfDestroyingSW: options => import('@composable-vite-pwa/workbox-build/self-destroying-sw').then(({
       selfDestroyingSW: runSelfDestroyingSW,

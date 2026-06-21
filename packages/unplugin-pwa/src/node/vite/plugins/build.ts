@@ -1,20 +1,21 @@
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { PluginOption } from 'vite'
-import type { ResolvedVitePWAOptions, VitePWAStrategy } from '../../types'
+import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 import { generateWebManifestFile } from '../../assets'
 import { FILE_SW_REGISTER } from '../../constants'
 import { generateRegisterSW } from '../../generate-register-sw'
-import { injectManifest, injectServiceWorker } from '../../html'
+import { injectGenerateRegisterSW } from '../../inject-generate-register-sw'
+import { injectWebManifestHtmlLink } from '../../inject-web-manifest-html-link'
 
 export function BuildPlugin<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
-  const transformIndexHtmlHandler = (html: string) => {
-    html = injectManifest(html, ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>, false)
+  const transformIndexHtmlHandler = async (html: string) => {
+    html = injectWebManifestHtmlLink(html, ctx)
 
     if (ctx.resolvedOptions.disable === true)
       return html
@@ -24,7 +25,7 @@ export function BuildPlugin<
       ctx.resolvedOptions.injectRegister = ctx.useImportRegister ? null : 'script'
     }
 
-    return injectServiceWorker(html, ctx, false)
+    return await injectGenerateRegisterSW(html, ctx, false, false)
   }
 
   return {
@@ -36,13 +37,13 @@ export function BuildPlugin<
     },
     transformIndexHtml: {
       order: 'post',
-      handler(html) {
-        return transformIndexHtmlHandler(html)
+      async handler(html) {
+        return await transformIndexHtmlHandler(html)
       },
       // @ts-expect-error deprecated since Vite 4
       enforce: 'post',
-      transform(html: string) {
-        return transformIndexHtmlHandler(html)
+      async transform(html: string) {
+        return await transformIndexHtmlHandler(html)
       },
     },
     async generateBundle(_, bundle) {
