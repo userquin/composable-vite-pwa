@@ -58,7 +58,7 @@ export async function loadAssetsGeneratorContext(
     }
   }
 
-  const pwaAssets = ctx.consumerOptions.pwaAssets as ResolvedPWAAssetsOptions
+  const pwaAssets = ctx.resolvedOptions.pwaAssets as ResolvedPWAAssetsOptions
 
   const useImage = Array.isArray(images) ? images[0] : images
   // the image must be relative to the root directory
@@ -91,9 +91,9 @@ export async function loadAssetsGeneratorContext(
   // override manifest icons when:
   // - manifest is defined and
   // - missing manifest.icons entry or manifest.icons present and overrideManifestIcons is enabled
-  const overrideManifestIcons = ctx.consumerOptions.manifest === false || !ctx.consumerOptions.manifest
+  const overrideManifestIcons = ctx.resolvedOptions.manifest === false || !ctx.resolvedOptions.manifest
     ? false
-    : 'icons' in ctx.consumerOptions.manifest
+    : 'icons' in ctx.resolvedOptions.manifest
       ? useOverrideManifestIcons // explicit override
       : true
 
@@ -137,7 +137,7 @@ async function loadConfiguration(
   root: string,
   ctx: PWAPluginContext<any, any, any, any>,
 ) {
-  const pwaAssets = ctx.consumerOptions.pwaAssets as ResolvedPWAAssetsOptions
+  const pwaAssets = ctx.resolvedOptions.pwaAssets as ResolvedPWAAssetsOptions
   if (pwaAssets.config === false) {
     return await loadConfig<UserConfig>(root, {
       config: false,

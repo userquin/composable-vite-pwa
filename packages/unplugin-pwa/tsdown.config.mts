@@ -1,5 +1,8 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'tsdown'
-import { pwaBanner as banner } from '../../tsdown-helper'
+import { pwaBanner as banner, cleanupDistFiles } from '../../tsdown-helper'
+
+const cwd = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig([{
   entry: [
@@ -26,10 +29,19 @@ export default defineConfig([{
       '@composable-vite-pwa/workbox-build',
     ],
   },
+  hooks: {
+    'build:done': async () => {
+      await cleanupDistFiles(cwd, [
+        'node/types.mjs',
+        'node/context-types.mjs',
+      ])
+    },
+  },
 }, {
   entry: {
     'client/build/*': ['./src/client/build/*.ts'],
     'client/dev/*': ['./src/client/dev/*.ts'],
+    // 'client/dev/vite/*': ['./src/client/dev/vite/*.ts'],
   },
   platform: 'browser',
   clean: false,

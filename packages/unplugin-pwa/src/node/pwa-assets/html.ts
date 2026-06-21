@@ -10,7 +10,7 @@ export function transformIndexHtml(
   assetsGeneratorContext: AssetsGeneratorContext,
 ) {
   if (assetsGeneratorContext.injectThemeColor) {
-    const manifest = ctx.consumerOptions.manifest
+    const manifest = ctx.resolvedOptions.manifest
     if (manifest && 'theme_color' in manifest && manifest.theme_color) {
       html = checkForHtmlHead(html).replace(
         '</head>',
@@ -37,7 +37,7 @@ export function resolveHtmlAssets(
     themeColor: undefined,
   }
   if (assetsGeneratorContext.injectThemeColor) {
-    const manifest = ctx.consumerOptions.manifest
+    const manifest = ctx.resolvedOptions.manifest
     if (manifest && 'theme_color' in manifest && manifest.theme_color)
       header.themeColor = { name: 'theme-color', content: manifest.theme_color }
   }

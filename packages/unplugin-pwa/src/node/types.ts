@@ -19,9 +19,6 @@ import type {
 } from '@composable-vite-pwa/workbox-build/types'
 import type { HtmlLinkPreset } from '@vite-pwa/assets-generator/api'
 import type { BuiltInPreset, Preset } from '@vite-pwa/assets-generator/config'
-import type { OutputBundle, PluginContext, RollupOptions } from 'rollup'
-import type { Plugin } from 'vite'
-import type { PWAAssetsGenerator } from './pwa-assets/types'
 
 /**
  * PWA assets generation and injection options.
@@ -369,12 +366,6 @@ export interface VitePWAOptions<
   pwaAssets?: PWAAssetsOptions
 }
 
-export interface ResolvedServiceWorkerOptions {
-  format: 'es' | 'iife'
-  plugins?: Plugin[]
-  rollupOptions: RollupOptions
-}
-
 export type ResolvedGenerateSW<
   S extends Strategy,
   T extends SWType,
@@ -399,6 +390,7 @@ export interface ResolvedVitePWAOptions<
   T extends SWType,
 > extends Required<Omit<
     VitePWAOptions<S, T>,
+    | 'pwaAssets'
     | 'strategies'
     | 'maximumFileSizeToCacheInBytes'
     | 'throwMaximumFileSizeToCacheInBytes'
@@ -424,6 +416,7 @@ export interface ResolvedVitePWAOptions<
    * The workbox object for `injectManifest` strategy
    */
   injectManifest: ResolvedInjectManifest<S, T>
+  pwaAssets?: ResolvedPWAAssetsOptions
 }
 
 export interface ShareTargetFiles {
@@ -680,43 +673,6 @@ export interface RegisterSWData {
   toScriptTag: () => string | undefined
 }
 
-export interface VitePluginPWAAPI {
-  /**
-   * Is the plugin disabled?
-   */
-  disabled: boolean
-  /**
-   * Running on dev server?
-   */
-  pwaInDevEnvironment: boolean
-  /**
-   * Returns the PWA web manifest url for the manifest link:
-   * <link rel="manifest" href="<webManifestUrl>" />
-   *
-   * Will also return if the manifest will require credentials:
-   * <link rel="manifest" href="<webManifestUrl>" crossorigin="use-credentials" />
-   */
-  webManifestData: () => WebManifestData | undefined
-  /**
-   * How the service worker is being registered in the application.
-   *
-   * This option will help some integrations to inject the corresponding script in the head.
-   */
-  registerSWData: () => RegisterSWData | undefined
-  extendManifestEntries: (fn: ExtendManifestEntriesHook) => void
-  /*
-     * Explicitly generate the manifests.
-     */
-  generateBundle: (bundle?: OutputBundle, pluginCtx?: PluginContext) => OutputBundle | undefined
-  /*
-     * Explicitly generate the PWA services worker.
-     */
-  generateSW: () => Promise<void>
-  pwaAssetsGenerator: () => Promise<PWAAssetsGenerator | undefined>
-}
-
-export type ExtendManifestEntriesHook = (manifestEntries: (string | ManifestEntry)[]) => (string | ManifestEntry)[] | undefined
-
 /**
  * Development options.
  */
@@ -751,7 +707,7 @@ export interface DevOptions {
    * This option will allow you to configure the `navigateFallback` when using `registerRoute` for `offline` support:
    * configure here the corresponding `url`, for example `navigateFallback: 'index.html'`.
    *
-   * **WARNING**: this option will only be used when using `injectManifest` strategy.
+   * **WARNING**: this option will only be used when using `injectManifest/buildSW` strategies.
    *
    * @default 'index.html'
    */
@@ -769,19 +725,6 @@ export interface DevOptions {
    * @default [/^\/$/]
    */
   navigateFallbackAllowlist?: RegExp[]
-
-  /**
-   * On dev mode the `manifest.webmanifest` file can be on other path.
-   *
-   * For example, **SvelteKit** will request `/_app/manifest.webmanifest`, when `webmanifest` added to the output bundle, **SvelteKit** will copy it to the `/_app/` folder.
-   *
-   * **WARNING**: this option will only be used when using `generateSW` strategy.
-   *
-   * @default `${vite.base}${pwaOptions.manifestFilename}`
-   * @deprecated This option has been deprecated from version `v0.12.4`, the plugin will use navigateFallbackAllowlist instead.
-   * @see navigateFallbackAllowlist
-   */
-  webManifestUrl?: string
   /**
    * Where to store generated service worker in development when using `generateSW` strategy.
    *

@@ -22,11 +22,24 @@ export function additionalManifestEntriesFactory(
           }
         }
         if (manifest.icons) {
-          for (const icons of manifest.icons) {
-            if (icons.src) {
+          // pwa assets can add the files on demand
+          const consumerIcons = new Set<string>()
+          if (ctx.consumerOptions.manifest && ctx.consumerOptions.manifest.icons) {
+            for (const icon of ctx.consumerOptions.manifest.icons) {
+              if (icon.src) {
+                consumerIcons.add(mapFile(icon.src))
+              }
+            }
+          }
+          for (const icon of manifest.icons) {
+            if (icon.src) {
+              const path = mapFile(icon.src)
+              if (!consumerIcons.has(path)) {
+                continue
+              }
               yield {
-                url: icons.src,
-                revision: hash('md5', await readFile(mapFile(icons.src)), { outputEncoding: 'hex' }),
+                url: icon.src,
+                revision: hash('md5', await readFile(path), { outputEncoding: 'hex' }),
               }
             }
           }

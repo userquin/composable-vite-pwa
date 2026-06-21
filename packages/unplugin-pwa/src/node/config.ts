@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
+import { resolvePWAAssetsOptions } from './pwa-assets/options'
 
 function deepMergeObject(magicast: any, object: any) {
   if (typeof object === 'object' && object !== null) {
@@ -119,6 +120,7 @@ export async function resolvePwaConfiguration<
     { path: resolvedPath },
   ))
   const {
+    pwaAssets,
     filename = 'sw.js',
     strategies,
     swType,
@@ -137,6 +139,7 @@ export async function resolvePwaConfiguration<
     updateViaCache = 'imports',
     ...rest
   } = config
+  const resolvedPwaAssets = resolvePWAAssetsOptions(pwaAssets)
   switch (config.strategies) {
     case 'generateSW':
     case 'generate-sw': {
@@ -156,6 +159,7 @@ export async function resolvePwaConfiguration<
         manifestFilename,
         minify,
         updateViaCache,
+        pwaAssets: resolvedPwaAssets,
       }, {
         generateSW: Object.assign(generateSW ?? workbox ?? {}, {
           swDest: filename,
@@ -182,6 +186,7 @@ export async function resolvePwaConfiguration<
         manifestFilename,
         minify,
         updateViaCache,
+        pwaAssets: resolvedPwaAssets,
       }, {
         buildSW: Object.assign(rest.injectManifest ?? {}, {
           swDest: filename,
@@ -208,6 +213,7 @@ export async function resolvePwaConfiguration<
         manifestFilename,
         minify,
         updateViaCache,
+        pwaAssets: resolvedPwaAssets,
       }, {
         buildSW: Object.assign(rest.buildSW ?? {}, {
           swDest: filename,

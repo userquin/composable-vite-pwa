@@ -30,6 +30,14 @@ export interface PWABuildDevContext<
     registerSWGenerated: boolean
     swAssetsPaths: Map<string, string>
   }
+  /**
+   * Resolves the client for dev server.
+   */
+  resolveDevRegisterSWPath?: () => string
+  /**
+   * Resolves the client for dev server.
+   */
+  resolveDevVirtualRegister?: () => string
   generateSW: (options: Partial<BuildGenerateSWOptions<T>>) => Promise<BuildResult>
   buildSW: (options: Partial<BuildSWType<B, T>>) => Promise<BuildResult>
   injectManifest: (options: Partial<InjectManifestStrategyOptions>) => Promise<BuildResult>

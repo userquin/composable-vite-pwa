@@ -10,7 +10,7 @@ export function createWebManifestHtmlLink(
   const options = ctx.resolvedOptions
   const crossorigin = options.useCredentials ? ' crossorigin="use-credentials"' : ''
   if (ctx.devEnvironment) {
-    const name = options.devOptions?.webManifestUrl ?? `${options.base}${options.manifestFilename}`
+    const name = `${options.base}${options.manifestFilename}`
     return options.manifest ? `<link rel="manifest" href="${name}"${crossorigin}>` : ''
   }
   else {

@@ -9,7 +9,7 @@ export function injectManifestIcons(
   if (!assetsGeneratorContext.overrideManifestIcons)
     return
 
-  const manifest = ctx.consumerOptions.manifest
+  const manifest = ctx.resolvedOptions.manifest
   if (manifest) {
     manifest.icons = generateManifestIconsEntry(
       'object',

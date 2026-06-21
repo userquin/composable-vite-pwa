@@ -19,6 +19,13 @@ export function AssetsPlugin<
   S extends Strategy,
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
+  const transformHtml = async (html: string): Promise<string> => {
+    if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+      return html
+    }
+
+    return await transformIndexHtmlHandler(html, ctx)
+  }
   return {
     name: 'unplugin-pwa:pwa-assets',
     sharedDuringBuild: true,
@@ -29,17 +36,20 @@ export function AssetsPlugin<
     transformIndexHtml: {
       order: 'post',
       async handler(html) {
-        return await transformIndexHtmlHandler(html, ctx)
+        return await transformHtml(html)
       },
       // @ts-expect-error deprecated since Vite 4
       enforce: 'post',
       async transform(html: string) {
-        return await transformIndexHtmlHandler(html, ctx)
+        return await transformHtml(html)
       },
     },
     resolveId: {
       filter: { id: [exactRegex(PWA_ASSETS_HEAD_VIRTUAL), exactRegex(PWA_ASSETS_ICONS_VIRTUAL)] },
       handler(id) {
+        if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+          return
+        }
         // condition is kept for backward compatibility for below Vite v6.3
         switch (true) {
           case id === PWA_ASSETS_HEAD_VIRTUAL:
@@ -68,6 +78,9 @@ export function AssetsPlugin<
       },
     },
     async handleHotUpdate({ file, server }) {
+      if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        return
+      }
       const pwaAssetsGenerator = await ctx.pwaAssetsGenerator
       if (await pwaAssetsGenerator?.checkHotUpdate(file)) {
         const modules: ModuleNode[] = []
@@ -83,6 +96,9 @@ export function AssetsPlugin<
       }
     },
     configureServer(server) {
+      if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        return
+      }
       server.ws.on(DEV_READY_NAME, createWSResponseHandler(ctx, server))
       server.middlewares.use(async (req, res, next) => {
         const url = req.url
