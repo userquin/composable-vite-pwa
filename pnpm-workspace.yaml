@@ -19,6 +19,9 @@ shamefullyHoist: true
 shellEmulator: true
 
 strictPeerDependencies: false
+trustPolicyExclude:
+  - "vite@5.4.21"
+  - "nanoid@3.3.14"
 
 trustPolicy: no-downgrade
 
@@ -35,39 +38,48 @@ patchedDependencies:
 catalogs:
   build:
     tsdown: ^0.21.10
+  docs:
+    "@shikijs/vitepress-twoslash": ^4.2.0
+    typedoc: ^0.28.19
+    typedoc-plugin-markdown: ^4.12.0
+    typedoc-vitepress-theme: ^1.1.3
+    vitepress: ^1.6.4
+    vitepress-plugin-group-icons: ^1.7.5
+    vitepress-plugin-llms: ^1.13.2
+
   eslint:
-    '@antfu/eslint-config': ^8.2.0
+    "@antfu/eslint-config": ^8.2.0
     eslint: ^10.2.1
     eslint-plugin-antfu: ^3.2.2
   preact:
     preact: ^10.29.0
   react:
-    '@types/react': ^19.2.14
+    "@types/react": ^19.2.14
     react: ^19.2.4
   rsbuild:
-    '@rsbuild/core': ^2.0.7
+    "@rsbuild/core": ^2.0.7
   rspack:
-    '@rspack/core': ^2.0.4
+    "@rspack/core": ^2.0.4
   solid-js:
     solid-js: ^1.9.12
   svelte:
     svelte: ^5.55.0
   test:
-    '@vitest/ui': ^4.1.5
+    "@vitest/ui": ^4.1.5
     vitest: ^4.1.5
   types:
-    '@types/node': ^24.12.0
-    '@types/semver': ^7.7.1
-    '@types/serialize-javascript': ^5.0.4
-    '@types/trusted-types': ^2.0.7
-    '@types/webpack': ^5.28.1
+    "@types/node": ^24.12.0
+    "@types/semver": ^7.7.1
+    "@types/serialize-javascript": ^5.0.4
+    "@types/trusted-types": ^2.0.7
+    "@types/webpack": ^5.28.1
   typescript:
     typescript: ~5.9.3
   utils:
-    '@antfu/ni': ^25.0.0
-    '@arethetypeswrong/cli': ^0.17.4
-    '@clack/prompts': ^1.5.1
-    '@vite-pwa/assets-generator': ^1.0.2
+    "@antfu/ni": ^25.0.0
+    "@arethetypeswrong/cli": ^0.17.4
+    "@clack/prompts": ^1.5.1
+    "@vite-pwa/assets-generator": ^1.0.2
     ansis: ^4.2.0
     cac: ^7.0.0
     consola: ^3.4.2
@@ -85,15 +97,16 @@ catalogs:
     taze: ^19.10.0
     tinyglobby: ^0.2.16
     valibot: ^1.3.1
-  vite5:
-    vite: 5.3.6
   vite:
     vite: ^8.0.13
+  vite5:
+    vite: 5.3.6
   vue:
     vue: ^3.5.31
   webpack5:
     webpack: 5.107.1
-
 allowBuilds:
   esbuild: false
   sharp: true
+minimumReleaseAgeExclude:
+  - vitepress-plugin-llms@1.13.2

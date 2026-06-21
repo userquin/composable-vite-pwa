@@ -22,6 +22,9 @@
     "test:typecheck": "pnpm -r --filter=\"@composable-vite-pwa/**\" run test:typecheck",
     "build": "pnpm -r --filter=\"./packages/**/\" run build"
   },
+  "dependencies": {
+    "typedoc": "catalog:docs"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:eslint",
     "@antfu/ni": "catalog:utils",
