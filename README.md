@@ -83,8 +83,7 @@ between the two.
 - [x] **Standalone**: reads types from `workbox-swkit` / `workbox-build` (devDependencies only
   — they never reach consumers), and is published (`files: ["api"]`, `prepack` regenerates on
   publish) so the docs repo consumes the JSON without importing the workbox packages.
-- [x] **VitePress**: rendering lives in [vite-pwa/docs](https://github.com/vite-pwa/docs),
-  generated from the published metadata — not in this package.
+- [x] **VitePress**: an example of rendering the /workbox/types package lives in /examples/workbox-types-docs
 
 Notes: the output is raw TypeDoc JSON (schema-backed); a curated/normalized schema can be
 agreed with the docs repo later if its renderer wants a leaner shape. `swkit/src/types.ts` was

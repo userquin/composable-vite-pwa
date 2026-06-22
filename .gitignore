@@ -25,6 +25,8 @@ dist-ssr
 !README.md
 !.github/*.md
 !.changeset/*.md
+!examples/workbox-types-docs/index.md
+!examples/workbox-types-docs/api/index.md
 
 # examples
 examples/workbox-cli/custom-sw-inject.js
