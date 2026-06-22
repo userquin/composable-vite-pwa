@@ -2,7 +2,7 @@
   "name": "@composable-vite-pwa/workbox-types",
   "type": "module",
   "version": "0.0.0",
-  "description": "types is the type definitions for Workbox.",
+  "description": "TypeDoc JSON metadata for the @composable-vite-pwa workbox packages, published for the Vite PWA docs site to render its API reference.",
   "author": "Google's Web DevRel Team, Vite PWA's Team",
   "contributors": [
     "userquin <userquin@gmail.com>"
@@ -27,8 +27,8 @@
   ],
   "sideEffects": false,
   "exports": {
-    "./package.json": "./package.json",
-    "./api/*": "./api/*"
+    ".": "./api/metadata.json",
+    "./package.json": "./package.json"
   },
   "files": [
     "api"
@@ -37,23 +37,15 @@
     "node": ">=22.14.0"
   },
   "scripts": {
-    "docs": "vitepress dev .",
-    "docs:api": "node run-typedoc.mjs",
+    "docs:api": "typedoc",
     "prepack": "pnpm run docs:api"
   },
   "devDependencies": {
     "@composable-vite-pwa/workbox-build": "workspace:*",
     "@composable-vite-pwa/workbox-swkit": "workspace:*",
-    "typedoc": "catalog:docs",
-    "typedoc-plugin-markdown": "catalog:docs",
-    "typedoc-vitepress-theme": "catalog:docs",
-    "vitepress": "catalog:docs",
-    "vitepress-plugin-group-icons": "catalog:docs",
-    "@shikijs/vitepress-twoslash": "catalog:docs",
-    "vitepress-plugin-llms": "catalog:docs"
+    "typedoc": "catalog:docs"
   },
   "publishConfig": {
     "access": "public"
-  },
-  "dependencies": {}
+  }
 }

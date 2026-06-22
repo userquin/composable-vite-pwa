@@ -1,0 +1,22 @@
+{
+  "tsconfig": "./typedoc.tsconfig.json",
+  "entryPoints": [
+    "../build/src/types.ts",
+    "../build/src/config/types.ts",
+    "../build/src/build/types.ts",
+    "../build/src/build/vite/types.ts",
+    "../build/src/build/rolldown/types.ts",
+    "../build/src/build/vite/plugin/types.ts",
+    "../swkit/src/background-sync/types.ts",
+    "../swkit/src/broadcast-update/types.ts",
+    "../swkit/src/cacheable-response/types.ts",
+    "../swkit/src/core/types.ts",
+    "../swkit/src/expiration/types.ts",
+    "../swkit/src/precaching/types.ts",
+    "../swkit/src/routing/types.ts",
+    "../swkit/src/streams/types.ts"
+  ],
+  "json": "./api/metadata.json",
+  "excludeInternal": true,
+  "readme": "none"
+}

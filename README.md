@@ -66,16 +66,32 @@
 
 ---
 
-## Workbox Types (JSDoc package)
+## Workbox Types (JSDoc package) - done
 
-- [ ] Create a dedicated `workbox-types` package that generates JSON files from JSDoc / types
-  - Style reference: [NavigationGuardReturn](https://router.vuejs.org/api/type-aliases/NavigationGuardReturn.html)
-  - Check `docs:api` script at vue-router repo for the generation pipeline
-- [ ] Ensure the package is **standalone** – the `vite-pwa` docs repo cannot import `workbox-swkit` or `workbox-build` directly, so `workbox-types` must:
-  1. Read types from `workbox-swkit` / `workbox-build`
-  2. Generate JSON output files
-  3. Get published so the docs repo can consume it as a dependency
-- [ ] Use **VitePress** to include the generated JSON as API reference pages
+Standalone `@composable-vite-pwa/workbox-types` package (`packages/workbox/types`) that runs
+TypeDoc over the JSDoc/types of `workbox-swkit` and `workbox-build` and publishes the **JSON
+metadata**. The Vite PWA docs site ([vite-pwa/docs](https://github.com/vite-pwa/docs), a
+VitePress app) installs this package and renders the API pages from that metadata — it can't
+import `workbox-swkit` / `workbox-build` directly (separate repo), so the JSON is the contract
+between the two.
+
+- [x] Dedicated package; `pnpm docs:api` runs TypeDoc (`--json`) over the public `*/types`
+  entry points of swkit/build → `api/metadata.json`.
+  - Reference pipeline: vue-router's `docs:api`. We emit **JSON metadata** (not the Markdown
+    vue-router renders in-repo) because page rendering lives in the separate docs repo — per
+    the maintainer: "just the json metadata, then at pwa docs use it to generate the api pages."
+- [x] **Standalone**: reads types from `workbox-swkit` / `workbox-build` (devDependencies only
+  — they never reach consumers), and is published (`files: ["api"]`, `prepack` regenerates on
+  publish) so the docs repo consumes the JSON without importing the workbox packages.
+- [x] **VitePress**: rendering lives in [vite-pwa/docs](https://github.com/vite-pwa/docs),
+  generated from the published metadata — not in this package.
+
+Notes: the output is raw TypeDoc JSON (schema-backed); a curated/normalized schema can be
+agreed with the docs repo later if its renderer wants a leaner shape. `swkit/src/types.ts` was
+fixed to re-export only `*/types` files (dropping the runtime-bearing `strategies` / `recipes`
+/ `range-requests` barrels), so the metadata is **types-only** (no runtime classes/functions).
+The remaining unresolved `{@link workbox-*}` cross-references point at Workbox runtime symbols
+documented upstream — the docs renderer decides how to surface them.
 
 ---
 
