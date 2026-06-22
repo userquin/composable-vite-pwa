@@ -193,6 +193,7 @@ export interface VitePWAOptions<
    */
   swType?: T
   /**
+   * TODO: is this necessary??
    * @default 'public'
    */
   srcDir?: string
@@ -310,7 +311,7 @@ export interface VitePWAOptions<
    */
   includeManifestShortcutIcons: boolean
   /**
-   * By default, the manifest will be included on the service worker *precache*.
+   * By default, the manifest will be included on the service worker *precache* manifest.
    *
    * @default true
    */
@@ -370,19 +371,19 @@ export type ResolvedGenerateSW<
   S extends Strategy,
   T extends SWType,
 > = S extends 'generate-sw'
-  ? Required<Partial<BuildGenerateSWOptions<T>>>
+  ? NonNullable<Partial<BuildGenerateSWOptions<T>>>
   : Partial<BuildGenerateSWOptions<T>> | undefined
 export type ResolvedBuildSW<
   S extends Strategy,
   T extends SWType,
 > = S extends 'build-sw'
-  ? Required<Partial<BuildServiceWorkerOptions<T>> | Partial<LegacyBuildServiceWorkerOptions<T>> | Partial<RolldownBuildServiceWorkerOptions<T>>>
+  ? NonNullable<Partial<BuildServiceWorkerOptions<T>> | Partial<LegacyBuildServiceWorkerOptions<T>> | Partial<RolldownBuildServiceWorkerOptions<T>>>
   : Partial<BuildServiceWorkerOptions<T>> | Partial<LegacyBuildServiceWorkerOptions<T>> | Partial<RolldownBuildServiceWorkerOptions<T>> | undefined
 export type ResolvedInjectManifest<
   S extends Strategy,
   T extends SWType,
 > = S extends 'generate-sw'
-  ? Required<Partial<BuildSWOptions<T>>>
+  ? NonNullable<Partial<BuildSWOptions<T>>>
   : Partial<BuildSWOptions<T>> | undefined
 
 export interface ResolvedVitePWAOptions<

@@ -6,23 +6,29 @@ export function additionalManifestEntriesFactory(
   ctx: PWAPluginContext<any, any, any, any>,
   mapFile: (url: string) => string,
 ): () => AsyncGenerator<string | ManifestEntry, undefined, void> {
-  const consumerGenerator = ctx.consumerOptions.additionalManifestEntriesGenerator
   return async function* additionalManifestEntries(): AsyncGenerator<string | ManifestEntry, undefined, void> {
-    if (ctx.resolvedOptions.includeManifestIcons || ctx.resolvedOptions.includeAssets || ctx.resolvedOptions.includeManifestScreenshots) {
+    const {
+      includeManifest,
+      includeManifestIcons,
+      includeAssets,
+      includeManifestShortcutIcons,
+      includeManifestScreenshots,
+    } = ctx.resolvedOptions
+    if (includeManifest || includeManifestIcons || includeAssets || includeManifestScreenshots || includeManifestShortcutIcons) {
       const manifest = ctx.resolvedOptions.manifest
       const [{ hash }, { readFile }] = await Promise.all([
         import('node:crypto'),
         import('node:fs/promises'),
       ])
       if (manifest) {
-        if (ctx.resolvedOptions.includeManifestIcons) {
+        if (includeManifest) {
           yield {
             url: ctx.resolvedOptions.manifestFilename!,
             revision: hash('md5', generateWebManifestFile(ctx), { outputEncoding: 'hex' }),
           }
         }
-        if (manifest.icons) {
-          // pwa assets can add the files on demand
+        if (includeManifestIcons && manifest.icons) {
+          // pwa assets can add the icons on the fly
           const consumerIcons = new Set<string>()
           if (ctx.consumerOptions.manifest && ctx.consumerOptions.manifest.icons) {
             for (const icon of ctx.consumerOptions.manifest.icons) {
@@ -44,7 +50,7 @@ export function additionalManifestEntriesFactory(
             }
           }
         }
-        if (ctx.resolvedOptions.includeManifestScreenshots && manifest.shortcuts) {
+        if (includeManifestShortcutIcons && manifest.shortcuts) {
           for (const shortcut of manifest.shortcuts) {
             if (shortcut.icons) {
               for (const icons of shortcut.icons) {
@@ -58,7 +64,7 @@ export function additionalManifestEntriesFactory(
             }
           }
         }
-        if (ctx.resolvedOptions.includeManifestScreenshots && manifest.screenshots) {
+        if (includeManifestScreenshots && manifest.screenshots) {
           for (const screenshot of manifest.screenshots) {
             yield {
               url: screenshot.src,
@@ -66,8 +72,8 @@ export function additionalManifestEntriesFactory(
             }
           }
         }
-        if (ctx.resolvedOptions.includeAssets) {
-          const assets = typeof ctx.resolvedOptions.includeAssets === 'string' ? [ctx.resolvedOptions.includeAssets] : ctx.resolvedOptions.includeAssets
+        if (includeAssets) {
+          const assets = typeof includeAssets === 'string' ? [includeAssets] : includeAssets
           for (const asset of assets) {
             yield {
               url: asset,
@@ -76,10 +82,11 @@ export function additionalManifestEntriesFactory(
           }
         }
       }
+    }
 
-      if (consumerGenerator) {
-        yield* consumerGenerator()
-      }
+    const consumerGenerator = ctx.consumerOptions.additionalManifestEntriesGenerator
+    if (consumerGenerator) {
+      yield* consumerGenerator()
     }
   }
 }

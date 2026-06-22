@@ -91,7 +91,7 @@ async function buildPwaAssetWithRolldown(
     treeshake: true,
     logLevel: 'warn',
     plugins: [{
-      name: 'asset-builder',
+      name: 'pwa-asset-resolver',
       resolveId(id) {
         return id === input ? input : undefined
       },
@@ -104,6 +104,7 @@ async function buildPwaAssetWithRolldown(
     },
   })
 
+  // in memory build
   const result = await bundle.generate({
     format: 'esm',
     topLevelVar: true,
