@@ -116,7 +116,7 @@ export async function preparePWAContextDefaults<
       resolvePwaConfiguration,
     }) => resolvePwaConfiguration<UserStrategy, S, T>(
       ctx.consumerOptions,
-    )).then(resolvedOptions => ctx.resolvedOptions = resolvedOptions),
+    )).then(resolvedOptions => (ctx.resolvedOptions = resolvedOptions)),
     import('@composable-vite-pwa/workbox-build/build/vite').then(({
       detect,
     }) => detect({

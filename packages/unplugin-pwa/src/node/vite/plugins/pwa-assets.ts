@@ -146,7 +146,7 @@ async function transformIndexHtmlHandler(
   ctx: VitePWAPluginContext<any, any, any, any>,
 ): Promise<string> {
   // dev: color-theme and icon links injected using createWSResponseHandler
-  if (ctx.devEnvironment && ctx.consumerOptions.devOptions?.enabled)
+  if (ctx.devEnvironment && ctx.resolvedOptions.devOptions?.enabled)
     return html
 
   const pwaAssetsGenerator = await ctx.pwaAssetsGenerator
