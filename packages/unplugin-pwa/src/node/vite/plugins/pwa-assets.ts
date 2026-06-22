@@ -64,6 +64,9 @@ export function AssetsPlugin<
     load: {
       filter: { id: [exactRegex(RESOLVED_PWA_ASSETS_HEAD_VIRTUAL), exactRegex(RESOLVED_PWA_ASSETS_ICONS_VIRTUAL)] },
       async handler(id) {
+        if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+          return
+        }
         // conditions are kept for backward compatibility for below Vite v6.3
         if (id === RESOLVED_PWA_ASSETS_HEAD_VIRTUAL) {
           const pwaAssetsGenerator = await ctx.pwaAssetsGenerator

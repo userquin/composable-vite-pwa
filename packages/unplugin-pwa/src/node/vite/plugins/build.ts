@@ -15,6 +15,9 @@ export function BuildPlugin<
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
   const transformIndexHtmlHandler = async (html: string) => {
+    if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+      return html
+    }
     html = injectWebManifestHtmlLink(html, ctx)
 
     if (ctx.resolvedOptions.disable === true)

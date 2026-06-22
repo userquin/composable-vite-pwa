@@ -24,6 +24,9 @@ export function InfoPlugin<
     resolveId: {
       filter: { id: exactRegex(PWA_INFO_VIRTUAL) },
       handler(id) {
+        if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+          return
+        }
         // condition is kept for backward compatibility for below Vite v6.3
         if (id === PWA_INFO_VIRTUAL)
           return RESOLVED_PWA_INFO_VIRTUAL

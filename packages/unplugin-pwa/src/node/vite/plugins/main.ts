@@ -26,6 +26,9 @@ export function MainPlugin<
       return environment.config.consumer === 'client'
     },
     configureServer: () => {
+      if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        return
+      }
       ctx.devEnvironment = true
     },
     async configResolved(config) {
@@ -34,6 +37,9 @@ export function MainPlugin<
     resolveId: {
       filter: { id: prefixRegex('virtual:pwa-register') },
       handler(id) {
+        if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+          return
+        }
         // condition is kept for backward compatibility for below Vite v6.3
         return VIRTUAL_MODULES.includes(id) ? VIRTUAL_MODULES_RESOLVE_PREFIX + id : undefined
       },
@@ -41,6 +47,9 @@ export function MainPlugin<
     load: {
       filter: { id: prefixRegex(VIRTUAL_MODULES_RESOLVE_PREFIX) },
       async handler(id) {
+        if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+          return
+        }
         // condition is kept for backward compatibility for below Vite v6.3
         if (id.startsWith(VIRTUAL_MODULES_RESOLVE_PREFIX)) {
           id = id.slice(VIRTUAL_MODULES_RESOLVE_PREFIX.length)
