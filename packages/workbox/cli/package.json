@@ -43,8 +43,8 @@
   },
   "scripts": {
     "build": "tsdown --config-loader unrun",
-    "test": "vitest",
-    "test:ci": "vitest run",
+    "test": "NO_COLOR=1 vitest",
+    "test:ci": "NO_COLOR=1 vitest run",
     "test:typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"
   },
