@@ -1,0 +1,188 @@
+import type { UserConfig } from '@vite-pwa/assets-generator/config'
+import type { PWAPluginContext } from '../context-types'
+import type { ResolvedPWAAssetsOptions } from '../types'
+import type { AssetsGeneratorContext, ResolvedIconAsset } from './types'
+import fs from 'node:fs'
+import { access, readFile } from 'node:fs/promises'
+import { basename, dirname, relative, resolve } from 'node:path'
+import { instructions } from '@vite-pwa/assets-generator/api/instructions'
+import { loadConfig } from '@vite-pwa/assets-generator/config'
+import pc from 'picocolors'
+
+export async function loadAssetsGeneratorContext(
+  ctx: PWAPluginContext<any, any, any, any>,
+  assetsGeneratorContext?: AssetsGeneratorContext,
+) {
+  const root = ctx.rootDir
+  const { config, sources } = await loadConfiguration(root, ctx)
+  if (!config.preset) {
+    console.error([
+      '',
+      pc.cyan(`PWA v${ctx.version}`),
+      pc.red('ERROR: No preset for assets generator found'),
+    ].join('\n'))
+    return
+  }
+
+  const {
+    preset,
+    images,
+    headLinkOptions: userHeadLinkOptions,
+  } = config
+
+  if (!images) {
+    console.error([
+      '',
+      pc.cyan(`PWA v${ctx.version}`),
+      pc.red('ERROR: No image provided for assets generator'),
+    ].join('\n'))
+    return
+  }
+
+  if (Array.isArray(images)) {
+    if (!images.length) {
+      console.error([
+        '',
+        pc.cyan(`PWA v${ctx.version}`),
+        pc.red('ERROR: No image provided for assets generator'),
+      ].join('\n'))
+      return
+    }
+    if (images.length > 1) {
+      console.error([
+        '',
+        pc.cyan(`PWA v${ctx.version}`),
+        pc.red('ERROR: Only one image is supported for assets generator'),
+      ].join('\n'))
+      return
+    }
+  }
+
+  const pwaAssets = ctx.resolvedOptions.pwaAssets as ResolvedPWAAssetsOptions
+
+  const useImage = Array.isArray(images) ? images[0] : images
+  // the image must be relative to the root directory
+  // const imageFile = resolve(root, useImage)
+  const imageFile = await tryToResolveImage(root, sources, useImage)
+  const publicDir = pwaAssets.integration?.publicDir ?? resolve(root, ctx.publicDir)
+  const outDir = pwaAssets.integration?.outDir ?? resolve(root, ctx.outDir)
+  // image can be inside public subdirectory: public/pwa/icon.svg => pwa/icon.svg
+  const imageName = relative(publicDir, imageFile)
+  // resolve the output folder for the image: <outDir>/pwa/icon.svg
+  const imageOutDir = dirname(resolve(outDir, imageName))
+
+  const xhtml = userHeadLinkOptions?.xhtml === true
+  const includeId = userHeadLinkOptions?.includeId === true
+  const assetsInstructions = await instructions({
+    imageResolver: () => readFile(imageFile),
+    imageName,
+    preset,
+    faviconPreset: userHeadLinkOptions?.preset ?? pwaAssets.htmlPreset,
+    htmlLinks: { xhtml, includeId },
+    basePath: pwaAssets.integration?.baseUrl || ctx.base,
+    resolveSvgName: userHeadLinkOptions?.resolveSvgName ?? (name => basename(name)),
+  })
+  const {
+    includeHtmlHeadLinks = true,
+    overrideManifestIcons: useOverrideManifestIcons,
+    injectThemeColor = false,
+  } = pwaAssets
+
+  // override manifest icons when:
+  // - manifest is defined and
+  // - missing manifest.icons entry or manifest.icons present and overrideManifestIcons is enabled
+  const overrideManifestIcons = ctx.resolvedOptions.manifest === false || !ctx.resolvedOptions.manifest
+    ? false
+    : 'icons' in ctx.resolvedOptions.manifest
+      ? useOverrideManifestIcons // explicit override
+      : true
+
+  if (assetsGeneratorContext === undefined) {
+    return {
+      lastModified: Date.now(),
+      assetsInstructions,
+      cache: new Map<string, ResolvedIconAsset>(),
+      useImage,
+      imageFile,
+      publicDir,
+      outDir,
+      imageName,
+      imageOutDir,
+      xhtml,
+      includeId,
+      // normalize sources
+      sources: sources.map(source => source.replace(/\\/g, '/')),
+      injectThemeColor,
+      includeHtmlHeadLinks,
+      overrideManifestIcons,
+    } satisfies AssetsGeneratorContext
+  }
+
+  assetsGeneratorContext.lastModified = Date.now()
+  assetsGeneratorContext.assetsInstructions = assetsInstructions
+  assetsGeneratorContext.useImage = useImage
+  assetsGeneratorContext.imageFile = imageFile
+  assetsGeneratorContext.outDir = outDir
+  assetsGeneratorContext.imageName = imageName
+  assetsGeneratorContext.imageOutDir = imageOutDir
+  assetsGeneratorContext.xhtml = xhtml
+  assetsGeneratorContext.includeId = includeId
+  assetsGeneratorContext.injectThemeColor = injectThemeColor
+  assetsGeneratorContext.includeHtmlHeadLinks = includeHtmlHeadLinks
+  assetsGeneratorContext.overrideManifestIcons = overrideManifestIcons
+  assetsGeneratorContext.cache.clear()
+}
+
+async function loadConfiguration(
+  root: string,
+  ctx: PWAPluginContext<any, any, any, any>,
+) {
+  const pwaAssets = ctx.resolvedOptions.pwaAssets as ResolvedPWAAssetsOptions
+  if (pwaAssets.config === false) {
+    return await loadConfig<UserConfig>(root, {
+      config: false,
+      preset: pwaAssets.preset as UserConfig['preset'],
+      images: pwaAssets.images,
+      logLevel: 'silent',
+    })
+  }
+
+  return await loadConfig<UserConfig>(
+    root,
+    typeof pwaAssets.config === 'boolean'
+      ? root
+      : { config: pwaAssets.config },
+  )
+}
+
+async function checkFileExists(pathname: string): Promise<boolean> {
+  try {
+    await access(pathname, fs.constants.R_OK)
+  }
+  catch {
+    return false
+  }
+
+  return true
+}
+
+async function tryToResolveImage(
+  root: string,
+  sources: string[],
+  image: string,
+): Promise<string> {
+  const imagePath = resolve(root, image)
+  // first check if the image is in the root directory
+  if (await checkFileExists(imagePath)) {
+    return imagePath
+  }
+
+  for (const source of sources) {
+    const sourceImage = resolve(dirname(source), image)
+    if (await checkFileExists(sourceImage)) {
+      return sourceImage
+    }
+  }
+
+  return imagePath
+}

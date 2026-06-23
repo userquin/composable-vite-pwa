@@ -1,5 +1,5 @@
 import { defineCliOptions } from '@composable-vite-pwa/workbox-cli'
-import { globIgnores } from './glogIgnores.ts'
+import { globIgnores } from './globIgnores'
 
 // `get-manifest` cannot be authored with the build-only `defineOptions`, so the
 // CLI ships `defineCliOptions`, widened to all four strategies.

@@ -1,56 +1,35 @@
-import type { BuildServiceWorkerOptions } from '@composable-vite-pwa/workbox-build/build/rolldown/types'
-import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
 import type { Strategy, WorkboxBuildConfiguration } from '@composable-vite-pwa/workbox-build/config/types'
-import type { GetManifestOptions, InjectManifestOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
-
-function missingOptions(section: string, keys: readonly string[]): never {
-  throw new Error(
-    `Missing required option${keys.length > 1 ? 's' : ''} "${keys.join('", "')}" `
-    + `in the "${section}" section of your workbox config`,
-  )
-}
-
-export function assertGenerateSWOptions<T extends SWType>(
-  options: Partial<BuildGenerateSWOptions<T>> | undefined,
-): asserts options is BuildGenerateSWOptions<T> {
-  if (!options?.swDest)
-    missingOptions('generateSW', ['swDest'])
-}
-
-export function assertInjectManifestOptions(
-  options: Partial<InjectManifestOptions> | undefined,
-): asserts options is InjectManifestOptions {
-  const missing = (['swSrc', 'swDest', 'globDirectory'] as const).filter(key => !options?.[key])
-  if (missing.length)
-    missingOptions('injectManifest', missing)
-}
-
-export function assertBuildSWOptions<T extends SWType>(
-  options: Partial<BuildServiceWorkerOptions<T>> | undefined,
-): asserts options is BuildServiceWorkerOptions<T> {
-  const missing = (['swSrc', 'swDest', 'globDirectory'] as const).filter(key => !options?.[key])
-  if (missing.length)
-    missingOptions('buildSW', missing)
-}
+import type { GetManifestOptions, SelfDestroyingOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
 
 export type CliStrategy = Strategy | 'get-manifest'
+export type StrategyName = CliStrategy | 'self-destroy-sw'
 
-export type WorkboxCliConfig
-  = Omit<Partial<WorkboxBuildConfiguration<Strategy>>, 'strategy'> & {
-    strategy?: CliStrategy
-    getManifest?: Partial<GetManifestOptions>
-  }
+export type WorkboxCliConfig<S extends CliStrategy, T extends SWType>
+  = Omit<Partial<WorkboxBuildConfiguration<S extends Strategy ? S : Strategy, T>>, 'strategy' | 'selfDestroying'>
+    & {
+      strategy?: S
+      getManifest?: Partial<GetManifestOptions>
+      selfDestroying?: Partial<SelfDestroyingOptions> & { selfDestroying?: boolean }
+    }
 
-export function assertGetManifestOptions(
-  options: Partial<GetManifestOptions> | undefined,
-): asserts options is GetManifestOptions {
-  if (!options?.globDirectory)
-    missingOptions('getManifest', ['globDirectory'])
+interface StrategyMeta {
+  optionKey: keyof WorkboxCliConfig<CliStrategy, SWType>
+  isSwBuilder: boolean
 }
 
-export function defineCliOptions<S extends CliStrategy>(
+export const STRATEGY_META: Record<StrategyName, StrategyMeta> = {
+  'generate-sw': { optionKey: 'generateSW', isSwBuilder: true },
+  'inject-manifest': { optionKey: 'injectManifest', isSwBuilder: true },
+  'build-sw': { optionKey: 'buildSW', isSwBuilder: true },
+  'get-manifest': { optionKey: 'getManifest', isSwBuilder: false },
+  'self-destroy-sw': { optionKey: 'selfDestroying', isSwBuilder: false },
+}
+
+export const STRATEGY_NAMES = Object.keys(STRATEGY_META) as StrategyName[]
+
+export function defineCliOptions<S extends CliStrategy, T extends SWType>(
   strategy: S,
-  options: Omit<WorkboxCliConfig, 'strategy'> = {},
-): WorkboxCliConfig {
+  options: Omit<WorkboxCliConfig<S, T>, 'strategy'> = {},
+): WorkboxCliConfig<S, T> {
   return Object.assign(options, { strategy })
 }

@@ -2,7 +2,7 @@ import type { SWType } from '../../types'
 import type { DetectorOptions, DetectorResult } from '../builder/detector-types'
 import type { LegacyBuildServiceWorkerOptions } from './legacy-types'
 import type { BuildServiceWorkerOptions } from './types'
-import { detect } from '../builder/detector'
+import { detect, detectViteEnvironmentApi } from '../builder/detector'
 import { checkViteDependencies, checkViteLegacyDependencies } from '../builder/log'
 
 export type {
@@ -13,7 +13,7 @@ export type {
   SWType,
 }
 
-export { detect }
+export { detect, detectViteEnvironmentApi }
 
 export async function checkBuildSW(
   forError = false,

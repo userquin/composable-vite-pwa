@@ -1,31 +1,11 @@
-import type { WorkboxCliConfig } from './options'
+import type { StrategyName } from './options'
 import process from 'node:process'
-import { hasTTY, isCI } from 'std-env'
 import pkg from '../package.json' with { type: 'json' }
 import { loadCliConfiguration } from './config'
+import { executeStrategy } from './execute'
 import { logger } from './logger'
-import { runBuildSW } from './strategies/build-sw'
-import { runGenerateSW } from './strategies/generate-sw'
-import { runGetManifest } from './strategies/get-manifest'
-import { runInjectManifest } from './strategies/inject-manifest'
-
-const STRATEGIES = {
-  'generate-sw': runGenerateSW,
-  'inject-manifest': runInjectManifest,
-  'build-sw': runBuildSW,
-  'get-manifest': runGetManifest,
-} as const
-
-type StrategyName = keyof typeof STRATEGIES
-
-const STRATEGY_NAMES = Object.keys(STRATEGIES) as StrategyName[]
-
-const STRATEGY_OPTION_KEYS: Record<StrategyName, keyof WorkboxCliConfig> = {
-  'generate-sw': 'generateSW',
-  'build-sw': 'buildSW',
-  'inject-manifest': 'injectManifest',
-  'get-manifest': 'getManifest',
-}
+import { STRATEGY_NAMES } from './options'
+import { resolveInteractiveStrategy } from './resolve-interactive-strategy'
 
 const USAGE = `Usage: workbox-cli [config] [options]
 
@@ -36,6 +16,8 @@ Arguments:
 Options:
   -c, --command <strategy>  Run a specific strategy from the config:
                             ${STRATEGY_NAMES.join(' | ')}
+  -s, --self-destroy        Also emit a self-destroying SW after the main
+                            strategy (or run the self-destroy-sw strategy)
   -i, --interactive         Prompt to choose the strategy, overriding the
                             config but not -c (TTY only)
   -h, --help                Show this help
@@ -48,13 +30,14 @@ function fail(message: string): never {
 }
 
 function isStrategyName(value: unknown): value is StrategyName {
-  return typeof value === 'string' && value in STRATEGIES
+  return typeof value === 'string' && STRATEGY_NAMES.includes(value as StrategyName)
 }
 
 async function init() {
   const argv = process.argv.slice(2)
   const positionals: string[] = []
   let command: string | undefined
+  let selfDestroying = false
   let interactive = false
 
   for (let i = 0; i < argv.length; i++) {
@@ -67,6 +50,9 @@ async function init() {
     }
     else if (arg.startsWith('--command=')) {
       command = arg.slice('--command='.length)
+    }
+    else if (arg === '-s' || arg === '--self-destroy') {
+      selfDestroying = true
     }
     else if (arg === '-i' || arg === '--interactive') {
       interactive = true
@@ -95,25 +81,10 @@ async function init() {
   }
 
   try {
-    const config = await loadCliConfiguration(positionals[0])
+    const config = await loadCliConfiguration(positionals[0], selfDestroying)
 
     if (!strategy && interactive) {
-      if (!hasTTY || isCI)
-        throw new Error('--interactive requires a TTY (not available in CI)')
-      const { isCancel, cancel, select } = await import('@clack/prompts')
-      const choice = await select({
-        message: 'Which strategy should run?',
-        options: STRATEGY_NAMES.map(s => ({
-          value: s,
-          label: s,
-          hint: config[STRATEGY_OPTION_KEYS[s]] == null ? 'not configured' : undefined,
-        })),
-      })
-      if (isCancel(choice)) {
-        cancel('Cancelled')
-        process.exit(1)
-      }
-      strategy = choice
+      strategy = await resolveInteractiveStrategy(config)
     }
 
     strategy ??= config.strategy
@@ -126,8 +97,7 @@ async function init() {
       )
     }
 
-    await STRATEGIES[strategy](config)
-    logger.success(`${strategy} complete`)
+    await executeStrategy(strategy, config)
   }
   catch (err) {
     logger.error(err instanceof Error ? err.message : String(err))

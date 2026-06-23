@@ -8,7 +8,8 @@ import path from 'node:path'
 import process from 'node:process'
 import pc from 'picocolors'
 import pkg from '../../../package.json' with { type: 'json' }
-import { BundlerNames, normalizePath } from './utils'
+import { normalizePath } from '../../utils/resolve-sw-names'
+import { BundlerNames } from './utils'
 
 const version = pkg.version
 

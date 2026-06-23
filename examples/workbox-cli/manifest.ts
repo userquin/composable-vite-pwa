@@ -1,5 +1,5 @@
 import { getManifest } from '@composable-vite-pwa/workbox-build'
-import { globIgnores } from './glogIgnores'
+import { globIgnores } from './globIgnores'
 
 getManifest({
   globDirectory: './',

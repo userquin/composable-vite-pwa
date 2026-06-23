@@ -1,6 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
-import { normalizePath } from '../build/builder/utils'
+import { normalizePath } from './resolve-sw-names'
 
 export function resolveFrom(base: string, value: string): string {
   return normalizePath(path.isAbsolute(value) ? path.relative(base, value) : path.join(base, value))

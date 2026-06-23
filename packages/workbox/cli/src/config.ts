@@ -1,5 +1,6 @@
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
-import type { WorkboxCliConfig } from './options'
+import type { SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { CliStrategy, WorkboxCliConfig } from './options'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -24,10 +25,23 @@ export function resolveDefaultConfig(cwd: string = process.cwd()): string | unde
   return undefined
 }
 
-export async function loadCliConfiguration(configPath?: string): Promise<WorkboxCliConfig> {
+export async function loadCliConfiguration(
+  configPath?: string,
+  cliSelfDestroying?: boolean,
+): Promise<WorkboxCliConfig<CliStrategy, SWType>> {
   const resolvedPath = configPath ?? resolveDefaultConfig()
   if (!configPath && resolvedPath)
     logger.info(`Using config ${path.relative(process.cwd(), resolvedPath)}`)
-  const config = await loadConfiguration<Strategy>({ path: resolvedPath })
-  return config as WorkboxCliConfig
+  // loadConfiguration() resolves via dynamic import(), which Node caches per
+  // path — repeated calls with the same path return the *same* object. Clone
+  // before mutating selfDestroying below, or the mutation leaks across calls.
+  const loaded = await loadConfiguration<Strategy>({ path: resolvedPath })
+  const config: WorkboxCliConfig<CliStrategy, SWType> = { ...loaded }
+
+  const enabled = cliSelfDestroying || (config.selfDestroying?.selfDestroying ?? false)
+  if (enabled || config.selfDestroying) {
+    config.selfDestroying = { ...config.selfDestroying, selfDestroying: enabled }
+  }
+
+  return config
 }

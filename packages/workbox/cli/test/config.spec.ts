@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { DEFAULT_CONFIG_FILES, loadCliConfiguration, resolveDefaultConfig } from '../src/config'
 
 const fixtures = fileURLToPath(new URL('./fixtures', import.meta.url))
@@ -31,8 +31,10 @@ describe('resolveDefaultConfig', () => {
     expect(resolveDefaultConfig(path.join(fixtures, 'discover-none'))).toBeUndefined()
   })
 
-  it('defaults to the current working directory (which has no config here)', () => {
+  it('defaults to process.cwd() when no cwd argument is given', () => {
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(path.join(fixtures, 'discover-none'))
     expect(resolveDefaultConfig()).toBeUndefined()
+    cwdSpy.mockRestore()
   })
 })
 
@@ -48,5 +50,40 @@ describe('loadCliConfiguration', () => {
   it('returns an empty config when neither a path nor a default file is found', async () => {
     const config = await loadCliConfiguration()
     expect(config.strategy).toBeUndefined()
+  })
+
+  it('enables selfDestroying via the -s flag even when the config omits it', async () => {
+    const config = await loadCliConfiguration(
+      path.join(fixtures, 'load', 'workbox.config.mjs'),
+      true,
+    )
+    expect(config.selfDestroying?.selfDestroying).toBe(true)
+  })
+
+  it('leaves selfDestroying untouched when neither the flag nor config set it', async () => {
+    const config = await loadCliConfiguration(
+      path.join(fixtures, 'load', 'workbox.config.mjs'),
+      false,
+    )
+    expect(config.selfDestroying).toBeUndefined()
+  })
+
+  it('the -s flag overrides an explicit selfDestroying:false in config', async () => {
+    const config = await loadCliConfiguration(
+      path.join(fixtures, 'self-destroy', 'workbox.config.mjs'),
+      true,
+    )
+    expect(config.selfDestroying?.selfDestroying).toBe(true)
+    expect(config.selfDestroying?.swDest).toBe('custom-sw.js')
+  })
+
+  it('does not leak selfDestroying state across repeated calls with the same path', async () => {
+    const fixturePath = path.join(fixtures, 'load', 'workbox.config.mjs')
+
+    const withFlag = await loadCliConfiguration(fixturePath, true)
+    expect(withFlag.selfDestroying?.selfDestroying).toBe(true)
+
+    const withoutFlag = await loadCliConfiguration(fixturePath, false)
+    expect(withoutFlag.selfDestroying).toBeUndefined()
   })
 })

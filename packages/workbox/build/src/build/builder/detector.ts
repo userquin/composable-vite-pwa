@@ -53,6 +53,16 @@ export async function detectVite(): Promise<boolean | undefined> {
   }
   catch { return undefined }
 }
+export async function detectViteEnvironmentApi(): Promise<boolean | undefined> {
+  try {
+    const version = readPkgVersion('vite')
+    if (!version) {
+      return false
+    }
+    return semver.major(version) >= 6
+  }
+  catch { return undefined }
+}
 
 export async function detect(options: DetectorOptions): Promise<DetectorResult> {
   const [
@@ -93,6 +103,19 @@ export async function detectBuildSWDependencies(): Promise<BuildSWResult> {
   return {
     rolldown: rolldown.status === 'fulfilled' ? rolldown.value : undefined,
     vite: vite.status === 'fulfilled' ? vite.value : undefined,
+  }
+}
+
+export function includeRolldownOxcPlugin() {
+  try {
+    const version = readPkgVersion('rolldown')
+    if (!version) {
+      return true
+    }
+    return semver.lt(version, '1.1.2')
+  }
+  catch {
+    return false
   }
 }
 

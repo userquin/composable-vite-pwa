@@ -5,11 +5,11 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "paths": {
-      "@composable-vite-pwa/vite-plugin-pwa": [
-        "./packages/core/vite/src/index.ts"
+      "@composable-vite-pwa/unplugin-pwa": [
+        "./packages/unplugin-pwa/src/node/vite/index.ts"
       ],
-      "@composable-vite-pwa/vite-plugin-pwa/types": [
-        "./packages/core/types/index.d.ts"
+      "@composable-vite-pwa/unplugin-pwa/node/*": [
+        "./packages/unplugin-pwa/src/node/*.ts"
       ],
       "@composable-vite-pwa/workbox-build": [
         "./packages/workbox/build/src/index.ts"
