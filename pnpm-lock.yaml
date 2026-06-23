@@ -397,6 +397,9 @@ importers:
       '@composable-vite-pwa/workbox-build':
         specifier: workspace:*
         version: link:../../packages/workbox/build
+      '@composable-vite-pwa/workbox-cli':
+        specifier: workspace:*
+        version: link:../../packages/workbox/cli
       '@composable-vite-pwa/workbox-swkit':
         specifier: workspace:*
         version: link:../../packages/workbox/swkit
