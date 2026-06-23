@@ -3,8 +3,8 @@ import path from 'node:path'
 import process from 'node:process'
 import { it as base, describe, expect } from 'vitest'
 import webpack from 'webpack'
-import { normalizePath } from '../src/build/builder/utils'
 import { WebpackWorkboxPWAPlugin } from '../src/build/webpack'
+import { normalizePath } from '../src/utils/resolve-sw-names'
 import { createFixture } from './utils/webpack-utils'
 
 // ======================== buildSW ========================
