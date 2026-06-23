@@ -43,8 +43,8 @@
   },
   "scripts": {
     "build": "tsdown --config-loader unrun",
-    "test": "pnpm run build && vitest",
-    "test:ci": "pnpm run build && vitest run",
+    "test": "vitest",
+    "test:ci": "vitest run",
     "test:typecheck": "tsc --noEmit",
     "prepublishOnly": "pnpm run build"
   },
