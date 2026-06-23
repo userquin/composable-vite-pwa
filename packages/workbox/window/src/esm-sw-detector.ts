@@ -17,12 +17,12 @@ type OS = 'iOS' | 'Android' | 'Mac OS'
 
 type SWFeatures = (versions: number[], os?: OS) => boolean
 
-const chromiumCheck: SWFeatures = v => v.length > 0 && !Number.isNaN(v[0]) && v[0] >= 91
+const esmServiceWorkerChromiumCheck: SWFeatures = v => v.length > 0 && !Number.isNaN(v[0]) && v[0] >= 91
 
 // https://caniuse.com/?search=service+worker => 2026-04-09
-const allowedBrowsers: Record<Browser, SWFeatures> = {
-  'chrome': chromiumCheck,
-  'edge-chromium': chromiumCheck,
+const allowedESMServiceWorkerBrowsers: Record<Browser, SWFeatures> = {
+  'chrome': esmServiceWorkerChromiumCheck,
+  'edge-chromium': esmServiceWorkerChromiumCheck,
   'safari': v => v.length > 0 && !Number.isNaN(v[0]) && v[0] >= 15,
   'firefox': v => v.length > 0 && !Number.isNaN(v[0]) && v[0] >= 145,
   'opera': v => v.length > 0 && !Number.isNaN(v[0]) && v[0] >= 77,
@@ -38,71 +38,73 @@ const allowedBrowsers: Record<Browser, SWFeatures> = {
 
 type Rule = (userAgent: string, os?: OS) => RegExpExecArray | null
 
-const chromeRegex = /(?!Chrom.*OPR)Chrom(?:e|ium)\/([\d.]+)(:?\s|$)/
-const edgeRegex = /EdgA?\/([\d.]+)/
-const safariRegex = /Version\/.*Safari/
-const safariVersionRegex = /Version\/([\d._]+)/
-const firefoxVersionRegex = /Firefox\/([\d.]+)(?:\s|$)/
-const operaRegex = /(Opera|OPR)\/([\d.]+)/
-const samsungRegex = /SamsungBrowser\/([\d.]+)/
-const webviewRegex = /wv\).*Chrom(?:e|ium)\/([\d.]+)/
-const operaMobileRegex = /Mobile/
-const ucBrowserRegex = /UCBrowser\/([\d.]+)/
-const qqRegex = /(MQQBrowser|QQBrowser)\/([\d.]+)/i
-const iOSRegex = /iP(?:hone|od|ad)/
-const androidRegex = /Android/
-const macOSRegex = /Macintosh/
-const splitRegexp = /[._]/
+const esmServiceWorkerRegex = {
+  chrome: /(?!Chrom.*OPR)Chrom(?:e|ium)\/([\d.]+)(:?\s|$)/,
+  edge: /EdgA?\/([\d.]+)/,
+  safari: /Version\/.*Safari/,
+  safariVersion: /Version\/([\d._]+)/,
+  firefoxVersion: /Firefox\/([\d.]+)(?:\s|$)/,
+  opera: /(Opera|OPR)\/([\d.]+)/,
+  samsung: /SamsungBrowser\/([\d.]+)/,
+  webview: /wv\).*Chrom(?:e|ium)\/([\d.]+)/,
+  operaMobile: /Mobile/,
+  ucBrowser: /UCBrowser\/([\d.]+)/,
+  qq: /(MQQBrowser|QQBrowser)\/([\d.]+)/i,
+  iOS: /iP(?:hone|od|ad)/,
+  android: /Android/,
+  macOS: /Macintosh/,
+  split: /[._]/,
+} as const
 
-const rules: Record<Browser, Rule> = {
-  'chrome': (userAgent, os) => (!os || os !== 'Android') ? chromeRegex.exec(userAgent) : null,
-  'edge-chromium': userAgent => edgeRegex.exec(userAgent),
+const esmServiceWorkerRules: Record<Browser, Rule> = {
+  'chrome': (userAgent, os) => (!os || os !== 'Android') ? esmServiceWorkerRegex.chrome.exec(userAgent) : null,
+  'edge-chromium': userAgent => esmServiceWorkerRegex.edge.exec(userAgent),
   'safari': (userAgent, os) => {
-    return os === 'Mac OS' && safariRegex.test(userAgent) ? safariVersionRegex.exec(userAgent) : null
+    return os === 'Mac OS' && esmServiceWorkerRegex.safari.test(userAgent) ? esmServiceWorkerRegex.safariVersion.exec(userAgent) : null
   },
-  'firefox': userAgent => firefoxVersionRegex.exec(userAgent),
-  'opera': userAgent => operaMobileRegex.test(userAgent) ? null : operaRegex.exec(userAgent),
-  'chrome-android': (userAgent, os) => os === 'Android' ? chromeRegex.exec(userAgent) : null,
-  'ios-safari': (userAgent, os) => os === 'iOS' ? safariVersionRegex.exec(userAgent) : null,
-  'samsung': userAgent => samsungRegex.exec(userAgent),
-  'opera-mobile': userAgent => operaMobileRegex.test(userAgent) ? operaRegex.exec(userAgent) : null,
-  'uc-browser-android': (userAgent, os) => os === 'Android' && operaMobileRegex.test(userAgent) ? ucBrowserRegex.exec(userAgent) : null,
-  'chromium-webview': (userAgent, os) => os === 'Android' ? webviewRegex.exec(userAgent) : null,
-  'firefox-android': (userAgent, os) => os === 'Android' ? firefoxVersionRegex.exec(userAgent) : null,
-  'qq-browser': userAgent => qqRegex.exec(userAgent),
+  'firefox': userAgent => esmServiceWorkerRegex.firefoxVersion.exec(userAgent),
+  'opera': userAgent => esmServiceWorkerRegex.operaMobile.test(userAgent) ? null : esmServiceWorkerRegex.opera.exec(userAgent),
+  'chrome-android': (userAgent, os) => os === 'Android' ? esmServiceWorkerRegex.chrome.exec(userAgent) : null,
+  'ios-safari': (userAgent, os) => os === 'iOS' ? esmServiceWorkerRegex.safariVersion.exec(userAgent) : null,
+  'samsung': userAgent => esmServiceWorkerRegex.samsung.exec(userAgent),
+  'opera-mobile': userAgent => esmServiceWorkerRegex.operaMobile.test(userAgent) ? esmServiceWorkerRegex.opera.exec(userAgent) : null,
+  'uc-browser-android': (userAgent, os) => os === 'Android' && esmServiceWorkerRegex.operaMobile.test(userAgent) ? esmServiceWorkerRegex.ucBrowser.exec(userAgent) : null,
+  'chromium-webview': (userAgent, os) => os === 'Android' ? esmServiceWorkerRegex.webview.exec(userAgent) : null,
+  'firefox-android': (userAgent, os) => os === 'Android' ? esmServiceWorkerRegex.firefoxVersion.exec(userAgent) : null,
+  'qq-browser': userAgent => esmServiceWorkerRegex.qq.exec(userAgent),
 }
 
-export function isSWModuleSupported(userAgent = navigator.userAgent): boolean {
+export function isServiceWorkerModuleSupported(userAgent = navigator.userAgent): boolean {
   if (!userAgent)
     return false
 
   let os: OS | undefined
-  if (iOSRegex.test(userAgent))
+  if (esmServiceWorkerRegex.iOS.test(userAgent))
     os = 'iOS'
-  else if (androidRegex.test(userAgent))
+  else if (esmServiceWorkerRegex.android.test(userAgent))
     os = 'Android'
-  else if (macOSRegex.test(userAgent))
+  else if (esmServiceWorkerRegex.macOS.test(userAgent))
     os = 'Mac OS'
 
   if (os === 'iOS') {
-    const match = rules['ios-safari'](userAgent, os)
+    const match = esmServiceWorkerRules['ios-safari'](userAgent, os)
     return match
-      ? allowedBrowsers['ios-safari'](
-          match[1].split(splitRegexp).map(v => Number.parseInt(v, 10)),
+      ? allowedESMServiceWorkerBrowsers['ios-safari'](
+          match[1].split(esmServiceWorkerRegex.split).map(v => Number.parseInt(v, 10)),
           os,
         )
       : false
   }
 
-  for (const [name, rule] of Object.entries(rules)) {
+  for (const [name, rule] of Object.entries(esmServiceWorkerRules)) {
     if (name === 'ios-safari')
       continue
 
     const match = rule(userAgent, os)
     if (match) {
-      const config = allowedBrowsers[name as Browser]
+      const config = allowedESMServiceWorkerBrowsers[name as Browser]
       return config(
-        match[1].split(splitRegexp).map(v => Number.parseInt(v, 10)),
+        match[1].split(esmServiceWorkerRegex.split).map(v => Number.parseInt(v, 10)),
         os,
       )
     }

@@ -6,7 +6,7 @@ import type { generateSW as viteGenerateSW } from '../../src/build/vite/generate
 import type { buildSWLegacy } from '../../src/build/vite/legacy-build-sw'
 import type { generateSWLegacy } from '../../src/build/vite/legacy-generate-sw'
 import path from 'node:path'
-import { normalizePath } from '../../src/build/builder/utils'
+import { normalizePath } from '../../src/utils/resolve-sw-names'
 
 type BuildSWFunction = typeof viteBuildSW | typeof buildSWLegacy
 type GenerateSWFunction = typeof viteGenerateSW | typeof generateSWLegacy | typeof rolldownGenerateSW

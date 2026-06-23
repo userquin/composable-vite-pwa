@@ -7,7 +7,7 @@ import type { VitePWAContext } from './plugin-context'
 import type { VitePWAOptions } from './types'
 import path from 'node:path'
 import process from 'node:process'
-import { normalizePath } from '../../builder/utils'
+import { normalizePath } from '../../../utils/resolve-sw-names'
 
 type StrategyOptions<T extends SWType>
   = | BuildServiceWorkerOptions<T>
@@ -47,7 +47,7 @@ async function prepareStrategyOptions<
     : normalizePath(path.relative(cwd, resolveFrom(cwd, outputPath)))
 
   if (!('dontCacheBustURLsMatching' in strategyOptions)) {
-    let assetsOutputDir = resolveFrom(outputPath, assetsDir)
+    let assetsOutputDir = path.relative(outputPath, resolveFrom(outputPath, assetsDir))
     if (assetsOutputDir.at(-1) !== '/')
       assetsOutputDir += '/'
 

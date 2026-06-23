@@ -6,7 +6,7 @@ import process from 'node:process'
 import { parseEnv } from 'node:util'
 import { expand } from 'dotenv-expand'
 import pc from 'picocolors'
-import { normalizePath } from './utils'
+import { normalizePath } from '../../utils/resolve-sw-names'
 
 // hoist regexps
 const emptyRegexp = /\s/

@@ -2,7 +2,7 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 import { build as viteBuild } from 'vite'
 import { describe, expect } from 'vitest'
-import { normalizePath } from '../src/build/builder/utils'
+import { normalizePath } from '../src/utils/resolve-sw-names'
 import { testWithSandbox } from './utils/test-sandbox'
 import { createBuildSWPlugin } from './utils/vite-plugin-utils'
 

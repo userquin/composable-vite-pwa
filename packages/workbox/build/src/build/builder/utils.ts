@@ -16,28 +16,22 @@ import type {
   OriginalEnvironmentData,
   ResolvedSWTargets,
 } from './bundler-types'
-import path from 'node:path'
-import process from 'node:process'
+import {
+  resolveSWNames,
+} from '../../utils/resolve-sw-names'
 
 // hoist regexp
 export const workboxRegex = [
   /@composable-vite-pwa[\\/]workbox-swkit[\\/]/,
-  /vite-pwa[\\/]packages[\\/]workbox[\\/]swkit[\\/]/,
+  /[\\/]packages[\\/]workbox[\\/]swkit[\\/]/,
 ].filter(Boolean)
 
 // DON'T hoist Regexp used with /g via exec/test/split
-const normalizePathRegexp = /\\/g
-const jsRegexp = /\.js$/
-const anyJsRegexp = /\.([mc])?[jt]sx?$/
 const camelizeRegexp = /-([a-z0-9])/g
 
 export const BundlerNames: Record<Bundler, string> = {
   vite: 'Vite',
   rolldown: 'Rolldown',
-}
-
-export function normalizePath(path: string): string {
-  return path.replace(normalizePathRegexp, '/')
 }
 
 export function extractOriginalEnvironmentData<
@@ -87,52 +81,16 @@ export function resolveSWNamesAndGlobIgnores(
   swSrc: string,
   generateSW: boolean,
 ) {
-  // generateSW: we need a temp sw to generate the content from the options
-  // - swSrc requires a new temp file, we need to "compile" it for three-shaking/dce
-  // - swDest must be the <swName>-classic.js or <swName>-module.js extracted from swDest when required
-  // buildSW:
-  // - swSrc is in the codebase
-  // - we need to provide classic and module extracted from swDest when required
-
-  // path normalization
-  const rootSWDest = path.resolve(process.cwd(), options.swDest)
-  const swDestChunkName = path.basename(rootSWDest, '.js')
-  const destDist = normalizePath(path.relative(process.cwd(), path.dirname(rootSWDest)))
-
-  const prefix = destDist && destDist !== '.' ? `${destDist}/` : ''
-
-  let newSWSrc: string
-  let swChunkName: string
-  let classicSWSrc: string
-  let classicSWChunkName: string
-  let classicSWDest: string
-  let moduleSWSrc: string
-  let moduleSWChunkName: string
-  let moduleSWDest: string
-
-  // swChunkName comes from the swSrc: it is the chunk name at generateBundle hook
-  // dest files are the filename from options.swDest
-
-  if (generateSW) {
-    newSWSrc = options.swDest.replace(jsRegexp, '-temp.js')
-    swChunkName = path.basename(newSWSrc, '.js')
-    classicSWSrc = `${prefix}${swChunkName}-classic.js`
-    classicSWChunkName = `${swChunkName}-classic`
-    classicSWDest = `${prefix}${swDestChunkName}-classic.js`
-    moduleSWSrc = `${prefix}${swChunkName}-module.js`
-    moduleSWChunkName = `${swChunkName}-module`
-    moduleSWDest = `${prefix}${swDestChunkName}-module.js`
-  }
-  else {
-    newSWSrc = swSrc
-    swChunkName = path.basename(swSrc.replace(anyJsRegexp, '.js'), '.js')
-    classicSWSrc = swSrc
-    classicSWChunkName = swChunkName
-    classicSWDest = `${prefix}${swDestChunkName}-classic.js`
-    moduleSWSrc = swSrc
-    moduleSWChunkName = swChunkName
-    moduleSWDest = `${prefix}${swDestChunkName}-module.js`
-  }
+  const {
+    newSWSrc,
+    swChunkName,
+    classicSWSrc,
+    classicSWChunkName,
+    classicSWDest,
+    moduleSWSrc,
+    moduleSWChunkName,
+    moduleSWDest,
+  } = resolveSWNames(options, swSrc, generateSW)
 
   options.globIgnores ??= []
   if (generateSW) {
