@@ -27,13 +27,13 @@ export function VitePWA<
     },
   )
 
-  ctx.dev.addHMRToPwaAsset = async (asset, code) => {
+  ctx.dev.customHMRPwaAsset = async (asset, source) => {
     return await import('./dev/hmr-support').then(({
-      addHMRSupport,
-    }) => addHMRSupport(
+      customHMR,
+    }) => customHMR(
       ctx,
       asset,
-      code,
+      source,
     ))
   }
 

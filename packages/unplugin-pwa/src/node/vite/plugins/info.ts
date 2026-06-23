@@ -8,6 +8,7 @@ import {
   PWA_INFO_VIRTUAL,
   RESOLVED_PWA_INFO_VIRTUAL,
 } from '../../constants'
+import { isDualServiceWorker } from '../../dual-sw-utilities'
 
 export function InfoPlugin<
   UserStrategy extends VitePWAStrategy,
@@ -89,17 +90,8 @@ async function generatePwaInfo<
     const scriptTag = registerSWData.toScriptTag()
     if (scriptTag) {
       const { mode, inlinePath, registerPath, type, scope } = registerSWData
-      let module = false
-      switch (ctx.strategy) {
-        case 'generate-sw':
-          module = ctx.resolvedOptions.generateSW?.swType === 'classic-and-module'
-          break
-        case 'build-sw':
-          module = ctx.resolvedOptions.buildSW?.swType === 'classic-and-module'
-          break
-      }
       entry.registerSW = {
-        module,
+        module: isDualServiceWorker(ctx),
         mode,
         inlinePath,
         registerPath,

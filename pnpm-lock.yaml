@@ -142,8 +142,8 @@ catalogs:
       version: 1.3.1
   vite:
     vite:
-      specifier: 8.1.0-beta.0
-      version: 8.1.0-beta.0
+      specifier: 8.1.0
+      version: 8.1.0
   vite-plugin-inspect:
     '@vitejs/devtools':
       specifier: 0.3.3
@@ -246,7 +246,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: catalog:test
-        version: 4.1.5(@types/node@24.12.2)(@vitest/ui@4.1.5)(vite@8.1.0-beta.0)
+        version: 4.1.5(@types/node@24.12.2)(@vitest/ui@4.1.5)(vite@8.1.0)
       vue:
         specifier: catalog:vue
         version: 3.5.33(typescript@5.9.3)
@@ -301,7 +301,7 @@ importers:
         version: link:../../packages/workbox/build
       '@vitejs/devtools':
         specifier: catalog:vite-plugin-inspect
-        version: 0.3.3(typescript@5.9.3)(vite@8.1.0-beta.0)
+        version: 0.3.3(typescript@5.9.3)(vite@8.1.0)
       magic-string:
         specifier: catalog:utils
         version: 0.30.21
@@ -310,10 +310,10 @@ importers:
         version: 0.5.2
       vite:
         specifier: catalog:vite
-        version: 8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+        version: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
       vite-plugin-inspect:
         specifier: catalog:vite-plugin-inspect
-        version: 12.0.0-beta.3(typescript@5.9.3)(vite@8.1.0-beta.0)
+        version: 12.0.0-beta.3(typescript@5.9.3)(vite@8.1.0)
 
   examples/vite-js-example:
     devDependencies:
@@ -331,7 +331,7 @@ importers:
         version: 1.1.2
       vite:
         specifier: catalog:vite
-        version: 8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+        version: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
 
   examples/vite-ts-legacy:
     devDependencies:
@@ -364,7 +364,7 @@ importers:
         version: 0.5.2
       vite:
         specifier: catalog:vite
-        version: 8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+        version: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
 
   examples/webpack-app:
     dependencies:
@@ -451,7 +451,7 @@ importers:
         version: 5.55.4(@typescript-eslint/types@8.59.0)
       vite:
         specifier: catalog:vite
-        version: 8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+        version: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
       vue:
         specifier: catalog:vue
         version: 3.5.33(typescript@5.9.3)
@@ -511,7 +511,7 @@ importers:
         version: 1.1.2
       vite:
         specifier: catalog:vite
-        version: 8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+        version: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
       webpack:
         specifier: catalog:webpack5
         version: 5.107.1
@@ -4034,8 +4034,8 @@ packages:
       terser:
         optional: true
 
-  vite@8.1.0-beta.0:
-    resolution: {integrity: sha512-3EnxGNIIv4FZ077Qm5kvm2XfW9w80hDbuL2s09/wDzssu+Hsedi/RadYg0D9wiPvjQEQWYi969bAULwDPY+FTg==}
+  vite@8.1.0:
+    resolution: {integrity: sha512-BuJcQK/56NQTWDGn4ABea3q4SSBdNPWwNZKTkkUpcMPnLoquSYH8llRtSUIgoL1KSCpHt5eghLShn50mH36y7Q==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -5254,7 +5254,7 @@ snapshots:
       sharp-ico: 0.1.5
       unconfig: 7.5.0
 
-  '@vitejs/devtools-kit@0.3.3(typescript@5.9.3)(vite@8.1.0-beta.0)':
+  '@vitejs/devtools-kit@0.3.3(typescript@5.9.3)(vite@8.1.0)':
     dependencies:
       '@devframes/hub': 0.5.4(devframe@0.5.4(typescript@5.9.3))
       birpc: 4.0.0
@@ -5264,7 +5264,7 @@ snapshots:
       pathe: 2.0.3
       perfect-debounce: 2.1.0
       tinyexec: 1.2.4
-      vite: 8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+      vite: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
       - bufferutil
@@ -5272,11 +5272,11 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@vitejs/devtools-rolldown@0.3.3(typescript@5.9.3)(vite@8.1.0-beta.0)(vue@3.5.38(typescript@5.9.3))':
+  '@vitejs/devtools-rolldown@0.3.3(typescript@5.9.3)(vite@8.1.0)(vue@3.5.38(typescript@5.9.3))':
     dependencies:
       '@floating-ui/dom': 1.7.6
       '@rolldown/debug': 1.1.2
-      '@vitejs/devtools-kit': 0.3.3(typescript@5.9.3)(vite@8.1.0-beta.0)
+      '@vitejs/devtools-kit': 0.3.3(typescript@5.9.3)(vite@8.1.0)
       birpc: 4.0.0
       cac: 7.0.0
       d3-shape: 3.2.0
@@ -5323,11 +5323,11 @@ snapshots:
       - vite
       - vue
 
-  '@vitejs/devtools@0.3.3(typescript@5.9.3)(vite@8.1.0-beta.0)':
+  '@vitejs/devtools@0.3.3(typescript@5.9.3)(vite@8.1.0)':
     dependencies:
       '@devframes/hub': 0.5.4(devframe@0.5.4(typescript@5.9.3))
-      '@vitejs/devtools-kit': 0.3.3(typescript@5.9.3)(vite@8.1.0-beta.0)
-      '@vitejs/devtools-rolldown': 0.3.3(typescript@5.9.3)(vite@8.1.0-beta.0)(vue@3.5.38(typescript@5.9.3))
+      '@vitejs/devtools-kit': 0.3.3(typescript@5.9.3)(vite@8.1.0)
+      '@vitejs/devtools-rolldown': 0.3.3(typescript@5.9.3)(vite@8.1.0)(vue@3.5.38(typescript@5.9.3))
       birpc: 4.0.0
       cac: 7.0.0
       devframe: 0.5.4(typescript@5.9.3)
@@ -5338,7 +5338,7 @@ snapshots:
       pathe: 2.0.3
       perfect-debounce: 2.1.0
       tinyexec: 1.2.4
-      vite: 8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+      vite: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
       vue: 3.5.38(typescript@5.9.3)
       ws: 8.21.0
     transitivePeerDependencies:
@@ -5375,7 +5375,7 @@ snapshots:
     optionalDependencies:
       '@typescript-eslint/eslint-plugin': 8.59.0(@typescript-eslint/parser@8.59.0(eslint@10.2.1(jiti@2.6.1))(typescript@5.9.3))(eslint@10.2.1(jiti@2.6.1))(typescript@5.9.3)
       typescript: 5.9.3
-      vitest: 4.1.5(@types/node@24.12.2)(@vitest/ui@4.1.5)(vite@8.1.0-beta.0)
+      vitest: 4.1.5(@types/node@24.12.2)(@vitest/ui@4.1.5)(vite@8.1.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -5388,13 +5388,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.5(vite@8.1.0-beta.0)':
+  '@vitest/mocker@4.1.5(vite@8.1.0)':
     dependencies:
       '@vitest/spy': 4.1.5
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+      vite: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
 
   '@vitest/pretty-format@4.1.5':
     dependencies:
@@ -5423,7 +5423,7 @@ snapshots:
       sirv: 3.0.2
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
-      vitest: 4.1.5(@types/node@24.12.2)(@vitest/ui@4.1.5)(vite@8.1.0-beta.0)
+      vitest: 4.1.5(@types/node@24.12.2)(@vitest/ui@4.1.5)(vite@8.1.0)
 
   '@vitest/utils@4.1.5':
     dependencies:
@@ -7643,7 +7643,7 @@ snapshots:
       tree-kill: 1.2.2
       unconfig-core: 7.5.0
     optionalDependencies:
-      '@vitejs/devtools': 0.3.3(typescript@5.9.3)(vite@8.1.0-beta.0)
+      '@vitejs/devtools': 0.3.3(typescript@5.9.3)(vite@8.1.0)
       publint: 0.3.18
       typescript: 5.9.3
       unrun: 0.2.37(synckit@0.11.12)
@@ -7778,9 +7778,9 @@ snapshots:
       - rollup
       - supports-color
 
-  vite-plugin-inspect@12.0.0-beta.3(typescript@5.9.3)(vite@8.1.0-beta.0):
+  vite-plugin-inspect@12.0.0-beta.3(typescript@5.9.3)(vite@8.1.0):
     dependencies:
-      '@vitejs/devtools-kit': 0.3.3(typescript@5.9.3)(vite@8.1.0-beta.0)
+      '@vitejs/devtools-kit': 0.3.3(typescript@5.9.3)(vite@8.1.0)
       ansis: 4.3.1
       error-stack-parser-es: 1.0.5
       obug: 2.1.3
@@ -7789,7 +7789,7 @@ snapshots:
       perfect-debounce: 2.1.0
       sirv: 3.0.2
       unplugin-utils: 0.3.1
-      vite: 8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+      vite: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
       - bufferutil
@@ -7808,7 +7808,7 @@ snapshots:
       lightningcss: 1.32.0
       terser: 5.48.0
 
-  vite@8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3):
+  vite@8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3):
     dependencies:
       lightningcss: 1.32.0
       picomatch: 4.0.4
@@ -7817,16 +7817,16 @@ snapshots:
       tinyglobby: 0.2.17
     optionalDependencies:
       '@types/node': 24.12.2
-      '@vitejs/devtools': 0.3.3(typescript@5.9.3)(vite@8.1.0-beta.0)
+      '@vitejs/devtools': 0.3.3(typescript@5.9.3)(vite@8.1.0)
       fsevents: 2.3.3
       jiti: 2.6.1
       terser: 5.48.0
       yaml: 2.8.3
 
-  vitest@4.1.5(@types/node@24.12.2)(@vitest/ui@4.1.5)(vite@8.1.0-beta.0):
+  vitest@4.1.5(@types/node@24.12.2)(@vitest/ui@4.1.5)(vite@8.1.0):
     dependencies:
       '@vitest/expect': 4.1.5
-      '@vitest/mocker': 4.1.5(vite@8.1.0-beta.0)
+      '@vitest/mocker': 4.1.5(vite@8.1.0)
       '@vitest/pretty-format': 4.1.5
       '@vitest/runner': 4.1.5
       '@vitest/snapshot': 4.1.5
@@ -7843,7 +7843,7 @@ snapshots:
       tinyexec: 1.1.1
       tinyglobby: 0.2.16
       tinyrainbow: 3.1.0
-      vite: 8.1.0-beta.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
+      vite: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(jiti@2.6.1)(terser@5.48.0)(yaml@2.8.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.12.2

@@ -1,6 +1,7 @@
 import './vue.d.ts'
 import './preact.d.ts'
 import './react.d.ts'
+import './react-effect.d.ts'
 import './svelte.d.ts'
 import './solid.d.ts'
 import './vanillajs.d.ts'

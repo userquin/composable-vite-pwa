@@ -1,5 +1,5 @@
 import type { TrustedScriptURL } from 'trusted-types/lib'
-import type { RegisterSWOptions } from '../types'
+import type { RegisterSWOptions } from '../../types'
 import { isServiceWorkerModuleSupported } from '@composable-vite-pwa/workbox-window/esm-sw-detector'
 
 export function registerSW(options: RegisterSWOptions = {}) {
@@ -23,9 +23,11 @@ export function registerSW(options: RegisterSWOptions = {}) {
     if ('serviceWorker' in navigator) {
       wb = await import('@composable-vite-pwa/workbox-window').then(({ Workbox }) => {
         if (import.meta.PWA_ESM_FALLBACK_SW) {
-          // By default, vite SW build will use classic and the sw.js will be the ESM version.
-          // We're generating 2 variants: <sw>.js and classic-<sw>.js.
-          const esmSW = isServiceWorkerModuleSupported()
+          const enableSwitcher = isServiceWorkerModuleSupported()
+          const esmSW = import.meta.hot
+            ? enableSwitcher && import.meta.PWA_DEV_CURRENT_SW_TYPE === 'module'
+            : isServiceWorkerModuleSupported()
+
           // update entries
           if (esmSW) {
             useSWType = 'module'
@@ -133,6 +135,47 @@ export function registerSW(options: RegisterSWOptions = {}) {
 
       // register the service worker
       wb.register({ immediate }).then((r) => {
+        if (import.meta.PWA_ESM_FALLBACK_SW) {
+          const enableSwitcher = isServiceWorkerModuleSupported()
+          function activatePWASwitcher(registration: ServiceWorkerRegistration) {
+            if (!enableSwitcher) {
+              console.warn(`[VITE PWA] Service Worker UI switcher has been activated, the browser doesn't support ESM!`)
+              return
+            }
+            if (registration.active) {
+              if (typeof window.setDevPWASwitcherReady === 'function') {
+                window.setDevPWASwitcherReady()
+              }
+              else {
+                setTimeout(() => {
+                  if (typeof window.setDevPWASwitcherReady === 'function') {
+                    window.setDevPWASwitcherReady()
+                  }
+                }, 300)
+              }
+              return
+            }
+
+            const sw = registration.installing || registration.waiting
+            if (sw) {
+              sw.addEventListener('statechange', () => {
+                if (sw.state === 'activated') {
+                  if (typeof window.setDevPWASwitcherReady === 'function') {
+                    window.setDevPWASwitcherReady()
+                  }
+                  else {
+                    setTimeout(() => {
+                      if (typeof window.setDevPWASwitcherReady === 'function') {
+                        window.setDevPWASwitcherReady()
+                      }
+                    }, 300)
+                  }
+                }
+              })
+            }
+          }
+          r && activatePWASwitcher(r)
+        }
         onRegisteredSW?.(useSWURL.toString(), r)
       }).catch((e) => {
         onRegisterError?.(e)

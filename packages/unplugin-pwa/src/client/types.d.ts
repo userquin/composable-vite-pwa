@@ -28,16 +28,6 @@ export interface RegisterSWOptions {
    */
   trustedScriptUrl?: TrustedScriptURL | PWATrustedScriptURL
   /**
-   * Override the automatic ESM support detection for dev server.
-   * Return true to force module type, false for classic,
-   * or undefined to let the internal detector decide.
-   *
-   * **WARNING**: this will be only available for development.
-   *
-   * @since 2.0.0
-   */
-  supportsESM?: () => boolean
-  /**
    * Called once the service worker is registered.
    *
    * @param swScriptUrl The service worker script url.

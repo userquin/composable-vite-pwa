@@ -19,12 +19,11 @@ export interface PWABuildContext {
   selfDestroyingSW: () => Promise<boolean>
 }
 
-export type PwaAsset = 'register-sw' | 'virtual-register-sw'
-export type AddHMRToPwaAsset = (
-  asset: PwaAsset,
-  code: string,
+export type PwaHMRAsset = 'register-sw' | 'virtual-register-sw'
+export type CustomHMRPwaAsset = (
+  asset: PwaHMRAsset,
   // the type of virtual when asset is virtual-register-sw
-  source?: string,
+  virtualName?: string,
 ) => string | Promise<string>
 
 export interface PWABuildDevContext<
@@ -32,13 +31,23 @@ export interface PWABuildDevContext<
   T extends SWType,
 > {
   options: {
+    /**
+     * The current service worker name.
+     */
     swName: string
+    /**
+     * The current service worker type.
+     */
     swType: WorkerType
     swGenerated: boolean
     registerSWGenerated: boolean
+    registerVirtualSWGenerated: boolean
     navigateFallbackAllowlist?: RegExp[]
     swAssetsPaths: Map<string, string>
     tempFolder: string
+    /**
+     * Names and paths to resolve service workers.
+     */
     swNames: {
       name: string
       classic: string
@@ -48,9 +57,12 @@ export interface PWABuildDevContext<
       modulePath: string
       devSWDest: string
     }
+    /**
+     * The globDirectory to cache only entry point.
+     */
     globDirectory: string
   }
-  addHMRToPwaAsset?: AddHMRToPwaAsset
+  customHMRPwaAsset?: CustomHMRPwaAsset
   generateSW: (options: Partial<BuildGenerateSWOptions<T>>) => Promise<BuildResult>
   buildSW: (options: Partial<BuildSWType<B, T>>) => Promise<BuildResult>
   injectManifest: (options: Partial<InjectManifestStrategyOptions>) => Promise<BuildResult>

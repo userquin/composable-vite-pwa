@@ -5,6 +5,7 @@ export const VIRTUAL_MODULES_MAP: Record<string, string> = {
   'virtual:pwa-register/vue': 'vue',
   'virtual:pwa-register/svelte': 'svelte',
   'virtual:pwa-register/react': 'react',
+  'virtual:pwa-register/react-effect': 'react-effect',
   'virtual:pwa-register/preact': 'preact',
   'virtual:pwa-register/solid': 'solid',
 }
@@ -25,3 +26,4 @@ export const RESOLVED_DEV_SW_VIRTUAL = `\0${DEV_SW_VIRTUAL}`
 export const DEV_READY_NAME = 'unplugin-pwa:dev-ready'
 export const DEV_REGISTER_SW_NAME = 'unplugin-pwa:register-sw'
 export const DEV_PWA_ASSETS_NAME = 'unplugin-pwa:pwa-assets'
+export const DEV_SWITCHER_NAME = 'unplugin-pwa:pwa-switcher'

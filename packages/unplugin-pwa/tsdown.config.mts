@@ -6,6 +6,7 @@ import {
   DEV_PWA_ASSETS_NAME,
   DEV_READY_NAME,
   DEV_REGISTER_SW_NAME,
+  DEV_SWITCHER_NAME,
 } from './src/node/constants'
 
 const cwd = fileURLToPath(new URL('.', import.meta.url))
@@ -70,6 +71,7 @@ export default defineConfig([{
     'import.meta.PWA_DEV_REGISTER_SW_EVENT_NAME': JSON.stringify(DEV_REGISTER_SW_NAME),
     'import.meta.PWA_DEV_PWA_ASSETS_EVENT_NAME': JSON.stringify(DEV_PWA_ASSETS_NAME),
     'import.meta.PWA_DEV_READY_EVENT_NAME': JSON.stringify(DEV_READY_NAME),
+    'import.meta.PWA_DEV_PWA_SWITCHER_EVENT_NAME': JSON.stringify(DEV_SWITCHER_NAME),
     'import.meta.PWA_DEV_CURRENT_SW_TYPE': 'import.meta.PWA_DEV_CURRENT_SW_TYPE',
   },
   deps: {

@@ -64,27 +64,33 @@ export async function buildPwaAsset<
 
   const base = ctx.devEnvironment ? useBase : buildBase
 
-  return await buildPwaAssetWithRolldown(code, {
-    'import.meta.PWA_ESM_FALLBACK_SW': JSON.stringify(ctx.resolvedOptions.swType === 'classic-and-module'),
-    'import.meta.PWA_SELF_DESTROYING_SW': JSON.stringify(ctx.strategy === 'self-destroy-sw'),
-    'import.meta.PWA_SW_URL': JSON.stringify(`${base}${swDestPath}`),
-    'import.meta.PWA_SW_CLASSIC_URL': JSON.stringify(`${base}${classicSWDestPath}`),
-    'import.meta.PWA_SW_MODULE_URL': JSON.stringify(`${base}${moduleSWDestPath}`),
-    'import.meta.PWA_SW_SCOPE': JSON.stringify(scope),
-    'import.meta.PWA_SW_TYPE': JSON.stringify(swType),
-    'import.meta.PWA_SW_UPDATE_VIA_CACHE': JSON.stringify(updateViaCache),
-    'import.meta.PWA_DEV_SERVER': JSON.stringify(ctx.devEnvironment),
-    // HMR
-    'import.meta.PWA_SW_AUTO_UPDATE': JSON.stringify(ctx.resolvedOptions.registerType === 'autoUpdate'),
-    'import.meta.PWA_DEV_ENABLED': JSON.stringify(devEnabled),
-    'import.meta.PWA_DEV_UI_ENABLED': JSON.stringify(devEnabled && ctx.resolvedOptions.devOptions?.enableUISwitcher === true),
-    'import.meta.PWA_DEV_CURRENT_SW_TYPE': JSON.stringify(ctx.dev.options!.swType),
-  }, ctx.resolvedOptions.minify!)
+  return await buildPwaAssetWithRolldown(
+    code,
+    {
+      'import.meta.PWA_ESM_FALLBACK_SW': JSON.stringify(ctx.resolvedOptions.swType === 'classic-and-module'),
+      'import.meta.PWA_SELF_DESTROYING_SW': JSON.stringify(ctx.strategy === 'self-destroy-sw'),
+      'import.meta.PWA_SW_URL': JSON.stringify(`${base}${swDestPath}`),
+      'import.meta.PWA_SW_CLASSIC_URL': JSON.stringify(`${base}${classicSWDestPath}`),
+      'import.meta.PWA_SW_MODULE_URL': JSON.stringify(`${base}${moduleSWDestPath}`),
+      'import.meta.PWA_SW_SCOPE': JSON.stringify(scope),
+      'import.meta.PWA_SW_TYPE': JSON.stringify(swType),
+      'import.meta.PWA_SW_UPDATE_VIA_CACHE': JSON.stringify(updateViaCache),
+      'import.meta.PWA_DEV_SERVER': JSON.stringify(ctx.devEnvironment),
+      // HMR
+      'import.meta.PWA_SW_AUTO_UPDATE': JSON.stringify(ctx.resolvedOptions.registerType === 'autoUpdate'),
+      'import.meta.PWA_DEV_ENABLED': JSON.stringify(devEnabled),
+      'import.meta.PWA_DEV_UI_ENABLED': JSON.stringify(devEnabled && ctx.resolvedOptions.devOptions?.enableUISwitcher === true),
+      'import.meta.PWA_DEV_CURRENT_SW_TYPE': JSON.stringify(ctx.dev.options!.swType),
+    },
+    ctx.devEnvironment,
+    ctx.resolvedOptions.minify!,
+  )
 }
 
 async function buildPwaAssetWithRolldown(
   code: string,
   define: Record<string, any>,
+  isDev: boolean,
   minify: boolean,
 ): Promise<string> {
   const { rolldown } = await import('rolldown')
@@ -116,11 +122,11 @@ async function buildPwaAssetWithRolldown(
     topLevelVar: true,
     cleanDir: false,
     comments: {
-      legal: !minify,
+      legal: !isDev && !minify,
       jsdoc: false,
       annotation: false,
     },
-    minify,
+    minify: isDev ? false : !minify,
     codeSplitting: false,
   })
 

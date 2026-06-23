@@ -10,15 +10,18 @@ import {
   DEV_REGISTER_SW_NAME,
   DEV_SW_NAME,
   DEV_SW_VIRTUAL,
+  DEV_SWITCHER_NAME,
   FILE_SW_REGISTER,
   RESOLVED_DEV_SW_VIRTUAL,
+  VIRTUAL_MODULES,
+  VIRTUAL_MODULES_RESOLVE_PREFIX,
 } from '../../constants'
+import { isDualServiceWorker } from '../../dual-sw-utilities'
 import { injectWebManifestHtmlLink } from '../../inject-web-manifest-html-link'
 import { createHmrScript } from '../dev/create-hmr-script'
 import { injectHmrScript } from '../dev/inject-hmr-script'
 import { prepareRegisterSw } from '../dev/prepare-register-sw'
 import { prepareSwBuild } from '../dev/prepare-sw-build'
-
 import { prepareSwNamesAndGlobDirectory } from '../dev/prepare-sw-names-and-glob-directory'
 
 export function DevPlugin<
@@ -68,11 +71,13 @@ export function DevPlugin<
       }
       ctx.devEnvironment = true
       if (!ctx.resolvedOptions.disable && ctx.resolvedOptions.devOptions?.enabled === true) {
-        if (!ctx.envApi) {
-          server.ws.on(DEV_READY_NAME, createWSResponseHandler(server, ctx))
-          return
+        const onMessage = ctx.envApi
+          ? server.environments.client.hot.on
+          : server.ws.on
+        onMessage(DEV_READY_NAME, createWSResponseHandler(server, ctx))
+        if (isDualServiceWorker(ctx)) {
+          onMessage(DEV_SWITCHER_NAME, createSwitchServiceWorkerResponseHandler(server, ctx))
         }
-        server.environments.client.hot.on(DEV_READY_NAME, createWSResponseHandler(server, ctx))
       }
     },
     resolveId: {
@@ -157,38 +162,15 @@ function createWSResponseHandler(
 
       await prepareRegisterSw(ctx)
 
-      let module = false
-      switch (ctx.strategy) {
-        case 'generate-sw':
-          module = ctx.resolvedOptions.generateSW?.swType === 'classic-and-module'
-          break
-        case 'build-sw':
-          module = ctx.resolvedOptions.buildSW?.swType === 'classic-and-module'
-          break
-      }
+      const sendMessage = ctx.envApi
+        ? server.environments.client.hot.send
+        : server.ws.send
 
-      if (!ctx.envApi) {
-        server.ws.send({
-          type: 'custom',
-          event: DEV_REGISTER_SW_NAME,
-          data: {
-            module,
-            mode: ctx.resolvedOptions.injectRegister,
-            scope,
-            // todo: check this, it is wrong
-            inlinePath: `${base}${DEV_SW_NAME}`,
-            registerPath: `${base}${FILE_SW_REGISTER}`,
-            swType: ctx.resolvedOptions.devOptions?.type,
-          },
-        })
-        return
-      }
-
-      server.environments.client.hot.send({
+      sendMessage({
         type: 'custom',
         event: DEV_REGISTER_SW_NAME,
         data: {
-          module,
+          module: isDualServiceWorker(ctx),
           mode: ctx.resolvedOptions.injectRegister,
           scope,
           // todo: check this, it is wrong
@@ -198,5 +180,78 @@ function createWSResponseHandler(
         },
       })
     }
+  }
+}
+
+function createSwitchServiceWorkerResponseHandler(
+  server: ViteDevServer,
+  ctx: VitePWAPluginContext<any, any, any, any>,
+): () => Promise<void> {
+  return async () => {
+    if (!isDualServiceWorker(ctx)) {
+      return
+    }
+    const internalDevOptions = ctx.dev.options!
+    if (internalDevOptions.swType === 'module') {
+      internalDevOptions.swName = internalDevOptions.swNames.classic
+      internalDevOptions.swType = 'classic'
+    }
+    else {
+      internalDevOptions.swName = internalDevOptions.swNames.module
+      internalDevOptions.swType = 'module'
+    }
+
+    const sendMessage = ctx.envApi
+      ? server.environments.client.hot.send
+      : server.ws.send
+
+    const additionalInvalidation: string[] = []
+    const injectRegister = ctx.resolvedOptions.injectRegister
+    if (ctx.useImportRegister) {
+      internalDevOptions.registerVirtualSWGenerated = false
+    }
+    else if (injectRegister === 'inline') {
+      internalDevOptions.registerSWGenerated = false
+      additionalInvalidation.push(`${ctx.base}${FILE_SW_REGISTER}`)
+    }
+    else if (injectRegister === 'script' || injectRegister === 'script-defer') {
+      internalDevOptions.registerSWGenerated = false
+      additionalInvalidation.push(`${ctx.base}${FILE_SW_REGISTER}`)
+    }
+
+    if (ctx.envApi) {
+      const moduleGraph = server.environments.client.moduleGraph
+      const envApiModules: ReturnType<typeof moduleGraph.getModuleById>[] = []
+      for (const m of internalDevOptions.swAssetsPaths.keys()) {
+        // we need to invalidate resolved virtual modules
+        const mod = VIRTUAL_MODULES.includes(m)
+          ? moduleGraph.getModuleById(VIRTUAL_MODULES_RESOLVE_PREFIX + m)
+          : moduleGraph.getModuleById(m)
+        if (mod) {
+          envApiModules.push(mod)
+        }
+      }
+      for (const module of envApiModules) {
+        moduleGraph.invalidateModule(module!)
+      }
+    }
+    else {
+      const moduleGraph = server.moduleGraph
+      const envApiModules: ReturnType<typeof moduleGraph.getModuleById>[] = []
+      for (const m of internalDevOptions.swAssetsPaths.keys()) {
+        // we need to invalidate resolved virtual modules
+        const mod = VIRTUAL_MODULES.includes(m)
+          ? moduleGraph.getModuleById(VIRTUAL_MODULES_RESOLVE_PREFIX + m)
+          : moduleGraph.getModuleById(m)
+        if (mod) {
+          envApiModules.push(mod)
+        }
+      }
+      for (const module of envApiModules) {
+        moduleGraph.invalidateModule(module!)
+      }
+    }
+
+    sendMessage({ type: 'full-reload' })
   }
 }

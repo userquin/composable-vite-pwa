@@ -22,7 +22,7 @@ interface PWADevAssets {
   }[]
 }
 
-import.meta.hot!.on(
+import.meta.hot?.on(
   import.meta.PWA_DEV_REGISTER_SW_EVENT_NAME,
   ({
     module,
@@ -52,7 +52,7 @@ import.meta.hot!.on(
   },
 )
 
-import.meta.hot!.on(
+import.meta.hot?.on(
   import.meta.PWA_DEV_PWA_ASSETS_EVENT_NAME,
   ({
     themeColor,
@@ -109,7 +109,7 @@ import.meta.hot!.on(
 
 export function registerDevSW() {
   try {
-    import.meta.hot!.send(import.meta.PWA_DEV_READY_EVENT_NAME)
+    import.meta.hot?.send(import.meta.PWA_DEV_READY_EVENT_NAME)
   }
   catch (e) {
     console.error(`unable to send ${import.meta.PWA_DEV_READY_EVENT_NAME} message to register service worker in dev mode!`, e)

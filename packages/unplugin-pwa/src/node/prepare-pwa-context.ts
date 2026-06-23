@@ -11,6 +11,7 @@ import type { RegisterSWData, ResolvedVitePWAOptions, VitePWAStrategy, WebManife
 import { DEV_SW_NAME, FILE_SW_REGISTER } from './constants'
 import { createGenerateRegisterSW } from './create-generate-register-sw-script'
 import { createWebManifestHtmlLink } from './create-web-manifest-html-link'
+import { isDualServiceWorker } from './dual-sw-utilities'
 
 export function preparePWAContext<
   B extends Bundler,
@@ -63,22 +64,13 @@ export function preparePWAContext<
 
     const base = ctx.devEnvironment ? options.base : options.buildBase
 
-    let module = false
-    switch (ctx.strategy) {
-      case 'generate-sw':
-        module = ctx.resolvedOptions.generateSW?.swType === 'classic-and-module'
-        break
-      case 'build-sw':
-        module = ctx.resolvedOptions.buildSW?.swType === 'classic-and-module'
-        break
-    }
-
     return <RegisterSWData & { module: boolean }>{
       // hint when required
       shouldRegisterSW,
-      module,
+      module: isDualServiceWorker(ctx),
       mode: mode === 'auto' ? 'script' : mode,
       scope: options.scope,
+      // todo: review this, this may be wrong
       inlinePath: `${base}${ctx.devEnvironment ? DEV_SW_NAME : FILE_SW_REGISTER}`,
       registerPath: `${base}${FILE_SW_REGISTER}`,
       type,
@@ -152,6 +144,7 @@ export function preparePWAContext<
       swName: '',
       swGenerated: false,
       registerSWGenerated: false,
+      registerVirtualSWGenerated: false,
       swType: ctx.consumerOptions.swType === 'classic-and-module' ? 'classic' : (ctx.consumerOptions.swType ?? 'classic'),
       swAssetsPaths: new Map(),
       tempFolder: undefined!,

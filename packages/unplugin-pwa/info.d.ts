@@ -18,8 +18,19 @@ declare module 'virtual:pwa-info' {
      * The service worker data will be exposed only if required, that's, will **NOT** be exposed if:
      * - not using `pwaPluginOptions.injectRegister` with `script`, `script-defer` or `inline` values
      * - if using `pwaPluginOptions.injectRegister` with `auto` (default) and importing any of the virtual modules
+     *
+     * **NOTE**: `registerSW` will be `undefined` if:
+     * - SSR build
+     * - PWA is disabled: `pwaPluginOptions.disable = true`
+     * - running `Dev Server` and `pwaPluginOptions.devOptions.enabled = false` (default).
      */
     registerSW?: {
+      /**
+       * Should use `type="module"?
+       *
+       * **NOTE**: `module` will be `true` **ONLY** at `Dev server` and using dual service worker workers: `classic-and-module`.
+       */
+      module: boolean
       /**
        * When this flag is `inline` the service worker must be registered via inline script otherwise registered via script with src attribute `registerSW.js`.
        */

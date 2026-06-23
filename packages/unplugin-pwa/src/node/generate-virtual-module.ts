@@ -16,10 +16,19 @@ export async function generateVirtualModule(
     return await fs.readFile(resolve(_dirname, `../client/dev/${source}.js`), 'utf-8')
   }
 
-  let code = await fs.readFile(resolve(_dirname, `../client/build/${source}.js`), 'utf-8')
-  if (ctx.devEnvironment && ctx.dev.addHMRToPwaAsset) {
-    code = await ctx.dev.addHMRToPwaAsset('virtual-register-sw', code, source)
+  const internalDevOptions = ctx.dev.options!
+  const key = `virtual:pwa-register${source === 'register' ? '' : `/${source}`}`
+  if (!internalDevOptions.registerVirtualSWGenerated) {
+    const code = await buildPwaAsset(
+      ctx.devEnvironment && ctx.dev.customHMRPwaAsset
+        ? await ctx.dev.customHMRPwaAsset('virtual-register-sw', source)
+        : await fs.readFile(resolve(_dirname, `../client/build/${source}.js`), 'utf-8'),
+      ctx,
+    )
+    internalDevOptions.swAssetsPaths.set(key, code)
+    internalDevOptions.registerVirtualSWGenerated = true
+    return code
   }
 
-  return await buildPwaAsset(code, ctx)
+  return internalDevOptions.swAssetsPaths.get(key)!
 }

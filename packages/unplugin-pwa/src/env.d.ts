@@ -16,6 +16,7 @@ declare global {
     PWA_DEV_REGISTER_SW_EVENT_NAME: string
     PWA_DEV_PWA_ASSETS_EVENT_NAME: string
     PWA_DEV_READY_EVENT_NAME: string
+    PWA_DEV_PWA_SWITCHER_EVENT_NAME: string
     PWA_DEV_CURRENT_SW_TYPE: WorkerType
   }
 }
