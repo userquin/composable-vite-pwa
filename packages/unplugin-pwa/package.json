@@ -81,8 +81,8 @@
     "./react": {
       "types": "./react.d.ts"
     },
-    "./react-state": {
-      "types": "./react-state.d.ts"
+    "./react-effect": {
+      "types": "./react-effect.d.ts"
     },
     "./solid": {
       "types": "./solid.d.ts"

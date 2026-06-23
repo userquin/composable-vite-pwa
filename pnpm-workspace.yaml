@@ -106,6 +106,8 @@ catalogs:
   # vite 5
   vite-plugin-inspect-ancient:
     vite-plugin-inspect: 0.7.42
+  vitepress2:
+    vitepress: ^2.0.0-alpha.17
   vue:
     vue: ^3.5.31
   webpack5:

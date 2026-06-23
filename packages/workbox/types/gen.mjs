@@ -3,10 +3,14 @@
 // runtime). The Vite PWA docs site consumes these to render a page per package.
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, rmSync } from 'node:fs'
+import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 const dir = fileURLToPath(new URL('.', import.meta.url))
-const typedoc = fileURLToPath(new URL('./node_modules/.bin/typedoc', import.meta.url))
+let typedoc = fileURLToPath(new URL('./node_modules/.bin/typedoc', import.meta.url)).replace(/\\/g, '/')
+if (process.platform === 'win32') {
+  typedoc += '.CMD'
+}
 
 // Entry points = each package's public API.
 // - swkit / window: the index barrel re-exports everything → one entry.
@@ -66,7 +70,12 @@ for (const [name, entryPoints] of Object.entries(packages)) {
     '--exclude',
     '**/validations/**',
     ...entryPoints,
-  ], { cwd: dir, stdio: 'inherit' })
+  ], {
+    cwd: dir,
+    stdio: 'inherit',
+    // required to allow run .CMD on Windows (otherwise spawn EINVAL/ENOENT errors)
+    shell: process.platform === 'win32',
+  })
 }
 
 console.log('\n[gen] done — per-package JSON written to api/')

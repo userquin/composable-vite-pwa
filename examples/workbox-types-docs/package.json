@@ -13,6 +13,6 @@
   },
   "devDependencies": {
     "@composable-vite-pwa/workbox-types": "workspace:../../packages/workbox/types",
-    "vitepress": "^2.0.0-alpha.17"
+    "vitepress": "catalog:vitepress2"
   }
 }
