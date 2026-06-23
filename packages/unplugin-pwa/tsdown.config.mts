@@ -2,6 +2,12 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'tsdown'
 import { pwaBanner as banner, cleanupDistFiles } from '../../tsdown-helper'
 
+import {
+  DEV_PWA_ASSETS_NAME,
+  DEV_READY_NAME,
+  DEV_REGISTER_SW_NAME,
+} from './src/node/constants'
+
 const cwd = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig([{
@@ -9,6 +15,7 @@ export default defineConfig([{
     {
       'node/*': ['./src/node/*.ts'],
       'node/vite/*': ['./src/node/vite/*.ts'],
+      'node/vite/dev/*': ['./src/node/vite/dev/*.ts'],
       'node/vite/plugins/*': ['./src/node/vite/plugins/*.ts'],
     },
   ],
@@ -41,6 +48,7 @@ export default defineConfig([{
   entry: {
     'client/build/*': ['./src/client/build/*.ts'],
     'client/dev/*': ['./src/client/dev/*.ts'],
+    'client/dev/vite/*': ['./src/client/dev/vite/*.ts'],
     // 'client/dev/vite/*': ['./src/client/dev/vite/*.ts'],
   },
   platform: 'browser',
@@ -58,6 +66,11 @@ export default defineConfig([{
     'import.meta.PWA_SW_AUTO_UPDATE': 'import.meta.PWA_SW_AUTO_UPDATE',
     'import.meta.PWA_DEV_ENABLED': 'import.meta.PWA_DEV_ENABLED',
     'import.meta.PWA_DEV_UI_ENABLED': 'import.meta.PWA_DEV_UI_ENABLED',
+    // HMR
+    'import.meta.PWA_DEV_REGISTER_SW_EVENT_NAME': JSON.stringify(DEV_REGISTER_SW_NAME),
+    'import.meta.PWA_DEV_PWA_ASSETS_EVENT_NAME': JSON.stringify(DEV_PWA_ASSETS_NAME),
+    'import.meta.PWA_DEV_READY_EVENT_NAME': JSON.stringify(DEV_READY_NAME),
+    'import.meta.PWA_DEV_CURRENT_SW_TYPE': 'import.meta.PWA_DEV_CURRENT_SW_TYPE',
   },
   deps: {
     neverBundle: [

@@ -15,6 +15,7 @@
     "magic-string": "catalog:utils",
     "magicast": "catalog:utils",
     "rolldown": "catalog:utils",
-    "vite": "catalog:vite5"
+    "vite": "catalog:vite5",
+    "vite-plugin-inspect": "catalog:vite-plugin-inspect-ancient"
   }
 }

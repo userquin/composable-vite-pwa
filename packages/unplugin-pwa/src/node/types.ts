@@ -731,16 +731,16 @@ export interface DevOptions {
    *
    * Use it with caution, it should be used only by framework integrations.
    *
-   * @default resolve(viteConfig.root, 'dev-dist')
+   * @default resolve(viteConfig.root, 'node_modules/.pwa-dev-dist')
    */
   resolveTempFolder?: () => string | Promise<string>
   /**
    * Suppress workbox-build warnings?.
    *
-   * **WARNING**: this option will only be used when using `generateSW` strategy.
+   * **WARNING**: this option will only be used when using `generateSW/injectManifest/buildSW` strategy.
    * If enabled, `globPatterns` will be changed to `[*.js]` and a new empty `suppress-warnings.js` file will be created in `dev-dist` folder.
    *
-   * @default false
+   * @default true
    */
   suppressWarnings?: boolean
 }

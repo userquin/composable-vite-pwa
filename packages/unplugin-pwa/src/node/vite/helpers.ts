@@ -202,7 +202,7 @@ export async function preparePWAContextDefaults<
       })
     }
   }
-  else if (ctx.strategy === 'self-destroy-sw' && ctx.resolvedOptions.selfDestroying) {
+  else if (!ctx.devEnvironment && ctx.strategy === 'self-destroy-sw') {
     const data = ctx.resolvedOptions.selfDestroying
     if (data) {
       const entries = typeof data.swDest === 'string' ? [data.swDest] : data.swDest
@@ -216,7 +216,7 @@ export async function preparePWAContextDefaults<
           newDestSW.push(swDest)
         }
       }
-      ctx.resolvedOptions.selfDestroying.swDest = newDestSW
+      data.swDest = newDestSW
     }
   }
 

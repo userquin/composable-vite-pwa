@@ -63,9 +63,20 @@ export function preparePWAContext<
 
     const base = ctx.devEnvironment ? options.base : options.buildBase
 
-    return <RegisterSWData>{
+    let module = false
+    switch (ctx.strategy) {
+      case 'generate-sw':
+        module = ctx.resolvedOptions.generateSW?.swType === 'classic-and-module'
+        break
+      case 'build-sw':
+        module = ctx.resolvedOptions.buildSW?.swType === 'classic-and-module'
+        break
+    }
+
+    return <RegisterSWData & { module: boolean }>{
       // hint when required
       shouldRegisterSW,
+      module,
       mode: mode === 'auto' ? 'script' : mode,
       scope: options.scope,
       inlinePath: `${base}${ctx.devEnvironment ? DEV_SW_NAME : FILE_SW_REGISTER}`,
@@ -138,11 +149,22 @@ export function preparePWAContext<
   }
   ctx.dev = {
     options: {
-      swName: DEV_SW_NAME,
+      swName: '',
       swGenerated: false,
       registerSWGenerated: false,
       swType: ctx.consumerOptions.swType === 'classic-and-module' ? 'classic' : (ctx.consumerOptions.swType ?? 'classic'),
       swAssetsPaths: new Map(),
+      tempFolder: undefined!,
+      swNames: {
+        name: '',
+        classic: '',
+        module: '',
+        path: '',
+        classicPath: '',
+        modulePath: '',
+        devSWDest: '',
+      },
+      globDirectory: '',
     },
     generateSW: async (options) => {
       switch (ctx.bundler) {

@@ -23,6 +23,8 @@ export async function buildPwaAsset<
   const {
     strategy,
     scope,
+    buildBase,
+    base: useBase,
     buildSW,
     injectManifest,
     generateSW,
@@ -60,19 +62,23 @@ export async function buildPwaAsset<
 
   const devEnabled = ctx.resolvedOptions.devOptions?.enabled === true
 
+  const base = ctx.devEnvironment ? useBase : buildBase
+
   return await buildPwaAssetWithRolldown(code, {
     'import.meta.PWA_ESM_FALLBACK_SW': JSON.stringify(ctx.resolvedOptions.swType === 'classic-and-module'),
     'import.meta.PWA_SELF_DESTROYING_SW': JSON.stringify(ctx.strategy === 'self-destroy-sw'),
-    'import.meta.PWA_SW_URL': JSON.stringify(swDestPath),
-    'import.meta.PWA_SW_CLASSIC_URL': JSON.stringify(classicSWDestPath),
-    'import.meta.PWA_SW_MODULE_URL': JSON.stringify(moduleSWDestPath),
+    'import.meta.PWA_SW_URL': JSON.stringify(`${base}${swDestPath}`),
+    'import.meta.PWA_SW_CLASSIC_URL': JSON.stringify(`${base}${classicSWDestPath}`),
+    'import.meta.PWA_SW_MODULE_URL': JSON.stringify(`${base}${moduleSWDestPath}`),
     'import.meta.PWA_SW_SCOPE': JSON.stringify(scope),
     'import.meta.PWA_SW_TYPE': JSON.stringify(swType),
     'import.meta.PWA_SW_UPDATE_VIA_CACHE': JSON.stringify(updateViaCache),
     'import.meta.PWA_DEV_SERVER': JSON.stringify(ctx.devEnvironment),
+    // HMR
     'import.meta.PWA_SW_AUTO_UPDATE': JSON.stringify(ctx.resolvedOptions.registerType === 'autoUpdate'),
     'import.meta.PWA_DEV_ENABLED': JSON.stringify(devEnabled),
     'import.meta.PWA_DEV_UI_ENABLED': JSON.stringify(devEnabled && ctx.resolvedOptions.devOptions?.enableUISwitcher === true),
+    'import.meta.PWA_DEV_CURRENT_SW_TYPE': JSON.stringify(ctx.dev.options!.swType),
   }, ctx.resolvedOptions.minify!)
 }
 

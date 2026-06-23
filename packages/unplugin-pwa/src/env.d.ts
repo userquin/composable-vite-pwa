@@ -12,6 +12,11 @@ declare global {
     PWA_SW_AUTO_UPDATE: boolean
     PWA_DEV_ENABLED: boolean
     PWA_DEV_UI_ENABLED: boolean
+    // HMR
+    PWA_DEV_REGISTER_SW_EVENT_NAME: string
+    PWA_DEV_PWA_ASSETS_EVENT_NAME: string
+    PWA_DEV_READY_EVENT_NAME: string
+    PWA_DEV_CURRENT_SW_TYPE: WorkerType
   }
 }
 

@@ -53,6 +53,16 @@ export async function detectVite(): Promise<boolean | undefined> {
   }
   catch { return undefined }
 }
+export async function detectViteEnvironmentApi(): Promise<boolean | undefined> {
+  try {
+    const version = readPkgVersion('vite')
+    if (!version) {
+      return false
+    }
+    return semver.major(version) >= 6
+  }
+  catch { return undefined }
+}
 
 export async function detect(options: DetectorOptions): Promise<DetectorResult> {
   const [

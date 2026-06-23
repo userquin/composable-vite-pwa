@@ -6,6 +6,8 @@ import type { VitePWAPluginContext } from './vite-context'
 import { createPWAContext } from '../context'
 import { BuildPlugin } from './plugins/build'
 import { DevPlugin } from './plugins/dev'
+import { DevMiddlewarePlugin } from './plugins/dev-middleware'
+import { DevAssetsMiddlewarePlugin } from './plugins/dev-pwa-assets-middleware'
 import { InfoPlugin } from './plugins/info'
 import { MainPlugin } from './plugins/main'
 import { AssetsPlugin } from './plugins/pwa-assets'
@@ -21,14 +23,27 @@ export function VitePWA<
     createPWAContext('vite-legacy', options) as VitePWAPluginContext<'vite-legacy', UserStrategy, S, T>,
     {
       viteConfig: undefined!,
+      envApi: false,
     },
   )
+
+  ctx.dev.addHMRToPwaAsset = async (asset, code) => {
+    return await import('./dev/hmr-support').then(({
+      addHMRSupport,
+    }) => addHMRSupport(
+      ctx,
+      asset,
+      code,
+    ))
+  }
 
   return [
     MainPlugin(ctx),
     InfoPlugin(ctx),
     DevPlugin(ctx),
-    BuildPlugin(ctx),
+    DevMiddlewarePlugin(ctx),
+    DevAssetsMiddlewarePlugin(ctx),
     AssetsPlugin(ctx),
+    BuildPlugin(ctx),
   ]
 }

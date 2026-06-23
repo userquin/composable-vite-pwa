@@ -20,14 +20,17 @@ export async function generateRegisterSW(
     ? __dirname
     : dirname(fileURLToPath(import.meta.url))
 
-  return await buildPwaAsset(
-    await fs.readFile(
-      resolve(
-        _dirname,
-        `../client/build/${FILE_SW_REGISTER}`,
-      ),
-      'utf-8',
+  let code = await fs.readFile(
+    resolve(
+      _dirname,
+      `../client/build/${FILE_SW_REGISTER}`,
     ),
-    ctx,
+    'utf-8',
   )
+
+  if (ctx.devEnvironment && ctx.dev.addHMRToPwaAsset) {
+    code = await ctx.dev.addHMRToPwaAsset('register-sw', code)
+  }
+
+  return await buildPwaAsset(code, ctx)
 }

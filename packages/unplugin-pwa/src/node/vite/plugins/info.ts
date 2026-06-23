@@ -24,7 +24,7 @@ export function InfoPlugin<
     resolveId: {
       filter: { id: exactRegex(PWA_INFO_VIRTUAL) },
       handler(id) {
-        if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
           return
         }
         // condition is kept for backward compatibility for below Vite v6.3
@@ -54,6 +54,7 @@ interface VirtualPwaInfo {
     linkTag: string
   }
   registerSW?: {
+    module: boolean
     mode: 'inline' | 'script' | 'script-defer'
     inlinePath: string
     registerPath: string
@@ -88,7 +89,17 @@ async function generatePwaInfo<
     const scriptTag = registerSWData.toScriptTag()
     if (scriptTag) {
       const { mode, inlinePath, registerPath, type, scope } = registerSWData
+      let module = false
+      switch (ctx.strategy) {
+        case 'generate-sw':
+          module = ctx.resolvedOptions.generateSW?.swType === 'classic-and-module'
+          break
+        case 'build-sw':
+          module = ctx.resolvedOptions.buildSW?.swType === 'classic-and-module'
+          break
+      }
       entry.registerSW = {
+        module,
         mode,
         inlinePath,
         registerPath,

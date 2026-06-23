@@ -1,6 +1,7 @@
-import type { Plugin, PluginOption } from 'vite'
+import type { Plugin } from 'vite'
 import { VitePWA } from '@composable-vite-pwa/unplugin-pwa'
 import { defineConfig } from 'vite'
+import Inspect from 'vite-plugin-inspect'
 
 const swSrc = 'src/sw.ts'
 const swDest = 'sw.js'
@@ -21,6 +22,9 @@ function virtualMessagePlugin(): Plugin {
 }
 
 export default defineConfig({
+  devtools: {
+    enabled: true,
+  },
   build: {
     manifest: true,
     minify: false,
@@ -72,6 +76,11 @@ export default defineConfig({
       generateSW: {
         sourcemap: true,
       },
-    }) as PluginOption,
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
+    }),
+    Inspect(),
   ],
 })

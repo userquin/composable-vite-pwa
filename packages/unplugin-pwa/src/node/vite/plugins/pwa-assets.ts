@@ -20,7 +20,7 @@ export function AssetsPlugin<
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
   const transformHtml = async (html: string): Promise<string> => {
-    if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+    if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
       return html
     }
 
@@ -47,7 +47,7 @@ export function AssetsPlugin<
     resolveId: {
       filter: { id: [exactRegex(PWA_ASSETS_HEAD_VIRTUAL), exactRegex(PWA_ASSETS_ICONS_VIRTUAL)] },
       handler(id) {
-        if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
           return
         }
         // condition is kept for backward compatibility for below Vite v6.3
@@ -64,7 +64,7 @@ export function AssetsPlugin<
     load: {
       filter: { id: [exactRegex(RESOLVED_PWA_ASSETS_HEAD_VIRTUAL), exactRegex(RESOLVED_PWA_ASSETS_ICONS_VIRTUAL)] },
       async handler(id) {
-        if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
           return
         }
         // conditions are kept for backward compatibility for below Vite v6.3
@@ -81,62 +81,46 @@ export function AssetsPlugin<
       },
     },
     async handleHotUpdate({ file, server }) {
-      if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+      if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
         return
       }
       const pwaAssetsGenerator = await ctx.pwaAssetsGenerator
       if (await pwaAssetsGenerator?.checkHotUpdate(file)) {
-        const modules: ModuleNode[] = []
-        const head = server.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_HEAD_VIRTUAL)
+        if (!ctx.envApi) {
+          const modules: ModuleNode[] = []
+          const head = server.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_HEAD_VIRTUAL)
+          head && modules.push(head)
+          const icons = server.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_ICONS_VIRTUAL)
+          icons && modules.push(icons)
+          if (modules.length)
+            return modules
+          server.ws.send({ type: 'full-reload' })
+          return []
+        }
+
+        const modules: import('vite').EnvironmentModuleNode[] = []
+        const head = server.environments.client.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_HEAD_VIRTUAL)
         head && modules.push(head)
-        const icons = server.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_ICONS_VIRTUAL)
+        const icons = server.environments.client.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_ICONS_VIRTUAL)
         icons && modules.push(icons)
-        if (modules)
+        if (modules.length)
           return modules
 
-        server.ws.send({ type: 'full-reload' })
+        server.environments.client.hot.send({ type: 'full-reload' })
         return []
       }
     },
     configureServer(server) {
-      if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+      if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
         return
       }
-      server.ws.on(DEV_READY_NAME, createWSResponseHandler(ctx, server))
-      server.middlewares.use(async (req, res, next) => {
-        const url = req.url
-        if (!url)
-          return next()
 
-        if (!/\.(?:ico|png|svg|webp)$/.test(url))
-          return next()
+      if (!ctx.envApi) {
+        server.ws.on(DEV_READY_NAME, createWSResponseHandler(ctx, server))
+        return
+      }
 
-        const pwaAssetsGenerator = await ctx.pwaAssetsGenerator
-        if (!pwaAssetsGenerator)
-          return next()
-
-        const icon = await pwaAssetsGenerator.findIconAsset(url)
-        if (!icon)
-          return next()
-
-        if (icon.age > 0) {
-          const ifModifiedSince = req.headers['if-modified-since'] ?? req.headers['If-Modified-Since']
-          const useIfModifiedSince = ifModifiedSince ? Array.isArray(ifModifiedSince) ? ifModifiedSince[0] : ifModifiedSince : undefined
-          if (useIfModifiedSince && new Date(icon.lastModified).getTime() / 1000 >= new Date(useIfModifiedSince).getTime() / 1000) {
-            res.statusCode = 304
-            res.end()
-            return
-          }
-        }
-
-        const buffer = await icon.buffer
-        res.setHeader('Age', icon.age / 1000)
-        res.setHeader('Content-Type', icon.mimeType)
-        res.setHeader('Content-Length', buffer.length)
-        res.setHeader('Last-Modified', new Date(icon.lastModified).toUTCString())
-        res.statusCode = 200
-        res.end(buffer)
-      })
+      server.environments.client.hot.on(DEV_READY_NAME, createWSResponseHandler(ctx, server))
     },
   } satisfies PluginOption
 }
@@ -164,7 +148,16 @@ function createWSResponseHandler(
     const pwaAssetsGenerator = await ctx.pwaAssetsGenerator
     if (pwaAssetsGenerator) {
       const data = pwaAssetsGenerator.resolveHtmlAssets()
-      server.ws.send({
+      if (!ctx.envApi) {
+        server.ws.send({
+          type: 'custom',
+          event: DEV_PWA_ASSETS_NAME,
+          data,
+        })
+        return
+      }
+
+      server.environments.client.hot.send({
         type: 'custom',
         event: DEV_PWA_ASSETS_NAME,
         data,

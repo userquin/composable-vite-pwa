@@ -14,6 +14,7 @@ export type VitePWAPluginContext<
   T extends SWType,
 > = PWAPluginContext<B, UserStrategy, S, T> & {
   viteConfig: ResolvedConfig
+  envApi: boolean
 }
 
 export function createVitePWAContext<
@@ -23,12 +24,25 @@ export function createVitePWAContext<
 >(
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
 ): VitePWAPluginContext<'vite', UserStrategy, S, T> {
-  return Object.assign(
+  const ctx = Object.assign(
     createPWAContext('vite', userOptions) as VitePWAPluginContext<'vite', UserStrategy, S, T>,
     {
       viteConfig: undefined!,
+      envApi: false,
     },
   )
+
+  ctx.dev.addHMRToPwaAsset = async (asset, code) => {
+    return await import('./dev/hmr-support').then(({
+      addHMRSupport,
+    }) => addHMRSupport(
+      ctx,
+      asset,
+      code,
+    ))
+  }
+
+  return ctx
 }
 export function createViteLegacyPWAContext<
   UserStrategy extends VitePWAStrategy,
@@ -37,10 +51,23 @@ export function createViteLegacyPWAContext<
 >(
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
 ): VitePWAPluginContext<'vite-legacy', UserStrategy, S, T> {
-  return Object.assign(
+  const ctx = Object.assign(
     createPWAContext('vite-legacy', userOptions) as VitePWAPluginContext<'vite-legacy', UserStrategy, S, T>,
     {
       viteConfig: undefined!,
+      envApi: false,
     },
   )
+
+  ctx.dev.addHMRToPwaAsset = async (asset, code) => {
+    return await import('./dev/hmr-support').then(({
+      addHMRSupport,
+    }) => addHMRSupport(
+      ctx,
+      asset,
+      code,
+    ))
+  }
+
+  return ctx
 }

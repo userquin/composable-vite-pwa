@@ -15,7 +15,7 @@ export function BuildPlugin<
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
   const transformIndexHtmlHandler = async (html: string) => {
-    if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+    if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
       return html
     }
     html = injectWebManifestHtmlLink(html, ctx)
@@ -50,7 +50,7 @@ export function BuildPlugin<
       },
     },
     async generateBundle(_, bundle) {
-      if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+      if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
         return
       }
 
@@ -126,7 +126,7 @@ export function BuildPlugin<
           return
         }
 
-        if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
           return
         }
 

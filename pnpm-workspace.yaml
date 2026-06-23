@@ -91,6 +91,11 @@ catalogs:
     vite: 5.3.6
   vite:
     vite: 8.1.0-beta.0
+  vite-plugin-inspect:
+    '@vitejs/devtools': 0.3.3
+    vite-plugin-inspect: 12.0.0-beta.3
+  vite-plugin-inspect-ancient:
+    vite-plugin-inspect: 0.7.42
   vue:
     vue: ^3.5.31
   webpack5:

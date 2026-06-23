@@ -19,6 +19,14 @@ export interface PWABuildContext {
   selfDestroyingSW: () => Promise<boolean>
 }
 
+export type PwaAsset = 'register-sw' | 'virtual-register-sw'
+export type AddHMRToPwaAsset = (
+  asset: PwaAsset,
+  code: string,
+  // the type of virtual when asset is virtual-register-sw
+  source?: string,
+) => string | Promise<string>
+
 export interface PWABuildDevContext<
   B extends Bundler,
   T extends SWType,
@@ -28,16 +36,21 @@ export interface PWABuildDevContext<
     swType: WorkerType
     swGenerated: boolean
     registerSWGenerated: boolean
+    navigateFallbackAllowlist?: RegExp[]
     swAssetsPaths: Map<string, string>
+    tempFolder: string
+    swNames: {
+      name: string
+      classic: string
+      module: string
+      path: string
+      classicPath: string
+      modulePath: string
+      devSWDest: string
+    }
+    globDirectory: string
   }
-  /**
-   * Resolves the client for dev server.
-   */
-  resolveDevRegisterSWPath?: () => string
-  /**
-   * Resolves the client for dev server.
-   */
-  resolveDevVirtualRegister?: () => string
+  addHMRToPwaAsset?: AddHMRToPwaAsset
   generateSW: (options: Partial<BuildGenerateSWOptions<T>>) => Promise<BuildResult>
   buildSW: (options: Partial<BuildSWType<B, T>>) => Promise<BuildResult>
   injectManifest: (options: Partial<InjectManifestStrategyOptions>) => Promise<BuildResult>
