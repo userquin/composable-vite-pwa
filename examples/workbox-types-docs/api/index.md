@@ -4,10 +4,10 @@
 import { data } from './symbols.data'
 </script>
 
-<p>{{ data.total }} types, generated at build time from the published <code>metadata.json</code>.</p>
+<p>{{ data.total }} symbols across {{ data.groups.length }} packages, generated at build time from the published per-package JSON.</p>
 
-<template v-for="g in data.groups" :key="g.module">
-  <h2 :id="g.module">{{ g.module }}</h2>
+<template v-for="g in data.groups" :key="g.pkg">
+  <h2 :id="g.id">{{ g.pkg }}</h2>
   <ul>
     <li v-for="s in g.items" :key="s.slug">
       <a :href="`/api/symbols/${s.slug}`">{{ s.name }}</a>

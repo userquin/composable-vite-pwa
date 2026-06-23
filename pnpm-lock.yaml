@@ -482,6 +482,9 @@ importers:
       '@composable-vite-pwa/workbox-swkit':
         specifier: workspace:*
         version: link:../swkit
+      '@composable-vite-pwa/workbox-window':
+        specifier: workspace:*
+        version: link:../window
       typedoc:
         specifier: catalog:docs
         version: 0.28.19(typescript@5.9.3)

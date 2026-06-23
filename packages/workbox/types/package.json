@@ -27,7 +27,9 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": "./api/metadata.json",
+    "./swkit": "./api/swkit.json",
+    "./build": "./api/build.json",
+    "./window": "./api/window.json",
     "./package.json": "./package.json"
   },
   "files": [
@@ -37,12 +39,13 @@
     "node": ">=22.14.0"
   },
   "scripts": {
-    "docs:api": "typedoc",
+    "docs:api": "node gen.mjs",
     "prepack": "pnpm run docs:api"
   },
   "devDependencies": {
     "@composable-vite-pwa/workbox-build": "workspace:*",
     "@composable-vite-pwa/workbox-swkit": "workspace:*",
+    "@composable-vite-pwa/workbox-window": "workspace:*",
     "typedoc": "catalog:docs"
   },
   "publishConfig": {

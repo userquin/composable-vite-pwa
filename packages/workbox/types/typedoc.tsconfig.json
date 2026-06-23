@@ -1,5 +1,9 @@
 {
   "extends": "../../../tsconfig.json",
-  "include": ["../build/src/**/*.ts", "../swkit/src/**/*.ts"],
+  "include": [
+    "../swkit/src/**/*.ts",
+    "../window/src/**/*.ts",
+    "../build/src/**/*.ts"
+  ],
   "exclude": ["**/dist/**", "**/node_modules/**"]
 }
