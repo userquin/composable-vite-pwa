@@ -4,8 +4,8 @@ import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 import path from 'node:path'
 import process from 'node:process'
-import { isDualServiceWorker } from '@composable-vite-pwa/unplugin-pwa/node/dual-sw-utilities'
 import { normalizePath, resolveSWNames } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
+import { isDualServiceWorker } from '../../dual-sw-utilities'
 import { prepareTempFolder } from './prepare-temp-folder'
 
 export async function prepareSwNamesAndGlobDirectory<

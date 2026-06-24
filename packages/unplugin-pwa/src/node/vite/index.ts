@@ -11,6 +11,7 @@ import { DevAssetsMiddlewarePlugin } from './plugins/dev-pwa-assets-middleware'
 import { InfoPlugin } from './plugins/info'
 import { MainPlugin } from './plugins/main'
 import { AssetsPlugin } from './plugins/pwa-assets'
+import { pwaAssetsResolver } from './pwa-assets-resolver'
 
 export function VitePWA<
   UserStrategy extends VitePWAStrategy,
@@ -27,15 +28,7 @@ export function VitePWA<
     },
   )
 
-  ctx.dev.customHMRPwaAsset = async (asset, source) => {
-    return await import('./dev/hmr-support').then(({
-      customHMR,
-    }) => customHMR(
-      ctx,
-      asset,
-      source,
-    ))
-  }
+  ctx.customPwaAssetResolver = pwaAssetsResolver(ctx)
 
   return [
     MainPlugin(ctx),

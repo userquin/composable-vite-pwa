@@ -1,9 +1,14 @@
 import type { RegisterSWOptions } from '../types'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { registerSW } from './register'
 
 export type { RegisterSWOptions }
 
+/**
+ * Registers the service worker.
+ * @param options The options.
+ * @deprecated use `react` instead
+ */
 export function useRegisterSW(options: RegisterSWOptions = {}) {
   const {
     immediate = true,
@@ -17,28 +22,20 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
   const [needRefresh, setNeedRefresh] = useState(false)
   const [offlineReady, setOfflineReady] = useState(false)
 
-  const registered = useRef(false)
-
-  useEffect(() => {
-    if (registered.current)
-      return
-    registered.current = true
-
-    registerSW({
-      immediate,
-      onNeedReload,
-      onOfflineReady() {
-        setOfflineReady(true)
-        onOfflineReady?.()
-      },
-      onNeedRefresh() {
-        setNeedRefresh(true)
-        onNeedRefresh?.()
-      },
-      onRegisteredSW,
-      onRegisterError,
-    })
-  }, [])
+  registerSW({
+    immediate,
+    onNeedReload,
+    onOfflineReady() {
+      setOfflineReady(true)
+      onOfflineReady?.()
+    },
+    onNeedRefresh() {
+      setNeedRefresh(true)
+      onNeedRefresh?.()
+    },
+    onRegisteredSW,
+    onRegisterError,
+  })
 
   return {
     needRefresh: [needRefresh, setNeedRefresh],

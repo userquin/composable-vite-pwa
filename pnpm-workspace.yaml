@@ -102,7 +102,10 @@ catalogs:
   vite-plugin-inspect-ancient:
     vite-plugin-inspect: 0.7.42
   vue:
-    vue: ^3.5.31
+    '@vitejs/plugin-vue': ^6.0.7
+    '@vue/tsconfig': ^0.9.1
+    vue: ^3.5.38
+    vue-tsc: ^3.3.5
   webpack5:
     webpack: 5.107.1
 
