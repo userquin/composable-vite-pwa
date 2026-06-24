@@ -4,6 +4,7 @@ import type { ResolvedConfig } from 'vite'
 import type { PWAPluginContext } from '../context-types'
 import type { VitePWAOptions, VitePWAStrategy } from '../types'
 import { createPWAContext } from '../context'
+import { pwaAssetsResolver } from './pwa-assets-resolver'
 
 export type ViteBundler = 'vite' | 'vite-legacy'
 
@@ -32,18 +33,11 @@ export function createVitePWAContext<
     },
   )
 
-  ctx.dev.customHMRPwaAsset = async (asset, source) => {
-    return await import('./dev/hmr-support').then(({
-      customHMR,
-    }) => customHMR(
-      ctx,
-      asset,
-      source,
-    ))
-  }
+  ctx.customPwaAssetResolver = pwaAssetsResolver(ctx)
 
   return ctx
 }
+
 export function createViteLegacyPWAContext<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
@@ -59,15 +53,7 @@ export function createViteLegacyPWAContext<
     },
   )
 
-  ctx.dev.customHMRPwaAsset = async (asset, source) => {
-    return await import('./dev/hmr-support').then(({
-      customHMR,
-    }) => customHMR(
-      ctx,
-      asset,
-      source,
-    ))
-  }
+  ctx.customPwaAssetResolver = pwaAssetsResolver(ctx)
 
   return ctx
 }

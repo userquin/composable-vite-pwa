@@ -92,10 +92,10 @@ export function DevPlugin<
           return RESOLVED_DEV_SW_VIRTUAL
         }
 
+        const normalizedId = id.startsWith('/') ? id.slice(1) : id
         const internalDevOptions = ctx.dev.options!
         const swNames = internalDevOptions.swNames
 
-        const normalizedId = id.startsWith('/') ? id.slice(1) : id
         if (
           normalizedId === swNames.name
           || normalizedId === swNames.classic
@@ -115,15 +115,22 @@ export function DevPlugin<
       // filter is deleted if `!options.disable && options.devOptions.enabled` is true
       filter: { id: exactRegex(RESOLVED_DEV_SW_VIRTUAL) },
       async handler(id) {
-        if (id === RESOLVED_DEV_SW_VIRTUAL) {
-          return await createHmrScript()
-        }
-
         const internalDevOptions = ctx.dev.options!
         const swAssetsPaths = internalDevOptions.swAssetsPaths
-        const swNames = internalDevOptions.swNames
+
+        if (id === RESOLVED_DEV_SW_VIRTUAL) {
+          if (!internalDevOptions.hmrGenerated || !swAssetsPaths.has(DEV_SW_VIRTUAL)) {
+            const code = await createHmrScript(ctx)
+            swAssetsPaths.set(DEV_SW_VIRTUAL, code)
+            internalDevOptions.hmrGenerated = true
+            return code
+          }
+          return swAssetsPaths.get(DEV_SW_VIRTUAL)
+        }
 
         const normalizedId = id.startsWith('/') ? id.slice(1) : id
+        const swNames = internalDevOptions.swNames
+
         if (
           normalizedId === swNames.name
           || normalizedId === swNames.classic
@@ -207,6 +214,8 @@ function createSwitchServiceWorkerResponseHandler(
 
     const additionalInvalidation: string[] = []
     const injectRegister = ctx.resolvedOptions.injectRegister
+    // invalidate hmr context
+    internalDevOptions.hmrGenerated = false
     if (ctx.useImportRegister) {
       internalDevOptions.registerVirtualSWGenerated = false
     }
@@ -226,7 +235,9 @@ function createSwitchServiceWorkerResponseHandler(
         // we need to invalidate resolved virtual modules
         const mod = VIRTUAL_MODULES.includes(m)
           ? moduleGraph.getModuleById(VIRTUAL_MODULES_RESOLVE_PREFIX + m)
-          : moduleGraph.getModuleById(m)
+          : m === DEV_SW_VIRTUAL
+            ? moduleGraph.getModuleById(RESOLVED_DEV_SW_VIRTUAL)
+            : moduleGraph.getModuleById(m)
         if (mod) {
           envApiModules.push(mod)
         }
@@ -242,7 +253,9 @@ function createSwitchServiceWorkerResponseHandler(
         // we need to invalidate resolved virtual modules
         const mod = VIRTUAL_MODULES.includes(m)
           ? moduleGraph.getModuleById(VIRTUAL_MODULES_RESOLVE_PREFIX + m)
-          : moduleGraph.getModuleById(m)
+          : m === DEV_SW_VIRTUAL
+            ? moduleGraph.getModuleById(RESOLVED_DEV_SW_VIRTUAL)
+            : moduleGraph.getModuleById(m)
         if (mod) {
           envApiModules.push(mod)
         }

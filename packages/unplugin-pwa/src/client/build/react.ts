@@ -1,5 +1,5 @@
 import type { RegisterSWOptions } from '../types'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { registerSW } from './register'
 
 export type { RegisterSWOptions }
@@ -17,20 +17,28 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
   const [needRefresh, setNeedRefresh] = useState(false)
   const [offlineReady, setOfflineReady] = useState(false)
 
-  registerSW({
-    immediate,
-    onNeedReload,
-    onOfflineReady() {
-      setOfflineReady(true)
-      onOfflineReady?.()
-    },
-    onNeedRefresh() {
-      setNeedRefresh(true)
-      onNeedRefresh?.()
-    },
-    onRegisteredSW,
-    onRegisterError,
-  })
+  const registered = useRef(false)
+
+  useEffect(() => {
+    if (registered.current)
+      return
+    registered.current = true
+
+    registerSW({
+      immediate,
+      onNeedReload,
+      onOfflineReady() {
+        setOfflineReady(true)
+        onOfflineReady?.()
+      },
+      onNeedRefresh() {
+        setNeedRefresh(true)
+        onNeedRefresh?.()
+      },
+      onRegisteredSW,
+      onRegisterError,
+    })
+  }, [])
 
   return {
     needRefresh: [needRefresh, setNeedRefresh],

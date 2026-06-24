@@ -1,3 +1,5 @@
+import './switcher'
+
 interface PWADevRegisterSW {
   module: boolean
   mode?: 'inline' | 'script' | 'script-defer'

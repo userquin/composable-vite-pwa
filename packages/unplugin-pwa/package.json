@@ -54,9 +54,9 @@
     "./node/inject-web-manifest-html-link": "./dist/node/inject-web-manifest-html-link.mjs",
     "./node/prepare-pwa-context": "./dist/node/prepare-pwa-context.mjs",
     "./node/vite/helpers": "./dist/node/vite/helpers.mjs",
+    "./node/vite/pwa-assets-resolver": "./dist/node/vite/pwa-assets-resolver.mjs",
     "./node/vite/vite-context": "./dist/node/vite/vite-context.mjs",
     "./node/vite/dev/create-hmr-script": "./dist/node/vite/dev/create-hmr-script.mjs",
-    "./node/vite/dev/hmr-support": "./dist/node/vite/dev/hmr-support.mjs",
     "./node/vite/dev/inject-hmr-script": "./dist/node/vite/dev/inject-hmr-script.mjs",
     "./node/vite/dev/prepare-register-sw": "./dist/node/vite/dev/prepare-register-sw.mjs",
     "./node/vite/dev/prepare-sw-build": "./dist/node/vite/dev/prepare-sw-build.mjs",
@@ -81,8 +81,8 @@
     "./react": {
       "types": "./react.d.ts"
     },
-    "./react-state": {
-      "types": "./react-state.d.ts"
+    "./react-legacy": {
+      "types": "./react-legacy.d.ts"
     },
     "./solid": {
       "types": "./solid.d.ts"

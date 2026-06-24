@@ -19,12 +19,30 @@ export interface PWABuildContext {
   selfDestroyingSW: () => Promise<boolean>
 }
 
-export type PwaHMRAsset = 'register-sw' | 'virtual-register-sw'
-export type CustomHMRPwaAsset = (
-  asset: PwaHMRAsset,
-  // the type of virtual when asset is virtual-register-sw
+/**
+ * The type of PWA asset.
+ */
+export type PwaAsset = 'register-sw' | 'virtual-register-sw'
+/**
+ * Custom PWA asset resolver for `registerSW.js` and PWA virtual modules.
+ *
+ * When `virtual-register-sw` the virtualName won't be undefined:
+ * - 'register' for `virtual:pwa-register`
+ * - 'vue' for `virtual:pwa-register/vue`
+ * - 'svelte' for `virtual:pwa-register/svelte`
+ * - 'react' for `virtual:pwa-register/react`
+ * - 'react-effect' for `virtual:pwa-register/react-effect`
+ * - 'preact' for `virtual:pwa-register/preact`
+ * - 'solid' for `virtual:pwa-register/solid`
+ *
+ * @param asset The asset type to resolve
+ * @param virtualName The virtual module name when asset is `virtual-register-sw`
+ * @return The generated PWA asset
+ */
+export type CustomPwaAssetResolver = (
+  asset: PwaAsset,
   virtualName?: string,
-) => string | Promise<string>
+) => Promise<string>
 
 export interface PWABuildDevContext<
   B extends Bundler,
@@ -42,6 +60,7 @@ export interface PWABuildDevContext<
     swGenerated: boolean
     registerSWGenerated: boolean
     registerVirtualSWGenerated: boolean
+    hmrGenerated: boolean
     navigateFallbackAllowlist?: RegExp[]
     swAssetsPaths: Map<string, string>
     tempFolder: string
@@ -62,7 +81,6 @@ export interface PWABuildDevContext<
      */
     globDirectory: string
   }
-  customHMRPwaAsset?: CustomHMRPwaAsset
   generateSW: (options: Partial<BuildGenerateSWOptions<T>>) => Promise<BuildResult>
   buildSW: (options: Partial<BuildSWType<B, T>>) => Promise<BuildResult>
   injectManifest: (options: Partial<InjectManifestStrategyOptions>) => Promise<BuildResult>
@@ -88,6 +106,10 @@ export interface PWAPluginContext<
   rootDir: string
   outDir: string
   base: string
+  /**
+   * The custom resolver to resolve PWA assets for `registerSW.js` and virtual PWA modules.
+   */
+  customPwaAssetResolver: CustomPwaAssetResolver
   /**
    * Returns the PWA web manifest url for the manifest link:
    * <link rel="manifest" href="<webManifestUrl>" />
