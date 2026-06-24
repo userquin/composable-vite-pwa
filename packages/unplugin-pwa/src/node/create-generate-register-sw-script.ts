@@ -1,6 +1,6 @@
 import type { PWAPluginContext } from './context-types'
-import { isDualServiceWorker } from '@composable-vite-pwa/unplugin-pwa/node/dual-sw-utilities'
 import { FILE_SW_REGISTER } from './constants'
+import { isDualServiceWorker } from './dual-sw-utilities'
 import { generateRegisterSW } from './generate-register-sw'
 
 /**
