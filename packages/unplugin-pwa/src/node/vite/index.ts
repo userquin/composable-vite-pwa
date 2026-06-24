@@ -31,15 +31,6 @@ export function VitePWA<
   ctx.customPwaAssetResolver = pwaAssetsResolver(ctx)
 
   return [
-    /* {
-      name: 'unplugin-pwa:devx',
-      apply: 'serve',
-      enforce: 'pre',
-      resolveId(source, importer, opts) {
-        console.log({ source, importer, opts })
-        return undefined
-      },
-    } satisfies import('vite').PluginOption, */
     MainPlugin(ctx),
     InfoPlugin(ctx),
     DevPlugin(ctx),
