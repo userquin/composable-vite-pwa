@@ -31,7 +31,7 @@ export type PwaAsset = 'register-sw' | 'virtual-register-sw'
  * - 'vue' for `virtual:pwa-register/vue`
  * - 'svelte' for `virtual:pwa-register/svelte`
  * - 'react' for `virtual:pwa-register/react`
- * - 'react-effect' for `virtual:pwa-register/react-effect`
+ * - 'react-legacy' for `virtual:pwa-register/react-legacy`
  * - 'preact' for `virtual:pwa-register/preact`
  * - 'solid' for `virtual:pwa-register/solid`
  *
@@ -60,7 +60,7 @@ export interface PWABuildDevContext<
     swGenerated: boolean
     registerSWGenerated: boolean
     registerVirtualSWGenerated: boolean
-    hmrGenerated: boolean
+    hmrEntryPointGenerated: boolean
     navigateFallbackAllowlist?: RegExp[]
     swAssetsPaths: Map<string, string>
     tempFolder: string

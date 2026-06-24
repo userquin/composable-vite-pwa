@@ -119,10 +119,10 @@ export function DevPlugin<
         const swAssetsPaths = internalDevOptions.swAssetsPaths
 
         if (id === RESOLVED_DEV_SW_VIRTUAL) {
-          if (!internalDevOptions.hmrGenerated || !swAssetsPaths.has(DEV_SW_VIRTUAL)) {
+          if (!internalDevOptions.hmrEntryPointGenerated || !swAssetsPaths.has(DEV_SW_VIRTUAL)) {
             const code = await createHmrScript(ctx)
             swAssetsPaths.set(DEV_SW_VIRTUAL, code)
-            internalDevOptions.hmrGenerated = true
+            internalDevOptions.hmrEntryPointGenerated = true
             return code
           }
           return swAssetsPaths.get(DEV_SW_VIRTUAL)
@@ -215,7 +215,7 @@ function createSwitchServiceWorkerResponseHandler(
     const additionalInvalidation: string[] = []
     const injectRegister = ctx.resolvedOptions.injectRegister
     // invalidate hmr context
-    internalDevOptions.hmrGenerated = false
+    internalDevOptions.hmrEntryPointGenerated = false
     if (ctx.useImportRegister) {
       internalDevOptions.registerVirtualSWGenerated = false
     }

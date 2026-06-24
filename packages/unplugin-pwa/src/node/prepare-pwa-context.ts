@@ -145,7 +145,7 @@ export function preparePWAContext<
       swGenerated: false,
       registerSWGenerated: false,
       registerVirtualSWGenerated: false,
-      hmrGenerated: false,
+      hmrEntryPointGenerated: false,
       swType: ctx.consumerOptions.swType === 'classic-and-module' ? 'classic' : (ctx.consumerOptions.swType ?? 'classic'),
       swAssetsPaths: new Map(),
       tempFolder: undefined!,
