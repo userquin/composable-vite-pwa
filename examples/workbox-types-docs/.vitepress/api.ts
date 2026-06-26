@@ -357,6 +357,7 @@ function propsTable(children: any[], out: string[]) {
 export function renderPage(s: ApiSymbol): string {
   const r = s.reflection
   const out: string[] = []
+  out.push('---', 'prev: false', 'next: false', '---', '')
   out.push(`# ${s.name}`, '')
   out.push(`<Badge type="tip" text="${s.kindLabel}" /> <Badge type="info" text="${pkgLabel(s)}" />`, '')
 
