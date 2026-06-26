@@ -1,9 +1,20 @@
 import type { Strategy, WorkboxBuildConfiguration } from '@composable-vite-pwa/workbox-build/config/types'
 import type { GetManifestOptions, SelfDestroyingOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
 
+/**
+ * A build strategy the CLI can run for a config entry: any of the workbox-build
+ * `Strategy` values, plus `'get-manifest'`.
+ */
 export type CliStrategy = Strategy | 'get-manifest'
+
+/** @internal Strategy identifiers used internally; adds the non-builder `'self-destroy-sw'`. */
 export type StrategyName = CliStrategy | 'self-destroy-sw'
 
+/**
+ * Shape of a `workbox.config.*` file consumed by the workbox CLI: the
+ * workbox-build configuration for the chosen strategy, plus the CLI-only
+ * `getManifest` and `selfDestroying` entries.
+ */
 export type WorkboxCliConfig<S extends CliStrategy, T extends SWType>
   = Omit<Partial<WorkboxBuildConfiguration<S extends Strategy ? S : Strategy, T>>, 'strategy' | 'selfDestroying'>
     & {
@@ -17,6 +28,7 @@ interface StrategyMeta {
   isSwBuilder: boolean
 }
 
+/** @internal Maps each strategy to its config key and whether it builds a service worker. */
 export const STRATEGY_META: Record<StrategyName, StrategyMeta> = {
   'generate-sw': { optionKey: 'generateSW', isSwBuilder: true },
   'inject-manifest': { optionKey: 'injectManifest', isSwBuilder: true },
@@ -25,8 +37,23 @@ export const STRATEGY_META: Record<StrategyName, StrategyMeta> = {
   'self-destroy-sw': { optionKey: 'selfDestroying', isSwBuilder: false },
 }
 
+/** @internal All known strategy names, derived from STRATEGY_META. */
 export const STRATEGY_NAMES = Object.keys(STRATEGY_META) as StrategyName[]
 
+/**
+ * Identity helper for authoring a typed workbox CLI config. Binds the config to
+ * a {@link CliStrategy} so `options` is type-checked and gets IntelliSense.
+ *
+ * @example
+ * ```ts
+ * // workbox.config.ts
+ * import { defineCliOptions } from '@composable-vite-pwa/workbox-cli'
+ *
+ * export default defineCliOptions('generate-sw', {
+ *   generateSW: { swDest: 'dist/sw.js', globDirectory: 'dist' },
+ * })
+ * ```
+ */
 export function defineCliOptions<S extends CliStrategy, T extends SWType>(
   strategy: S,
   options: Omit<WorkboxCliConfig<S, T>, 'strategy'> = {},
