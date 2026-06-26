@@ -565,7 +565,7 @@ if (import.meta.hot && import.meta.PWA_ESM_FALLBACK_SW) {
       loading = false
       button.classList.remove('is-loading')
     }
-    isHMRConnected = false
+    // isHMRConnected = false
     checkConnection()
   })
 

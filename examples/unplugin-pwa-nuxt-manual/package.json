@@ -10,6 +10,8 @@
     "xpostinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@composable-vite-pwa/unplugin-pwa": "workspace:*",
+    "@composable-vite-pwa/workbox-build": "workspace:*",
     "nuxt": "catalog:nuxt4",
     "rolldown": "catalog:utils",
     "vite": "catalog:vite",

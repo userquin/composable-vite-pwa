@@ -12,8 +12,8 @@
     "vue": "catalog:vue"
   },
   "devDependencies": {
-    "@composable-vite-pwa/unplugin-pwa": "workspace:../../packages/unplugin-pwa",
-    "@composable-vite-pwa/workbox-build": "workspace:../../packages/workbox/build",
+    "@composable-vite-pwa/unplugin-pwa": "workspace:*",
+    "@composable-vite-pwa/workbox-build": "workspace:*",
     "@types/node": "catalog:types",
     "@vitejs/devtools": "catalog:vite-plugin-inspect",
     "@vitejs/plugin-vue": "catalog:vue",

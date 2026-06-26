@@ -62,15 +62,6 @@ export async function prepareSwNamesAndGlobDirectory<
       devSWDest = normalizePath(path.relative(root, path.resolve(folder, relativeSwDest)))
     }
 
-    // const outputFolder = path.isAbsolute(ctx.outDir)
-    //   ? ctx.outDir
-    //   : path.resolve(process.cwd(), ctx.outDir)
-    // const relativeSwDest = path.relative(outputFolder, options.swDest)
-    // const devSWDest = normalizePath(path.relative(root, path.resolve(folder, relativeSwDest)))
-    console.log({ root, ctxOutDir: ctx.outDir, ctxRoot, outputFolder, relativeSwDest, devSWDest, viteOutDir: ctx.viteConfig?.build?.outDir })
-    // if (true) {
-    //   throw new Error('WTF')
-    // }
     const {
       swDest,
       swDestPath,

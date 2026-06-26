@@ -28,7 +28,20 @@ export async function createNuxtPwaContext<
 ): Promise<NPWAC> {
   const nuxtVersion = getNuxtVersion(nuxt)
   if (nuxt.options.builder === '@nuxt/vite-builder') {
-    if (semver.major(nuxtVersion) >= 5 || (semver.major(nuxtVersion) === 4 && nuxt.options.experimental.viteEnvironmentApi)) {
+    const enableEnvApi = semver.major(nuxtVersion) === 4 && nuxt.options.experimental.viteEnvironmentApi
+    if (enableEnvApi) {
+      console.log(
+        await Promise.all([
+          import('vite').then(({ version }) => version).catch(() => undefined),
+          import('@composable-vite-pwa/workbox-build/build/vite').then(({
+            detect,
+          }) => detect({
+            vite: true,
+          }).then(({ vite }) => (vite))),
+        ]),
+      )
+    }
+    if (semver.major(nuxtVersion) >= 5 || enableEnvApi) {
       return await import('./builders/vite/create-vite-nuxt-pwa-context').then(({
         createViteNuxtPwaContext,
       }) => createViteNuxtPwaContext(
@@ -37,15 +50,15 @@ export async function createNuxtPwaContext<
         nuxt,
       ) as unknown as NPWAC)
     }
-    else {
-      return await import('./builders/vite/create-vite-legacy-nuxt-pwa-context').then(({
-        createViteLegacyNuxtPwaContext,
-      }) => createViteLegacyNuxtPwaContext(
-        nuxtVersion,
-        options,
-        nuxt,
-      ) as unknown as NPWAC)
-    }
+
+    // fallback to legacy
+    return await import('./builders/vite/create-vite-legacy-nuxt-pwa-context').then(({
+      createViteLegacyNuxtPwaContext,
+    }) => createViteLegacyNuxtPwaContext(
+      nuxtVersion,
+      options,
+      nuxt,
+    ) as unknown as NPWAC)
   }
 
   throw new Error([

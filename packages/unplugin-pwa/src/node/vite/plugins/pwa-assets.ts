@@ -70,7 +70,7 @@ export function AssetsPlugin<
         }
       },
     },
-    async handleHotUpdate({ file, server, modules }) {
+    async handleHotUpdate({ file, server }) {
       const pwaAssetsGenerator = await ctx.pwaAssetsGenerator
       if (await pwaAssetsGenerator?.checkHotUpdate(file)) {
         const modules: import('vite').ModuleNode[] = []
