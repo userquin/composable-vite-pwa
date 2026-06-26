@@ -7,10 +7,13 @@ import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
 
 // One JSON per package (full public API — types AND runtime).
+// Subpath keys must match the npm package's "exports" map.
 const sources: Record<string, any> = {
-  swkit: require('@composable-vite-pwa/workbox-types/swkit'),
-  build: require('@composable-vite-pwa/workbox-types/build'),
-  window: require('@composable-vite-pwa/workbox-types/window'),
+  'workbox-swkit': require('@composable-vite-pwa/workbox-types/workbox-swkit'),
+  'workbox-build': require('@composable-vite-pwa/workbox-types/workbox-build'),
+  'workbox-window': require('@composable-vite-pwa/workbox-types/workbox-window'),
+  'workbox-cli': require('@composable-vite-pwa/workbox-types/workbox-cli'),
+  'unplugin-pwa': require('@composable-vite-pwa/workbox-types/unplugin-pwa'),
 }
 
 // TypeDoc ReflectionKind numbers
@@ -40,18 +43,34 @@ export interface ApiSymbol {
   reflection: any
 }
 
+export interface PackageGroup {
+  /** Top-level package name (workbox-swkit, workbox-build, workbox-window, pwa-unplugin) */
+  pkg: string
+  /** Subpackage module path (e.g. "" for root, "background-sync", "build/vite") */
+  module: string
+  /** Display label e.g. "swkit", "swkit/background-sync" */
+  label: string
+  /** URL-safe slug for the package page */
+  slug: string
+  /** Symbols belonging to this package */
+  symbols: ApiSymbol[]
+}
+
+// lowercase + sanitize: VitePress lowercases routes, and names can
+// collide case-insensitively or carry odd chars.
+function slugify(...parts: string[]): string {
+  return parts.join('-').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
 // strip a trailing '/types' so a subpackage's runtime + types group together
 function prettyModule(name: string): string {
   return name.replace(/\/types$/, '') || name
 }
 
-// fully-qualified package name (JavaDoc style): the npm package short-name plus
-// its public subpath, e.g. `swkit/core`, `build/build/vite`, `window`. The root
-// barrel (`index`) and root `types` modules ARE the package itself, so they
-// collapse to the bare package name rather than showing as fake subpackages.
-function pkgLabel(s: ApiSymbol): string {
-  const mod = s.module === 'index' || s.module === 'types' ? '' : s.module
-  return mod ? `${s.pkg}/${mod}` : s.pkg
+// Treat standalone "index" and "types" modules as root-level (they represent
+// the package's main entry point and top-level types).
+function isRootModule(name: string): boolean {
+  return name === '' || name === 'index' || name === 'types'
 }
 
 function collect(node: any, pkg: string, mod: string, out: ApiSymbol[], ids: Set<number>, slugs: Set<string>) {
@@ -60,18 +79,17 @@ function collect(node: any, pkg: string, mod: string, out: ApiSymbol[], ids: Set
       if (ids.has(c.id))
         continue
       ids.add(c.id)
-      // lowercase + sanitize: VitePress lowercases routes, and symbol names can
-      // collide case-insensitively (e.g. a `Strategy` class) or carry odd chars.
-      const base = `${pkg}-${mod}-${c.name}`.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-      let slug = base
+      const actualMod = isRootModule(mod) ? '' : mod
+      let slug = slugify(pkg, actualMod, c.name)
       let i = 2
-      while (slugs.has(slug)) slug = `${base}-${i++}`
+      while (slugs.has(slug)) slug = `${slug}-${i++}`
       slugs.add(slug)
-      out.push({ pkg, module: mod, name: c.name, kind: c.kind, kindLabel: KIND[c.kind] ?? 'Type', slug, reflection: c })
+      out.push({ pkg, module: actualMod, name: c.name, kind: c.kind, kindLabel: KIND[c.kind] ?? 'Type', slug, reflection: c })
     }
     else if (CONTAINER.has(c.kind)) {
       // a Module (kind 2) names the subpackage; namespaces keep the current one
-      collect(c, pkg, c.kind === 2 ? prettyModule(c.name) : mod, out, ids, slugs)
+      const newMod = c.kind === 2 ? prettyModule(c.name) : mod
+      collect(c, pkg, newMod, out, ids, slugs)
     }
   }
 }
@@ -88,11 +106,180 @@ export function getSymbols(): ApiSymbol[] {
     || a.kindLabel.localeCompare(b.kindLabel) || a.name.localeCompare(b.name))
 }
 
-// ---- rendering helpers ----
+/**
+ * Group symbols into packages (JavaDoc-style).
+ * Each unique (pkg, module) pair = one "package" with its own summary page.
+ * Root-level (module === "") symbols belong to the bare package.
+ * Packages with no root-level symbols still get a synthetic root entry so
+ * that every top-level package has an index page showing its subpackages.
+ */
+export function getPackages(): PackageGroup[] {
+  const map = new Map<string, PackageGroup>()
+  for (const s of getSymbols()) {
+    const key = `${s.pkg}/${s.module}`
+    if (!map.has(key)) {
+      const label = s.module ? `${s.pkg}/${s.module}` : s.pkg
+      map.set(key, {
+        pkg: s.pkg,
+        module: s.module,
+        label,
+        slug: slugify(s.pkg, s.module || 'index'),
+        symbols: [],
+      })
+    }
+    map.get(key)!.symbols.push(s)
+  }
+
+  // Ensure every top-level package has a root index page, even if empty
+  for (const pkg of Object.keys(sources)) {
+    const key = `${pkg}/`
+    if (!map.has(key)) {
+      map.set(key, {
+        pkg,
+        module: '',
+        label: pkg,
+        slug: slugify(pkg, 'index'),
+        symbols: [],
+      })
+    }
+  }
+
+  // Sort: root (module="") first, then shallow paths first, then alphabetically
+  return [...map.values()].sort((a, b) => {
+    if (a.pkg !== b.pkg)
+      return a.pkg.localeCompare(b.pkg)
+    // root module first
+    if (a.module === '' && b.module !== '')
+      return -1
+    if (a.module !== '' && b.module === '')
+      return 1
+    // shallower (fewer slashes) first
+    const aDepth = (a.module.match(/\//g) ?? []).length
+    const bDepth = (b.module.match(/\//g) ?? []).length
+    if (aDepth !== bDepth)
+      return aDepth - bDepth
+    return a.module.localeCompare(b.module)
+  })
+}
+
+/**
+ * Build a JavaDoc-style sidebar tree.
+ * First level = top-level packages (swkit, build, window, unplugin).
+ * Second level = subpackages (background-sync, core, build/vite, config, ...).
+ * Third level = individual symbols.
+ *
+ * The root module (module === "") is NOT shown as a separate subpackage item
+ * because the top-level link already points to the package index page.
+ */
+export function sidebar() {
+  const packages = getPackages()
+
+  // Group packages by top-level name
+  const topLevel = new Map<string, PackageGroup[]>()
+  for (const p of packages) {
+    if (!topLevel.has(p.pkg))
+      topLevel.set(p.pkg, [])
+    topLevel.get(p.pkg)!.push(p)
+  }
+
+  // const link = (s: ApiSymbol) => ({ text: s.name, link: `/api/symbols/${s.slug}` })
+
+  return [...topLevel.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([pkgName, subPackages]) => ({
+      text: pkgName,
+      link: `/api/packages/${slugify(pkgName, 'index')}`,
+      collapsed: true,
+      // Exclude root (module="") from subpackage items — the top-level link
+      // already goes to the root index page. Only show non-root subpackages.
+      items: subPackages
+        .filter(sp => sp.module !== '')
+        .map(sp => ({
+          text: sp.module,
+          link: `/api/packages/${sp.slug}`,
+          collapsed: true,
+          // items: sp.symbols
+          //   .sort((a, b) => a.kindLabel.localeCompare(b.kindLabel) || a.name.localeCompare(b.name))
+          //   .map(link),
+        })),
+    }))
+}
+
+// ---- package page rendering ----
+
+/** Render a package summary page (lists all symbols in the package). */
+export function renderPackagePage(pkg: PackageGroup): string {
+  const out: string[] = []
+  out.push(`# Package ${pkg.label}`, '')
+  out.push(`<Badge type="info" text="Package" />`, '')
+  out.push(`**Declaration:** \`${pkg.label}\``, '')
+
+  if (pkg.symbols.length === 0) {
+    // Root package with no direct symbols — list subpackages instead
+    const allPkgs = getPackages()
+    const children = allPkgs.filter(p => p.pkg === pkg.pkg && p.module !== '')
+    if (children.length > 0) {
+      out.push('', '## Subpackages', '')
+      for (const child of children) {
+        out.push(`- [${child.module}](/api/packages/${child.slug}) - ${child.symbols.length} symbol(s)`)
+      }
+      out.push('')
+    }
+    return out.join('\n')
+  }
+
+  // Group symbols by kind (mirrors JavaDoc order)
+  const byKind = new Map<string, ApiSymbol[]>()
+  for (const s of pkg.symbols) {
+    if (!byKind.has(s.kindLabel))
+      byKind.set(s.kindLabel, [])
+    byKind.get(s.kindLabel)!.push(s)
+  }
+
+  for (const kind of KIND_ORDER) {
+    const items = byKind.get(kind)
+    if (!items?.length)
+      continue
+    out.push(`## ${kind} Summary`, '')
+
+    const kindLink = (s: ApiSymbol) => `[${s.name}](/api/symbols/${s.slug})`
+    const desc = (s: ApiSymbol) => {
+      const d = renderCommentShort(s.reflection.comment)
+      return d ? ` ${d}` : ''
+    }
+
+    if (kind === 'Enumeration' || kind === 'Interface' || kind === 'Class') {
+      // Table: type, description
+      out.push('| Type | Description |')
+      out.push('| :--- | :--- |')
+      for (const s of items) out.push(`| ${kindLink(s)} | ${desc(s)} |`)
+    }
+    else {
+      // List for functions, type aliases, variables
+      for (const s of items) out.push(`- ${kindLink(s)}${desc(s)}`)
+    }
+    out.push('')
+  }
+
+  out.push('')
+  return out.join('\n')
+}
+
+// ---- symbol page rendering ----
+
 function renderComment(comment: any): string {
   if (!comment?.summary)
     return ''
   return comment.summary.map((p: any) => p.text ?? '').join('').trim()
+}
+
+function renderCommentShort(comment: any): string {
+  const full = renderComment(comment)
+  if (!full)
+    return ''
+  // Take only first paragraph/sentence for summary tables; strip line breaks
+  const firstPara = full.split(/\n\s*\n/)[0]
+  return firstPara.replace(/\s*\n\s*/g, ' ').trim()
 }
 
 function renderType(t: any): string {
@@ -150,6 +337,10 @@ function sig(name: string, s: any): string {
   return `${name}(${params}): ${renderType(s?.type)}`
 }
 
+function pkgLabel(s: ApiSymbol): string {
+  return s.module ? `${s.pkg}/${s.module}` : s.pkg
+}
+
 function propsTable(children: any[], out: string[]) {
   const props = children.filter(c => c.kind === 1024)
   if (!props.length)
@@ -201,7 +392,7 @@ export function renderPage(s: ApiSymbol): string {
         const ps = (s2.parameters ?? []).filter((p: any) => p.comment)
         if (ps.length) {
           out.push('**Parameters**', '')
-          for (const p of ps) out.push(`- \`${p.name}\` — ${esc(renderComment(p.comment))}`)
+          for (const p of ps) out.push(`- \`${p.name}\` - ${esc(renderComment(p.comment))}`)
           out.push('')
         }
       }
@@ -223,24 +414,6 @@ export function renderPage(s: ApiSymbol): string {
     }
   }
   return out.join('\n')
-}
-
-// sidebar: a flat, alphabetically-sorted list of fully-qualified packages
-// (JavaDoc style — one entry per package; nested subpackages are siblings, not a
-// tree: build, build/build/vite, build/config, swkit/core, window, ...). Each
-// package expands to its documented symbols.
-export function sidebar() {
-  const byPkg = new Map<string, ApiSymbol[]>()
-  for (const s of getSymbols()) {
-    const key = pkgLabel(s)
-    if (!byPkg.has(key))
-      byPkg.set(key, [])
-    byPkg.get(key)!.push(s)
-  }
-  const link = (s: ApiSymbol) => ({ text: s.name, link: `/api/symbols/${s.slug}` })
-  return [...byPkg.entries()]
-    .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([pkg, items]) => ({ text: pkg, collapsed: true, items: items.map(link) }))
 }
 
 // serializable list for the API index page (via .data loader); `pkg` is the
