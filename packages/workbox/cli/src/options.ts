@@ -7,7 +7,6 @@ import type { GetManifestOptions, SelfDestroyingOptions, SWType } from '@composa
  */
 export type CliStrategy = Strategy | 'get-manifest'
 
-/** @internal Strategy identifiers used internally; adds the non-builder `'self-destroy-sw'`. */
 export type StrategyName = CliStrategy | 'self-destroy-sw'
 
 /**
@@ -28,7 +27,6 @@ interface StrategyMeta {
   isSwBuilder: boolean
 }
 
-/** @internal Maps each strategy to its config key and whether it builds a service worker. */
 export const STRATEGY_META: Record<StrategyName, StrategyMeta> = {
   'generate-sw': { optionKey: 'generateSW', isSwBuilder: true },
   'inject-manifest': { optionKey: 'injectManifest', isSwBuilder: true },
@@ -37,7 +35,6 @@ export const STRATEGY_META: Record<StrategyName, StrategyMeta> = {
   'self-destroy-sw': { optionKey: 'selfDestroying', isSwBuilder: false },
 }
 
-/** @internal All known strategy names, derived from STRATEGY_META. */
 export const STRATEGY_NAMES = Object.keys(STRATEGY_META) as StrategyName[]
 
 /**
