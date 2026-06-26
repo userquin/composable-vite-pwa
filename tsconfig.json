@@ -47,7 +47,7 @@
       "@composable-vite-pwa/workbox-window": [
         "./packages/workbox/window/src/index.ts"
       ],
-      "@composable-vite-pwa/workbox/window/*": [
+      "@composable-vite-pwa/workbox-window/*": [
         "./packages/workbox/window/src/*.ts"
       ]
     },
