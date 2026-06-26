@@ -8,7 +8,8 @@
     "../window/src/**/*.ts",
     "../build/src/**/*.ts",
     "../cli/src/**/*.ts",
-    "../../unplugin-pwa/src/**/*.ts"
+    "../../unplugin-pwa/src/**/*.ts",
+    "../../unplugin-pwa/types/index.d.ts"
   ],
   "exclude": ["**/dist/**", "**/node_modules/**"]
 }

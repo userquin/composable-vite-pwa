@@ -185,10 +185,6 @@ patchedDependencies:
 importers:
 
   .:
-    dependencies:
-      typedoc:
-        specifier: catalog:docs
-        version: 0.28.19(typescript@5.9.3)
     devDependencies:
       '@antfu/eslint-config':
         specifier: catalog:eslint
