@@ -35,7 +35,7 @@ export function createViteLegacyNuxtPwaContext<
     client,
   )
 
-  const ctx: ViteLegacyNuxtPWAContext<UserStrategy, S, T> = Object.assign({
+  const ctx: ViteLegacyNuxtPWAContext<UserStrategy, S, T> = {
     pwaCtx: createCustomVitePWAContext<
       UserStrategy,
       S,
@@ -43,9 +43,6 @@ export function createViteLegacyNuxtPwaContext<
       'vite-legacy'
     >(
       'vite-legacy',
-      () => {
-        ctx.pwaCtx.envApi = false
-      },
       pwaOptions,
     ),
     loadPwaConfiguration: () => loadPwaConfiguration(ctx),
@@ -57,7 +54,7 @@ export function createViteLegacyNuxtPwaContext<
     experimental,
     registerWebManifestInRouteRules,
     writePlugin,
-  })
+  }
 
   return ctx
 }

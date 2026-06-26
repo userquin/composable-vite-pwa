@@ -25,7 +25,6 @@ export function createCustomVitePWAContext<
   B extends ViteBundler,
 >(
   bundler: B,
-  configurePWAContext: () => void,
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
 ): VitePWAPluginContext<B, UserStrategy, S, T> {
   const ctx = Object.assign(
@@ -33,7 +32,6 @@ export function createCustomVitePWAContext<
     {
       viteConfig: undefined!,
       envApi: false,
-      configurePWAContext,
     },
   )
 

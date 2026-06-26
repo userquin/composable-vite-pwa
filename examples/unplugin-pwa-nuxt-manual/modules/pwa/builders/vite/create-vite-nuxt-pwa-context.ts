@@ -35,7 +35,7 @@ export function createViteNuxtPwaContext<
     client,
   )
 
-  const ctx: ViteNuxtPWAContext<UserStrategy, S, T> = Object.assign({
+  const ctx: ViteNuxtPWAContext<UserStrategy, S, T> = {
     pwaCtx: createCustomVitePWAContext<
       UserStrategy,
       S,
@@ -43,9 +43,6 @@ export function createViteNuxtPwaContext<
       'vite'
     >(
       'vite',
-      () => {
-        ctx.pwaCtx.envApi = true
-      },
       pwaOptions,
     ),
     loadPwaConfiguration: () => loadPwaConfiguration(ctx),
@@ -57,7 +54,7 @@ export function createViteNuxtPwaContext<
     experimental,
     registerWebManifestInRouteRules,
     writePlugin,
-  })
+  }
 
   return ctx
 }
