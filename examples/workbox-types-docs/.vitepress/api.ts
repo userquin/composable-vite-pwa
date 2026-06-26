@@ -250,9 +250,15 @@ export function renderPackagePage(pkg: PackageGroup): string {
 
     if (kind === 'Enumeration' || kind === 'Interface' || kind === 'Class') {
       // Table: type, description
-      out.push('| Type | Description |')
-      out.push('| :--- | :--- |')
-      for (const s of items) out.push(`| ${kindLink(s)} | ${desc(s)} |`)
+      out.push('<table class="symbol-table">')
+      out.push('<thead><tr><th>Type</th><th>Description</th></tr></thead>')
+      out.push('<tbody>')
+      for (const s of items) {
+        const linkHtml = `<a href="/api/symbols/${s.slug}">${s.name}</a>`
+        const descText = desc(s)
+        out.push(`<tr><td data-label="Type">${linkHtml}</td><td data-label="Description">${descText}</td></tr>`)
+      }
+      out.push('</tbody></table>')
     }
     else {
       // List for functions, type aliases, variables
