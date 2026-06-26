@@ -19,6 +19,7 @@ export function preparePWAContext<
   S extends Strategy,
   T extends SWType,
 >(ctx: PWAPluginContext<B, UserStrategy, S, T>) {
+  ctx.pwaAssetsGenerator = Promise.resolve(undefined)
   // pwa web manifest always generated if present
   ctx.webManifestData = () => {
     const options = ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>
@@ -150,6 +151,7 @@ export function preparePWAContext<
       swAssetsPaths: new Map(),
       tempFolder: undefined!,
       swNames: {
+        hasNames: false,
         name: '',
         classic: '',
         module: '',

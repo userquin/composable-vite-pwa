@@ -1,6 +1,6 @@
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { ModuleNode, PluginOption, ViteDevServer } from 'vite'
+import type { Plugin, ViteDevServer } from 'vite'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 import { exactRegex } from '@rolldown/pluginutils'
@@ -18,7 +18,7 @@ export function AssetsPlugin<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
   const transformHtml = async (html: string): Promise<string> => {
     if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
       return html
@@ -26,19 +26,15 @@ export function AssetsPlugin<
 
     return await transformIndexHtmlHandler(html, ctx)
   }
-  return {
+  return <Plugin>{
     name: 'unplugin-pwa:pwa-assets',
     sharedDuringBuild: true,
     enforce: 'post',
-    applyToEnvironment(environment) {
-      return environment.config.consumer === 'client'
-    },
     transformIndexHtml: {
       order: 'post',
       async handler(html) {
         return await transformHtml(html)
       },
-      // @ts-expect-error deprecated since Vite 4
       enforce: 'post',
       async transform(html: string) {
         return await transformHtml(html)
@@ -47,9 +43,6 @@ export function AssetsPlugin<
     resolveId: {
       filter: { id: [exactRegex(PWA_ASSETS_HEAD_VIRTUAL), exactRegex(PWA_ASSETS_ICONS_VIRTUAL)] },
       handler(id) {
-        if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
-          return
-        }
         // condition is kept for backward compatibility for below Vite v6.3
         switch (true) {
           case id === PWA_ASSETS_HEAD_VIRTUAL:
@@ -64,9 +57,6 @@ export function AssetsPlugin<
     load: {
       filter: { id: [exactRegex(RESOLVED_PWA_ASSETS_HEAD_VIRTUAL), exactRegex(RESOLVED_PWA_ASSETS_ICONS_VIRTUAL)] },
       async handler(id) {
-        if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
-          return
-        }
         // conditions are kept for backward compatibility for below Vite v6.3
         if (id === RESOLVED_PWA_ASSETS_HEAD_VIRTUAL) {
           const pwaAssetsGenerator = await ctx.pwaAssetsGenerator
@@ -80,28 +70,13 @@ export function AssetsPlugin<
         }
       },
     },
-    async handleHotUpdate({ file, server }) {
-      if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
-        return
-      }
+    async handleHotUpdate({ file, server, modules }) {
       const pwaAssetsGenerator = await ctx.pwaAssetsGenerator
       if (await pwaAssetsGenerator?.checkHotUpdate(file)) {
-        if (!ctx.envApi) {
-          const modules: ModuleNode[] = []
-          const head = server.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_HEAD_VIRTUAL)
-          head && modules.push(head)
-          const icons = server.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_ICONS_VIRTUAL)
-          icons && modules.push(icons)
-          if (modules.length)
-            return modules
-          server.ws.send({ type: 'full-reload' })
-          return []
-        }
-
-        const modules: import('vite').EnvironmentModuleNode[] = []
-        const head = server.environments.client.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_HEAD_VIRTUAL)
+        const modules: import('vite').ModuleNode[] = []
+        const head = server.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_HEAD_VIRTUAL)
         head && modules.push(head)
-        const icons = server.environments.client.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_ICONS_VIRTUAL)
+        const icons = server.moduleGraph.getModuleById(RESOLVED_PWA_ASSETS_ICONS_VIRTUAL)
         icons && modules.push(icons)
         if (modules.length)
           return modules
@@ -122,7 +97,7 @@ export function AssetsPlugin<
 
       server.environments.client.hot.on(DEV_READY_NAME, createWSResponseHandler(ctx, server))
     },
-  } satisfies PluginOption
+  }
 }
 
 async function transformIndexHtmlHandler(

@@ -24,6 +24,7 @@ export async function buildPwaAsset<
   ctx: PWAPluginContext<B, UserStrategy, S, T>,
   resolver?: DependenciesResolved,
 ): Promise<string> {
+  const { filename = 'sw.js' } = ctx.consumerOptions
   const {
     strategy,
     scope,
@@ -31,7 +32,6 @@ export async function buildPwaAsset<
     base: useBase,
     buildSW,
     injectManifest,
-    generateSW,
     updateViaCache,
   } = ctx.resolvedOptions
   const useGenerateSW = strategy === 'generate-sw'
@@ -41,11 +41,7 @@ export async function buildPwaAsset<
     classicSWDestPath,
     moduleSWDestPath,
   } = resolveSWNames(
-    strategy === 'generate-sw'
-      ? generateSW as SWNames
-      : strategy === 'build-sw'
-        ? buildSW as SWNames
-        : injectManifest as SWNames,
+    filename,
     strategy === 'generate-sw'
       ? ''
       : strategy === 'build-sw'

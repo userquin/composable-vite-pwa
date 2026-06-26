@@ -18,6 +18,30 @@ export type VitePWAPluginContext<
   envApi: boolean
 }
 
+export function createCustomVitePWAContext<
+  UserStrategy extends VitePWAStrategy,
+  S extends Strategy,
+  T extends SWType,
+  B extends ViteBundler,
+>(
+  bundler: B,
+  configurePWAContext: () => void,
+  userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
+): VitePWAPluginContext<B, UserStrategy, S, T> {
+  const ctx = Object.assign(
+    createPWAContext(bundler, userOptions) as VitePWAPluginContext<B, UserStrategy, S, T>,
+    {
+      viteConfig: undefined!,
+      envApi: false,
+      configurePWAContext,
+    },
+  )
+
+  ctx.customPwaAssetResolver = pwaAssetsResolver(ctx)
+
+  return ctx
+}
+
 export function createVitePWAContext<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,

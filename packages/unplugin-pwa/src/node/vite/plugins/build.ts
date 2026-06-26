@@ -1,11 +1,11 @@
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { PluginOption } from 'vite'
+import type { Plugin } from 'vite'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
-import { generateWebManifestFile } from '../../assets'
 import { FILE_SW_REGISTER } from '../../constants'
 import { generateRegisterSW } from '../../generate-register-sw'
+import { generateWebManifest } from '../../generate-web-manifest'
 import { injectGenerateRegisterSW } from '../../inject-generate-register-sw'
 import { injectWebManifestHtmlLink } from '../../inject-web-manifest-html-link'
 
@@ -13,7 +13,7 @@ export function BuildPlugin<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
   const transformIndexHtmlHandler = async (html: string) => {
     if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
       return html
@@ -64,7 +64,7 @@ export function BuildPlugin<
           this.emitFile({
             type: 'asset',
             fileName: ctx.resolvedOptions.manifestFilename,
-            source: generateWebManifestFile(ctx),
+            source: generateWebManifest(ctx),
           })
         }
         else {
@@ -79,7 +79,7 @@ export function BuildPlugin<
             name: undefined,
             // fix vite 6 build with manifest enabled
             names: [],
-            source: generateWebManifestFile(ctx),
+            source: generateWebManifest(ctx),
             fileName: ctx.resolvedOptions.manifestFilename!,
           }
         }
@@ -144,5 +144,5 @@ export function BuildPlugin<
       if (error)
         throw error
     },
-  } satisfies PluginOption
+  }
 }

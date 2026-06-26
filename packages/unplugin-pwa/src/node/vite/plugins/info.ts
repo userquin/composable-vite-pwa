@@ -1,6 +1,6 @@
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { PluginOption } from 'vite'
+import type { Plugin } from 'vite'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 import { exactRegex } from '@rolldown/pluginutils'
@@ -14,36 +14,32 @@ export function InfoPlugin<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
   return {
     name: 'unplugin-pwa:info',
     enforce: 'post',
-    sharedDuringBuild: true,
-    applyToEnvironment(environment) {
-      return environment.config.consumer === 'client'
-    },
     resolveId: {
       filter: { id: exactRegex(PWA_INFO_VIRTUAL) },
       handler(id) {
-        if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
-          return
-        }
         // condition is kept for backward compatibility for below Vite v6.3
         if (id === PWA_INFO_VIRTUAL)
           return RESOLVED_PWA_INFO_VIRTUAL
 
-        return undefined
+        return id === PWA_INFO_VIRTUAL
+          ? RESOLVED_PWA_INFO_VIRTUAL
+          : undefined
       },
     },
     load: {
       filter: { id: exactRegex(RESOLVED_PWA_INFO_VIRTUAL) },
       async handler(id) {
         // condition is kept for backward compatibility for below Vite v6.3
-        if (id === RESOLVED_PWA_INFO_VIRTUAL)
-          return await generatePwaInfo(ctx)
+        return id === RESOLVED_PWA_INFO_VIRTUAL
+          ? await generatePwaInfo(ctx)
+          : undefined
       },
     },
-  } satisfies PluginOption
+  }
 }
 
 // see info.d.ts on root

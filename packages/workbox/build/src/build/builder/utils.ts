@@ -90,7 +90,7 @@ export function resolveSWNamesAndGlobIgnores(
     moduleSWSrc,
     moduleSWChunkName,
     moduleSWDest,
-  } = resolveSWNames(options, swSrc, generateSW)
+  } = resolveSWNames(options.swDest, swSrc, generateSW)
 
   options.globIgnores ??= []
   if (generateSW) {

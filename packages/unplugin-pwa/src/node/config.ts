@@ -68,6 +68,7 @@ export async function loadConfiguration<
     : configModule
 
   const external = config as Partial<VitePWAOptions<S, T>>
+
   if (options.mergeOptions) {
     deepMergeObject(external, options)
   }
@@ -84,6 +85,11 @@ export function resolveDefaultConfig(cwd: string = process.cwd()): string | unde
   return undefined
 }
 
+/**
+ * Loads the default manifest using the `package.json` file.
+ *
+ * @param options The resolved PWA options.
+ */
 export function prepareManifest(
   options: ResolvedVitePWAOptions<any, any>,
 ) {
@@ -113,7 +119,7 @@ export async function resolvePwaConfiguration<
   S extends Strategy,
   T extends SWType,
 >(options: Partial<VitePWAOptions<UserStrategy, T>>): Promise<ResolvedVitePWAOptions<S, T>> {
-  const resolvedPath = options.path ?? resolveDefaultConfig()
+  const resolvedPath = options.path ?? resolveDefaultConfig(options.cwd)
   const config = await loadConfiguration(Object.assign(
     {},
     options,
@@ -197,7 +203,7 @@ export async function resolvePwaConfiguration<
         updateViaCache,
         pwaAssets: resolvedPwaAssets,
       }, {
-        buildSW: Object.assign(rest.injectManifest ?? {}, {
+        injectManifest: Object.assign(rest.injectManifest ?? {}, {
           swDest: filename,
           swType,
           minify,

@@ -1,6 +1,6 @@
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { PluginOption, ViteDevServer } from 'vite'
+import type { Plugin, ViteDevServer } from 'vite'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 import { promises as fs } from 'node:fs'
@@ -10,6 +10,7 @@ import {
   DEV_REGISTER_SW_NAME,
   DEV_SW_NAME,
   DEV_SW_VIRTUAL,
+  DEV_SW_VIRTUAL_VIRTUAL,
   DEV_SWITCHER_NAME,
   FILE_SW_REGISTER,
   RESOLVED_DEV_SW_VIRTUAL,
@@ -28,7 +29,7 @@ export function DevPlugin<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
   const transformHtml = (html: string): string => {
     if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
       return html
@@ -38,7 +39,7 @@ export function DevPlugin<
 
     return injectHmrScript(html, ctx.resolvedOptions.base!)
   }
-  const plugin = <PluginOption>{
+  const plugin = <Plugin>{
     name: 'unplugin-pwa:dev',
     apply: 'serve',
     applyToEnvironment(environment) {
@@ -51,6 +52,10 @@ export function DevPlugin<
         delete plugin.resolveId!.filter
         // @ts-expect-error filter exists in Vite 6.3+
         delete plugin.load!.filter
+
+        if (ctx.externalConfigurationLoader) {
+          return
+        }
 
         await prepareSwNamesAndGlobDirectory(ctx)
       }
@@ -82,13 +87,13 @@ export function DevPlugin<
     },
     resolveId: {
       // filter is deleted if `!options.disable && options.devOptions.enabled` is true
-      filter: { id: exactRegex(DEV_SW_VIRTUAL) },
+      filter: { id: [exactRegex(DEV_SW_VIRTUAL), exactRegex(DEV_SW_VIRTUAL_VIRTUAL)] },
       async handler(id) {
         if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
           return undefined
         }
 
-        if (id === DEV_SW_VIRTUAL) {
+        if (id === DEV_SW_VIRTUAL || id === DEV_SW_VIRTUAL_VIRTUAL) {
           return RESOLVED_DEV_SW_VIRTUAL
         }
 
@@ -149,6 +154,9 @@ export function DevPlugin<
 
         return undefined
       },
+    },
+    handleHotUpdate({ server, file, modules }) {
+      console.log(file, modules)
     },
   }
 

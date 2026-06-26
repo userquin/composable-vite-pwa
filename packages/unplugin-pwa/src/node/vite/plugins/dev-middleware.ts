@@ -1,17 +1,17 @@
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { PluginOption } from 'vite'
+import type { Plugin } from 'vite'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 import { promises as fs } from 'node:fs'
 import pc from 'picocolors'
-import { generateWebManifestFile } from '../../assets'
+import { generateWebManifest } from '../../generate-web-manifest'
 
 export function DevMiddlewarePlugin<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
   return {
     name: 'unplugin-pwa:dev-web-manifest-middleware',
     sharedDuringBuild: true,
@@ -39,7 +39,7 @@ export function DevMiddlewarePlugin<
           }
           res.statusCode = 200
           res.setHeader('Content-Type', 'application/manifest+json')
-          res.write(generateWebManifestFile(ctx), 'utf-8')
+          res.write(generateWebManifest(ctx), 'utf-8')
           res.end()
         })
       }
@@ -62,5 +62,5 @@ export function DevMiddlewarePlugin<
         res.end()
       })
     },
-  } satisfies PluginOption
+  }
 }

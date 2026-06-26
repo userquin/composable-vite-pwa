@@ -81,6 +81,9 @@ export default defineConfig({
         type: 'module',
       },
     }),
-    Inspect(),
+    Inspect({
+      dev: true,
+      build: false,
+    }),
   ],
 })

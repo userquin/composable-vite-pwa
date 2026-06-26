@@ -19,6 +19,20 @@ export interface PWABuildContext {
   selfDestroyingSW: () => Promise<boolean>
 }
 
+export interface SWNames {
+  hasNames: boolean
+  name: string
+  classic: string
+  module: string
+}
+
+export interface DevSWNames extends SWNames {
+  path: string
+  classicPath: string
+  modulePath: string
+  devSWDest: string
+}
+
 /**
  * The type of PWA asset.
  */
@@ -67,15 +81,7 @@ export interface PWABuildDevContext<
     /**
      * Names and paths to resolve service workers.
      */
-    swNames: {
-      name: string
-      classic: string
-      module: string
-      path: string
-      classicPath: string
-      modulePath: string
-      devSWDest: string
-    }
+    swNames: DevSWNames
     /**
      * The globDirectory to cache only entry point.
      */
@@ -96,6 +102,7 @@ export interface PWAPluginContext<
   version: string
   strategy: S
   consumerOptions: Partial<VitePWAOptions<UserStrategy, T>>
+  externalConfigurationLoader: boolean
   resolvedOptions: Partial<ResolvedVitePWAOptions<S, T>>
   useImportRegister: boolean
   devEnvironment: boolean
@@ -106,6 +113,7 @@ export interface PWAPluginContext<
   rootDir: string
   outDir: string
   base: string
+  swNames: SWNames
   /**
    * The custom resolver to resolve PWA assets for `registerSW.js` and virtual PWA modules.
    */

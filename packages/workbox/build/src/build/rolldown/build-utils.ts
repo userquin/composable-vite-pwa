@@ -51,10 +51,16 @@ export async function prepareRolldownBuild(
     },
   })
 
-  const output = await writeServiceWorker(instance, Object.assign(rolldownOptions, {
-    sourcemap,
-    minify,
-  }))
+  const output = await writeServiceWorker(
+    instance,
+    Object.assign(
+      rolldownOptions,
+      {
+        sourcemap,
+        minify,
+      },
+    ),
+  )
 
   const manifestName = prepareManifestName(options)
   if (manifestName) {
