@@ -1,9 +1,14 @@
 {
   "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "vite/client", "vitest/globals"]
+  },
   "include": [
     "../swkit/src/**/*.ts",
     "../window/src/**/*.ts",
-    "../build/src/**/*.ts"
+    "../build/src/**/*.ts",
+    "../cli/src/**/*.ts",
+    "../../unplugin-pwa/src/**/*.ts"
   ],
   "exclude": ["**/dist/**", "**/node_modules/**"]
 }

@@ -7,11 +7,15 @@ import { data } from './symbols.data'
 <p>{{ data.total }} symbols across {{ data.groups.length }} packages, generated at build time from the published per-package JSON.</p>
 
 <template v-for="g in data.groups" :key="g.pkg">
-  <h2 :id="g.id">{{ g.pkg }}</h2>
+  <h2 :id="g.id">
+    <a :href="'/api/packages/' + g.packageSlug">{{ g.pkg }}</a>
+  </h2>
+  <p>{{ g.items.length }} symbol(s)</p>
   <ul>
     <li v-for="s in g.items" :key="s.slug">
-      <a :href="`/api/symbols/${s.slug}`">{{ s.name }}</a>
+      <a :href="'/api/symbols/' + s.slug">{{ s.name }}</a>
       &nbsp;<Badge type="info" :text="s.kind" />
     </li>
   </ul>
 </template>
+
