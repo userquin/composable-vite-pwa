@@ -1,7 +1,7 @@
 # API Reference
 
 <script setup>
-import { data } from './index.data'
+import { data } from './[slug].data'
 </script>
 
 <p>{{ data.total }} symbols across {{ data.groups.length }} packages, generated at build time from the published per-package JSON.</p>
@@ -18,3 +18,4 @@ import { data } from './index.data'
     </li>
   </ul>
 </template>
+

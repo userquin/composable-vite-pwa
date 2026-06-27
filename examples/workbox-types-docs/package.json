@@ -7,6 +7,8 @@
   "scripts": {
     "predev": "pnpm --filter @composable-vite-pwa/workbox-types run docs:api && node --experimental-strip-types gen-pages.ts",
     "dev": "vitepress dev",
+    "predebug": "pnpm --filter @composable-vite-pwa/workbox-types run docs:api && node --experimental-strip-types gen-pages.ts",
+    "debug": "vitepress dev --debug",
     "prebuild": "pnpm --filter @composable-vite-pwa/workbox-types run docs:api && node --experimental-strip-types gen-pages.ts",
     "build": "vitepress build",
     "preview": "vitepress preview"

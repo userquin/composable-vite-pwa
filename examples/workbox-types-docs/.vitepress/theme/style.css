@@ -121,3 +121,19 @@
   display: block; /* makes the whole <li> clickable if you wrap the <a> around it? But you can't change the HTML easily */
   /* Actually, you'd need to make the <a> fill the <li> */
 }
+
+.symbol-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+.symbol-table th,
+.symbol-table td {
+  border: 1px solid var(--vp-c-divider);
+  padding: 0.6rem 1rem;
+  text-align: left;
+}
+.symbol-table th {
+  background-color: var(--vp-c-bg-soft);
+  font-weight: 600;
+}

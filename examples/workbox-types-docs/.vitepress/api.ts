@@ -1,20 +1,18 @@
-// Build-time renderer: turns the per-package workbox-types TypeDoc JSON into the
-// data + Markdown the VitePress site shows — a page per documented symbol,
-// grouped by package then kind (vue-router / javadoc style). This is the
-// "logic that goes to the docs package"; the example proves the JSON is consumable.
-import { createRequire } from 'node:module'
-
-const require = createRequire(import.meta.url)
+import unpluginPwa from '@composable-vite-pwa/workbox-types/unplugin-pwa' with { type: 'json' }
+import workboxBuild from '@composable-vite-pwa/workbox-types/workbox-build' with { type: 'json' }
+import workboxCli from '@composable-vite-pwa/workbox-types/workbox-cli' with { type: 'json' }
+import workboxSwkit from '@composable-vite-pwa/workbox-types/workbox-swkit' with { type: 'json' }
+import workboxWindow from '@composable-vite-pwa/workbox-types/workbox-window' with { type: 'json' }
 
 // One JSON per package (full public API — types AND runtime).
 // Subpath keys must match the npm package's "exports" map.
 const sources: Record<string, any> = {
-  'workbox-swkit': require('@composable-vite-pwa/workbox-types/workbox-swkit'),
-  'workbox-build': require('@composable-vite-pwa/workbox-types/workbox-build'),
-  'workbox-window': require('@composable-vite-pwa/workbox-types/workbox-window'),
-  'workbox-cli': require('@composable-vite-pwa/workbox-types/workbox-cli'),
-  'unplugin-pwa': require('@composable-vite-pwa/workbox-types/unplugin-pwa'),
-}
+  'workbox-swkit': workboxSwkit,
+  'workbox-build': workboxBuild,
+  'workbox-window': workboxWindow,
+  'workbox-cli': workboxCli,
+  'unplugin-pwa': unpluginPwa,
+} as const
 
 // TypeDoc ReflectionKind numbers
 const KIND: Record<number, string> = {

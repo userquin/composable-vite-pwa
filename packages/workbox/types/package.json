@@ -46,7 +46,9 @@
     "prepack": "pnpm run docs:api"
   },
   "devDependencies": {
+    "@composable-vite-pwa/unplugin-pwa": "workspace:*",
     "@composable-vite-pwa/workbox-build": "workspace:*",
+    "@composable-vite-pwa/workbox-cli": "workspace:*",
     "@composable-vite-pwa/workbox-swkit": "workspace:*",
     "@composable-vite-pwa/workbox-window": "workspace:*",
     "typedoc": "catalog:docs"

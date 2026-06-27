@@ -1,31 +1,28 @@
 /* eslint-disable no-console */
-// Prebuild step: render one Markdown page per documented type from the
-// workbox-types JSON metadata into api/symbols/, and one page per package
-// into api/packages/. VitePress then builds them as normal pages. This is
-// the "consuming logic" the example demonstrates.
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
-import { getPackages, getSymbols, renderPackagePage, renderPage } from './.vitepress/api.ts'
+import { dirname, resolve } from 'node:path'
+import { getPackages, getSymbols } from './lib/generate.ts'
+import { renderPackageHTML, renderSymbolPage } from './lib/render.ts'
 
-const symbolsDir = fileURLToPath(new URL('./api/symbols', import.meta.url))
-rmSync(symbolsDir, { recursive: true, force: true })
-mkdirSync(symbolsDir, { recursive: true })
+mkdirSync(resolve('api/packages'), { recursive: true })
 
-let n = 0
-for (const sym of getSymbols()) {
-  writeFileSync(`${symbolsDir}/${sym.slug}.md`, `${renderPage(sym)}\n`)
-  n++
+const packages = getPackages()
+for (const pkg of packages) {
+  const html = renderPackageHTML(pkg)
+  const outPath = resolve(`api/packages/${pkg.slug}.md`)
+  writeFileSync(outPath, html, 'utf-8')
+  console.log(`✅ Generated package page: ${outPath}`)
 }
-console.log(`[gen-pages] wrote ${n} API pages to api/symbols/`)
 
-// ── Package summary pages (JavaDoc-style) ────────────────────────────────
-const pkgDir = fileURLToPath(new URL('./api/packages', import.meta.url))
-rmSync(pkgDir, { recursive: true, force: true })
-mkdirSync(pkgDir, { recursive: true })
+// Wipe and recreate so stale files from old flat layout don't linger.
+rmSync(resolve('api/symbols'), { recursive: true, force: true })
+mkdirSync(resolve('api/symbols'), { recursive: true })
 
-let m = 0
-for (const pkg of getPackages()) {
-  writeFileSync(`${pkgDir}/${pkg.slug}.md`, `${renderPackagePage(pkg)}\n`)
-  m++
+const symbols = getSymbols()
+for (const s of symbols) {
+  const page = renderSymbolPage(s)
+  const outPath = resolve(`api/symbols/${s.slug}.md`)
+  mkdirSync(dirname(outPath), { recursive: true })
+  writeFileSync(outPath, page, 'utf-8')
 }
-console.log(`[gen-pages] wrote ${m} package pages to api/packages/`)
+console.log(`✅ Generated ${symbols.length} symbol pages`)
