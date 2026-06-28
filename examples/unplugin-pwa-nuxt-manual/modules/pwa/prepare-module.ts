@@ -10,7 +10,6 @@ import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from './internal-types'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
-import { generateWebManifest } from '@composable-vite-pwa/unplugin-pwa/node/generate-web-manifest'
 import {
   prepareSwNamesAndGlobDirectory,
 } from '@composable-vite-pwa/unplugin-pwa/node/vite/dev/prepare-sw-names-and-glob-directory'
@@ -149,7 +148,6 @@ export async function prepareModule<
     }
 
     nitroConfig.routeRules = nitroConfig.routeRules || {}
-    console.log(swNames?.hasNames, ctx.pwaCtx.resolvedOptions.swType)
     if (swNames?.hasNames) {
       if (ctx.pwaCtx.resolvedOptions.swType === 'classic-and-module') {
         nitroConfig.routeRules[`${ctx.pwaCtx.base}${swNames.classic}`] = {
@@ -208,41 +206,18 @@ export async function prepareModule<
   if (!nuxt.options.dev) {
     if (semver.gte(ctx.nuxtVersion, '3.8.0')) {
       nuxt.hook('nitro:build:public-assets', async () => {
-        // todo: check why calling this doesn't work
-        // await buildPwaAssets(ctx.pwaCtx as unknown as any)
-        // TypeError: Cannot read properties of undefined (reading 'pwaAssetsGenerator')
-        //     at buildPwaAssets (D:/work/pwa-org/composable-vite-pwa-cli/examples/unplugin-pwa-nuxt-manual/modules/pwa/build-pwa-assets.ts:26:47)
-        //     at Array.<anonymous> (D:/work/pwa-org/composable-vite-pwa-cli/examples/unplugin-pwa-nuxt-manual/modules/pwa/prepare-module.ts:210:50)
-        //     at file:///D:/work/pwa-org/composable-vite-pwa-cli/node_modules/.pnpm/hookable@6.1.1/node_modules/hookable/dist/index.mjs:33:48
-        const pwaAssetsGenerator = await ctx.pwaCtx.pwaAssetsGenerator
-        if (pwaAssetsGenerator) {
-          await pwaAssetsGenerator.generate()
-          pwaAssetsGenerator.injectManifestIcons()
-        }
-
-        if (ctx.pwaCtx.resolvedOptions.manifest) {
-          const webManifest = generateWebManifest(ctx.pwaCtx)
-          await fs.writeFile(
-            path.resolve(ctx.pwaCtx.outDir, ctx.pwaCtx.resolvedOptions.manifestFilename || 'manifest.webmanifest'),
-            webManifest,
-            'utf-8',
-          )
-        }
-
-        if (!ctx.pwaCtx.resolvedOptions.disable) {
-          await ctx.pwaCtx.runBuild()
-        }
+        await buildPwaAssets(ctx as unknown as any)
       })
     }
     else {
       nuxt.hook('nitro:init', (nitro) => {
         nitro.hooks.hook('rollup:before', async () => {
-          await buildPwaAssets(ctx.pwaCtx as unknown as any)
+          await buildPwaAssets(ctx as unknown as any)
         })
       })
       if (nuxt.options.nitro.static || (nuxt.options as any)._generate /* TODO: remove in future */) {
         nuxt.hook('close', async () => {
-          await buildPwaAssets(ctx.pwaCtx as unknown as any)
+          await buildPwaAssets(ctx as unknown as any)
         })
       }
     }
