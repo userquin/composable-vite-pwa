@@ -25,6 +25,7 @@ export async function prepareRolldownBuild(
     swSrc,
     target,
     minify,
+    alias,
     sourcemap,
     logLevel,
   } = options
@@ -39,6 +40,9 @@ export async function prepareRolldownBuild(
 
   const instance = await rolldown({
     input: swSrc,
+    resolve: {
+      alias,
+    },
     platform: 'browser',
     treeshake: true,
     plugins,

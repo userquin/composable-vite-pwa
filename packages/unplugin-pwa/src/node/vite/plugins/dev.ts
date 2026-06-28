@@ -155,8 +155,54 @@ export function DevPlugin<
         return undefined
       },
     },
-    handleHotUpdate({ server, file, modules }) {
-      console.log(file, modules)
+    async handleHotUpdate({ server, file }) {
+      if (ctx.sources.has(file)) {
+        // regenerate service workers without reset ctx.dev.options.swGenerated
+        await prepareSwBuild(ctx)
+        const internalDevOptions = ctx.dev.options!
+        if (ctx.envApi) {
+          const moduleGraph = server.environments.client.moduleGraph
+          const envApiModules: ReturnType<typeof moduleGraph.getModuleById>[] = []
+          for (const m of internalDevOptions.swAssetsPaths.keys()) {
+            // we need to invalidate resolved virtual modules
+            const mod = VIRTUAL_MODULES.includes(m)
+              ? moduleGraph.getModuleById(VIRTUAL_MODULES_RESOLVE_PREFIX + m)
+              : m === DEV_SW_VIRTUAL
+                ? moduleGraph.getModuleById(RESOLVED_DEV_SW_VIRTUAL)
+                : moduleGraph.getModuleById(m)
+            if (mod) {
+              envApiModules.push(mod)
+            }
+          }
+          for (const module of envApiModules) {
+            moduleGraph.invalidateModule(module!)
+          }
+        }
+        else {
+          const moduleGraph = server.moduleGraph
+          const envApiModules: ReturnType<typeof moduleGraph.getModuleById>[] = []
+          for (const m of internalDevOptions.swAssetsPaths.keys()) {
+            // we need to invalidate resolved virtual modules
+            const mod = VIRTUAL_MODULES.includes(m)
+              ? moduleGraph.getModuleById(VIRTUAL_MODULES_RESOLVE_PREFIX + m)
+              : m === DEV_SW_VIRTUAL
+                ? moduleGraph.getModuleById(RESOLVED_DEV_SW_VIRTUAL)
+                : moduleGraph.getModuleById(m)
+            if (mod) {
+              envApiModules.push(mod)
+            }
+          }
+          for (const module of envApiModules) {
+            moduleGraph.invalidateModule(module!)
+          }
+        }
+
+        const sendMessage = ctx.envApi
+          ? server.environments.client.hot.send
+          : server.ws.send
+
+        sendMessage({ type: 'full-reload' })
+      }
     },
   }
 

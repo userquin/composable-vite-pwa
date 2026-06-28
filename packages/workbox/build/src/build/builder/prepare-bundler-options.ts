@@ -13,6 +13,8 @@ interface PrepareBundlerOptionsType {
   tempFileWrites: Promise<void>[]
   classicCircularDependencies: string[]
   moduleCircularDependencies: string[]
+  classicSources: string[]
+  moduleSources: string[]
 }
 
 export function prepareBundlerOptions(
@@ -46,6 +48,8 @@ export function prepareBundlerOptions(
   const tempFiles: string[] = []
   const classicCircularDependencies: string[] = []
   const moduleCircularDependencies: string[] = []
+  const classicSources: string[] = []
+  const moduleSources: string[] = []
 
   if (swType === 'classic-and-module' || swType === 'classic') {
     if (generateSW) {
@@ -85,6 +89,7 @@ export function prepareBundlerOptions(
       circularDependencies: classicCircularDependencies,
       chunkNames,
       manifest,
+      sources: classicSources,
     })
   }
 
@@ -126,6 +131,7 @@ export function prepareBundlerOptions(
       circularDependencies: moduleCircularDependencies,
       chunkNames,
       manifest,
+      sources: moduleSources,
     })
   }
 
@@ -136,5 +142,7 @@ export function prepareBundlerOptions(
     tempFileWrites,
     classicCircularDependencies,
     moduleCircularDependencies,
+    classicSources,
+    moduleSources,
   }
 }

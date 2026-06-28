@@ -34,6 +34,7 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     filePaths,
     manifestEntries,
     chunkNames = '-',
+    sources,
   } = options
 
   const sep = chunkNames === 'dot' ? '.' : '-'
@@ -94,14 +95,18 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     workboxName,
   )
 
-  plugins.unshift(RolldownPlugin({
-    swType,
-    bundler,
-    destFolder,
-    customChunksInfo,
-    classicBuild,
-    sourcemap,
-  }))
+  plugins.unshift(RolldownPlugin(
+    sources,
+    {
+      swType,
+      bundler,
+      destFolder,
+      customChunksInfo,
+      classicBuild,
+      sourcemap,
+    },
+    swSrc,
+  ))
 
   if (bundler === 'rolldown') {
     if (includeRolldownOxcPlugin()) {

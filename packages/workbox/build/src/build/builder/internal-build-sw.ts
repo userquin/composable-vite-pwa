@@ -1,4 +1,5 @@
-import type { BuildResult, SWType } from '../../types'
+import type { SWType } from '../../types'
+import type { BuildWithSourcesResult } from '../types'
 import type { BuildContext } from './build-context'
 import type { Bundler, BundlerOptions } from './bundler-types'
 import { generateManifestEntries } from '../../utils/generate-manifest-entries'
@@ -20,7 +21,7 @@ export async function internalBuildSW<
 >(
   context: BuildContext<T, B, BO>,
   prepareBuilds: (context: BuildContext<T, B, BO>) => Promise<any>[],
-): Promise<BuildResult> {
+): Promise<BuildWithSourcesResult> {
   const optionsWithDefaults = await validateBuildSW(
     context.options,
   )
@@ -76,6 +77,8 @@ export async function internalBuildSW<
     filePathsMap,
     classicCircularDependencies,
     moduleCircularDependencies,
+    classicSources,
+    moduleSources,
   } = prepareBundlerOptions({
     mode: mode!,
     swType: context.options.swType!,
@@ -114,6 +117,10 @@ export async function internalBuildSW<
   const circularDependencies = classicCircularDependencies.length > 0
     ? classicCircularDependencies
     : moduleCircularDependencies
+  // since the source code is the same, on dual build we pick classic ones
+  const sources = classicSources.length > 0
+    ? classicSources
+    : moduleSources
 
   logPWAWorkboxResult(
     context.bundler,
@@ -125,5 +132,9 @@ export async function internalBuildSW<
     circularDependencies,
   )
 
-  return buildResult
+  return Object.assign(
+    {},
+    buildResult,
+    { sources },
+  )
 }

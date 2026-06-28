@@ -1,9 +1,16 @@
-import type { GenerateSWOptions, InjectManifestOptions, SWTarget, SWType } from '../types'
+import type { BuildResult, GenerateSWOptions, InjectManifestOptions, SWTarget, SWType } from '../types'
 import type { LogLevel, RolldownLogLevel, ViteLogLevel } from '../utils/constants'
 
 export interface BundlerLogLevel {
   rolldown?: RolldownLogLevel
   vite?: ViteLogLevel
+}
+
+/**
+ * Build result including the sw sources.
+ */
+export type BuildWithSourcesResult = BuildResult & {
+  sources: Array<string>
 }
 
 export interface EnvironmentData {

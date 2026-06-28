@@ -39,6 +39,7 @@ export function DevMiddlewarePlugin<
           }
           res.statusCode = 200
           res.setHeader('Content-Type', 'application/manifest+json')
+          res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
           res.write(generateWebManifest(ctx), 'utf-8')
           res.end()
         })
@@ -58,6 +59,7 @@ export function DevMiddlewarePlugin<
 
         res.statusCode = 200
         res.setHeader('Content-Type', 'application/json')
+        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
         res.write(await fs.readFile(map, 'utf-8'))
         res.end()
       })
