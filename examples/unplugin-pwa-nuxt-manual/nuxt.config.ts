@@ -14,6 +14,9 @@ export default defineNuxtConfig({
     // offline support
     '/': { prerender: true },
   },
+  // app: {
+  //   baseURL: '/pepe/',
+  // },
   vite: {
     $client: {
       build: {

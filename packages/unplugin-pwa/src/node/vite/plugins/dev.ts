@@ -97,7 +97,11 @@ export function DevPlugin<
           return RESOLVED_DEV_SW_VIRTUAL
         }
 
-        const normalizedId = id.startsWith('/') ? id.slice(1) : id
+        const [normalizedId, useId] = ctx.normalizeDevServiceWorkerId?.(
+          'resolveId',
+          'sw',
+          id,
+        ) ?? ([id.startsWith('/') ? id.slice(1) : id, id])
         const internalDevOptions = ctx.dev.options!
         const swNames = internalDevOptions.swNames
 
@@ -106,14 +110,21 @@ export function DevPlugin<
           || normalizedId === swNames.classic
           || normalizedId === swNames.module
         ) {
-          return id
+          return useId
         }
 
         const swAssetsPaths = ctx.dev.options!.swAssetsPaths
 
-        const normalizedAsset = id.startsWith('./') ? id.slice(1) : id
+        const [normalizedAsset, assetId] = ctx.normalizeDevServiceWorkerId?.(
+          'resolveId',
+          'sw-dep',
+          id,
+        ) ?? ([
+          id.startsWith('./') ? id.slice(1) : id,
+          id.startsWith('./') ? id.slice(1) : id,
+        ])
 
-        return swAssetsPaths.has(normalizedAsset) ? normalizedAsset : undefined
+        return swAssetsPaths.has(normalizedAsset) ? assetId : undefined
       },
     },
     load: {
@@ -133,7 +144,11 @@ export function DevPlugin<
           return swAssetsPaths.get(DEV_SW_VIRTUAL)
         }
 
-        const normalizedId = id.startsWith('/') ? id.slice(1) : id
+        const [normalizedId, swId] = ctx.normalizeDevServiceWorkerId?.(
+          'load',
+          'sw',
+          id,
+        ) ?? ([id.startsWith('/') ? id.slice(1) : id, id])
         const swNames = internalDevOptions.swNames
 
         if (
@@ -145,11 +160,17 @@ export function DevPlugin<
             await prepareSwBuild(ctx)
           }
 
-          return await fs.readFile(swAssetsPaths.get(id)!, 'utf8')
+          return await fs.readFile(swAssetsPaths.get(swId)!, 'utf8')
         }
 
-        if (swAssetsPaths.has(id)) {
-          return await fs.readFile(swAssetsPaths.get(id)!, 'utf-8')
+        const [normalizedAsset, assetId] = ctx.normalizeDevServiceWorkerId?.(
+          'load',
+          'sw-dep',
+          id,
+        ) ?? id
+
+        if (swAssetsPaths.has(normalizedAsset)) {
+          return await fs.readFile(swAssetsPaths.get(assetId)!, 'utf-8')
         }
 
         return undefined

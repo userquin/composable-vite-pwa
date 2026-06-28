@@ -155,6 +155,26 @@ export function preparePWAStrategy<
     case 'build-sw':
       ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<S, T>
       options = ctx.resolvedOptions.buildSW
+      // todo: finish alias, ask sapphi-red
+      // add vite/rolldown aliases
+      /* if (ctx.bundler === 'vite') {
+        const viteOptions = options as import('@composable-vite-pwa/workbox-build/build/vite/types').ServiceWorkerOptions
+        const viteAlias = viteOptions.alias ?? {}
+        Object.assign(
+          options!,
+          { alias: ctx.viteConfig.resolve?.alias ?? {} },
+          { alias: viteAlias },
+        )
+      }
+      else {
+        const rolldownOptions = options as import('@composable-vite-pwa/workbox-build/build/rolldown/types').ServiceWorkerOptions
+        const viteAlias = rolldownOptions.alias ?? {}
+        Object.assign(
+          options!,
+          { alias: ctx.viteConfig.resolve?.alias ?? {} },
+          { alias: viteAlias },
+        )
+      } */
       break
   }
 
@@ -257,6 +277,18 @@ export async function preparePWAContextDefaults<
     buildBase,
   } = ctx.resolvedOptions
   const basePath = resolveBasePath(base)
+  ctx.normalizeDevServiceWorkerId ??= (hook, depType, id) => {
+    if (depType === 'sw') {
+      return [id.startsWith('/') ? id.slice(1) : id, id]
+    }
+
+    if (hook === 'load') {
+      return [id, id]
+    }
+
+    const assetId = id.startsWith('./') ? id.slice(1) : id
+    return [assetId, assetId]
+  }
   ctx.resolvedOptions.scope = scope || basePath
   ctx.resolvedOptions.base = buildBase ?? basePath
   ctx.resolvedOptions.buildBase = ctx.resolvedOptions.base

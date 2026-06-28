@@ -15,16 +15,27 @@ console.log('Nuxt manifest', manifest)
 
 declare let self: ServiceWorkerGlobalScope
 
-// self.__WB_MANIFEST is default injection point
-const entries = self.__WB_MANIFEST
-
 let allowlist: undefined | RegExp[]
 if (import.meta.env.DEV) {
   allowlist = [/^\/$/]
   // entries.push({ url: '/', revision: Math.random().toString() })
 }
 
-precacheAndRoute(entries)
+// self.__WB_MANIFEST is default injection point
+precacheAndRoute(
+  self.__WB_MANIFEST,
+  {
+    urlManipulation: ({ url }) => {
+      const urls: URL[] = []
+      if (url.pathname.endsWith('_payload.json')) {
+        const newUrl = new URL(url.href)
+        newUrl.search = ''
+        urls.push(newUrl)
+      }
+      return urls
+    },
+  },
+)
 
 // clean old assets
 cleanupOutdatedCaches()

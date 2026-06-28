@@ -58,6 +58,7 @@
     "./node/vite/pwa-assets-resolver": "./dist/node/vite/pwa-assets-resolver.mjs",
     "./node/vite/vite-context": "./dist/node/vite/vite-context.mjs",
     "./node/vite/dev/create-hmr-script": "./dist/node/vite/dev/create-hmr-script.mjs",
+    "./node/vite/dev/default-service-worker-assets-normalizer": "./dist/node/vite/dev/default-service-worker-assets-normalizer.mjs",
     "./node/vite/dev/inject-hmr-script": "./dist/node/vite/dev/inject-hmr-script.mjs",
     "./node/vite/dev/prepare-register-sw": "./dist/node/vite/dev/prepare-register-sw.mjs",
     "./node/vite/dev/prepare-sw-build": "./dist/node/vite/dev/prepare-sw-build.mjs",

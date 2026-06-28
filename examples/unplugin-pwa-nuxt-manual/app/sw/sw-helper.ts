@@ -1,5 +1,5 @@
 export const hello2 = 'Hello World2!'
 
 export function sayHello2(who: string): string {
-  return `Hello2 ${who}`
+  return `Hellox ${who}`
 }
