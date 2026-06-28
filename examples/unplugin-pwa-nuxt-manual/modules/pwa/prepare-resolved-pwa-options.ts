@@ -83,13 +83,7 @@ export async function prepareResolvedPwaOptions<
     config.globPatterns = ['**/*.{js,css,html}']
   }
 
-  let buildAssetsDir = nuxt.options.app.buildAssetsDir ?? '_nuxt/'
-  if (buildAssetsDir[0] === '/') {
-    buildAssetsDir = buildAssetsDir.slice(1)
-  }
-  if (buildAssetsDir[buildAssetsDir.length - 1] !== '/') {
-    buildAssetsDir += '/'
-  }
+  const buildAssetsDir = ctx.buildAssetsDir
 
   // Vite 5 support: allow override dontCacheBustURLsMatching
   if (!('dontCacheBustURLsMatching' in config)) {
@@ -97,36 +91,29 @@ export async function prepareResolvedPwaOptions<
   }
 
   // handle payload extraction
-  if (nuxt.options.experimental.payloadExtraction) {
-    const enableGlobPatterns = nuxt.options.nitro.static || (nuxt.options as any)._generate /* TODO: remove in future */
-      || (
-        !!ctx.nitroConfig.prerender?.routes?.length
-        || Object.values(ctx.nitroConfig.routeRules ?? {}).some(r => r.prerender)
-      )
-    if (enableGlobPatterns) {
-      config.globPatterns = config.globPatterns ?? []
-      config.globPatterns.push('**/_payload.json')
-      if (ctx.pwaCtx.resolvedOptions.strategy === 'generate-sw' && ctx.experimental?.enableWorkboxPayloadQueryParams) {
-        const generateSW = ctx.pwaCtx.resolvedOptions.generateSW!
+  if (ctx.enableGlobPatterns) {
+    config.globPatterns = config.globPatterns ?? []
+    config.globPatterns.push('**/_payload.json')
+    if (ctx.pwaCtx.resolvedOptions.strategy === 'generate-sw' && ctx.experimental?.enableWorkboxPayloadQueryParams) {
+      const generateSW = ctx.pwaCtx.resolvedOptions.generateSW!
 
-        generateSW.runtimeCaching = generateSW.runtimeCaching ?? []
-        generateSW.runtimeCaching.push({
-          urlPattern: /\/_payload\.json\?/,
-          handler: 'NetworkOnly',
-          options: {
-            plugins: [{
-              /* this callback will be called when the fetch call fails */
-              handlerDidError: async ({ request }) => {
-                const url = new URL(request.url)
-                url.search = ''
-                return Response.redirect(url.href, 302)
-              },
-              /* this callback will prevent caching the response */
-              cacheWillUpdate: async () => null,
-            }],
-          },
-        })
-      }
+      generateSW.runtimeCaching = generateSW.runtimeCaching ?? []
+      generateSW.runtimeCaching.push({
+        urlPattern: /\/_payload\.json\?/,
+        handler: 'NetworkOnly',
+        options: {
+          plugins: [{
+            /* this callback will be called when the fetch call fails */
+            handlerDidError: async ({ request }) => {
+              const url = new URL(request.url)
+              url.search = ''
+              return Response.redirect(url.href, 302)
+            },
+            /* this callback will prevent caching the response */
+            cacheWillUpdate: async () => null,
+          }],
+        },
+      })
     }
   }
 
@@ -140,12 +127,12 @@ export async function prepareResolvedPwaOptions<
 
   // allow override manifestTransforms
   if (!nuxt.options.dev && !config.manifestTransforms) {
-    config.manifestTransforms = [createManifestTransform(nuxt.options.app.baseURL ?? '/', outDir, appManifestFolder)]
+    config.manifestTransforms = [createManifestTransform(ctx.pwaCtx.base ?? '/', outDir, appManifestFolder)]
   }
 
   if (ctx.pwaCtx.resolvedOptions.pwaAssets) {
     ctx.pwaCtx.resolvedOptions.pwaAssets.integration = {
-      baseUrl: nuxt.options.app.baseURL ?? '/',
+      baseUrl: ctx.pwaCtx.base ?? '/',
       publicDir: ctx.pwaCtx.publicDir,
       outDir,
     }

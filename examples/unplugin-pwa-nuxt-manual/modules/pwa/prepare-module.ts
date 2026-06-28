@@ -82,6 +82,14 @@ export async function prepareModule<
   nuxt.hook('nitro:config', async (nitroConfig) => {
     ctx.nitroConfig = nitroConfig
 
+    if (nuxt.options.experimental.payloadExtraction) {
+      ctx.enableGlobPatterns = nuxt.options.nitro.static || (nuxt.options as any)._generate /* TODO: remove in future */
+        || (
+          !!ctx.nitroConfig.prerender?.routes?.length
+          || Object.values(ctx.nitroConfig.routeRules ?? {}).some(r => r.prerender)
+        )
+    }
+
     ctx.pwaCtx.resolvedOptions.base = ctx.pwaCtx.base
     ctx.pwaCtx.resolvedOptions.scope = ctx.pwaCtx.base
     ctx.pwaCtx.resolvedOptions.buildBase = ctx.pwaCtx.base
@@ -170,7 +178,6 @@ export async function prepareModule<
       }
     }
 
-    // if provided by the user, we don't know web manifest name
     if ((nuxt.options.dev || ctx.registerWebManifestInRouteRules) && webManifest) {
       nitroConfig.routeRules[`${ctx.pwaCtx.base}${ctx.pwaCtx.resolvedOptions.manifestFilename ?? 'manifest.webmanifest'}`] = {
         headers: {

@@ -14,6 +14,7 @@ export function createViteNuxtPwaContext<
   T extends SWType,
 >(
   nuxtVersion: string,
+  buildAssetsDir: string,
   options: PwaModuleOptions<UserStrategy, T>,
   nuxt: Nuxt,
 ): ViteNuxtPWAContext<UserStrategy, S, T> {
@@ -50,6 +51,7 @@ export function createViteNuxtPwaContext<
     prepareNuxtOptions: () => prepareNuxtOptions(ctx, nuxt),
     nuxtVersion,
     nitroConfig: undefined!,
+    buildAssetsDir,
     client: useClient,
     experimental,
     registerWebManifestInRouteRules,

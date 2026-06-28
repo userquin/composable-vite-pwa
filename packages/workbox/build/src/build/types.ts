@@ -96,10 +96,16 @@ export type CustomChunkCallback<B extends 'vite' | 'rolldown'>
     ? import('vite').Rolldown.CodeSplittingNameFunction
     : import('rolldown').CodeSplittingNameFunction
 
+export type CustomAlias<B extends 'vite' | 'rolldown'>
+  = B extends 'vite'
+    ? NonNullable<import('vite').Rolldown.InputOptions['resolve']>['alias']
+    : NonNullable<import('rolldown').InputOptions['resolve']>['alias']
+
 export interface BuildSWOptions<
   T extends SWType,
   B extends 'vite' | 'rolldown' = 'vite',
 > extends InjectManifestOptions, EnvironmentData {
+  alias?: CustomAlias<B>
   /**
    * The type of the service worker.
    *

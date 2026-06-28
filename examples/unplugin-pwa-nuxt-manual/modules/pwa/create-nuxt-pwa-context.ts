@@ -27,6 +27,14 @@ export async function createNuxtPwaContext<
   nuxt: Nuxt,
 ): Promise<NPWAC> {
   const nuxtVersion = getNuxtVersion(nuxt)
+  let buildAssetsDir = nuxt.options.app.buildAssetsDir ?? '_nuxt/'
+  if (buildAssetsDir[0] === '/') {
+    buildAssetsDir = buildAssetsDir.slice(1)
+  }
+  if (buildAssetsDir[buildAssetsDir.length - 1] !== '/') {
+    buildAssetsDir += '/'
+  }
+
   if (nuxt.options.builder === '@nuxt/vite-builder') {
     const enableEnvApi = semver.major(nuxtVersion) === 4 && nuxt.options.experimental.viteEnvironmentApi
     if (enableEnvApi) {
@@ -46,6 +54,7 @@ export async function createNuxtPwaContext<
         createViteNuxtPwaContext,
       }) => createViteNuxtPwaContext(
         nuxtVersion,
+        buildAssetsDir,
         options,
         nuxt,
       ) as unknown as NPWAC)
@@ -56,6 +65,7 @@ export async function createNuxtPwaContext<
       createViteLegacyNuxtPwaContext,
     }) => createViteLegacyNuxtPwaContext(
       nuxtVersion,
+      buildAssetsDir,
       options,
       nuxt,
     ) as unknown as NPWAC)

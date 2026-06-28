@@ -14,6 +14,9 @@ export interface NuxtPWAContext<
 > {
   nuxtVersion: string
   nitroConfig: NitroConfig
+  buildAssetsDir: string
+  enableGlobPatterns?: boolean
+  appManifestFolder?: string
   pwaCtx: OC
   client: Required<ClientOptions>
   loadPwaConfiguration: () => Promise<void>

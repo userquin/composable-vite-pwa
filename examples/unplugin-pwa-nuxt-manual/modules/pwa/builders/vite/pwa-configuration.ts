@@ -34,6 +34,11 @@ export async function initPwaConfiguration<
 ) {
   normalizeManifest(ctx.pwaCtx)
   preparePWAAssetsGenerator(ctx.pwaCtx)
+  switch (ctx.pwaCtx.strategy) {
+    case 'build-sw':
+      ctx.pwaCtx.resolvedOptions.buildSW!.alias = nuxt.options.alias
+      break
+  }
   if (nuxt.options.dev) {
     // const cwd = resolveAlias('~~')
     preparePWAStrategy(
