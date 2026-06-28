@@ -1,0 +1,9 @@
+build exit=0
+[32m✓[0m building client + server bundles...
+- rendering pages...
+[32m✓[0m rendering pages...
+build complete in 10.17s.
+
+total symbol pages: 181   build pages: 58
+checkbuildsw page still present?: NO-removed
+local search present in config: 1

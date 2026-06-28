@@ -25,6 +25,8 @@ dist-ssr
 !README.md
 !.github/*.md
 !.changeset/*.md
+!examples/workbox-types-docs/index.md
+!examples/workbox-types-docs/api/index.md
 
 # examples
 examples/workbox-cli/custom-sw-inject.js
@@ -44,3 +46,8 @@ examples/workbox-cli/custom-build/*.map
 # temp-fixtures
 !packages/workbox/build/test/temp-fixtures/DO_NOT_REMOVE.txt
 packages/workbox/build/test/temp-fixtures/
+
+# docs
+packages/workbox/types/api/
+**/.vitepress/cache/
+**/.vitepress/dist/

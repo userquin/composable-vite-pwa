@@ -1,0 +1,20 @@
+{
+  "name": "workbox-types-docs",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example VitePress site that renders the @composable-vite-pwa/workbox-types JSON metadata as an API reference.",
+  "scripts": {
+    "predev": "pnpm --filter @composable-vite-pwa/workbox-types run docs:api && node --experimental-strip-types gen-pages.ts",
+    "dev": "vitepress dev",
+    "predebug": "pnpm --filter @composable-vite-pwa/workbox-types run docs:api && node --experimental-strip-types gen-pages.ts",
+    "debug": "vitepress dev --debug",
+    "prebuild": "pnpm --filter @composable-vite-pwa/workbox-types run docs:api && node --experimental-strip-types gen-pages.ts",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/workbox-types": "workspace:../../packages/workbox/types",
+    "vitepress": "catalog:vitepress2"
+  }
+}
