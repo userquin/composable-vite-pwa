@@ -1,6 +1,6 @@
 import type { ManifestEntry } from '@composable-vite-pwa/workbox-build/types'
 import type { PWAPluginContext } from './context-types'
-import { generateWebManifestFile } from './assets'
+import { generateWebManifest } from './generate-web-manifest'
 
 export function additionalManifestEntriesFactory(
   ctx: PWAPluginContext<any, any, any, any>,
@@ -24,7 +24,7 @@ export function additionalManifestEntriesFactory(
         if (includeManifest) {
           yield {
             url: ctx.resolvedOptions.manifestFilename!,
-            revision: hash('md5', generateWebManifestFile(ctx), { outputEncoding: 'hex' }),
+            revision: hash('md5', generateWebManifest(ctx), { outputEncoding: 'hex' }),
           }
         }
         if (includeManifestIcons && manifest.icons) {

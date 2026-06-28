@@ -24,8 +24,9 @@ export function registerSW(options: RegisterSWOptions = {}) {
       wb = await import('@composable-vite-pwa/workbox-window').then(({ Workbox }) => {
         if (import.meta.PWA_ESM_FALLBACK_SW) {
           const enableSwitcher = isServiceWorkerModuleSupported()
+          const currentSWType = import.meta.PWA_DEV_CURRENT_SW_TYPE
           const esmSW = import.meta.hot
-            ? enableSwitcher && import.meta.PWA_DEV_CURRENT_SW_TYPE === 'module'
+            ? enableSwitcher && currentSWType === 'module'
             : isServiceWorkerModuleSupported()
 
           // update entries

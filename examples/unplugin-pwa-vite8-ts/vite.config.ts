@@ -30,7 +30,7 @@ export default defineConfig({
     minify: false,
   },
   plugins: [
-    virtualMessagePlugin(),
+    // virtualMessagePlugin(),
     VitePWA({
       swType: 'classic-and-module',
       strategies: 'build-sw',
@@ -81,6 +81,9 @@ export default defineConfig({
         type: 'module',
       },
     }),
-    Inspect(),
+    Inspect({
+      dev: true,
+      build: false,
+    }),
   ],
 })

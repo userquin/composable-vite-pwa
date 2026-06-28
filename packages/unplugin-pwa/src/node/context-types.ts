@@ -1,4 +1,4 @@
-import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
+import type { BuildGenerateSWOptions, BuildWithSourcesResult } from '@composable-vite-pwa/workbox-build/build/types'
 import type { InjectManifestStrategyOptions, SelfDestroyingStrategyOptions, Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { PWAAssetsGenerator } from './pwa-assets/types'
@@ -19,12 +19,44 @@ export interface PWABuildContext {
   selfDestroyingSW: () => Promise<boolean>
 }
 
-export type PwaHMRAsset = 'register-sw' | 'virtual-register-sw'
-export type CustomHMRPwaAsset = (
-  asset: PwaHMRAsset,
-  // the type of virtual when asset is virtual-register-sw
+export interface SWNames {
+  hasNames: boolean
+  name: string
+  classic: string
+  module: string
+}
+
+export interface DevSWNames extends SWNames {
+  path: string
+  classicPath: string
+  modulePath: string
+  devSWDest: string
+}
+
+/**
+ * The type of PWA asset.
+ */
+export type PwaAsset = 'register-sw' | 'virtual-register-sw'
+/**
+ * Custom PWA asset resolver for `registerSW.js` and PWA virtual modules.
+ *
+ * When `virtual-register-sw` the virtualName won't be undefined:
+ * - 'register' for `virtual:pwa-register`
+ * - 'vue' for `virtual:pwa-register/vue`
+ * - 'svelte' for `virtual:pwa-register/svelte`
+ * - 'react' for `virtual:pwa-register/react`
+ * - 'react-legacy' for `virtual:pwa-register/react-legacy`
+ * - 'preact' for `virtual:pwa-register/preact`
+ * - 'solid' for `virtual:pwa-register/solid`
+ *
+ * @param asset The asset type to resolve
+ * @param virtualName The virtual module name when asset is `virtual-register-sw`
+ * @return The generated PWA asset
+ */
+export type CustomPwaAssetResolver = (
+  asset: PwaAsset,
   virtualName?: string,
-) => string | Promise<string>
+) => Promise<string>
 
 export interface PWABuildDevContext<
   B extends Bundler,
@@ -42,29 +74,21 @@ export interface PWABuildDevContext<
     swGenerated: boolean
     registerSWGenerated: boolean
     registerVirtualSWGenerated: boolean
+    hmrEntryPointGenerated: boolean
     navigateFallbackAllowlist?: RegExp[]
     swAssetsPaths: Map<string, string>
     tempFolder: string
     /**
      * Names and paths to resolve service workers.
      */
-    swNames: {
-      name: string
-      classic: string
-      module: string
-      path: string
-      classicPath: string
-      modulePath: string
-      devSWDest: string
-    }
+    swNames: DevSWNames
     /**
      * The globDirectory to cache only entry point.
      */
     globDirectory: string
   }
-  customHMRPwaAsset?: CustomHMRPwaAsset
   generateSW: (options: Partial<BuildGenerateSWOptions<T>>) => Promise<BuildResult>
-  buildSW: (options: Partial<BuildSWType<B, T>>) => Promise<BuildResult>
+  buildSW: (options: Partial<BuildSWType<B, T>>) => Promise<BuildWithSourcesResult>
   injectManifest: (options: Partial<InjectManifestStrategyOptions>) => Promise<BuildResult>
   selfDestroyingSW: (options: SelfDestroyingStrategyOptions) => Promise<boolean>
 }
@@ -78,6 +102,7 @@ export interface PWAPluginContext<
   version: string
   strategy: S
   consumerOptions: Partial<VitePWAOptions<UserStrategy, T>>
+  externalConfigurationLoader: boolean
   resolvedOptions: Partial<ResolvedVitePWAOptions<S, T>>
   useImportRegister: boolean
   devEnvironment: boolean
@@ -88,6 +113,12 @@ export interface PWAPluginContext<
   rootDir: string
   outDir: string
   base: string
+  sources: Set<string>
+  swNames: SWNames
+  /**
+   * The custom resolver to resolve PWA assets for `registerSW.js` and virtual PWA modules.
+   */
+  customPwaAssetResolver: CustomPwaAssetResolver
   /**
    * Returns the PWA web manifest url for the manifest link:
    * <link rel="manifest" href="<webManifestUrl>" />

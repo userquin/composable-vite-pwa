@@ -4,10 +4,17 @@ import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 import path from 'node:path'
 import process from 'node:process'
-import { isDualServiceWorker } from '@composable-vite-pwa/unplugin-pwa/node/dual-sw-utilities'
 import { normalizePath, resolveSWNames } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
+import { isDualServiceWorker } from '../../dual-sw-utilities'
 import { prepareTempFolder } from './prepare-temp-folder'
 
+/**
+ * Prepare the service worker names, the glob directory and the temp folder.
+ *
+ * **NOTE**: if the PWA plugin context has `swNames.hasNames` set to `true` at the dev options, this function will return immediately.
+ *
+ * @param ctx The PWA Vite plugin context.
+ */
 export async function prepareSwNamesAndGlobDirectory<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
@@ -15,6 +22,9 @@ export async function prepareSwNamesAndGlobDirectory<
 >(
   ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
 ) {
+  if (ctx.dev.options.swNames.hasNames) {
+    return
+  }
   let options: (GlobPartial & RequiredSWDestPartial) | undefined
   let swSrc: string | undefined
   switch (ctx.strategy) {
@@ -37,9 +47,21 @@ export async function prepareSwNamesAndGlobDirectory<
     const internalDevOptions = ctx.dev.options!
     const folder = internalDevOptions.tempFolder
     const root = process.cwd()
-    const outputFolder = path.resolve(process.cwd(), ctx.viteConfig.build.outDir)
-    const relativeSwDest = path.relative(outputFolder, options.swDest)
-    const devSWDest = normalizePath(path.relative(root, path.resolve(folder, relativeSwDest)))
+    const ctxRoot = ctx.rootDir
+
+    let outputFolder: string
+    let relativeSwDest: string | undefined
+    let devSWDest: string
+    if (path.isAbsolute(ctx.outDir)) {
+      outputFolder = ctx.outDir
+      devSWDest = normalizePath(path.relative(root, path.resolve(folder, options.swDest)))
+    }
+    else {
+      outputFolder = path.resolve(process.cwd(), ctx.outDir)
+      relativeSwDest = path.relative(outputFolder, options.swDest)
+      devSWDest = normalizePath(path.relative(root, path.resolve(folder, relativeSwDest)))
+    }
+
     const {
       swDest,
       swDestPath,
@@ -48,7 +70,7 @@ export async function prepareSwNamesAndGlobDirectory<
       moduleSWDest,
       moduleSWDestPath,
     } = resolveSWNames(
-      Object.assign({}, options, { swDest: devSWDest }),
+      devSWDest,
       swSrc as string,
       ctx.strategy === 'generate-sw',
     )
@@ -77,5 +99,6 @@ export async function prepareSwNamesAndGlobDirectory<
     internalDevOptions.swNames.classicPath = normalizePath(path.resolve(root, classicSWDest))
     internalDevOptions.swNames.module = moduleSWDestPath
     internalDevOptions.swNames.modulePath = normalizePath(path.resolve(root, moduleSWDest))
+    internalDevOptions.swNames.hasNames = true
   }
 }

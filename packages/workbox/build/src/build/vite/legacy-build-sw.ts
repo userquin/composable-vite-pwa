@@ -1,5 +1,6 @@
-import type { BuildResult, SWType } from '../../types'
+import type { SWType } from '../../types'
 import type { RolldownBuildContext } from '../rolldown/internal-types'
+import type { BuildWithSourcesResult } from '../types'
 import type { LegacyBuildServiceWorkerOptions } from './legacy-types'
 import { createBuildContext } from '../rolldown/build-context'
 
@@ -31,7 +32,7 @@ function prepareRolldownBuilds<T extends SWType>(
 
 export async function buildSWLegacy<T extends SWType>(
   options: LegacyBuildServiceWorkerOptions<T>,
-): Promise<BuildResult> {
+): Promise<BuildWithSourcesResult> {
   const buildStart = performance.now()
 
   const message = await import('./index').then(({

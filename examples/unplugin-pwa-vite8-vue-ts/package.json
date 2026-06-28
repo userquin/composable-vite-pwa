@@ -1,0 +1,25 @@
+{
+  "name": "unplugin-pwa-vite8-vue-ts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "catalog:vue"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/unplugin-pwa": "workspace:*",
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "@types/node": "catalog:types",
+    "@vitejs/devtools": "catalog:vite-plugin-inspect",
+    "@vitejs/plugin-vue": "catalog:vue",
+    "@vue/tsconfig": "catalog:vue",
+    "typescript": "~6.0.2",
+    "vite": "catalog:vite",
+    "vue-tsc": "catalog:vue"
+  }
+}

@@ -1,8 +1,11 @@
 import type { SWType } from '../../types'
 import type { BuildSWOptions } from '../types'
 
+export type AllResolveOptions = NonNullable<import('vite').UserConfig['resolve']>
+
 export interface ServiceWorkerOptions {
   define?: import('vite').UserConfig['define']
+  alias?: AllResolveOptions['alias']
   /**
    * @see https://vite.dev/config/shared-options#envdir
    * @see https://vite.dev/guide/env-and-mode#env-files

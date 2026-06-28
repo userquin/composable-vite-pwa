@@ -31,6 +31,7 @@ export interface BundlerOptions {
   circularDependencies: string[]
   chunkNames?: 'dash' | 'dot'
   manifest?: boolean
+  sources: string[]
 }
 
 export interface PrepareBundlerOptions {

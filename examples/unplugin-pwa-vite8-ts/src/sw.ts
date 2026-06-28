@@ -6,7 +6,7 @@ import { hello, sayHello } from './sw-helper.ts'
 
 console.log(message)
 console.log(hello)
-console.log(sayHello('from SW'))
+console.log(sayHello('from SWx'))
 
 declare let self: ServiceWorkerGlobalScope
 

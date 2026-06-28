@@ -1,3 +1,5 @@
+import './switcher'
+
 interface PWADevRegisterSW {
   module: boolean
   mode?: 'inline' | 'script' | 'script-defer'
@@ -114,4 +116,8 @@ export function registerDevSW() {
   catch (e) {
     console.error(`unable to send ${import.meta.PWA_DEV_READY_EVENT_NAME} message to register service worker in dev mode!`, e)
   }
+}
+
+export function setDevPWASwitcherReady() {
+  window.setDevPWASwitcherReady?.()
 }

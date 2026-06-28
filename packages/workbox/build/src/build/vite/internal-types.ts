@@ -3,11 +3,13 @@ import type { ViteLogLevel } from '../../utils/constants'
 import type { BuildContext, GenerateContext } from '../builder/build-context'
 import type { BundlerOptions } from '../builder/bundler-types'
 import type { CustomChunkCallback } from '../types'
+import type { AllResolveOptions } from './types'
 
 export interface ViteBuildOptions extends BundlerOptions {
   logLevel: ViteLogLevel
   plugins?: import('vite').PluginOption[]
   define?: import('vite').UserConfig['define']
+  alias?: AllResolveOptions['alias']
   /**
    * The directory from which .env files are loaded.
    *

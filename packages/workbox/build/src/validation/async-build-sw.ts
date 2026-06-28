@@ -74,6 +74,7 @@ const BaseInjectManifestEntries = v.pipeAsync(
     customChunks: v.optional(
       v.function(),
     ),
+    alias: v.optional(v.any()),
   }),
   v.forwardAsync(
     v.checkAsync(

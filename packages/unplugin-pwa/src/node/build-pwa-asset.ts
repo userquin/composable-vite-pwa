@@ -6,10 +6,13 @@ import { resolveSWNames } from '@composable-vite-pwa/workbox-build/utils/resolve
 
 type SWNames = GlobPartial & RequiredSWDestPartial
 
+export type DependenciesResolved = NonNullable<Pick<import('rolldown').Plugin, 'resolveId' | 'load'>>
+
 /**
  * This module will build `registerSW` or any virtual module.
  * @param code The code to build.
  * @param ctx The context of the PWA bundler.
+ * @param resolver Rolldown hooks to resolve dependencies.
  */
 export async function buildPwaAsset<
   B extends Bundler,
@@ -19,7 +22,9 @@ export async function buildPwaAsset<
 >(
   code: string,
   ctx: PWAPluginContext<B, UserStrategy, S, T>,
+  resolver?: DependenciesResolved,
 ): Promise<string> {
+  const { filename = 'sw.js' } = ctx.consumerOptions
   const {
     strategy,
     scope,
@@ -27,7 +32,6 @@ export async function buildPwaAsset<
     base: useBase,
     buildSW,
     injectManifest,
-    generateSW,
     updateViaCache,
   } = ctx.resolvedOptions
   const useGenerateSW = strategy === 'generate-sw'
@@ -37,11 +41,7 @@ export async function buildPwaAsset<
     classicSWDestPath,
     moduleSWDestPath,
   } = resolveSWNames(
-    strategy === 'generate-sw'
-      ? generateSW as SWNames
-      : strategy === 'build-sw'
-        ? buildSW as SWNames
-        : injectManifest as SWNames,
+    filename,
     strategy === 'generate-sw'
       ? ''
       : strategy === 'build-sw'
@@ -84,6 +84,7 @@ export async function buildPwaAsset<
     },
     ctx.devEnvironment,
     ctx.resolvedOptions.minify!,
+    resolver,
   )
 }
 
@@ -92,25 +93,36 @@ async function buildPwaAssetWithRolldown(
   define: Record<string, any>,
   isDev: boolean,
   minify: boolean,
+  resolver?: DependenciesResolved,
 ): Promise<string> {
   const { rolldown } = await import('rolldown')
 
   const input = 'asset.js'
+
+  const plugins: import('rolldown').Plugin[] = [{
+    name: 'pwa-asset-resolver',
+    resolveId(id) {
+      return id === input ? input : undefined
+    },
+    load(id) {
+      return id === input ? code : undefined
+    },
+  }]
+
+  if (resolver) {
+    plugins.push({
+      name: 'pwa-asset-custom-resolver',
+      resolveId: resolver.resolveId,
+      load: resolver.load,
+    })
+  }
 
   const bundle = await rolldown({
     input,
     platform: 'browser',
     treeshake: true,
     logLevel: 'warn',
-    plugins: [{
-      name: 'pwa-asset-resolver',
-      resolveId(id) {
-        return id === input ? input : undefined
-      },
-      load(id) {
-        return id === input ? code : undefined
-      },
-    }],
+    plugins,
     transform: {
       define,
     },

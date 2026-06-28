@@ -25,6 +25,7 @@ export async function prepareRolldownBuild(
     swSrc,
     target,
     minify,
+    alias,
     sourcemap,
     logLevel,
   } = options
@@ -39,6 +40,9 @@ export async function prepareRolldownBuild(
 
   const instance = await rolldown({
     input: swSrc,
+    resolve: {
+      alias,
+    },
     platform: 'browser',
     treeshake: true,
     plugins,
@@ -51,10 +55,16 @@ export async function prepareRolldownBuild(
     },
   })
 
-  const output = await writeServiceWorker(instance, Object.assign(rolldownOptions, {
-    sourcemap,
-    minify,
-  }))
+  const output = await writeServiceWorker(
+    instance,
+    Object.assign(
+      rolldownOptions,
+      {
+        sourcemap,
+        minify,
+      },
+    ),
+  )
 
   const manifestName = prepareManifestName(options)
   if (manifestName) {

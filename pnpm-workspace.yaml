@@ -4,6 +4,8 @@ catalogMode: prefer
 
 cleanupUnusedCatalogs: true
 
+dedupePeers: true
+
 ignoreDepScripts: true
 
 ignoreWorkspaceRootCheck: true
@@ -27,14 +29,21 @@ packages:
   - packages/unplugin-pwa/**
   - packages/workbox/**
 overrides:
+  postcss-selector-parser: 7.1.4
   rolldown: 1.1.2
+  semver: ^7.8.4
 
 patchedDependencies:
   dotenv-expand@13.0.0: patches/dotenv-expand@13.0.0.patch
 
 allowBuilds:
+  '@parcel/watcher': false
+  core-js: false
   esbuild: false
   sharp: true
+  unrs-resolver: false
+  vue-demi: false
+
 catalogs:
   build:
     tsdown: ^0.22.3
@@ -44,6 +53,9 @@ catalogs:
     '@antfu/eslint-config': ^8.2.0
     eslint: ^10.2.1
     eslint-plugin-antfu: ^3.2.2
+  nuxt4:
+    nuxt: 4.4.8
+    vue-router: 5.1.0
   preact:
     preact: ^10.29.0
   react:
@@ -84,7 +96,7 @@ catalogs:
     proper-tags: ^2.0.2
     publint: ^0.3.18
     rolldown: ^1.1.2
-    semver: ^7.7.4
+    semver: ^7.8.4
     serialize-javascript: ^7.0.5
     std-env: ^4.1.0
     taze: ^19.10.0
@@ -109,7 +121,10 @@ catalogs:
   vitepress2:
     vitepress: ^2.0.0-alpha.17
   vue:
-    vue: ^3.5.31
+    '@vitejs/plugin-vue': ^6.0.7
+    '@vue/tsconfig': ^0.9.1
+    vue: ^3.5.38
+    vue-tsc: ^3.3.5
   webpack5:
     webpack: 5.107.1
 
