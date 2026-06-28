@@ -124,7 +124,6 @@ async function init() {
         '../../unplugin-pwa/src/node/vite/vite-context.ts',
         '../../unplugin-pwa/src/node/vite/dev/create-hmr-script.ts',
         '../../unplugin-pwa/src/node/vite/dev/default-service-worker-assets-normalizer.ts',
-        '../../unplugin-pwa/src/node/vite/dev/hmr-support.ts',
         '../../unplugin-pwa/src/node/vite/dev/inject-hmr-script.ts',
         '../../unplugin-pwa/src/node/vite/dev/prepare-register-sw.ts',
         '../../unplugin-pwa/src/node/vite/dev/prepare-sw-build.ts',

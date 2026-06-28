@@ -51,6 +51,7 @@
     "@composable-vite-pwa/workbox-cli": "workspace:*",
     "@composable-vite-pwa/workbox-swkit": "workspace:*",
     "@composable-vite-pwa/workbox-window": "workspace:*",
+    "@rolldown/pluginutils": "catalog:utils",
     "typedoc": "catalog:docs"
   },
   "publishConfig": {
