@@ -1,5 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import { VirtualMessagePlugin } from './pwa.config'
+// import { VirtualMessagePlugin } from './pwa.config'
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -23,7 +23,7 @@ export default defineNuxtConfig({
         minify: false,
       },
     },
-    plugins: [VirtualMessagePlugin()],
+    // plugins: [VirtualMessagePlugin()],
     optimizeDeps: {
       include: [
         '@vue/devtools-core',
