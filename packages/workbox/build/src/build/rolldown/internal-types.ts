@@ -3,10 +3,12 @@ import type { RolldownLogLevel } from '../../utils/constants'
 import type { BuildContext, GenerateContext } from '../builder/build-context'
 import type { BundlerOptions } from '../builder/bundler-types'
 import type { CustomChunkCallback } from '../types'
+import type { AllResolveOptions } from './types'
 
 export interface RolldownBuildOptions extends BundlerOptions {
   logLevel: RolldownLogLevel
   define?: import('rolldown').TransformOptions['define']
+  alias?: AllResolveOptions['alias']
   /**
    * The directory from which .env files are loaded.
    *

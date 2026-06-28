@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@composable-vite-pwa/unplugin-pwa": "workspace:../../packages/unplugin-pwa",
-    "@composable-vite-pwa/workbox-build": "workspace:../../packages/workbox/build",
+    "@composable-vite-pwa/unplugin-pwa": "workspace:*",
+    "@composable-vite-pwa/workbox-build": "workspace:*",
     "@vite-pwa/assets-generator": "catalog:utils",
     "magic-string": "catalog:utils",
     "magicast": "catalog:utils",

@@ -1,4 +1,3 @@
-import type { GlobPartial, RequiredSWDestPartial } from '../types'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -13,12 +12,12 @@ export function normalizePath(path: string): string {
 /**
  * This method resolves the names for the SW source and destination files, as well as the globIgnores to exclude the
  * relevant files from the precache manifest.
- * @param options The options.
+ * @param swDest The service worker destination.
  * @param swSrc The service worker source file path.
  * @param generateSW if using generateSW strategy (or buildSW)
  */
 export function resolveSWNames(
-  options: GlobPartial & RequiredSWDestPartial,
+  swDest: string,
   swSrc: string,
   generateSW: boolean,
 ) {
@@ -30,7 +29,7 @@ export function resolveSWNames(
   // - we need to provide classic and module extracted from swDest when required
 
   // path normalization
-  const rootSWDest = path.resolve(process.cwd(), options.swDest)
+  const rootSWDest = path.resolve(process.cwd(), swDest)
   const swDestChunkName = path.basename(rootSWDest, '.js')
   const destDist = normalizePath(path.relative(process.cwd(), path.dirname(rootSWDest)))
 
@@ -49,7 +48,7 @@ export function resolveSWNames(
   // dest files are the filename from options.swDest
 
   if (generateSW) {
-    newSWSrc = options.swDest.replace(jsRegexp, '-temp.js')
+    newSWSrc = swDest.replace(jsRegexp, '-temp.js')
     swChunkName = path.basename(newSWSrc, '.js')
     classicSWSrc = `${prefix}${swChunkName}-classic.js`
     classicSWChunkName = `${swChunkName}-classic`
@@ -72,7 +71,7 @@ export function resolveSWNames(
   return {
     newSWSrc,
     swChunkName,
-    swDest: options.swDest,
+    swDest,
     classicSWSrc,
     classicSWChunkName,
     classicSWDest,

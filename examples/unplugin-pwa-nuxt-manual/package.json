@@ -1,0 +1,21 @@
+{
+  "name": "unplugin-pwa-nuxt-manual",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "xpostinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@composable-vite-pwa/unplugin-pwa": "workspace:*",
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "nuxt": "catalog:nuxt4",
+    "rolldown": "catalog:utils",
+    "vite": "catalog:vite",
+    "vue": "catalog:vue",
+    "vue-router": "catalog:nuxt4"
+  }
+}

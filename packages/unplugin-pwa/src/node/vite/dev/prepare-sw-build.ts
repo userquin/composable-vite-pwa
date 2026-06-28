@@ -1,4 +1,4 @@
-import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
+import type { BuildGenerateSWOptions, BuildWithSourcesResult } from '@composable-vite-pwa/workbox-build/build/types'
 import type { SelfDestroyingStrategyOptions, Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { BuildSWType } from '../../context-types'
@@ -178,7 +178,7 @@ async function prepareBuildSW<
 }
 
 function collectSWBuildResult(
-  result: BuildResult,
+  result: BuildResult | BuildWithSourcesResult,
   ctx: VitePWAPluginContext<any, any, any, any>,
 ) {
   const base = ctx.base
@@ -188,6 +188,13 @@ function collectSWBuildResult(
     const name = `${base}${basename(chunk)}`
     if (!assets.has(name)) {
       assets.set(name, path.resolve(root, chunk))
+    }
+  }
+  console.log(result)
+  if ('sources' in result) {
+    ctx.sources.clear()
+    for (const source of result.sources) {
+      ctx.sources.add(source)
     }
   }
 }

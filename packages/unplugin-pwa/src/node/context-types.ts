@@ -1,4 +1,4 @@
-import type { BuildGenerateSWOptions } from '@composable-vite-pwa/workbox-build/build/types'
+import type { BuildGenerateSWOptions, BuildWithSourcesResult } from '@composable-vite-pwa/workbox-build/build/types'
 import type { InjectManifestStrategyOptions, SelfDestroyingStrategyOptions, Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { PWAAssetsGenerator } from './pwa-assets/types'
@@ -17,6 +17,20 @@ export interface PWABuildContext {
   buildSW: () => Promise<BuildResult>
   injectManifest: () => Promise<BuildResult>
   selfDestroyingSW: () => Promise<boolean>
+}
+
+export interface SWNames {
+  hasNames: boolean
+  name: string
+  classic: string
+  module: string
+}
+
+export interface DevSWNames extends SWNames {
+  path: string
+  classicPath: string
+  modulePath: string
+  devSWDest: string
 }
 
 /**
@@ -67,22 +81,14 @@ export interface PWABuildDevContext<
     /**
      * Names and paths to resolve service workers.
      */
-    swNames: {
-      name: string
-      classic: string
-      module: string
-      path: string
-      classicPath: string
-      modulePath: string
-      devSWDest: string
-    }
+    swNames: DevSWNames
     /**
      * The globDirectory to cache only entry point.
      */
     globDirectory: string
   }
   generateSW: (options: Partial<BuildGenerateSWOptions<T>>) => Promise<BuildResult>
-  buildSW: (options: Partial<BuildSWType<B, T>>) => Promise<BuildResult>
+  buildSW: (options: Partial<BuildSWType<B, T>>) => Promise<BuildWithSourcesResult>
   injectManifest: (options: Partial<InjectManifestStrategyOptions>) => Promise<BuildResult>
   selfDestroyingSW: (options: SelfDestroyingStrategyOptions) => Promise<boolean>
 }
@@ -96,6 +102,7 @@ export interface PWAPluginContext<
   version: string
   strategy: S
   consumerOptions: Partial<VitePWAOptions<UserStrategy, T>>
+  externalConfigurationLoader: boolean
   resolvedOptions: Partial<ResolvedVitePWAOptions<S, T>>
   useImportRegister: boolean
   devEnvironment: boolean
@@ -106,6 +113,8 @@ export interface PWAPluginContext<
   rootDir: string
   outDir: string
   base: string
+  sources: Set<string>
+  swNames: SWNames
   /**
    * The custom resolver to resolve PWA assets for `registerSW.js` and virtual PWA modules.
    */

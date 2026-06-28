@@ -1,6 +1,6 @@
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { PluginOption, ViteDevServer } from 'vite'
+import type { Plugin, ViteDevServer } from 'vite'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 import { promises as fs } from 'node:fs'
@@ -10,6 +10,7 @@ import {
   DEV_REGISTER_SW_NAME,
   DEV_SW_NAME,
   DEV_SW_VIRTUAL,
+  DEV_SW_VIRTUAL_VIRTUAL,
   DEV_SWITCHER_NAME,
   FILE_SW_REGISTER,
   RESOLVED_DEV_SW_VIRTUAL,
@@ -28,7 +29,7 @@ export function DevPlugin<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): PluginOption {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
   const transformHtml = (html: string): string => {
     if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
       return html
@@ -38,7 +39,7 @@ export function DevPlugin<
 
     return injectHmrScript(html, ctx.resolvedOptions.base!)
   }
-  const plugin = <PluginOption>{
+  const plugin = <Plugin>{
     name: 'unplugin-pwa:dev',
     apply: 'serve',
     applyToEnvironment(environment) {
@@ -51,6 +52,10 @@ export function DevPlugin<
         delete plugin.resolveId!.filter
         // @ts-expect-error filter exists in Vite 6.3+
         delete plugin.load!.filter
+
+        if (ctx.externalConfigurationLoader) {
+          return
+        }
 
         await prepareSwNamesAndGlobDirectory(ctx)
       }
@@ -82,17 +87,21 @@ export function DevPlugin<
     },
     resolveId: {
       // filter is deleted if `!options.disable && options.devOptions.enabled` is true
-      filter: { id: exactRegex(DEV_SW_VIRTUAL) },
+      filter: { id: [exactRegex(DEV_SW_VIRTUAL), exactRegex(DEV_SW_VIRTUAL_VIRTUAL)] },
       async handler(id) {
         if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
           return undefined
         }
 
-        if (id === DEV_SW_VIRTUAL) {
+        if (id === DEV_SW_VIRTUAL || id === DEV_SW_VIRTUAL_VIRTUAL) {
           return RESOLVED_DEV_SW_VIRTUAL
         }
 
-        const normalizedId = id.startsWith('/') ? id.slice(1) : id
+        const [normalizedId, useId] = ctx.normalizeDevServiceWorkerId?.(
+          'resolveId',
+          'sw',
+          id,
+        ) ?? ([id.startsWith('/') ? id.slice(1) : id, id])
         const internalDevOptions = ctx.dev.options!
         const swNames = internalDevOptions.swNames
 
@@ -101,14 +110,21 @@ export function DevPlugin<
           || normalizedId === swNames.classic
           || normalizedId === swNames.module
         ) {
-          return id
+          return useId
         }
 
         const swAssetsPaths = ctx.dev.options!.swAssetsPaths
 
-        const normalizedAsset = id.startsWith('./') ? id.slice(1) : id
+        const [normalizedAsset, assetId] = ctx.normalizeDevServiceWorkerId?.(
+          'resolveId',
+          'sw-dep',
+          id,
+        ) ?? ([
+          id.startsWith('./') ? id.slice(1) : id,
+          id.startsWith('./') ? id.slice(1) : id,
+        ])
 
-        return swAssetsPaths.has(normalizedAsset) ? normalizedAsset : undefined
+        return swAssetsPaths.has(normalizedAsset) ? assetId : undefined
       },
     },
     load: {
@@ -128,7 +144,11 @@ export function DevPlugin<
           return swAssetsPaths.get(DEV_SW_VIRTUAL)
         }
 
-        const normalizedId = id.startsWith('/') ? id.slice(1) : id
+        const [normalizedId, swId] = ctx.normalizeDevServiceWorkerId?.(
+          'load',
+          'sw',
+          id,
+        ) ?? ([id.startsWith('/') ? id.slice(1) : id, id])
         const swNames = internalDevOptions.swNames
 
         if (
@@ -140,15 +160,70 @@ export function DevPlugin<
             await prepareSwBuild(ctx)
           }
 
-          return await fs.readFile(swAssetsPaths.get(id)!, 'utf8')
+          return await fs.readFile(swAssetsPaths.get(swId)!, 'utf8')
         }
 
-        if (swAssetsPaths.has(id)) {
-          return await fs.readFile(swAssetsPaths.get(id)!, 'utf-8')
+        const [normalizedAsset, assetId] = ctx.normalizeDevServiceWorkerId?.(
+          'load',
+          'sw-dep',
+          id,
+        ) ?? id
+
+        if (swAssetsPaths.has(normalizedAsset)) {
+          return await fs.readFile(swAssetsPaths.get(assetId)!, 'utf-8')
         }
 
         return undefined
       },
+    },
+    async handleHotUpdate({ server, file }) {
+      if (ctx.sources.has(file)) {
+        // regenerate service workers without reset ctx.dev.options.swGenerated
+        await prepareSwBuild(ctx)
+        const internalDevOptions = ctx.dev.options!
+        if (ctx.envApi) {
+          const moduleGraph = server.environments.client.moduleGraph
+          const envApiModules: ReturnType<typeof moduleGraph.getModuleById>[] = []
+          for (const m of internalDevOptions.swAssetsPaths.keys()) {
+            // we need to invalidate resolved virtual modules
+            const mod = VIRTUAL_MODULES.includes(m)
+              ? moduleGraph.getModuleById(VIRTUAL_MODULES_RESOLVE_PREFIX + m)
+              : m === DEV_SW_VIRTUAL
+                ? moduleGraph.getModuleById(RESOLVED_DEV_SW_VIRTUAL)
+                : moduleGraph.getModuleById(m)
+            if (mod) {
+              envApiModules.push(mod)
+            }
+          }
+          for (const module of envApiModules) {
+            moduleGraph.invalidateModule(module!)
+          }
+        }
+        else {
+          const moduleGraph = server.moduleGraph
+          const envApiModules: ReturnType<typeof moduleGraph.getModuleById>[] = []
+          for (const m of internalDevOptions.swAssetsPaths.keys()) {
+            // we need to invalidate resolved virtual modules
+            const mod = VIRTUAL_MODULES.includes(m)
+              ? moduleGraph.getModuleById(VIRTUAL_MODULES_RESOLVE_PREFIX + m)
+              : m === DEV_SW_VIRTUAL
+                ? moduleGraph.getModuleById(RESOLVED_DEV_SW_VIRTUAL)
+                : moduleGraph.getModuleById(m)
+            if (mod) {
+              envApiModules.push(mod)
+            }
+          }
+          for (const module of envApiModules) {
+            moduleGraph.invalidateModule(module!)
+          }
+        }
+
+        const sendMessage = ctx.envApi
+          ? server.environments.client.hot.send
+          : server.ws.send
+
+        sendMessage({ type: 'full-reload' })
+      }
     },
   }
 

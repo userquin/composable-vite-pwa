@@ -13,6 +13,7 @@ import type {
 } from '@composable-vite-pwa/workbox-build/build/vite/types'
 import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type {
+  InjectManifestOptions,
   ManifestEntry,
   SelfDestroyingOptions,
   SWType,
@@ -277,9 +278,9 @@ export interface VitePWAOptions<
    * The workbox object for `buildSW` strategy
    */
   buildSW:
-    | Partial<Omit<BuildServiceWorkerOptions<T>, 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
-    | Partial<Omit<LegacyBuildServiceWorkerOptions<T>, 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
-    | Partial<Omit<RolldownBuildServiceWorkerOptions<T>, 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>>
+    | Partial<Omit<BuildServiceWorkerOptions<T>, 'swSrc' | 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>> & Pick<InjectManifestOptions, 'swSrc'>
+    | Partial<Omit<LegacyBuildServiceWorkerOptions<T>, 'swSrc' | 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>> & Pick<InjectManifestOptions, 'swSrc'>
+    | Partial<Omit<RolldownBuildServiceWorkerOptions<T>, 'swSrc' | 'swType' | 'swDest' | 'minify' | 'maximumFileSizeToCacheInBytes' | 'throwMaximumFileSizeToCacheInBytes' | 'additionalManifestEntries' | 'additionalManifestEntriesGenerator'>> & Pick<InjectManifestOptions, 'swSrc'>
   /**
    * The workbox object for `injectManifest` strategy
    */
@@ -377,8 +378,9 @@ export type ResolvedBuildSW<
   S extends Strategy,
   T extends SWType,
 > = S extends 'build-sw'
-  ? NonNullable<Partial<BuildServiceWorkerOptions<T>> | Partial<LegacyBuildServiceWorkerOptions<T>> | Partial<RolldownBuildServiceWorkerOptions<T>>>
-  : Partial<BuildServiceWorkerOptions<T>> | Partial<LegacyBuildServiceWorkerOptions<T>> | Partial<RolldownBuildServiceWorkerOptions<T>> | undefined
+  ? NonNullable<Partial<Omit<BuildServiceWorkerOptions<T>, 'swSrc'>> & Pick<InjectManifestOptions, 'swSrc'> | Partial<Omit<LegacyBuildServiceWorkerOptions<T>, 'swSrc'>> & Pick<InjectManifestOptions, 'swSrc'> | Partial<Omit<RolldownBuildServiceWorkerOptions<T>, 'swSrc'>> & Pick<InjectManifestOptions, 'swSrc'>>
+  : Partial<Omit<BuildServiceWorkerOptions<T>, 'swSrc'>> & Pick<InjectManifestOptions, 'swSrc'> | Partial<Omit<LegacyBuildServiceWorkerOptions<T>, 'swSrc'>> & Pick<InjectManifestOptions, 'swSrc'> | Partial<Omit<RolldownBuildServiceWorkerOptions<T>, 'swSrc'>> & Pick<InjectManifestOptions, 'swSrc'> | undefined
+
 export type ResolvedInjectManifest<
   S extends Strategy,
   T extends SWType,

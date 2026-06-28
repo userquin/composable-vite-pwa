@@ -18,6 +18,7 @@ export async function prepareViteBuild(
     envPrefix,
     envDir,
     logLevel,
+    alias,
   } = options
 
   const manifest = prepareManifestName(options)
@@ -37,7 +38,11 @@ export async function prepareViteBuild(
     envPrefix,
     envDir,
     logLevel,
+    resolve: {
+      alias,
+    },
     build: {
+      // write: true,
       // don't clear outDir folder
       emptyOutDir: false,
       // don't copy anything from public dir

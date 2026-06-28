@@ -46,10 +46,13 @@ function resolveTempFolder(): string {
 export async function prepareTempFolder(
   ctx: VitePWAPluginContext<any, any, any, any>,
 ) {
+  const internalOptions = ctx.dev.options!
   const tempFolderResolver = ctx.resolvedOptions.devOptions?.resolveTempFolder
-  const tempFolder = tempFolderResolver
-    ? await tempFolderResolver()
-    : resolveTempFolder()
+  const tempFolder = internalOptions.tempFolder
+    ? internalOptions.tempFolder
+    : tempFolderResolver
+      ? await tempFolderResolver()
+      : resolveTempFolder()
 
   fs.rmSync(tempFolder, { force: true, recursive: true })
 

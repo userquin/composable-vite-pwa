@@ -117,3 +117,7 @@ export function registerDevSW() {
     console.error(`unable to send ${import.meta.PWA_DEV_READY_EVENT_NAME} message to register service worker in dev mode!`, e)
   }
 }
+
+export function setDevPWASwitcherReady() {
+  window.setDevPWASwitcherReady?.()
+}

@@ -1,5 +1,7 @@
 import type { TrustedScriptURL } from 'trusted-types/lib'
 
+export type { TrustedScriptURL }
+
 /**
  * A function that returns the service worker trusted script url.
  *

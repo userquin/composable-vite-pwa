@@ -1,4 +1,5 @@
-import type { BuildResult, SWType } from '../../types'
+import type { SWType } from '../../types'
+import type { BuildWithSourcesResult } from '../types'
 import type { RolldownBuildContext } from './internal-types'
 import type { BuildServiceWorkerOptions } from './types'
 import { createBuildContext } from './build-context'
@@ -31,7 +32,7 @@ function prepareRolldownBuilds<T extends SWType>(
 
 export async function buildSW<T extends SWType>(
   options: BuildServiceWorkerOptions<T>,
-): Promise<BuildResult> {
+): Promise<BuildWithSourcesResult> {
   const buildStart = performance.now()
 
   const message = await import('./index').then(({

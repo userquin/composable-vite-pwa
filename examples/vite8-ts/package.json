@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@composable-vite-pwa/workbox-build": "workspace:../../packages/workbox/build",
+    "@composable-vite-pwa/workbox-build": "workspace:*",
     "magic-string": "catalog:utils",
     "magicast": "catalog:utils",
     "vite": "catalog:vite"

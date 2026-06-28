@@ -150,6 +150,7 @@ export function preparePWAContext<
       swAssetsPaths: new Map(),
       tempFolder: undefined!,
       swNames: {
+        hasNames: false,
         name: '',
         classic: '',
         module: '',

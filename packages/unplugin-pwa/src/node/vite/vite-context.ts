@@ -8,6 +8,12 @@ import { pwaAssetsResolver } from './pwa-assets-resolver'
 
 export type ViteBundler = 'vite' | 'vite-legacy'
 
+export type ServiceWorkerAssetNormalizer = (
+  hook: 'resolveId' | 'load',
+  depType: 'sw' | 'sw-dep',
+  id: string,
+) => [normalizedId: string, assetName: string]
+
 export type VitePWAPluginContext<
   B extends ViteBundler,
   UserStrategy extends VitePWAStrategy,
@@ -16,6 +22,39 @@ export type VitePWAPluginContext<
 > = PWAPluginContext<B, UserStrategy, S, T> & {
   viteConfig: ResolvedConfig
   envApi: boolean
+  /**
+   * This hook will be called when resolving the service worker at dev plugin.
+   *
+   * The default hook will just remove the `/` prefix at resolveId and load hooks.
+   *
+   * @param hook The hook resolving the service worker or its dependencies.
+   * @param depType The service worker or its dependency.
+   * @param id The resolveId/load Vite plugin hook.
+   * @return The normalized id to check against the service worker or its dependency and the name in the build pair.
+   */
+  normalizeDevServiceWorkerId?: ServiceWorkerAssetNormalizer
+}
+
+export function createCustomVitePWAContext<
+  UserStrategy extends VitePWAStrategy,
+  S extends Strategy,
+  T extends SWType,
+  B extends ViteBundler,
+>(
+  bundler: B,
+  userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
+): VitePWAPluginContext<B, UserStrategy, S, T> {
+  const ctx = Object.assign(
+    createPWAContext(bundler, userOptions) as VitePWAPluginContext<B, UserStrategy, S, T>,
+    {
+      viteConfig: undefined!,
+      envApi: false,
+    },
+  )
+
+  ctx.customPwaAssetResolver = pwaAssetsResolver(ctx)
+
+  return ctx
 }
 
 export function createVitePWAContext<

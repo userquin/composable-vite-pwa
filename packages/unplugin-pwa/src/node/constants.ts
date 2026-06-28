@@ -22,6 +22,8 @@ export const RESOLVED_PWA_ASSETS_ICONS_VIRTUAL = `\0${PWA_ASSETS_ICONS_VIRTUAL}`
 // todo: remove DEV_SW_NAME
 export const DEV_SW_NAME = 'dev-sw.js?dev-sw'
 export const DEV_SW_VIRTUAL = `${VIRTUAL_MODULES_RESOLVE_PREFIX}pwa-entry-point-loaded`
+export const DEV_SW_VIRTUAL_VIRTUAL = 'virtual:pwa-entry-point-loaded'
+export const RESOLVED_DEV_SW_VIRTUAL_VIRTUAL = '\0DEV_SW_VIRTUAL_VIRTUAL'
 export const RESOLVED_DEV_SW_VIRTUAL = `\0${DEV_SW_VIRTUAL}`
 export const DEV_READY_NAME = 'unplugin-pwa:dev-ready'
 export const DEV_REGISTER_SW_NAME = 'unplugin-pwa:register-sw'
