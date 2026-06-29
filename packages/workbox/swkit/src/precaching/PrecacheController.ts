@@ -30,6 +30,8 @@ interface PrecacheControllerOptions {
   cacheName?: string
   plugins?: WorkboxPlugin[]
   fallbackToNetwork?: boolean
+  chunked?: boolean
+  chunkSize?: number
 }
 
 /**
@@ -37,6 +39,8 @@ interface PrecacheControllerOptions {
  */
 class PrecacheController {
   private _installAndActiveListenersAdded?: boolean
+  private readonly _chunked: boolean
+  private readonly _chunkSize: number
   private readonly _strategy: Strategy
   private readonly _urlsToCacheKeys: Map<string, string> = new Map()
   private readonly _urlsToCacheModes: Map<
@@ -60,12 +64,20 @@ class PrecacheController {
    * as responding to fetch events for precached assets.
    * @param {boolean} [options.fallbackToNetwork] Whether to attempt to
    * get the response from the network if there's a precache miss.
+   * @param {boolean} [options.chunked] Whether to download precache entries in
+   * parallel chunks rather than sequentially. Defaults to false.
+   * @param {number} [options.chunkSize] Number of entries to download in parallel
+   * when chunked is true. Defaults to 5.
    */
   constructor({
     cacheName,
     plugins = [],
     fallbackToNetwork = true,
+    chunked = false,
+    chunkSize = 5,
   }: PrecacheControllerOptions = {}) {
+    this._chunked = chunked
+    this._chunkSize = Math.max(1, chunkSize)
     this._strategy = new PrecacheStrategy({
       cacheName: cacheNames.getPrecacheName(cacheName),
       plugins: [
@@ -199,26 +211,7 @@ class PrecacheController {
       const installReportPlugin = new PrecacheInstallReportPlugin()
       this.strategy.plugins.push(installReportPlugin)
 
-      // Cache entries one at a time.
-      // See https://github.com/GoogleChrome/workbox/issues/2528
-      for (const [url, cacheKey] of this._urlsToCacheKeys) {
-        const integrity = this._cacheKeysToIntegrities.get(cacheKey)
-        const cacheMode = this._urlsToCacheModes.get(url)
-
-        const request = new Request(url, {
-          integrity,
-          cache: cacheMode,
-          credentials: 'same-origin',
-        })
-
-        await Promise.all(
-          this.strategy.handleAll({
-            params: { cacheKey },
-            request,
-            event,
-          }),
-        )
-      }
+      await this.cachePrecacheEntries(event)
 
       const { updatedURLs, notUpdatedURLs } = installReportPlugin
 
@@ -357,6 +350,53 @@ class PrecacheController {
 
       return this.strategy.handle(options)
     }
+  }
+
+  private async cachePrecacheEntries(event: ExtendableEvent) {
+    if (this._chunked) {
+      await this.chunkedInstall(event)
+    }
+    else {
+      await this.sequentialInstall(event)
+    }
+  }
+
+  private async chunkedInstall(event: ExtendableEvent): Promise<void> {
+    const entries = Array.from(this._urlsToCacheKeys)
+
+    for (let i = 0; i < entries.length; i += this._chunkSize) {
+      await Promise.all(
+        entries
+          .slice(i, i + this._chunkSize)
+          .map(([url, cacheKey]) => this.cacheEntry(url, cacheKey, event)),
+      )
+    }
+  }
+
+  private async sequentialInstall(event: ExtendableEvent) {
+    // Cache entries one at a time.
+    // See https://github.com/GoogleChrome/workbox/issues/2528
+    for (const [url, cacheKey] of this._urlsToCacheKeys) {
+      await this.cacheEntry(url, cacheKey, event)
+    }
+  }
+
+  private async cacheEntry(url: string, cacheKey: string, event: ExtendableEvent) {
+    const integrity = this._cacheKeysToIntegrities.get(cacheKey)
+    const cacheMode = this._urlsToCacheModes.get(url)
+    const request = new Request(url, {
+      integrity,
+      cache: cacheMode,
+      credentials: 'same-origin',
+    })
+
+    await Promise.all(
+      this.strategy.handleAll({
+        params: { cacheKey },
+        request,
+        event,
+      }),
+    )
   }
 }
 

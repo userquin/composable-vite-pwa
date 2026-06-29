@@ -6,7 +6,7 @@
   https://opensource.org/licenses/MIT.
 */
 
-import type { PrecacheEntry, PrecacheRouteOptions } from './types'
+import type { PrecacheEntry, PrecacheOptions } from './types'
 import { addRoute } from './addRoute'
 import { precache } from './precache'
 
@@ -24,9 +24,9 @@ import { precache } from './precache'
  */
 function precacheAndRoute(
   entries: Array<PrecacheEntry | string>,
-  options?: PrecacheRouteOptions,
+  options?: PrecacheOptions,
 ): void {
-  precache(entries)
+  precache(entries, options)
   addRoute(options)
 }
 

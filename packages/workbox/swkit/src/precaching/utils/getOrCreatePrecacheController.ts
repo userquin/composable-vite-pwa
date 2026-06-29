@@ -6,6 +6,7 @@
   https://opensource.org/licenses/MIT.
 */
 
+import type { PrecacheOptions } from '../types'
 import { PrecacheController } from '../PrecacheController'
 
 let precacheController: PrecacheController | undefined
@@ -14,9 +15,9 @@ let precacheController: PrecacheController | undefined
  * @return {PrecacheController}
  * @private
  */
-export function getOrCreatePrecacheController(): PrecacheController {
+export function getOrCreatePrecacheController(options?: PrecacheOptions): PrecacheController {
   if (!precacheController) {
-    precacheController = new PrecacheController()
+    precacheController = new PrecacheController(options)
   }
   return precacheController
 }

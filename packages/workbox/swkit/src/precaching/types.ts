@@ -28,6 +28,11 @@ export interface PrecacheRouteOptions {
   urlManipulation?: urlManipulation
 }
 
+export interface PrecacheOptions extends PrecacheRouteOptions {
+  chunked?: boolean
+  chunkSize?: number
+}
+
 export type urlManipulation = ({ url }: { url: URL }) => URL[]
 
 // * * * IMPORTANT! * * *
