@@ -44,6 +44,7 @@ export function createViteNuxtPwaContext<
       'vite'
     >(
       'vite',
+      true,
       pwaOptions,
     ),
     loadPwaConfiguration: () => loadPwaConfiguration(ctx),

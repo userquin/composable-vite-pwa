@@ -28,7 +28,9 @@ packages:
   - examples/**
   - packages/unplugin-pwa/**
   - packages/workbox/**
+
 overrides:
+  chokidar: ^5.0.0
   postcss-selector-parser: 7.1.4
   rolldown: 1.1.2
   semver: ^7.8.4
@@ -69,6 +71,13 @@ catalogs:
     solid-js: ^1.9.12
   svelte:
     svelte: ^5.55.0
+  sveltekit2:
+    '@sveltejs/adapter-node': ^5.5.7
+    '@sveltejs/adapter-static': ^3.0.10
+    '@sveltejs/kit': ^2.63.0
+    '@sveltejs/vite-plugin-svelte': ^7.1.2
+    svelte: ^5.56.1
+    svelte-check: ^4.6.0
   test:
     '@vitest/ui': ^4.1.5
     vitest: ^4.1.5

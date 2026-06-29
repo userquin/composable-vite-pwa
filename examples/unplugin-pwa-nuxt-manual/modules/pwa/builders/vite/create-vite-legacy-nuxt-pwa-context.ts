@@ -4,7 +4,9 @@ import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { PwaModuleOptions } from '../../types'
 import type { ViteLegacyNuxtPWAContext } from './internal-types'
-import { createCustomVitePWAContext } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
+import {
+  createCustomVitePWAContext,
+} from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
 import { prepareNuxtOptions } from './prepare-nuxt-options'
 import { initPwaConfiguration, loadPwaConfiguration } from './pwa-configuration'
 
@@ -44,6 +46,7 @@ export function createViteLegacyNuxtPwaContext<
       'vite-legacy'
     >(
       'vite-legacy',
+      false,
       pwaOptions,
     ),
     loadPwaConfiguration: () => loadPwaConfiguration(ctx),

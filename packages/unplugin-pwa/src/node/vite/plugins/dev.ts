@@ -31,7 +31,7 @@ export function DevPlugin<
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
   const transformHtml = (html: string): string => {
-    if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+    if (!ctx.envApi && ctx.viteConfig.build.ssr) {
       return html
     }
 
@@ -71,7 +71,7 @@ export function DevPlugin<
       },
     },
     configureServer(server) {
-      if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+      if (!ctx.envApi && ctx.viteConfig.build.ssr) {
         return
       }
       ctx.devEnvironment = true
@@ -89,7 +89,7 @@ export function DevPlugin<
       // filter is deleted if `!options.disable && options.devOptions.enabled` is true
       filter: { id: [exactRegex(DEV_SW_VIRTUAL), exactRegex(DEV_SW_VIRTUAL_VIRTUAL)] },
       async handler(id) {
-        if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        if (!ctx.envApi && ctx.viteConfig.build.ssr) {
           return undefined
         }
 

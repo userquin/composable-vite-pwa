@@ -18,7 +18,7 @@ export function DevAssetsMiddlewarePlugin<
       return environment.config.consumer === 'client'
     },
     configureServer(server) {
-      if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+      if (!ctx.envApi && ctx.viteConfig.build.ssr) {
         return
       }
       server.middlewares.use(async (req, res, next) => {

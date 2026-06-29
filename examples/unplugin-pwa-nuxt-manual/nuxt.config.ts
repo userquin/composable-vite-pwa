@@ -4,9 +4,9 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  experimental: {
-    viteEnvironmentApi: true,
-  },
+  // experimental: {
+  //   viteEnvironmentApi: true,
+  // },
   // pwa: {
   //   path: '~~/pwa.config.ts',
   // },

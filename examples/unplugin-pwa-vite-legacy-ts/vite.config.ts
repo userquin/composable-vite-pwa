@@ -1,5 +1,5 @@
 import type { Plugin, PluginOption } from 'vite'
-import { VitePWA } from '@composable-vite-pwa/unplugin-pwa'
+import { ViteLegacyPWA } from '@composable-vite-pwa/unplugin-pwa/node/vite/legacy'
 import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
 
@@ -28,7 +28,7 @@ export default defineConfig({
   },
   plugins: [
     // virtualMessagePlugin(),
-    VitePWA({
+    ViteLegacyPWA({
       swType: 'classic-and-module',
       strategies: 'build-sw',
       includeAssets: [/* 'favicon.ico', */'favicon.svg'],

@@ -149,14 +149,14 @@ export async function resolvePwaConfiguration<
     ...rest
   } = config
   const resolvedPwaAssets = resolvePWAAssetsOptions(pwaAssets)
-  switch (config.strategies) {
+  switch (strategies) {
     case 'generateSW':
     case 'generate-sw': {
-      const { workbox, generateSW, ...options } = rest
+      const { workbox, generateSW, ...strategyOptions } = rest
       if (workbox && !generateSW) {
         // todo: warn here
       }
-      return Object.assign({}, options, {
+      return Object.assign({}, strategyOptions, {
         strategy: 'generate-sw',
         swType,
         includeManifest,

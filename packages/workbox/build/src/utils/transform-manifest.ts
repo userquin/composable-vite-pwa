@@ -79,7 +79,7 @@ export async function transformManifest({
       throw new Error(message)
     }
     else {
-      warnings.push(...message)
+      warnings.push(message)
     }
   }
 

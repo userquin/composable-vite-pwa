@@ -54,6 +54,7 @@
     "./node/inject-web-manifest-html-link": "./dist/node/inject-web-manifest-html-link.mjs",
     "./node/prepare-pwa-context": "./dist/node/prepare-pwa-context.mjs",
     "./node/prepare-sw-names": "./dist/node/prepare-sw-names.mjs",
+    "./node/vite/legacy": "./dist/node/vite/legacy.mjs",
     "./node/vite/helpers": "./dist/node/vite/helpers.mjs",
     "./node/vite/pwa-assets-resolver": "./dist/node/vite/pwa-assets-resolver.mjs",
     "./node/vite/vite-context": "./dist/node/vite/vite-context.mjs",

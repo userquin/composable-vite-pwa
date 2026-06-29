@@ -20,12 +20,21 @@ export type VitePWAPluginContext<
   S extends Strategy,
   T extends SWType,
 > = PWAPluginContext<B, UserStrategy, S, T> & {
+  /**
+   * The resolved Vite configuration for the client build.
+   */
   viteConfig: ResolvedConfig
+  /**
+   * Should enable Vite Environment Api?.
+   */
   envApi: boolean
   /**
-   * This hook will be called when resolving the service worker at dev plugin.
+   * This hook will be called when resolving the service worker at dev plugin (only when using dev server).
    *
    * The default hook will just remove the `/` prefix at resolveId and load hooks.
+   *
+   * Use this if your framework transforming requests, for example Nuxt will add `/__skip-vite` prefix.
+   * Nuxt integration removes the prefix `/__skip-vite` and some custom Vite middlewares for the service workers and their map files.
    *
    * @param hook The hook resolving the service worker or its dependencies.
    * @param depType The service worker or its dependency.
@@ -35,6 +44,12 @@ export type VitePWAPluginContext<
   normalizeDevServiceWorkerId?: ServiceWorkerAssetNormalizer
 }
 
+/**
+ * Helper to create a Vite PWA context for modern versions (Vite >= 6).
+ * @param bundler Type of bundler to use.
+ * @param envApi Should Vite Environment Api be enabled?.
+ * @param userOptions The PWA options.
+ */
 export function createCustomVitePWAContext<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
@@ -42,13 +57,14 @@ export function createCustomVitePWAContext<
   B extends ViteBundler,
 >(
   bundler: B,
+  envApi: boolean,
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
 ): VitePWAPluginContext<B, UserStrategy, S, T> {
   const ctx = Object.assign(
     createPWAContext(bundler, userOptions) as VitePWAPluginContext<B, UserStrategy, S, T>,
     {
       viteConfig: undefined!,
-      envApi: false,
+      envApi,
     },
   )
 
@@ -57,18 +73,24 @@ export function createCustomVitePWAContext<
   return ctx
 }
 
+/**
+ * Helper to create a Vite PWA context for modern versions (Vite >= 6).
+ * @param envApi Should Vite Environment Api be enabled?.
+ * @param userOptions The PWA options.
+ */
 export function createVitePWAContext<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
 >(
+  envApi: boolean,
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
 ): VitePWAPluginContext<'vite', UserStrategy, S, T> {
   const ctx = Object.assign(
     createPWAContext('vite', userOptions) as VitePWAPluginContext<'vite', UserStrategy, S, T>,
     {
       viteConfig: undefined!,
-      envApi: false,
+      envApi,
     },
   )
 
@@ -77,6 +99,10 @@ export function createVitePWAContext<
   return ctx
 }
 
+/**
+ * Helper to create a Vite PWA context for legacy version (Vite < 6).
+ * @param userOptions The PWA options.
+ */
 export function createViteLegacyPWAContext<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
