@@ -25,8 +25,7 @@ if (import.meta.env.DEV) {
 precacheAndRoute(
   self.__WB_MANIFEST,
   {
-    chunked: true,
-    chunkSize: 5,
+    parallel: { enabled: true, concurrency: 5 },
     urlManipulation: ({ url }) => {
       const urls: URL[] = []
       if (url.pathname.endsWith('_payload.json')) {

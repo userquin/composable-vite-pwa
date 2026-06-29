@@ -6,7 +6,7 @@
   https://opensource.org/licenses/MIT.
 */
 
-import type { RouteHandlerCallback, WorkboxPlugin } from '../core/types'
+import type { Parallel, RouteHandlerCallback, WorkboxPlugin } from '../core/types'
 import type { Strategy } from '../strategies/Strategy'
 import type { CleanupResult, InstallResult, PrecacheEntry } from './types'
 import { assert, privateCacheNames as cacheNames, logger, waitUntil, WorkboxError } from '../core/internals'
@@ -30,8 +30,7 @@ interface PrecacheControllerOptions {
   cacheName?: string
   plugins?: WorkboxPlugin[]
   fallbackToNetwork?: boolean
-  chunked?: boolean
-  chunkSize?: number
+  parallel?: Parallel
 }
 
 /**
@@ -39,8 +38,7 @@ interface PrecacheControllerOptions {
  */
 class PrecacheController {
   private _installAndActiveListenersAdded?: boolean
-  private readonly _chunked: boolean
-  private readonly _chunkSize: number
+  private readonly _parallel: Required<Parallel>
   private readonly _strategy: Strategy
   private readonly _urlsToCacheKeys: Map<string, string> = new Map()
   private readonly _urlsToCacheModes: Map<
@@ -64,20 +62,16 @@ class PrecacheController {
    * as responding to fetch events for precached assets.
    * @param {boolean} [options.fallbackToNetwork] Whether to attempt to
    * get the response from the network if there's a precache miss.
-   * @param {boolean} [options.chunked] Whether to download precache entries in
-   * parallel chunks rather than sequentially. Defaults to false.
-   * @param {number} [options.chunkSize] Number of entries to download in parallel
-   * when chunked is true. Defaults to 5.
+   * @param {Parallel} [options.parallel] Configurations for downloading the precache entries
+   * in parallel.
    */
   constructor({
     cacheName,
     plugins = [],
     fallbackToNetwork = true,
-    chunked = false,
-    chunkSize = 5,
+    parallel = { enabled: false, concurrency: 5 },
   }: PrecacheControllerOptions = {}) {
-    this._chunked = chunked
-    this._chunkSize = Math.max(1, chunkSize)
+    this._parallel = { enabled: parallel.enabled ?? false, concurrency: Math.max(1, parallel.concurrency ?? 5) }
     this._strategy = new PrecacheStrategy({
       cacheName: cacheNames.getPrecacheName(cacheName),
       plugins: [
@@ -353,21 +347,21 @@ class PrecacheController {
   }
 
   private async cachePrecacheEntries(event: ExtendableEvent) {
-    if (this._chunked) {
-      await this.chunkedInstall(event)
+    if (this._parallel.enabled) {
+      await this.parallelInstall(event)
     }
     else {
       await this.sequentialInstall(event)
     }
   }
 
-  private async chunkedInstall(event: ExtendableEvent): Promise<void> {
+  private async parallelInstall(event: ExtendableEvent): Promise<void> {
     const entries = Array.from(this._urlsToCacheKeys)
 
-    for (let i = 0; i < entries.length; i += this._chunkSize) {
+    for (let i = 0; i < entries.length; i += this._parallel.concurrency) {
       await Promise.all(
         entries
-          .slice(i, i + this._chunkSize)
+          .slice(i, i + this._parallel.concurrency)
           .map(([url, cacheKey]) => this.cacheEntry(url, cacheKey, event)),
       )
     }
