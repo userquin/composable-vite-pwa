@@ -29,7 +29,7 @@ async function* additionalManifestEntriesGenerator(): AsyncGenerator<string | Ma
   ])
   yield {
     url: 'favicon.svg',
-    revision: hash('md5', await readFile('public/favicon.svg'), { outputEncoding: 'hex' }),
+    revision: hash('md5', await readFile('public/favicon.svg', 'utf-8'), 'hex'),
   }
 }
 

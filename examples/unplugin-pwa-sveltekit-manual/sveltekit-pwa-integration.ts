@@ -368,7 +368,7 @@ async function buildManifestEntry(url: string, path: string): Promise<ManifestEn
   return {
     url,
     size: 0,
-    revision: hash('md5', await fs.readFile(path, 'utf-8'), { outputEncoding: 'hex' }),
+    revision: hash('md5', await fs.readFile(path, 'utf-8'), 'hex'),
   }
 }
 

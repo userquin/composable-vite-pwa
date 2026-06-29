@@ -171,7 +171,7 @@ function createManifestTransform(
       const latestJson = resolve(publicFolder, latest)
       const data = await lstat(latestJson).catch(() => undefined)
       if (data?.isFile()) {
-        const revision = hash('md5', await fs.readFile(latestJson, 'utf-8'), { outputEncoding: 'hex' })
+        const revision = hash('md5', await fs.readFile(latestJson, 'utf-8'), 'hex')
         const latestEntry = entries.find(e => e.url === latest)
         if (latestEntry)
           latestEntry.revision = revision
