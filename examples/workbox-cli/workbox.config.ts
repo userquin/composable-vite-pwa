@@ -1,6 +1,6 @@
 import { defineCliOptions } from '@composable-vite-pwa/workbox-cli'
-import { runtimeCaching } from './cache'
-import { globIgnores } from './globIgnores'
+import { runtimeCaching } from './cache.ts'
+import { globIgnores } from './globIgnores.ts'
 
 export default defineCliOptions('generate-sw', {
   selfDestroying: {
@@ -17,6 +17,8 @@ export default defineCliOptions('generate-sw', {
     cleanupOutdatedCaches: true,
     swDest: 'sw.js',
     runtimeCaching,
+    parallel: { enabled: true, concurrency: 11 },
+    minify: false,
   },
 
   buildSW: {

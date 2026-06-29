@@ -6,7 +6,7 @@
   https://opensource.org/licenses/MIT.
 */
 
-import type { PrecacheEntry } from './types'
+import type { PrecacheEntry, PrecacheOptions } from './types'
 import { getOrCreatePrecacheController } from './utils/getOrCreatePrecacheController'
 
 /**
@@ -26,8 +26,8 @@ import { getOrCreatePrecacheController } from './utils/getOrCreatePrecacheContro
  *
  * @param {Array<object | string>} [entries] Array of entries to precache.
  */
-function precache(entries: Array<PrecacheEntry | string>): void {
-  const precacheController = getOrCreatePrecacheController()
+function precache(entries: Array<PrecacheEntry | string>, options?: PrecacheOptions): void {
+  const precacheController = getOrCreatePrecacheController(options)
   precacheController.precache(entries)
 }
 

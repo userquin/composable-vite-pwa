@@ -278,3 +278,8 @@ export interface WorkboxPluginCallbackParam {
   handlerWillStart: HandlerWillStartCallbackParam
   requestWillFetch: RequestWillFetchCallbackParam
 }
+
+export interface Parallel {
+  enabled?: boolean
+  concurrency?: number
+}

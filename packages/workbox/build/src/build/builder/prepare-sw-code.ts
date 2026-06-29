@@ -103,6 +103,9 @@ export async function prepareSWCode<T extends SWType>(
     if (options.urlManipulation) {
       precacheOptions.urlManipulation = parseExpression(serialize(options.urlManipulation, { unsafe: true }))
     }
+    if (options.parallel) {
+      precacheOptions.parallel = options.parallel
+    }
 
     const precacheAndRoute = Object.keys(precacheOptions).length > 0
       ? builders.functionCall('precacheAndRoute', manifestEntries.manifestEntries, precacheOptions)

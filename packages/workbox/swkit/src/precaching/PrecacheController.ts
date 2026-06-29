@@ -6,7 +6,7 @@
   https://opensource.org/licenses/MIT.
 */
 
-import type { RouteHandlerCallback, WorkboxPlugin } from '../core/types'
+import type { Parallel, RouteHandlerCallback, WorkboxPlugin } from '../core/types'
 import type { Strategy } from '../strategies/Strategy'
 import type { CleanupResult, InstallResult, PrecacheEntry } from './types'
 import { assert, privateCacheNames as cacheNames, logger, waitUntil, WorkboxError } from '../core/internals'
@@ -30,6 +30,7 @@ interface PrecacheControllerOptions {
   cacheName?: string
   plugins?: WorkboxPlugin[]
   fallbackToNetwork?: boolean
+  parallel?: Parallel
 }
 
 /**
@@ -37,6 +38,7 @@ interface PrecacheControllerOptions {
  */
 class PrecacheController {
   private _installAndActiveListenersAdded?: boolean
+  private readonly _parallel: Required<Parallel>
   private readonly _strategy: Strategy
   private readonly _urlsToCacheKeys: Map<string, string> = new Map()
   private readonly _urlsToCacheModes: Map<
@@ -60,12 +62,16 @@ class PrecacheController {
    * as responding to fetch events for precached assets.
    * @param {boolean} [options.fallbackToNetwork] Whether to attempt to
    * get the response from the network if there's a precache miss.
+   * @param {Parallel} [options.parallel] Configurations for downloading the precache entries
+   * in parallel.
    */
   constructor({
     cacheName,
     plugins = [],
     fallbackToNetwork = true,
+    parallel = { enabled: false, concurrency: 5 },
   }: PrecacheControllerOptions = {}) {
+    this._parallel = { enabled: parallel.enabled ?? false, concurrency: Math.max(1, parallel.concurrency ?? 5) }
     this._strategy = new PrecacheStrategy({
       cacheName: cacheNames.getPrecacheName(cacheName),
       plugins: [
@@ -199,26 +205,7 @@ class PrecacheController {
       const installReportPlugin = new PrecacheInstallReportPlugin()
       this.strategy.plugins.push(installReportPlugin)
 
-      // Cache entries one at a time.
-      // See https://github.com/GoogleChrome/workbox/issues/2528
-      for (const [url, cacheKey] of this._urlsToCacheKeys) {
-        const integrity = this._cacheKeysToIntegrities.get(cacheKey)
-        const cacheMode = this._urlsToCacheModes.get(url)
-
-        const request = new Request(url, {
-          integrity,
-          cache: cacheMode,
-          credentials: 'same-origin',
-        })
-
-        await Promise.all(
-          this.strategy.handleAll({
-            params: { cacheKey },
-            request,
-            event,
-          }),
-        )
-      }
+      await this.cachePrecacheEntries(event)
 
       const { updatedURLs, notUpdatedURLs } = installReportPlugin
 
@@ -357,6 +344,53 @@ class PrecacheController {
 
       return this.strategy.handle(options)
     }
+  }
+
+  private async cachePrecacheEntries(event: ExtendableEvent) {
+    if (this._parallel.enabled) {
+      await this.parallelInstall(event)
+    }
+    else {
+      await this.sequentialInstall(event)
+    }
+  }
+
+  private async parallelInstall(event: ExtendableEvent): Promise<void> {
+    const entries = Array.from(this._urlsToCacheKeys)
+
+    for (let i = 0; i < entries.length; i += this._parallel.concurrency) {
+      await Promise.all(
+        entries
+          .slice(i, i + this._parallel.concurrency)
+          .map(([url, cacheKey]) => this.cacheEntry(url, cacheKey, event)),
+      )
+    }
+  }
+
+  private async sequentialInstall(event: ExtendableEvent) {
+    // Cache entries one at a time.
+    // See https://github.com/GoogleChrome/workbox/issues/2528
+    for (const [url, cacheKey] of this._urlsToCacheKeys) {
+      await this.cacheEntry(url, cacheKey, event)
+    }
+  }
+
+  private async cacheEntry(url: string, cacheKey: string, event: ExtendableEvent) {
+    const integrity = this._cacheKeysToIntegrities.get(cacheKey)
+    const cacheMode = this._urlsToCacheModes.get(url)
+    const request = new Request(url, {
+      integrity,
+      cache: cacheMode,
+      credentials: 'same-origin',
+    })
+
+    await Promise.all(
+      this.strategy.handleAll({
+        params: { cacheKey },
+        request,
+        event,
+      }),
+    )
   }
 }
 

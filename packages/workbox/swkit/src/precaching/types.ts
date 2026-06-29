@@ -28,6 +28,10 @@ export interface PrecacheRouteOptions {
   urlManipulation?: urlManipulation
 }
 
+export interface PrecacheOptions extends PrecacheRouteOptions {
+  parallel?: { enabled: boolean, concurrency: number }
+}
+
 export type urlManipulation = ({ url }: { url: URL }) => URL[]
 
 // * * * IMPORTANT! * * *
