@@ -45,7 +45,7 @@ export function additionalManifestEntriesFactory(
               }
               yield {
                 url: icon.src,
-                revision: hash('md5', await readFile(path), 'hex'),
+                revision: hash('md5', await readFile(path, 'utf-8'), 'hex'),
               }
             }
           }
@@ -57,7 +57,7 @@ export function additionalManifestEntriesFactory(
                 if (icons.src) {
                   yield {
                     url: icons.src,
-                    revision: hash('md5', await readFile(mapFile(icons.src)), 'hex'),
+                    revision: hash('md5', await readFile(mapFile(icons.src), 'utf-8'), 'hex'),
                   }
                 }
               }
@@ -68,7 +68,7 @@ export function additionalManifestEntriesFactory(
           for (const screenshot of manifest.screenshots) {
             yield {
               url: screenshot.src,
-              revision: hash('md5', await readFile(mapFile(screenshot.src)), 'hex'),
+              revision: hash('md5', await readFile(mapFile(screenshot.src), 'utf-8'), 'hex'),
             }
           }
         }
@@ -77,7 +77,7 @@ export function additionalManifestEntriesFactory(
           for (const asset of assets) {
             yield {
               url: asset,
-              revision: hash('md5', await readFile(mapFile(asset)), 'hex'),
+              revision: hash('md5', await readFile(mapFile(asset), 'utf-8'), 'hex'),
             }
           }
         }
