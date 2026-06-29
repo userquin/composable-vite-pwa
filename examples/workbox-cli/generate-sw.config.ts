@@ -12,5 +12,6 @@ export default defineOptions('generate-sw', {
     cleanupOutdatedCaches: true,
     swDest: 'sw.js',
     runtimeCaching,
+    parallel: { enabled: true, concurrency: 5 },
   },
 })
