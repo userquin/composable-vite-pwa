@@ -24,7 +24,7 @@ export function additionalManifestEntriesFactory(
         if (includeManifest) {
           yield {
             url: ctx.resolvedOptions.manifestFilename!,
-            revision: hash('md5', generateWebManifest(ctx), { outputEncoding: 'hex' }),
+            revision: hash('md5', generateWebManifest(ctx), 'hex'),
           }
         }
         if (includeManifestIcons && manifest.icons) {
@@ -45,7 +45,7 @@ export function additionalManifestEntriesFactory(
               }
               yield {
                 url: icon.src,
-                revision: hash('md5', await readFile(path), { outputEncoding: 'hex' }),
+                revision: hash('md5', await readFile(path), 'hex'),
               }
             }
           }
@@ -57,7 +57,7 @@ export function additionalManifestEntriesFactory(
                 if (icons.src) {
                   yield {
                     url: icons.src,
-                    revision: hash('md5', await readFile(mapFile(icons.src)), { outputEncoding: 'hex' }),
+                    revision: hash('md5', await readFile(mapFile(icons.src)), 'hex'),
                   }
                 }
               }
@@ -68,7 +68,7 @@ export function additionalManifestEntriesFactory(
           for (const screenshot of manifest.screenshots) {
             yield {
               url: screenshot.src,
-              revision: hash('md5', await readFile(mapFile(screenshot.src)), { outputEncoding: 'hex' }),
+              revision: hash('md5', await readFile(mapFile(screenshot.src)), 'hex'),
             }
           }
         }
@@ -77,7 +77,7 @@ export function additionalManifestEntriesFactory(
           for (const asset of assets) {
             yield {
               url: asset,
-              revision: hash('md5', await readFile(mapFile(asset)), { outputEncoding: 'hex' }),
+              revision: hash('md5', await readFile(mapFile(asset)), 'hex'),
             }
           }
         }
