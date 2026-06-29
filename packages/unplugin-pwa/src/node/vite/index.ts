@@ -1,9 +1,6 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { PluginOption } from 'vite'
 import type { VitePWAOptions, VitePWAStrategy } from '../types'
-import type { VitePWAPluginContext } from './vite-context'
-import { createPWAContext } from '../context'
 import { BuildPlugin } from './plugins/build'
 import { DevPlugin } from './plugins/dev'
 import { DevMiddlewarePlugin } from './plugins/dev-middleware'
@@ -12,20 +9,17 @@ import { InfoPlugin } from './plugins/info'
 import { MainPlugin } from './plugins/main'
 import { AssetsPlugin } from './plugins/pwa-assets'
 import { pwaAssetsResolver } from './pwa-assets-resolver'
+import { createVitePWAContext } from './vite-context'
 
 export function VitePWA<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   options: Partial<VitePWAOptions<UserStrategy, T>> = {},
 ): PluginOption {
-  const ctx = Object.assign(
-    createPWAContext('vite-legacy', options) as VitePWAPluginContext<'vite-legacy', UserStrategy, S, T>,
-    {
-      viteConfig: undefined!,
-      envApi: false,
-    },
+  const ctx = createVitePWAContext(
+    true,
+    options,
   )
 
   ctx.customPwaAssetResolver = pwaAssetsResolver(ctx)

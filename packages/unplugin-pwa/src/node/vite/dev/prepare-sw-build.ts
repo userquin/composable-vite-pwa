@@ -190,7 +190,6 @@ function collectSWBuildResult(
       assets.set(name, path.resolve(root, chunk))
     }
   }
-  console.log(result)
   if ('sources' in result) {
     ctx.sources.clear()
     for (const source of result.sources) {

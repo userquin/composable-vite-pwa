@@ -4,6 +4,7 @@ import pc from 'picocolors'
 import { errors } from '../validation/errors'
 
 export function checkMaximumFileSizeToCacheExceeded(
+  error: boolean,
   maximumFileSizeToCacheInBytes: number,
   maxFileSizeExceeded: InternalManifestEntry[],
 ) {
@@ -12,8 +13,11 @@ export function checkMaximumFileSizeToCacheExceeded(
   }
 
   const limitStr = formatBytes(maximumFileSizeToCacheInBytes)
+  const color = error ? pc.red : pc.yellow
+  const prefix = error ? `\n${color(pc.bold('[Vite PWA]'))} ` : ''
+
   return [
-    `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('Maximum file size exceeded for precaching!')}\n\n`,
+    `${prefix}${color('Maximum file size exceeded for precaching!')}\n\n`,
     `The following assets exceed the configured limit of ${pc.cyan(limitStr)}:\n`,
     `${maxFileSizeExceeded.map(e =>
       `  - ❌ ${pc.magenta(e.url)} (${pc.yellow(formatBytes(e.size))})`,
@@ -31,8 +35,9 @@ export function createDuplicatedEntriesMessage(
   error: boolean,
 ) {
   const color = error ? pc.red : pc.yellow
+  const prefix = error ? `\n${color(pc.bold('[Vite PWA]'))} ` : ''
   return [
-    `\n${color(pc.bold('[Vite PWA]'))} ${color('Duplicate precache manifest entries found!')}\n\n`,
+    `${prefix}${color('Duplicate precache manifest entries found!')}\n\n`,
     `The following url assets are duplicated:\n`,
     `${duplicated.map(e =>
       `  -  ${pc.magenta(typeof e === 'string' ? e : e.url)}`,
@@ -45,8 +50,9 @@ export function checkInvalidPatterns(isStrict: boolean, invalidPatterns: string[
     return undefined
   }
   const color = isStrict ? pc.red : pc.yellow
+  const prefix = isStrict ? `\n${color(pc.bold('[Vite PWA]'))} ` : ''
   return [
-    `\n${color(pc.bold('[Vite PWA]'))} ${color(errors['useless-glob-pattern'])}`,
+    `${prefix}${color(errors['useless-glob-pattern'])}`,
     invalidPatterns.map(e => `  - ${e}`).join('\n'),
     '',
     pc.bold('To resolve this issue, you can either:'),

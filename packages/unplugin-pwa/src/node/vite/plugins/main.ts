@@ -21,35 +21,96 @@ export function MainPlugin<
   S extends Strategy,
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
+  let forClient = false
   return {
     name: 'unplugin-pwa:main',
     enforce: 'pre',
-    applyToEnvironment(environment) {
-      ctx.envApi = true
-      return environment.config.consumer === 'client'
+    /* configEnvironment(_name, config) {
+      // todo: review returned options here
+      if (config.consumer === 'server') {
+        if (ctx.bundler === 'vite-legacy') {
+          return {
+            build: {
+              rollupOptions: {
+                external: [...Array.from(Object.keys(VIRTUAL_MODULES_MAP)), DEV_SW_VIRTUAL, DEV_SW_VIRTUAL_VIRTUAL],
+              },
+            },
+          }
+        }
+
+        return {
+          build: {
+            rolldownOptions: {
+              external: [
+                ...Array.from(Object.keys(VIRTUAL_MODULES_MAP)),
+                DEV_SW_VIRTUAL,
+                DEV_SW_VIRTUAL_VIRTUAL,
+              ],
+            },
+          },
+        }
+      }
     },
-    configureServer: () => {
-      if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+    config(_, { isSsrBuild }) {
+      // todo: review returned options here
+      if (ctx.bundler === 'vite-legacy' && isSsrBuild) {
         return
       }
+
+      if (ctx.bundler === 'vite-legacy') {
+        return {
+          build: {
+            rollupOptions: {
+              external: [...Array.from(Object.keys(VIRTUAL_MODULES_MAP)), DEV_SW_VIRTUAL, DEV_SW_VIRTUAL_VIRTUAL],
+            },
+          },
+        }
+      }
+
+      return {
+        build: {
+          rolldownOptions: {
+            external: [...Array.from(Object.keys(VIRTUAL_MODULES_MAP)), DEV_SW_VIRTUAL, DEV_SW_VIRTUAL_VIRTUAL],
+          },
+        },
+      }
+    }, */
+    configEnvironment(_name, config) {
+      if (ctx.envApi) {
+        forClient = config.consumer === 'client'
+      }
+    },
+    configureServer: () => {
+      /* if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        return
+      } */
 
       ctx.devEnvironment = true
     },
     async configResolved(config) {
-      ctx.viteConfig = config
+      if (ctx.envApi) {
+        if (forClient) {
+          ctx.viteConfig = config
+        }
+      }
+      else {
+        if (!config.build.ssr) {
+          ctx.viteConfig = config
+        }
+      }
 
       if (ctx.externalConfigurationLoader) {
         return
       }
 
-      await preparePWAContextDefaults(config, ctx)
+      await preparePWAContextDefaults(forClient, config, ctx)
     },
     resolveId: {
       filter: { id: [prefixRegex('virtual:pwa-register'), exactRegex(DEV_SW_VIRTUAL_VIRTUAL)] },
       handler(id) {
-        if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        /* if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
           return
-        }
+        } */
 
         // resolve this at build time: won't be resolved by dev plugin
         if (!ctx.devEnvironment && id === DEV_SW_VIRTUAL_VIRTUAL) {
@@ -63,9 +124,9 @@ export function MainPlugin<
     load: {
       filter: { id: [prefixRegex(VIRTUAL_MODULES_RESOLVE_PREFIX), exactRegex(RESOLVED_DEV_SW_VIRTUAL_VIRTUAL)] },
       async handler(id) {
-        if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+        /* if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
           return
-        }
+        } */
 
         // resolve this at build time: won't be resolved by dev plugin
         if (!ctx.devEnvironment && id === RESOLVED_DEV_SW_VIRTUAL_VIRTUAL) {

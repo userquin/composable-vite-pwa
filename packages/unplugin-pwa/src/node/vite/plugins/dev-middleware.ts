@@ -21,7 +21,7 @@ export function DevMiddlewarePlugin<
       return environment.config.consumer === 'client'
     },
     configureServer(server) {
-      if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+      if (!ctx.envApi && ctx.viteConfig.build.ssr) {
         return
       }
       // web manifest middleware

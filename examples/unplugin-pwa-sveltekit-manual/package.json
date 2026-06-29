@@ -1,0 +1,26 @@
+{
+	"name": "unplugin-pwa-sveltekit-manual",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+	},
+	"devDependencies": {
+		"@composable-vite-pwa/unplugin-pwa": "workspace:*",
+		"@composable-vite-pwa/workbox-build": "workspace:*",
+		"@sveltejs/adapter-node": "catalog:sveltekit2",
+		"@sveltejs/adapter-static": "catalog:sveltekit2",
+		"@sveltejs/kit": "catalog:sveltekit2",
+		"@sveltejs/vite-plugin-svelte": "catalog:sveltekit2",
+		"svelte": "catalog:sveltekit2",
+		"svelte-check": "catalog:sveltekit2",
+		"typescript": "catalog:typescript",
+		"vite": "catalog:vite"
+	}
+}

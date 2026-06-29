@@ -129,7 +129,7 @@ export function preparePWAAssetsGenerator<
  * @param ctx
  * @param cwd
  * @param outDir
- * @param assetsDir
+ * @param immutableAssets
  */
 export function preparePWAStrategy<
   UserStrategy extends VitePWAStrategy,
@@ -139,7 +139,7 @@ export function preparePWAStrategy<
   ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
   cwd: string,
   outDir: string,
-  assetsDir: string,
+  immutableAssets: string,
 ) {
   const outputPath = path.resolve(cwd, outDir)
   let options: Partial<BasePartial & OptionalGlobDirectoryPartial & RequiredSWDestPartial> | undefined
@@ -188,7 +188,7 @@ export function preparePWAStrategy<
         : normalizePath(path.relative(cwd, resolveFrom(cwd, outputPath))),
     })
     if (!('dontCacheBustURLsMatching' in options)) {
-      let assetsOutputDir = path.relative(outputPath, path.resolve(outputPath, assetsDir))
+      let assetsOutputDir = path.relative(outputPath, path.resolve(outputPath, immutableAssets))
       if (assetsOutputDir.at(-1) !== '/')
         assetsOutputDir += '/'
 
@@ -243,6 +243,7 @@ export function preparePWAStrategy<
  *
  * **NOTE**: if the PWA plugin context has `pwaConfigurationLoaded` set to `true`, this function will return immediately.
  *
+ * @param forClient The Vite resolved configuration is for client?.
  * @param config The Vite resolved configuration.
  * @param ctx The PWA Vite plugin context.
  */
@@ -251,6 +252,7 @@ export async function preparePWAContextDefaults<
   S extends Strategy,
   T extends SWType,
 >(
+  forClient: boolean,
   config: ResolvedConfig,
   ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
 ): Promise<void> {
@@ -294,14 +296,22 @@ export async function preparePWAContextDefaults<
   ctx.resolvedOptions.buildBase = ctx.resolvedOptions.base
   ctx.strategy = ctx.resolvedOptions.strategy!
   ctx.useImportRegister = false
-  ctx.rootDir = config.root
   ctx.publicDir = config.publicDir
   ctx.outDir = config.build.outDir
   ctx.base = config.base
+  let outDir = 'dist'
+  let immutableAssets = config.build.assetsDir ?? 'assets'
+  let cwd = config.root
+  if (ctx.configurePWAOptions) {
+    const pwaOptions = await ctx.configurePWAOptions(forClient, config)
+    if (pwaOptions) {
+      outDir = pwaOptions.outDir
+      immutableAssets = pwaOptions.immutableAssets
+      cwd = pwaOptions.cwd
+    }
+  }
   normalizeManifest(ctx)
-  const { outDir = 'dist', assetsDir = 'assets' } = config.build
-  const cwd = config.root
-  preparePWAStrategy(ctx, cwd, outDir, assetsDir)
+  preparePWAStrategy(ctx, cwd, outDir, immutableAssets)
   preparePWAAssetsGenerator(ctx)
   // todo: review this for self-destroy-sw
   if (!ctx.devEnvironment && !ctx.resolvedOptions.disable) {

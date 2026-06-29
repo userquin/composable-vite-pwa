@@ -5,7 +5,7 @@ import type {
   SelfDestroyingStrategyOptions,
   Strategy,
 } from '@composable-vite-pwa/workbox-build/config/types'
-import type { SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { BuildSWType, Bundler, PWAPluginContext } from './context-types'
 import type { RegisterSWData, ResolvedVitePWAOptions, VitePWAStrategy, WebManifestData } from './types'
 import { DEV_SW_NAME, FILE_SW_REGISTER } from './constants'
@@ -221,20 +221,16 @@ export function preparePWAContext<
     )).then(() => Promise.resolve(true)),
   }
 
-  ctx.runBuild = async () => {
+  ctx.runBuild = async (): Promise<BuildResult | boolean> => {
     switch (ctx.strategy) {
       case 'self-destroy-sw':
-        await ctx.build.selfDestroyingSW()
-        break
+        return await ctx.build.selfDestroyingSW()
       case 'build-sw':
-        await ctx.build.buildSW()
-        break
+        return await ctx.build.buildSW()
       case 'generate-sw':
-        await ctx.build.generateSW()
-        break
+        return await ctx.build.generateSW()
       case 'inject-manifest':
-        await ctx.build.injectManifest()
-        break
+        return await ctx.build.injectManifest()
     }
   }
 

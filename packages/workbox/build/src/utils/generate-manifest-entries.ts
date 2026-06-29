@@ -73,6 +73,7 @@ export async function generateManifestEntries(
   }
 
   const maxSizeMessage = checkMaximumFileSizeToCacheExceeded(
+    options.throwMaximumFileSizeToCacheInBytes === true,
     maxFileSize,
     maxFileSizeExceeded,
   )

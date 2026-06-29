@@ -20,7 +20,7 @@ export function AssetsPlugin<
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
   const transformHtml = async (html: string): Promise<string> => {
-    if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+    if (!ctx.envApi && ctx.viteConfig.build.ssr) {
       return html
     }
 
@@ -86,7 +86,7 @@ export function AssetsPlugin<
       }
     },
     configureServer(server) {
-      if (!ctx.envApi && ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
+      if (!ctx.envApi && ctx.viteConfig.build.ssr) {
         return
       }
 

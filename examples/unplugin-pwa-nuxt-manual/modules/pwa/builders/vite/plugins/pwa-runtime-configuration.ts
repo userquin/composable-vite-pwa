@@ -10,7 +10,6 @@ export function PwaRuntimeConfiguration<
   S extends Strategy,
   T extends SWType,
 >(
-  envApi: boolean,
   ctx: ViteNuxtPWAContext<UserStrategy, S, T> | ViteLegacyNuxtPWAContext<UserStrategy, S, T>,
 ): Plugin {
   const configuration = 'virtual:nuxt-pwa-configuration'
@@ -20,12 +19,6 @@ export function PwaRuntimeConfiguration<
     enforce: 'pre',
     applyToEnvironment(environment) {
       return environment.config.consumer === 'client'
-    },
-    configResolved(config) {
-      if (ctx.pwaCtx.bundler === 'vite-legacy' && config.build.ssr) {
-        return
-      }
-      ctx.pwaCtx.envApi = envApi
     },
     resolveId: {
       filter: { id: [prefixRegex(configuration)] },

@@ -1,6 +1,7 @@
 import type { BuildGenerateSWOptions, BuildWithSourcesResult } from '@composable-vite-pwa/workbox-build/build/types'
 import type { InjectManifestStrategyOptions, SelfDestroyingStrategyOptions, Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { ResolvedConfig } from 'vite'
 import type { PWAAssetsGenerator } from './pwa-assets/types'
 import type { RegisterSWData, ResolvedVitePWAOptions, VitePWAOptions, VitePWAStrategy, WebManifestData } from './types'
 
@@ -92,6 +93,19 @@ export interface PWABuildDevContext<
   injectManifest: (options: Partial<InjectManifestStrategyOptions>) => Promise<BuildResult>
   selfDestroyingSW: (options: SelfDestroyingStrategyOptions) => Promise<boolean>
 }
+export interface ConfigurePWAOptions {
+  outDir: string
+  /**
+   * Used to generate the dontCache
+   */
+  immutableAssets: string
+  cwd: string
+}
+export type ConfigurePWAOptionsFn = (
+  forClient: boolean,
+  config: ResolvedConfig,
+) => ConfigurePWAOptions | undefined | Promise<ConfigurePWAOptions | undefined>
+
 export interface PWAPluginContext<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
@@ -102,6 +116,7 @@ export interface PWAPluginContext<
   version: string
   strategy: S
   consumerOptions: Partial<VitePWAOptions<UserStrategy, T>>
+  configurePWAOptions?: ConfigurePWAOptionsFn
   externalConfigurationLoader: boolean
   resolvedOptions: Partial<ResolvedVitePWAOptions<S, T>>
   useImportRegister: boolean
@@ -133,5 +148,5 @@ export interface PWAPluginContext<
    * This option will help some integrations to inject the corresponding script in the head.
    */
   registerSWData: () => Promise<RegisterSWData | undefined>
-  runBuild: () => Promise<void>
+  runBuild: () => Promise<BuildResult | boolean>
 }

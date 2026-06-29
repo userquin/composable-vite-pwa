@@ -68,7 +68,7 @@ export function logPWAWorkboxResult(
 
   // Warnings are always shown unless silent
   if (warnings && warnings.length > 0) {
-    console.warn(pc.yellow(`\n${pc.bold('PWA Warnings:')}\n${warnings.map(w => `  ! ${w}`).join('\n')}\n`))
+    console.warn(pc.yellow(`\n${pc.bold('[Vite PWA] Warnings:')}\n${warnings.join('\n')}\n`))
   }
 
   if (circularDependencies && circularDependencies.length > 0) {
