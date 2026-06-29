@@ -88,7 +88,7 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
             v.pipe(
               v.number(),
               v.minValue(1, () => errors['parallel-concurrency-min']),
-              v.maxValue(10, () => errors['parallel-concurrency-max']),
+              // v.maxValue(10, () => errors['parallel-concurrency-max']),
             ),
             5,
           ),
