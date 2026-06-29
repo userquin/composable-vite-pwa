@@ -1,6 +1,6 @@
 import type { BroadcastCacheUpdateOptions } from '@composable-vite-pwa/workbox-swkit/broadcast-update/types'
 import type { CacheableResponseOptions } from '@composable-vite-pwa/workbox-swkit/cacheable-response/types'
-import type { RouteHandler, RouteMatchCallback, WorkboxPlugin } from '@composable-vite-pwa/workbox-swkit/core/types'
+import type { Parallel, RouteHandler, RouteMatchCallback, WorkboxPlugin } from '@composable-vite-pwa/workbox-swkit/core/types'
 import type { ExpirationPluginOptions } from '@composable-vite-pwa/workbox-swkit/expiration/types'
 import type { HTTPMethod } from '@composable-vite-pwa/workbox-swkit/routing/types'
 import type { QueueOptions } from '@composable-vite-pwa/workbox-swkit/types'
@@ -309,6 +309,13 @@ export interface GeneratePartial<T extends SWType> {
    * before it's looked up in the cache.
    */
   urlManipulation?: (options: { url: URL }) => URL[]
+  /**
+   * Controls parallel precaching of assets during service worker installation,
+   * when enabled is true assets are fetched concurrently up to `concurrency` at a time
+   * instead of one by one.
+   * Defaults: { enabled: false, concurrency: 5 }
+   */
+  parallel?: Parallel
   /**
    * Whether to clean up search parameters from URLs.
    * @default true

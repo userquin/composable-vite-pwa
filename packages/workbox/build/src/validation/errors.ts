@@ -123,4 +123,6 @@ export const errors = {
   'manifest-transforms': ol`When using manifestTransforms, you must provide
     an array of functions.`,
   'invalid-handler-string': ol`The handler name provided is not valid: `,
+  'parallel-concurrency-min': ol`The 'parallel.concurrency' value must be at least 1.`,
+  'parallel-concurrency-max': ol`The 'parallel.concurrency' value must be at most 10.`,
 }
