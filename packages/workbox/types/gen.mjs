@@ -2,10 +2,11 @@
 import { mkdirSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { Application, OptionDefaults } from 'typedoc'
+import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 
 async function init() {
   const here = new URL('.', import.meta.url)
-  const abs = p => fileURLToPath(new URL(p, here))
+  const abs = p => normalizePath(fileURLToPath(new URL(p, here)))
 
   const packages = {
     swkit: {
@@ -169,7 +170,7 @@ async function init() {
   for (const [name, { entryPoints, exclude, output }] of Object.entries(packages)) {
     console.log(`\n[gen] ${name} — ${entryPoints.length} entry point(s)`)
 
-    app.options.setValue('entryPoints', entryPoints.map(abs))
+    app.options.setValue('entryPoints', entryPoints.map(p => normalizePath(abs(p))))
     app.options.setValue('exclude', exclude)
     app.options.setValue('name', name)
 
