@@ -1,4 +1,5 @@
 import * as v from 'valibot'
+import { errors } from './errors'
 import { validateGlobDirectory, validateSWDestDirectory, withSmartMinify } from './generation-utils'
 import { BundlerDataSchema, ManifestOptionsSchema, RuntimeCachingEntrySchema, SWTargetSchema } from './utils'
 
@@ -73,6 +74,31 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
      * before it's looked up in the cache.
      */
     urlManipulation: v.optional(v.function()),
+    /**
+     * Controls parallel precaching of assets during service worker installation,
+     * when enabled is true assets are fetched concurrently up to `concurrency` at a time
+     * instead of one by one.
+     * Defaults: { enabled: false, concurrency: 5 }
+     */
+    parallel: v.optional(
+      v.pipe(
+        v.strictObject({
+          enabled: v.optional(v.boolean(), false),
+          concurrency: v.optional(
+            v.pipe(
+              v.number(),
+              v.minValue(1, () => errors['parallel-concurrency-min']),
+              v.maxValue(10, () => errors['parallel-concurrency-max']),
+            ),
+            5,
+          ),
+        }),
+      ),
+      {
+        enabled: false,
+        concurrency: 5,
+      },
+    ),
     /**
      * Whether the runtime code for the Workbox library should be included in the top-level service worker, or split into a separate file that needs to be deployed alongside the service worker. Keeping the runtime separate means that users will not have to re-download the Workbox code each time your top-level service worker changes.
      */
