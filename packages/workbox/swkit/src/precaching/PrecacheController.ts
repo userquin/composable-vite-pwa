@@ -6,9 +6,9 @@
   https://opensource.org/licenses/MIT.
 */
 
-import type { Parallel, RouteHandlerCallback, WorkboxPlugin } from '../core/types'
+import type { RouteHandlerCallback, WorkboxPlugin } from '../core/types'
 import type { Strategy } from '../strategies/Strategy'
-import type { CleanupResult, InstallResult, PrecacheEntry } from './types'
+import type { CleanupResult, InstallResult, Parallel, PrecacheEntry } from './types'
 import { assert, privateCacheNames as cacheNames, logger, waitUntil, WorkboxError } from '../core/internals'
 import { PrecacheStrategy } from './PrecacheStrategy'
 import { createCacheKey } from './utils/createCacheKey'
