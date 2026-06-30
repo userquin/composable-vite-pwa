@@ -23,10 +23,16 @@ export type PluginState = MapLikeObject
  *
  * Limiting concurrency prevents net::ERR_INSUFFICIENT_RESOURCES errors in Chrome
  * and reduces bandwidth impact on the main app during service worker installation.
+ *
+ * @note Invalid `concurrency` values (non-integer or < 1) are ignored and fall back to 5.
  * @see https://github.com/GoogleChrome/workbox/issues/2528
  *
  * Defaults: { enabled: false, concurrency: 5 }
  */
+export interface Parallel {
+  enabled?: boolean
+  concurrency?: number
+}
 export interface Parallel {
   enabled?: boolean
   concurrency?: number
