@@ -63,7 +63,7 @@ class PrecacheController {
    * @param {boolean} [options.fallbackToNetwork] Whether to attempt to
    * get the response from the network if there's a precache miss.
    * @param {Parallel} [options.parallel] Configurations for downloading the precache entries
-   * in parallel.
+   * in parallel. Invalid `concurrency` values are ignored and fall back to 5.
    */
   constructor({
     cacheName,
