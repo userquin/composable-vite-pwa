@@ -121,6 +121,7 @@ export interface PWAPluginContext<
   resolvedOptions: Partial<ResolvedVitePWAOptions<S, T>>
   useImportRegister: boolean
   devEnvironment: boolean
+  hmrRequiresSwitcher?: true
   pwaAssetsGenerator: Promise<PWAAssetsGenerator | undefined>
   build: PWABuildContext
   dev: PWABuildDevContext<B, T>
@@ -147,6 +148,6 @@ export interface PWAPluginContext<
    *
    * This option will help some integrations to inject the corresponding script in the head.
    */
-  registerSWData: () => Promise<RegisterSWData | undefined>
+  registerSWData: () => Promise<RegisterSWData & { module: boolean } | undefined>
   runBuild: () => Promise<BuildResult | boolean>
 }

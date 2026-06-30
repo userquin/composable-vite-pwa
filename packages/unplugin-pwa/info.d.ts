@@ -20,7 +20,7 @@ declare module 'virtual:pwa-info' {
      * - if using `pwaPluginOptions.injectRegister` with `auto` (default) and importing any of the virtual modules
      *
      * **NOTE**: `registerSW` will be `undefined` if:
-     * - SSR build
+     * - SSR build (only if required)
      * - PWA is disabled: `pwaPluginOptions.disable = true`
      * - running `Dev Server` and `pwaPluginOptions.devOptions.enabled = false` (default).
      */

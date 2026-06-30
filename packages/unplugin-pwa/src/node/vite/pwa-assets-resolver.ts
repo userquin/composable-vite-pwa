@@ -7,7 +7,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { buildPwaAsset } from '../build-pwa-asset'
-import { DEV_PWA_REGISTER_NAME } from '../constants'
+import { DEV_PWA_DUAL_SW_SWITCHER_NAME, DEV_PWA_REGISTER_NAME } from '../constants'
 
 export function pwaAssetsResolver<
   UserStrategy extends VitePWAStrategy,
@@ -41,17 +41,43 @@ export function pwaAssetsResolver<
       ? path.resolve(base, folder, 'register.js')
       : path.resolve(base, '../../client/build', 'register.js')
 
+    let code = await fs.readFile(virtualPath, 'utf-8')
+    if (ctx.devEnvironment && ctx.hmrRequiresSwitcher) {
+      const prefaceIdx = code.indexOf('export function registerSW(')
+      const imports = code.slice(0, prefaceIdx)
+      const registerSWCode = code.slice(prefaceIdx)
+      code = `import { registerDevSW } from "./hmr.js";
+${imports}
+
+if (import.meta.hot) {
+  registerDevSW();
+}
+
+${registerSWCode}
+`
+    }
+
     return await buildPwaAsset(
-      await fs.readFile(virtualPath, 'utf-8'),
+      code,
       ctx,
       {
         resolveId(id) {
-          return id === DEV_PWA_REGISTER_NAME ? id : undefined
+          return id === DEV_PWA_REGISTER_NAME || id === DEV_PWA_DUAL_SW_SWITCHER_NAME || id === './hmr.js' ? id : undefined
         },
         async load(id) {
-          return id === DEV_PWA_REGISTER_NAME
-            ? await fs.readFile(registerPath, 'utf-8')
-            : undefined
+          if (id === DEV_PWA_REGISTER_NAME) {
+            return await fs.readFile(registerPath, 'utf-8')
+          }
+
+          if (id === './hmr.js') {
+            return await fs.readFile(path.resolve(path.dirname(registerPath), 'hmr.js'), 'utf-8')
+          }
+
+          if (id === DEV_PWA_DUAL_SW_SWITCHER_NAME) {
+            return await fs.readFile(path.resolve(path.dirname(registerPath), DEV_PWA_DUAL_SW_SWITCHER_NAME), 'utf-8')
+          }
+
+          return undefined
         },
       },
     )
