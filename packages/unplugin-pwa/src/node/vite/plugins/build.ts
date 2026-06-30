@@ -3,18 +3,18 @@ import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Plugin } from 'vite'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
-import { FILE_SW_REGISTER } from '../../constants'
-import { generateRegisterSW } from '../../generate-register-sw'
+// import { FILE_SW_REGISTER } from '../../constants'
+// import { generateRegisterSW } from '../../generate-register-sw'
 import { generateWebManifest } from '../../generate-web-manifest'
-import { injectGenerateRegisterSW } from '../../inject-generate-register-sw'
-import { injectWebManifestHtmlLink } from '../../inject-web-manifest-html-link'
+// import { injectGenerateRegisterSW } from '../../inject-generate-register-sw'
+// import { injectWebManifestHtmlLink } from '../../inject-web-manifest-html-link'
 
 export function BuildPlugin<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
-  const transformIndexHtmlHandler = async (html: string) => {
+  /* const transformIndexHtmlHandler = async (html: string) => {
     if (!ctx.envApi && ctx.viteConfig.build.ssr) {
       return html
     }
@@ -29,7 +29,7 @@ export function BuildPlugin<
     }
 
     return await injectGenerateRegisterSW(html, ctx, false, false)
-  }
+  } */
 
   return {
     name: 'unplugin-pwa:build',
@@ -38,7 +38,7 @@ export function BuildPlugin<
     applyToEnvironment(environment) {
       return environment.config.consumer === 'client'
     },
-    transformIndexHtml: {
+    /* transformIndexHtml: {
       order: 'post',
       async handler(html) {
         return await transformIndexHtmlHandler(html)
@@ -48,7 +48,7 @@ export function BuildPlugin<
       async transform(html: string) {
         return await transformIndexHtmlHandler(html)
       },
-    },
+    }, */
     async generateBundle(_, bundle) {
       if (!ctx.envApi && ctx.viteConfig.build.ssr) {
         return
@@ -85,7 +85,7 @@ export function BuildPlugin<
         }
       }
 
-      if (ctx.resolvedOptions.disable === true) {
+      /* if (ctx.resolvedOptions.disable === true) {
         return
       }
 
@@ -116,7 +116,7 @@ export function BuildPlugin<
           source,
           fileName: FILE_SW_REGISTER,
         }
-      }
+      } */
     },
     closeBundle: {
       sequential: true,

@@ -45,22 +45,35 @@ export function preparePWAContext<
       return undefined
 
     // 2: if manual registration or using virtual
-    const mode = options.injectRegister
-    if (!mode || ctx.useImportRegister)
+    let mode = options.injectRegister
+    if (!mode || ctx.useImportRegister) {
       return undefined
+    }
+
+    if (mode === 'auto') {
+      options.injectRegister = 'script'
+      mode = 'script'
+    }
+
+    console.log(mode)
 
     // 3: otherwise we always return the info
     let type: WorkerType = 'classic'
     let script: string | undefined
     let shouldRegisterSW = options.injectRegister === 'inline' || options.injectRegister === 'script' || options.injectRegister === 'script-defer'
-    if (ctx.devEnvironment && options.devOptions?.enabled === true) {
-      type = options.devOptions?.type ?? 'classic'
-      script = await createGenerateRegisterSW(ctx, true, true)
+    if (ctx.devEnvironment) {
+      if (options.devOptions?.enabled === true) {
+        type = options.devOptions?.type ?? 'classic'
+        script = await createGenerateRegisterSW(ctx, true, true)
+        shouldRegisterSW = true
+      }
+    }
+    else {
+      script = await createGenerateRegisterSW(ctx, false, true)
       shouldRegisterSW = true
     }
-    else if (shouldRegisterSW) {
-      script = await createGenerateRegisterSW(ctx, true, true)
-    }
+
+    console.log(script)
 
     const base = ctx.devEnvironment ? options.base : options.buildBase
 
@@ -68,7 +81,7 @@ export function preparePWAContext<
       // hint when required
       shouldRegisterSW,
       module: isDualServiceWorker(ctx),
-      mode: mode === 'auto' ? 'script' : mode,
+      mode,
       scope: options.scope,
       // todo: review this, this may be wrong
       inlinePath: `${base}${ctx.devEnvironment ? DEV_SW_NAME : FILE_SW_REGISTER}`,

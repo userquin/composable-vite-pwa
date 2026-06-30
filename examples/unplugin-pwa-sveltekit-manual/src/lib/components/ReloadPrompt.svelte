@@ -1,5 +1,5 @@
 <script lang='ts'>
-    import 'virtual:pwa-entry-point-loaded'
+    // import 'virtual:pwa-entry-point-loaded'
     import { useRegisterSW } from 'virtual:pwa-register/svelte'
 
     // replaced dynamically

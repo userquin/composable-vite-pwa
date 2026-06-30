@@ -17,7 +17,7 @@ export async function createGenerateRegisterSW(
   if (dev && !injectAtDev) {
     return undefined
   }
-  const options = dev && isDualServiceWorker(ctx)
+  const options = /* dev && */isDualServiceWorker(ctx)
     ? ' type="module"'
     : ''
 
