@@ -1,0 +1,16 @@
+{
+  "name": "unplugin-pwa-astro7",
+  "type": "module",
+  "private": "true",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@composable-vite-pwa/astro": "workspace:*",
+    "astro": "catalog:astro"
+  }
+}

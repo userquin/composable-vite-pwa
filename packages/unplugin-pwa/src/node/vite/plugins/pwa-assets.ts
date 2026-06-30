@@ -13,6 +13,11 @@ import {
 } from '../../constants'
 import { extractIcons } from '../../pwa-assets/utils'
 
+/**
+ * Vite plugin to generate virtual PWA assets modules.
+ *
+ * @param ctx The Vite PWA plugin context.
+ */
 export function AssetsPlugin<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,

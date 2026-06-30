@@ -2,6 +2,7 @@ import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/typ
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { AstroIntegration } from 'astro'
 import type { AstroPWAOptions } from './types'
+import { BuildPwaAssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/build-pwa-assets'
 import { BuildRegisterSWPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/build-register-sw'
 import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
 import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
@@ -53,21 +54,23 @@ export function AstroPWAIntegration<
               DevMiddlewarePlugin(ctx),
               DevAssetsMiddlewarePlugin(ctx),
               AssetsPlugin(ctx),
+              BuildPwaAssetsPlugin(ctx),
               BuildRegisterSWPlugin(ctx),
             ],
           },
         })
       },
       'astro:build:done': async () => {
-        if (ctx.astro.previewOrSync) {
+        if (!ctx.astro.doBuild) {
           return
         }
 
-        ctx.doBuild = true
-        const api = ctx.api
-        if (api && !api.disabled) {
-          await api.generateSW()
+        const pwaAssetsGenerator = await ctx.pwaAssetsGenerator
+        if (pwaAssetsGenerator) {
+          await pwaAssetsGenerator.generate()
         }
+
+        await ctx.runBuild()
       },
     },
   }

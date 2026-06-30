@@ -1,8 +1,10 @@
-import type { VitePWAOptions, VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
+import type { ConfigurePWAOptionsFn } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
+import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
 import type { VitePWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
 import type { ManifestTransform, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { AstroConfig } from 'astro'
 import type { AstroExperimentalOptions, AstroPWAOptions } from './types'
+import { fileURLToPath } from 'node:url'
 import { createVitePWAContext } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
 
 export interface AstroPWAContext<
@@ -51,7 +53,7 @@ export function createAstroPWAContext<
   return ctx
 }
 
-function createManifestTransform(ctx: AstroPWAContext<any, any>): ManifestTransform {
+function _createManifestTransform(ctx: AstroPWAContext<any, any>): ManifestTransform {
   return async (entries) => {
     const { doBuild, trailingSlash, scope, useDirectoryFormat } = ctx.astro
     if (!doBuild)
@@ -79,7 +81,7 @@ function createManifestTransform(ctx: AstroPWAContext<any, any>): ManifestTransf
   }
 }
 
-function createExperimentalManifestTransform(ctx: AstroPWAContext<any, any>): ManifestTransform {
+function _createExperimentalManifestTransform(ctx: AstroPWAContext<any, any>): ManifestTransform {
   return async (entries) => {
     const { doBuild, trailingSlash, scope, useDirectoryFormat } = ctx.astro
     if (!doBuild)
@@ -136,108 +138,96 @@ function createPWAConfigurer<
       ctx.devEnvironment = true
       return undefined
     }
-  }
-}
 
-function getViteConfiguration(
-  config: AstroConfig,
-  options: PwaOptions,
-  directoryFormat: boolean,
-  astroPWAContext: () => AstroPWAContext,
-) {
-  // @ts-expect-error TS2589: Type instantiation is excessively deep and possibly infinite.
-  const plugin = config.vite?.plugins?.flat(Number.POSITIVE_INFINITY).find(p => p.name === 'vite-plugin-pwa')
-  if (plugin)
-    throw new Error('Remove the vite-plugin-pwa plugin from Vite Plugins entry in Astro config file, configure it via @vite-pwa/astro integration')
+    ctx.resolvedOptions.includeManifestIcons = false
+    ctx.resolvedOptions.includeManifest = false
+    ctx.resolvedOptions.includeManifestScreenshots = false
+    ctx.resolvedOptions.includeManifestShortcutIcons = false
 
-  // icons are there when `astro:build:done` hook is called
-  options.includeManifestIcons = false
-
-  const server = config.output === 'server'
-
-  if (server) {
-    options.outDir = fileURLToPath(config.build.client)
-  }
-
-  if (options.pwaAssets) {
-    options.pwaAssets.integration = {
-      baseUrl: config.base ?? config.vite.base ?? '/',
-      publicDir: fileURLToPath(config.publicDir),
-      outDir: server ? options.outDir : fileURLToPath(config.outDir),
-    }
-  }
-
-  const {
-    strategies = 'generateSW',
-    registerType = 'prompt',
-    injectRegister,
-    workbox = {},
-    ...rest
-  } = options
-
-  let assets = config.build.assets ?? '_astro/'
-  if (assets[0] === '/') {
-    assets = assets.slice(1)
-  }
-  if (assets[assets.length - 1] !== '/') {
-    assets += '/'
-  }
-
-  if (strategies === 'generateSW') {
-    const useWorkbox = { ...workbox }
-    const newOptions: Partial<VitePWAOptions> = {
-      ...rest,
-      strategies,
-      registerType,
-      injectRegister,
-    }
+    const { base, vite, output, build, publicDir, outDir } = ctx.astro.config
+    const server = output === 'server'
 
     if (server) {
-      useWorkbox.globDirectory = options.outDir
+      ctx.outDir = fileURLToPath(build.client)
+      ctx.resolvedOptions.outDir = ctx.outDir
     }
 
-    // the user may want to disable offline support
-    if (!('navigateFallback' in useWorkbox))
-      useWorkbox.navigateFallback = config.base ?? config.vite?.base ?? '/'
+    if (ctx.resolvedOptions.pwaAssets) {
+      ctx.resolvedOptions.pwaAssets.integration = {
+        baseUrl: base ?? vite.base ?? '/',
+        publicDir: fileURLToPath(publicDir),
+        outDir: server ? ctx.outDir : fileURLToPath(outDir),
+      }
+    }
+    /*
+    const {
+      strategies = 'generateSW',
+      registerType = 'prompt',
+      injectRegister,
+      workbox = {},
+      ...rest
+    } = options
 
-    if (directoryFormat)
-      useWorkbox.directoryIndex = 'index.html'
+    let assets = config.build.assets ?? '_astro/'
+    if (assets[0] === '/') {
+      assets = assets.slice(1)
+    }
+    if (assets[assets.length - 1] !== '/') {
+      assets += '/'
+    }
 
-    newOptions.workbox = useWorkbox
+    if (strategies === 'generateSW') {
+      const useWorkbox = { ...workbox }
+      const newOptions: Partial<VitePWAOptions> = {
+        ...rest,
+        strategies,
+        registerType,
+        injectRegister,
+      }
+
+      if (server) {
+        useWorkbox.globDirectory = options.outDir
+      }
+
+      // the user may want to disable offline support
+      if (!('navigateFallback' in useWorkbox))
+        useWorkbox.navigateFallback = base ?? vite.base ?? '/'
+
+      if (directoryFormat)
+        useWorkbox.directoryIndex = 'index.html'
+
+      newOptions.workbox = useWorkbox
+      // Astro4/ Vite5 support: allow override dontCacheBustURLsMatching
+      if (!('dontCacheBustURLsMatching' in newOptions.workbox))
+        newOptions.workbox.dontCacheBustURLsMatching = new RegExp(assets)
+
+      if (!newOptions.workbox.manifestTransforms) {
+        newOptions.workbox.manifestTransforms = newOptions.workbox.manifestTransforms ?? []
+        newOptions.workbox.manifestTransforms.push(
+          options.experimental?.directoryAndTrailingSlashHandler === true
+            ? createExperimentalManifestTransform(astroPWAContext)
+            : createManifestTransform(astroPWAContext),
+        )
+      }
+    }
+
+    options.injectManifest = options.injectManifest ?? {}
+
+    if (server) {
+      options.injectManifest.globDirectory = options.outDir
+    }
+
     // Astro4/ Vite5 support: allow override dontCacheBustURLsMatching
-    if (!('dontCacheBustURLsMatching' in newOptions.workbox))
-      newOptions.workbox.dontCacheBustURLsMatching = new RegExp(assets)
+    if (!('dontCacheBustURLsMatching' in options.injectManifest))
+      options.injectManifest.dontCacheBustURLsMatching = new RegExp(assets)
 
-    if (!newOptions.workbox.manifestTransforms) {
-      newOptions.workbox.manifestTransforms = newOptions.workbox.manifestTransforms ?? []
-      newOptions.workbox.manifestTransforms.push(
+    if (!options.injectManifest.manifestTransforms) {
+      options.injectManifest.manifestTransforms = options.injectManifest.manifestTransforms ?? []
+      options.injectManifest.manifestTransforms.push(
         options.experimental?.directoryAndTrailingSlashHandler === true
           ? createExperimentalManifestTransform(astroPWAContext)
           : createManifestTransform(astroPWAContext),
       )
-    }
-
-    return VitePWA(newOptions)
+    } */
   }
-
-  options.injectManifest = options.injectManifest ?? {}
-
-  if (server) {
-    options.injectManifest.globDirectory = options.outDir
-  }
-
-  // Astro4/ Vite5 support: allow override dontCacheBustURLsMatching
-  if (!('dontCacheBustURLsMatching' in options.injectManifest))
-    options.injectManifest.dontCacheBustURLsMatching = new RegExp(assets)
-
-  if (!options.injectManifest.manifestTransforms) {
-    options.injectManifest.manifestTransforms = options.injectManifest.manifestTransforms ?? []
-    options.injectManifest.manifestTransforms.push(
-      options.experimental?.directoryAndTrailingSlashHandler === true
-        ? createExperimentalManifestTransform(astroPWAContext)
-        : createManifestTransform(astroPWAContext),
-    )
-  }
-
-  return VitePWA(options)
 }

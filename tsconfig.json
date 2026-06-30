@@ -11,6 +11,12 @@
       "@composable-vite-pwa/unplugin-pwa/node/*": [
         "./packages/unplugin-pwa/src/node/*.ts"
       ],
+      "@composable-vite-pwa/astro": [
+        "./packages/astro/src/index.ts"
+      ],
+      "@composable-vite-pwa/astro/types": [
+        "./packages/astro/src/types.ts"
+      ],
       "@composable-vite-pwa/workbox-build": [
         "./packages/workbox/build/src/index.ts"
       ],
