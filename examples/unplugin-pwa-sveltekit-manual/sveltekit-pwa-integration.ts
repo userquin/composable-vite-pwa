@@ -21,12 +21,13 @@ import type {
   SWType,
 } from '@composable-vite-pwa/workbox-build/types'
 import type { Adapter } from '@sveltejs/kit'
-import type { Plugin, PluginOption } from 'vite'
+import type { Plugin, PluginOption, ResolvedConfig } from 'vite'
 import { hash } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { generateWebManifest } from '@composable-vite-pwa/unplugin-pwa/node/generate-web-manifest'
+import { BuildRegisterSWPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/build-register-sw'
 import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
 import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
 import { DevAssetsMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-pwa-assets-middleware'
@@ -163,6 +164,7 @@ function createSvelteKitPWAContext<
   const ctx = Object.assign(
     createVitePWAContext(envApi, rest),
     {
+      hmrRequiresSwitcher: true,
       kitConfig: config,
       kitOptions: kit,
     },
@@ -188,6 +190,7 @@ function SvelteKitPlugin<
     DevMiddlewarePlugin(ctx),
     DevAssetsMiddlewarePlugin(ctx),
     AssetsPlugin(ctx),
+    BuildRegisterSWPlugin(ctx),
     SvelteKitBuildPlugin(ctx),
   ]
 }
@@ -372,6 +375,24 @@ async function buildManifestEntry(url: string, path: string): Promise<ManifestEn
   }
 }
 
+function prepareEnv<
+  UserStrategy extends VitePWAStrategy,
+  S extends Strategy,
+  T extends SWType,
+>(
+  forClient: boolean,
+  config: ResolvedConfig,
+  forBuild: boolean,
+  ctx: SvelteKitPWAContext<UserStrategy, S, T>,
+) {
+  const { kitConfig = {} } = ctx
+  if (kitConfig.experimental?.explicitEnvironmentVariables === true) {
+
+  }
+  console.log(kitConfig)
+  console.log(config.resolve.alias)
+}
+
 function createPWAConfigurer<
   UserStrategy extends VitePWAStrategy,
   S extends Strategy,
@@ -383,8 +404,9 @@ function createPWAConfigurer<
     kitConfig = {},
     kitOptions = {},
   } = ctx
-  return (_forClient, config) => {
+  return (forClient, config) => {
     const buildCommand = config.command === 'build'
+    prepareEnv(forClient, config, buildCommand, ctx)
     if (!buildCommand) {
       return undefined
     }
