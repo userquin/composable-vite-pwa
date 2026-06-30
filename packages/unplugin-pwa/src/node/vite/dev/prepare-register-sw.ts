@@ -6,7 +6,7 @@ import { FILE_SW_REGISTER } from '../../constants'
 import { generateRegisterSW } from '../../generate-register-sw'
 
 export async function prepareRegisterSw(
-  ctx: VitePWAPluginContext<any, any, any, any>,
+  ctx: VitePWAPluginContext<any, any, any>,
 ) {
   if (ctx.resolvedOptions.injectRegister === 'script' || ctx.resolvedOptions.injectRegister === 'script-defer') {
     if (!ctx.dev.options.registerSWGenerated) {

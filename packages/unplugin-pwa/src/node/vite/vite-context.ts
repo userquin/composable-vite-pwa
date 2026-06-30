@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { ResolvedConfig } from 'vite'
 import type { PWAPluginContext } from '../context-types'
@@ -17,9 +16,8 @@ export type ServiceWorkerAssetNormalizer = (
 export type VitePWAPluginContext<
   B extends ViteBundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
-> = PWAPluginContext<B, UserStrategy, S, T> & {
+> = PWAPluginContext<B, UserStrategy, T> & {
   /**
    * The resolved Vite configuration for the client build.
    */
@@ -52,16 +50,15 @@ export type VitePWAPluginContext<
  */
 export function createCustomVitePWAContext<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
   B extends ViteBundler,
 >(
   bundler: B,
   envApi: boolean,
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
-): VitePWAPluginContext<B, UserStrategy, S, T> {
+): VitePWAPluginContext<B, UserStrategy, T> {
   const ctx = Object.assign(
-    createPWAContext(bundler, userOptions) as VitePWAPluginContext<B, UserStrategy, S, T>,
+    createPWAContext(bundler, userOptions) as VitePWAPluginContext<B, UserStrategy, T>,
     {
       viteConfig: undefined!,
       envApi,
@@ -80,14 +77,13 @@ export function createCustomVitePWAContext<
  */
 export function createVitePWAContext<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   envApi: boolean,
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
-): VitePWAPluginContext<'vite', UserStrategy, S, T> {
+): VitePWAPluginContext<'vite', UserStrategy, T> {
   const ctx = Object.assign(
-    createPWAContext('vite', userOptions) as VitePWAPluginContext<'vite', UserStrategy, S, T>,
+    createPWAContext('vite', userOptions) as VitePWAPluginContext<'vite', UserStrategy, T>,
     {
       viteConfig: undefined!,
       envApi,
@@ -105,13 +101,12 @@ export function createVitePWAContext<
  */
 export function createViteLegacyPWAContext<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
-): VitePWAPluginContext<'vite-legacy', UserStrategy, S, T> {
+): VitePWAPluginContext<'vite-legacy', UserStrategy, T> {
   const ctx = Object.assign(
-    createPWAContext('vite-legacy', userOptions) as VitePWAPluginContext<'vite-legacy', UserStrategy, S, T>,
+    createPWAContext('vite-legacy', userOptions) as VitePWAPluginContext<'vite-legacy', UserStrategy, T>,
     {
       viteConfig: undefined!,
       envApi: false,

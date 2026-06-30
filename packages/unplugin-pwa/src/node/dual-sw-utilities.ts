@@ -1,7 +1,7 @@
 import type { PWAPluginContext } from './context-types'
 
 export function isDualServiceWorker(
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
 ) {
   switch (ctx.strategy) {
     case 'generate-sw':

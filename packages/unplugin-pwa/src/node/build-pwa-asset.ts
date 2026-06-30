@@ -1,10 +1,7 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
-import type { GlobPartial, RequiredSWDestPartial, SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Bundler, PWAPluginContext } from './context-types'
 import type { VitePWAStrategy } from './types'
 import { resolveSWNames } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
-
-type SWNames = GlobPartial & RequiredSWDestPartial
 
 export type DependenciesResolved = NonNullable<Pick<import('rolldown').Plugin, 'resolveId' | 'load'>>
 
@@ -18,10 +15,9 @@ export async function buildPwaAsset<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
-  S extends Strategy,
 >(
   code: string,
-  ctx: PWAPluginContext<B, UserStrategy, S, T>,
+  ctx: PWAPluginContext<B, UserStrategy, T>,
   resolver?: DependenciesResolved,
 ): Promise<string> {
   const { filename = 'sw.js' } = ctx.consumerOptions

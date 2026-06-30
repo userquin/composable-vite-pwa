@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Bundler, PWAPluginContext } from './context-types'
 import type { VitePWAOptions, VitePWAStrategy } from './types'
@@ -9,12 +8,11 @@ import { preparePWAContext } from './prepare-pwa-context'
 export function createPWAContext<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   bundler: B,
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
-): PWAPluginContext<B, UserStrategy, S, T> {
+): PWAPluginContext<B, UserStrategy, T> {
   return preparePWAContext({
     bundler,
     version: pkg.version,
@@ -47,37 +45,33 @@ export function createPWAContext<
 
 export function createVitePWAContext<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
-): PWAPluginContext<'vite', UserStrategy, S, T> {
+): PWAPluginContext<'vite', UserStrategy, T> {
   return createPWAContext('vite', userOptions)
 }
 export function createViteLegacyPWAContext<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
-): PWAPluginContext<'vite-legacy', UserStrategy, S, T> {
+): PWAPluginContext<'vite-legacy', UserStrategy, T> {
   return createPWAContext('vite-legacy', userOptions)
 }
 export function createWebpackPWAContext<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
-): PWAPluginContext<'webpack', UserStrategy, S, T> {
+): PWAPluginContext<'webpack', UserStrategy, T> {
   return createPWAContext('webpack', userOptions)
 }
 export function createRspackPWAContext<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   userOptions: Partial<VitePWAOptions<UserStrategy, T>> = {},
-): PWAPluginContext<'rspack', UserStrategy, S, T> {
+): PWAPluginContext<'rspack', UserStrategy, T> {
   return createPWAContext('rspack', userOptions)
 }

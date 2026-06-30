@@ -1,6 +1,5 @@
-import type { Bundler, PWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
+import type { Bundler } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from './internal-types'
@@ -12,16 +11,8 @@ import semver from 'semver'
 export async function createNuxtPwaContext<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
-  PC extends PWAPluginContext<B, UserStrategy, S, T>,
-  NPWAC extends NuxtPWAContext<
-    B,
-    UserStrategy,
-    S,
-    T,
-    PC
-  >,
+  NPWAC extends NuxtPWAContext<B, UserStrategy, T>,
 >(
   options: PwaModuleOptions<UserStrategy, T>,
   nuxt: Nuxt,

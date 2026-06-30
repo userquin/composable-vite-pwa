@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Plugin } from 'vite'
 import type { VitePWAStrategy } from '../../types'
@@ -9,9 +8,8 @@ import { generateWebManifest } from '../../generate-web-manifest'
 
 export function DevMiddlewarePlugin<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>): Plugin {
   return {
     name: 'unplugin-pwa:dev-web-manifest-middleware',
     sharedDuringBuild: true,

@@ -6,7 +6,7 @@ import { mapLink } from './utils'
 
 export function transformIndexHtml(
   html: string,
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
   assetsGeneratorContext: AssetsGeneratorContext,
 ) {
   if (assetsGeneratorContext.injectThemeColor) {
@@ -29,7 +29,7 @@ export function transformIndexHtml(
 }
 
 export function resolveHtmlAssets(
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
   assetsGeneratorContext: AssetsGeneratorContext,
 ) {
   const header: PWAHtmlAssets = {

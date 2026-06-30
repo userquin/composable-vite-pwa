@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { CustomPwaAssetResolver } from '../context-types'
 import type { VitePWAStrategy } from '../types'
@@ -11,10 +10,9 @@ import { DEV_PWA_DUAL_SW_SWITCHER_NAME, DEV_PWA_REGISTER_NAME } from '../constan
 
 export function pwaAssetsResolver<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
 ): CustomPwaAssetResolver {
   return async (asset, virtualName) => {
     const base = path.dirname(fileURLToPath(import.meta.url))

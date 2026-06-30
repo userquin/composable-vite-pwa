@@ -1,5 +1,4 @@
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { PwaModuleOptions } from '../../types'
@@ -12,14 +11,13 @@ import { initPwaConfiguration, loadPwaConfiguration } from './pwa-configuration'
 
 export function createViteLegacyNuxtPwaContext<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   nuxtVersion: string,
   buildAssetsDir: string,
   options: PwaModuleOptions<UserStrategy, T>,
   nuxt: Nuxt,
-): ViteLegacyNuxtPWAContext<UserStrategy, S, T> {
+): ViteLegacyNuxtPWAContext<UserStrategy, T> {
   const {
     experimental,
     registerWebManifestInRouteRules,
@@ -38,10 +36,9 @@ export function createViteLegacyNuxtPwaContext<
     client,
   )
 
-  const ctx: ViteLegacyNuxtPWAContext<UserStrategy, S, T> = {
-    pwaCtx: createCustomVitePWAContext<
+  const ctx = Object.assign(
+    createCustomVitePWAContext<
       UserStrategy,
-      S,
       T,
       'vite-legacy'
     >(
@@ -49,17 +46,21 @@ export function createViteLegacyNuxtPwaContext<
       false,
       pwaOptions,
     ),
-    loadPwaConfiguration: () => loadPwaConfiguration(ctx),
-    initPwaConfiguration: () => initPwaConfiguration(ctx, nuxt),
-    prepareNuxtOptions: () => prepareNuxtOptions(ctx, nuxt),
-    nuxtVersion,
-    nitroConfig: undefined!,
-    buildAssetsDir,
-    client: useClient,
-    experimental,
-    registerWebManifestInRouteRules,
-    writePlugin,
-  }
+    {
+      nuxt: {
+        loadPwaConfiguration: () => loadPwaConfiguration(ctx),
+        initPwaConfiguration: () => initPwaConfiguration(ctx, nuxt),
+        prepareNuxtOptions: () => prepareNuxtOptions(ctx, nuxt),
+        nuxtVersion,
+        nitroConfig: undefined!,
+        buildAssetsDir,
+        client: useClient,
+        experimental,
+        registerWebManifestInRouteRules,
+        writePlugin,
+      },
+    },
+  ) as ViteLegacyNuxtPWAContext<UserStrategy, T>
 
   return ctx
 }

@@ -10,7 +10,7 @@ import { loadConfig } from '@vite-pwa/assets-generator/config'
 import pc from 'picocolors'
 
 export async function loadAssetsGeneratorContext(
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
   assetsGeneratorContext?: AssetsGeneratorContext,
 ) {
   const root = ctx.rootDir
@@ -135,7 +135,7 @@ export async function loadAssetsGeneratorContext(
 
 async function loadConfiguration(
   root: string,
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
 ) {
   const pwaAssets = ctx.resolvedOptions.pwaAssets as ResolvedPWAAssetsOptions
   if (pwaAssets.config === false) {

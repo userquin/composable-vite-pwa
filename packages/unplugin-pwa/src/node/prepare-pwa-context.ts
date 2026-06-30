@@ -3,7 +3,6 @@ import type { LegacyBuildServiceWorkerOptions } from '@composable-vite-pwa/workb
 import type {
   InjectManifestStrategyOptions,
   SelfDestroyingStrategyOptions,
-  Strategy,
 } from '@composable-vite-pwa/workbox-build/config/types'
 import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { BuildSWType, Bundler, PWAPluginContext } from './context-types'
@@ -16,9 +15,8 @@ import { isDualServiceWorker } from './dual-sw-utilities'
 export function preparePWAContext<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: PWAPluginContext<B, UserStrategy, S, T>) {
+>(ctx: PWAPluginContext<B, UserStrategy, T>) {
   // pwa web manifest always generated if present
   ctx.webManifestData = () => {
     const options = ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>
@@ -55,8 +53,6 @@ export function preparePWAContext<
       mode = 'script'
     }
 
-    console.log(mode)
-
     // 3: otherwise we always return the info
     let type: WorkerType = 'classic'
     let script: string | undefined
@@ -72,8 +68,6 @@ export function preparePWAContext<
       script = await createGenerateRegisterSW(ctx, false, true)
       shouldRegisterSW = true
     }
-
-    console.log(script)
 
     const base = ctx.devEnvironment ? options.base : options.buildBase
 

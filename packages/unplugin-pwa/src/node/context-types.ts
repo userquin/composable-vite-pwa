@@ -1,5 +1,5 @@
 import type { BuildGenerateSWOptions, BuildWithSourcesResult } from '@composable-vite-pwa/workbox-build/build/types'
-import type { InjectManifestStrategyOptions, SelfDestroyingStrategyOptions, Strategy } from '@composable-vite-pwa/workbox-build/config/types'
+import type { InjectManifestStrategyOptions, SelfDestroyingStrategyOptions } from '@composable-vite-pwa/workbox-build/config/types'
 import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { ResolvedConfig } from 'vite'
 import type { PWAAssetsGenerator } from './pwa-assets/types'
@@ -13,9 +13,27 @@ export type BuildSWType<B extends Bundler, T extends SWType> = B extends 'vite'
     ? import('@composable-vite-pwa/workbox-build/build/vite/legacy-types').LegacyBuildServiceWorkerOptions<T>
     : import('@composable-vite-pwa/workbox-build/build/rolldown/types').BuildServiceWorkerOptions<T>
 
+export type ExtractStrategy<UserStrategy extends VitePWAStrategy> = UserStrategy extends 'generateSW'
+  ? 'generate-sw'
+  : UserStrategy extends 'generate-sw'
+    ? 'generate-sw'
+    : UserStrategy extends 'buildSW'
+      ? 'build-sw'
+      : UserStrategy extends 'build-sw'
+        ? 'build-sw'
+        : UserStrategy extends 'injectManifest'
+          ? 'inject-manifest'
+          : UserStrategy extends 'inject-manifest'
+            ? 'inject-manifest'
+            : UserStrategy extends 'selfDestroySW'
+              ? 'self-destroy-sw'
+              : UserStrategy extends 'self-destroy-sw'
+                ? 'self-destroy-sw'
+                : 'generate-sw'
+
 export interface PWABuildContext {
   generateSW: () => Promise<BuildResult>
-  buildSW: () => Promise<BuildResult>
+  buildSW: () => Promise<BuildWithSourcesResult>
   injectManifest: () => Promise<BuildResult>
   selfDestroyingSW: () => Promise<boolean>
 }
@@ -109,16 +127,15 @@ export type ConfigurePWAOptionsFn = (
 export interface PWAPluginContext<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 > {
   bundler: B
   version: string
-  strategy: S
+  strategy: ExtractStrategy<UserStrategy>
   consumerOptions: Partial<VitePWAOptions<UserStrategy, T>>
   configurePWAOptions?: ConfigurePWAOptionsFn
   externalConfigurationLoader: boolean
-  resolvedOptions: Partial<ResolvedVitePWAOptions<S, T>>
+  resolvedOptions: Partial<ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>>
   useImportRegister: boolean
   devEnvironment: boolean
   hmrRequiresSwitcher?: true

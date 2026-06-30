@@ -7,7 +7,7 @@ import { resolveHtmlAssets, transformIndexHtml } from './html'
 import { injectManifestIcons } from './manifest'
 import { extractIcons } from './utils'
 
-export async function loadInstructions(ctx: PWAPluginContext<any, any, any, any>) {
+export async function loadInstructions(ctx: PWAPluginContext<any, any, any>) {
   const assetsGeneratorContext = await loadAssetsGeneratorContext(ctx)
   if (!assetsGeneratorContext)
     return

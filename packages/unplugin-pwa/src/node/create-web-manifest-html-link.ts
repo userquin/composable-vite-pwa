@@ -6,7 +6,7 @@ import type { ResolvedVitePWAOptions } from './types'
  * @param ctx The PWA Context.
  */
 export function createWebManifestHtmlLink(
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
 ) {
   const options = ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>
   const crossorigin = options.useCredentials ? ' crossorigin="use-credentials"' : ''

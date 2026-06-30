@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type {
   SWType,
 } from '@composable-vite-pwa/workbox-build/types'
@@ -18,9 +17,8 @@ import { preparePWAContextDefaults } from '../helpers'
 
 export function MainPlugin<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>): Plugin {
   let forClient = false
   return {
     name: 'unplugin-pwa:main',

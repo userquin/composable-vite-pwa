@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { GlobPartial, RequiredSWDestPartial, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Bundler, PWAPluginContext } from './context-types'
 import type { VitePWAStrategy } from './types'
@@ -7,10 +6,9 @@ import { resolveSWNames } from '@composable-vite-pwa/workbox-build/utils/resolve
 export function prepareSwNames<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: PWAPluginContext<B, UserStrategy, S, T>,
+  ctx: PWAPluginContext<B, UserStrategy, T>,
 ) {
   let options: (GlobPartial & RequiredSWDestPartial) | undefined
   let swSrc: string | undefined

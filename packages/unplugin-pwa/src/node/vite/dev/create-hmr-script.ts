@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
@@ -10,10 +9,9 @@ import { DEV_PWA_DUAL_SW_SWITCHER_NAME } from '../../constants'
 
 export async function createHmrScript<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
 ) {
   const base = path.dirname(fileURLToPath(import.meta.url))
 

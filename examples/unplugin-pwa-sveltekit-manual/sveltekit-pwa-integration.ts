@@ -1,5 +1,6 @@
 import type {
   ConfigurePWAOptionsFn,
+  ExtractStrategy,
 } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type {
   ResolvedBuildSW,
@@ -9,7 +10,6 @@ import type {
   VitePWAStrategy,
 } from '@composable-vite-pwa/unplugin-pwa/node/types'
 import type { ViteBundler, VitePWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type {
   BasePartial,
   GlobPartial,
@@ -37,7 +37,6 @@ import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugin
 import {
   createVitePWAContext,
 } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
-
 import { VERSION } from '@sveltejs/kit'
 import { sveltekit } from '@sveltejs/kit/vite'
 import semver from 'semver'
@@ -98,10 +97,9 @@ export type SvelteKitPWAOptions<
 function SvelteKitAdapterWrapper<
   UserStrategy extends VitePWAStrategy,
   B extends ViteBundler,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<B, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<B, UserStrategy, T>,
   adapter?: Adapter,
 ): Adapter {
   const { adapt, ...options } = adapter ?? {}
@@ -120,13 +118,12 @@ export type SvelteKitConfig = Parameters<typeof sveltekit>[0]
 
 export function withPwa<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   config: SvelteKitConfig = {},
   options: Partial<SvelteKitPWAOptions<UserStrategy, T>> = {},
 ) {
-  const ctx = createSvelteKitPWAContext<UserStrategy, S, T>(
+  const ctx = createSvelteKitPWAContext<UserStrategy, T>(
     config,
     options,
   )
@@ -144,21 +141,19 @@ export function withPwa<
 
 interface SvelteKitPWAContext<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
-> extends VitePWAPluginContext<'vite', UserStrategy, S, T> {
+> extends VitePWAPluginContext<'vite', UserStrategy, T> {
   kitConfig?: SvelteKitConfig
   kitOptions?: KitOptions
 }
 
 function createSvelteKitPWAContext<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   config: SvelteKitConfig = {},
   options: Partial<SvelteKitPWAOptions<UserStrategy, T>> = {},
-): SvelteKitPWAContext<UserStrategy, S, T> {
+): SvelteKitPWAContext<UserStrategy, T> {
   const envApi = semver.major(VERSION) > 2
   const { kit, ...rest } = options || {}
   const ctx = Object.assign(
@@ -168,7 +163,7 @@ function createSvelteKitPWAContext<
       kitConfig: config,
       kitOptions: kit,
     },
-  ) as SvelteKitPWAContext<UserStrategy, S, T>
+  ) as SvelteKitPWAContext<UserStrategy, T>
 
   ctx.configurePWAOptions = createPWAConfigurer(ctx)
 
@@ -178,10 +173,9 @@ function createSvelteKitPWAContext<
 function SvelteKitPlugin<
   B extends ViteBundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<B, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<B, UserStrategy, T>,
 ): PluginOption {
   return [
     MainPlugin(ctx),
@@ -197,10 +191,9 @@ function SvelteKitPlugin<
 
 function SvelteKitBuildPlugin<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
 ): Plugin {
   return {
     name: 'vite-pwa:sveltekit:build',
@@ -377,13 +370,12 @@ async function buildManifestEntry(url: string, path: string): Promise<ManifestEn
 
 function prepareEnv<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   forClient: boolean,
   config: ResolvedConfig,
   forBuild: boolean,
-  ctx: SvelteKitPWAContext<UserStrategy, S, T>,
+  ctx: SvelteKitPWAContext<UserStrategy, T>,
 ) {
   const { kitConfig = {} } = ctx
   if (kitConfig.experimental?.explicitEnvironmentVariables === true) {
@@ -395,10 +387,9 @@ function prepareEnv<
 
 function createPWAConfigurer<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: SvelteKitPWAContext<UserStrategy, S, T>,
+  ctx: SvelteKitPWAContext<UserStrategy, T>,
 ): ConfigurePWAOptionsFn {
   const {
     kitConfig = {},
@@ -424,18 +415,18 @@ function createPWAConfigurer<
 
     switch (ctx.strategy) {
       case 'generate-sw':
-        ctx.resolvedOptions.generateSW ??= {} as ResolvedGenerateSW<S, T>
+        ctx.resolvedOptions.generateSW ??= {} as ResolvedGenerateSW<ExtractStrategy<UserStrategy>, T>
         if (!('navigateFallback' in ctx.resolvedOptions.generateSW!)) {
           ctx.resolvedOptions.generateSW!.navigateFallback = kitOptions.adapterFallback ?? ctx.base
         }
         options = ctx.resolvedOptions.generateSW
         break
       case 'inject-manifest':
-        ctx.resolvedOptions.injectManifest ??= {} as ResolvedInjectManifest<S, T>
+        ctx.resolvedOptions.injectManifest ??= {} as ResolvedInjectManifest<ExtractStrategy<UserStrategy>, T>
         options = ctx.resolvedOptions.injectManifest
         break
       case 'build-sw':
-        ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<S, T>
+        ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<ExtractStrategy<UserStrategy>, T>
         options = ctx.resolvedOptions.buildSW
         // todo: finish alias, ask sapphi-red
         // add vite/rolldown aliases

@@ -1,5 +1,4 @@
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Plugin } from 'vite'
 import type { ViteLegacyNuxtPWAContext, ViteNuxtPWAContext } from '../internal-types'
@@ -7,10 +6,9 @@ import { prefixRegex } from 'rolldown/filter'
 
 export function PwaRuntimeConfiguration<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: ViteNuxtPWAContext<UserStrategy, S, T> | ViteLegacyNuxtPWAContext<UserStrategy, S, T>,
+  ctx: ViteNuxtPWAContext<UserStrategy, T> | ViteLegacyNuxtPWAContext<UserStrategy, T>,
 ): Plugin {
   const configuration = 'virtual:nuxt-pwa-configuration'
   const resolvedConfiguration = `\0${configuration}`
@@ -35,7 +33,7 @@ export function PwaRuntimeConfiguration<
           return undefined
         }
 
-        const { client, pwaCtx } = ctx
+        const { client } = ctx.nuxt
 
         let callBeforeRegisterHook = false
         const references: string[] = []
@@ -44,26 +42,26 @@ export function PwaRuntimeConfiguration<
           `export function initializeDev() {}`,
           `export function activateSWSwitcherDev() {}`,
         ]
-        if (pwaCtx.devEnvironment) {
-          if (!pwaCtx.resolvedOptions.disable && pwaCtx.resolvedOptions.devOptions?.enabled) {
+        if (ctx.devEnvironment) {
+          if (!ctx.resolvedOptions.disable && ctx.resolvedOptions.devOptions?.enabled) {
             references.push('/// <reference types="@composable-vite-pwa/unplugin-pwa/vite-hmr-entry-point" />')
             imports.push('import { registerDevSW, setDevPWASwitcherReady } from \'virtual:pwa-entry-point-loaded\'')
             functions.length = 0
             functions.push(`export function initializeDev() { registerDevSW() }`)
             functions.push(`export function activateSWSwitcherDev() { setDevPWASwitcherReady() }`)
-            const internalDevOptions = pwaCtx.dev.options!
+            const internalDevOptions = ctx.dev.options!
             if (internalDevOptions.swNames.hasNames) {
               callBeforeRegisterHook = true
             }
           }
         }
         else {
-          if (!pwaCtx.resolvedOptions.disable) {
+          if (!ctx.resolvedOptions.disable) {
             callBeforeRegisterHook = true
           }
         }
 
-        const display = typeof pwaCtx.resolvedOptions.manifest !== 'boolean' ? pwaCtx.resolvedOptions.manifest?.display ?? 'standalone' : 'standalone'
+        const display = typeof ctx.resolvedOptions.manifest !== 'boolean' ? ctx.resolvedOptions.manifest?.display ?? 'standalone' : 'standalone'
         const installPrompt = (typeof client.installPrompt === 'undefined' || client.installPrompt === false)
           ? undefined
           : (client.installPrompt === true || client.installPrompt.trim() === '')

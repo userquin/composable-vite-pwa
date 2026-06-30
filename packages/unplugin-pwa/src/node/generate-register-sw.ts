@@ -9,7 +9,7 @@ import { FILE_SW_REGISTER } from './constants'
  * @return The code of `registerSW.js` or `undefined` if it is not required.
  */
 export async function generateRegisterSW(
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
 ): Promise<string | undefined> {
   if (ctx.resolvedOptions.injectRegister === 'auto') {
     ctx.resolvedOptions.injectRegister = ctx.useImportRegister ? null : 'script'

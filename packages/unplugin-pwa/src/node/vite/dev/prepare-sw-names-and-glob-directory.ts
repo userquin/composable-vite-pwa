@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { GlobPartial, RequiredSWDestPartial, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
@@ -17,10 +16,9 @@ import { prepareTempFolder } from './prepare-temp-folder'
  */
 export async function prepareSwNamesAndGlobDirectory<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
 ) {
   if (ctx.dev.options.swNames.hasNames) {
     return

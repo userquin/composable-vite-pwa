@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Plugin } from 'vite'
 import type { VitePWAStrategy } from '../../types'
@@ -11,9 +10,8 @@ import {
 
 export function InfoPlugin<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>): Plugin {
   return {
     name: 'unplugin-pwa:info',
     enforce: 'post',
@@ -62,9 +60,8 @@ interface VirtualPwaInfo {
 
 async function generatePwaInfo<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>) {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>) {
   const webManifestData = ctx.webManifestData()
   if (!webManifestData)
     return 'export const pwaInfo = undefined;'

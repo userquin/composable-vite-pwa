@@ -3,7 +3,7 @@ import type { PWAPluginContext } from './context-types'
 import { generateWebManifest } from './generate-web-manifest'
 
 export function additionalManifestEntriesFactory(
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
   mapFile: (url: string) => string,
 ): () => AsyncGenerator<string | ManifestEntry, undefined, void> {
   return async function* additionalManifestEntries(): AsyncGenerator<string | ManifestEntry, undefined, void> {
