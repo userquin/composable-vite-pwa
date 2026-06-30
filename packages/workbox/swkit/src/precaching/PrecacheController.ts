@@ -71,7 +71,12 @@ class PrecacheController {
     fallbackToNetwork = true,
     parallel = { enabled: false, concurrency: 5 },
   }: PrecacheControllerOptions = {}) {
-    this._parallel = { enabled: parallel.enabled ?? false, concurrency: Math.max(1, parallel.concurrency ?? 5) }
+    const rawConcurrency = parallel.concurrency ?? 5
+    const concurrency = Number.isSafeInteger(rawConcurrency) && rawConcurrency >= 1
+      ? rawConcurrency
+      : 5
+
+    this._parallel = { enabled: parallel.enabled ?? false, concurrency }
     this._strategy = new PrecacheStrategy({
       cacheName: cacheNames.getPrecacheName(cacheName),
       plugins: [

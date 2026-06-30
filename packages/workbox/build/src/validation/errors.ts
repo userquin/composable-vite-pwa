@@ -125,4 +125,5 @@ export const errors = {
   'invalid-handler-string': ol`The handler name provided is not valid: `,
   'parallel-concurrency-min': ol`The 'parallel.concurrency' value must be at least 1.`,
   'parallel-concurrency-max': ol`The 'parallel.concurrency' value must be at most 10.`,
+  'parallel-concurrency-integer': ol`The 'parallel.concurrency' value must be an integer.`,
 }
