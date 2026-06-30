@@ -1,7 +1,8 @@
 import type { BroadcastCacheUpdateOptions } from '@composable-vite-pwa/workbox-swkit/broadcast-update/types'
 import type { CacheableResponseOptions } from '@composable-vite-pwa/workbox-swkit/cacheable-response/types'
-import type { Parallel, RouteHandler, RouteMatchCallback, WorkboxPlugin } from '@composable-vite-pwa/workbox-swkit/core/types'
+import type { RouteHandler, RouteMatchCallback, WorkboxPlugin } from '@composable-vite-pwa/workbox-swkit/core/types'
 import type { ExpirationPluginOptions } from '@composable-vite-pwa/workbox-swkit/expiration/types'
+import type { Parallel } from '@composable-vite-pwa/workbox-swkit/precaching/types'
 import type { HTTPMethod } from '@composable-vite-pwa/workbox-swkit/routing/types'
 import type { QueueOptions } from '@composable-vite-pwa/workbox-swkit/types'
 import type { BundlerLogLevel } from './build/types'
@@ -310,9 +311,14 @@ export interface GeneratePartial<T extends SWType> {
    */
   urlManipulation?: (options: { url: URL }) => URL[]
   /**
-   * Controls parallel precaching of assets during service worker installation,
-   * when enabled is true assets are fetched concurrently up to `concurrency` at a time
+   * Controls parallel precaching of assets during service worker installation.
+   * When enabled, assets are fetched concurrently up to `concurrency` at a time
    * instead of one by one.
+   *
+   * Limiting concurrency prevents net::ERR_INSUFFICIENT_RESOURCES errors in Chrome
+   * and reduces bandwidth impact on the main app during service worker installation.
+   * @see https://github.com/GoogleChrome/workbox/issues/2528
+   *
    * Defaults: { enabled: false, concurrency: 5 }
    */
   parallel?: Parallel

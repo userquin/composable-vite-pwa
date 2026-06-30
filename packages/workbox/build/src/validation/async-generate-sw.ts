@@ -75,9 +75,14 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
      */
     urlManipulation: v.optional(v.function()),
     /**
-     * Controls parallel precaching of assets during service worker installation,
-     * when enabled is true assets are fetched concurrently up to `concurrency` at a time
+     * Controls parallel precaching of assets during service worker installation.
+     * When enabled, assets are fetched concurrently up to `concurrency` at a time
      * instead of one by one.
+     *
+     * Limiting concurrency prevents net::ERR_INSUFFICIENT_RESOURCES errors in Chrome
+     * and reduces bandwidth impact on the main app during service worker installation.
+     * @see https://github.com/GoogleChrome/workbox/issues/2528
+     *
      * Defaults: { enabled: false, concurrency: 5 }
      */
     parallel: v.optional(
@@ -87,6 +92,7 @@ const BaseAsyncGenerateSWOptionsSchema = v.pipeAsync(
           concurrency: v.optional(
             v.pipe(
               v.number(),
+              v.integer(() => errors['parallel-concurrency-integer']),
               v.minValue(1, () => errors['parallel-concurrency-min']),
               // v.maxValue(10, () => errors['parallel-concurrency-max']),
             ),

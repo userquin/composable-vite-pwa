@@ -25,6 +25,8 @@ import { getOrCreatePrecacheController } from './utils/getOrCreatePrecacheContro
  * {@link workbox-precaching.precacheAndRoute}.
  *
  * @param {Array<object | string>} [entries] Array of entries to precache.
+ * @param {PrecacheOptions} options Configurations for downloading the precache entries
+ * in parallel. Invalid `concurrency` values are ignored and fall back to 5.
  */
 function precache(entries: Array<PrecacheEntry | string>, options?: PrecacheOptions): void {
   const precacheController = getOrCreatePrecacheController(options)

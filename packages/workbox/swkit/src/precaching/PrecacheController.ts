@@ -6,9 +6,9 @@
   https://opensource.org/licenses/MIT.
 */
 
-import type { Parallel, RouteHandlerCallback, WorkboxPlugin } from '../core/types'
+import type { RouteHandlerCallback, WorkboxPlugin } from '../core/types'
 import type { Strategy } from '../strategies/Strategy'
-import type { CleanupResult, InstallResult, PrecacheEntry } from './types'
+import type { CleanupResult, InstallResult, Parallel, PrecacheEntry } from './types'
 import { assert, privateCacheNames as cacheNames, logger, waitUntil, WorkboxError } from '../core/internals'
 import { PrecacheStrategy } from './PrecacheStrategy'
 import { createCacheKey } from './utils/createCacheKey'
@@ -63,7 +63,7 @@ class PrecacheController {
    * @param {boolean} [options.fallbackToNetwork] Whether to attempt to
    * get the response from the network if there's a precache miss.
    * @param {Parallel} [options.parallel] Configurations for downloading the precache entries
-   * in parallel.
+   * in parallel. Invalid `concurrency` values are ignored and fall back to 5.
    */
   constructor({
     cacheName,
@@ -71,7 +71,12 @@ class PrecacheController {
     fallbackToNetwork = true,
     parallel = { enabled: false, concurrency: 5 },
   }: PrecacheControllerOptions = {}) {
-    this._parallel = { enabled: parallel.enabled ?? false, concurrency: Math.max(1, parallel.concurrency ?? 5) }
+    const rawConcurrency = parallel.concurrency ?? 5
+    const concurrency = Number.isSafeInteger(rawConcurrency) && rawConcurrency >= 1
+      ? rawConcurrency
+      : 5
+
+    this._parallel = { enabled: parallel.enabled ?? false, concurrency }
     this._strategy = new PrecacheStrategy({
       cacheName: cacheNames.getPrecacheName(cacheName),
       plugins: [
