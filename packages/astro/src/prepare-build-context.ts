@@ -28,8 +28,6 @@ export function prepareBuildContext<
   const { base, vite, output, build, outDir, publicDir, root } = ctx.astro.config
   const server = output === 'server'
 
-  console.log(outDir)
-
   // server implies dist/client and dist/server: we need to change sw build to use client folder
   if (server) {
     ctx.outDir = normalizePath(path.resolve(fileURLToPath(build.client)))
@@ -41,7 +39,6 @@ export function prepareBuildContext<
   if (ctx.outDir.at(-1) === '/') {
     ctx.outDir = ctx.outDir.slice(0, ctx.outDir.length - 1)
   }
-  console.log(ctx.outDir)
 
   let options: Partial<BasePartial & GlobPartial & OptionalGlobDirectoryPartial & RequiredSWDestPartial> | undefined
   switch (ctx.strategy) {
@@ -66,7 +63,6 @@ export function prepareBuildContext<
   }
 
   const cwd = normalizePath(path.resolve(fileURLToPath(root)))
-  console.log(ctx.outDir, cwd)
   const immutableAssets = resolvedConfig.build.assetsDir ?? '_astro/'
 
   if (!options) {
