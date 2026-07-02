@@ -36,7 +36,7 @@ export async function findIconAsset(
 
 export async function checkHotUpdate(
   file: string,
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
   assetsGeneratorContext: AssetsGeneratorContext,
 ) {
   // watch pwa assets configuration file

@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Plugin, ViteDevServer } from 'vite'
 import type { VitePWAStrategy } from '../../types'
@@ -27,9 +26,8 @@ import { prepareSwNamesAndGlobDirectory } from '../dev/prepare-sw-names-and-glob
 
 export function DevPlugin<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>): Plugin {
   const transformHtml = (html: string): string => {
     if (!ctx.envApi && ctx.viteConfig.build.ssr) {
       return html
@@ -232,7 +230,7 @@ export function DevPlugin<
 
 function createWSResponseHandler(
   server: ViteDevServer,
-  ctx: VitePWAPluginContext<any, any, any, any>,
+  ctx: VitePWAPluginContext<any, any, any>,
 ): () => Promise<void> {
   return async () => {
     const { injectRegister, scope, base } = ctx.resolvedOptions
@@ -267,7 +265,7 @@ function createWSResponseHandler(
 
 function createSwitchServiceWorkerResponseHandler(
   server: ViteDevServer,
-  ctx: VitePWAPluginContext<any, any, any, any>,
+  ctx: VitePWAPluginContext<any, any, any>,
 ): () => Promise<void> {
   return async () => {
     if (!isDualServiceWorker(ctx)) {

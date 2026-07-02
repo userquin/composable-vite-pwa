@@ -9,7 +9,7 @@ import { checkForHtmlHead } from './html'
  */
 export function injectWebManifestHtmlLink(
   html: string,
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
 ) {
   const link = createWebManifestHtmlLink(ctx)
   return checkForHtmlHead(html).replace(

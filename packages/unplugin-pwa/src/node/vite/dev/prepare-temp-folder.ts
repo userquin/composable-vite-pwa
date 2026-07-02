@@ -44,7 +44,7 @@ function resolveTempFolder(): string {
 }
 
 export async function prepareTempFolder(
-  ctx: VitePWAPluginContext<any, any, any, any>,
+  ctx: VitePWAPluginContext<any, any, any>,
 ) {
   const internalOptions = ctx.dev.options!
   const tempFolderResolver = ctx.resolvedOptions.devOptions?.resolveTempFolder

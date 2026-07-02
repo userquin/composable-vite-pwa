@@ -1,6 +1,5 @@
-import type { Bundler, PWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
+import type { Bundler } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from './internal-types'
@@ -14,16 +13,8 @@ import semver from 'semver'
 export async function prepareResolvedPwaOptions<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
-  PC extends PWAPluginContext<B, UserStrategy, S, T>,
-  NPWAC extends NuxtPWAContext<
-    B,
-    UserStrategy,
-    S,
-    T,
-    PC
-  >,
+  NPWAC extends NuxtPWAContext<B, UserStrategy, T>,
 >(
   ctx: NPWAC,
   nuxt: Nuxt,
@@ -35,20 +26,20 @@ export async function prepareResolvedPwaOptions<
       & import('@composable-vite-pwa/workbox-build/types').RequiredGlobDirectoryPartial
   >
 
-  if (ctx.pwaCtx.resolvedOptions.strategy === 'build-sw') {
+  if (ctx.resolvedOptions.strategy === 'build-sw') {
     const resolver = createResolver(import.meta.filename)
-    ctx.pwaCtx.resolvedOptions.buildSW!.swSrc = await resolver.resolvePath(ctx.pwaCtx.resolvedOptions.buildSW!.swSrc)
-    config = ctx.pwaCtx.resolvedOptions.buildSW!
+    ctx.resolvedOptions.buildSW!.swSrc = await resolver.resolvePath(ctx.resolvedOptions.buildSW!.swSrc)
+    config = ctx.resolvedOptions.buildSW!
   }
   else {
-    ctx.pwaCtx.resolvedOptions.generateSW ??= {}
-    const generateSW = ctx.pwaCtx.resolvedOptions.generateSW!
+    ctx.resolvedOptions.generateSW ??= {}
+    const generateSW = ctx.resolvedOptions.generateSW!
     if (
-      ctx.pwaCtx.resolvedOptions.registerType === 'autoUpdate'
+      ctx.resolvedOptions.registerType === 'autoUpdate'
       && (
-        ctx.client.registerPlugin
-        || ctx.pwaCtx.resolvedOptions.injectRegister === 'script'
-        || ctx.pwaCtx.resolvedOptions.injectRegister === 'inline'
+        ctx.nuxt.client.registerPlugin
+        || ctx.resolvedOptions.injectRegister === 'script'
+        || ctx.resolvedOptions.injectRegister === 'inline'
       )
     ) {
       generateSW.clientsClaim = true
@@ -57,7 +48,7 @@ export async function prepareResolvedPwaOptions<
     if (nuxt.options.dev) {
       // on dev force always to use the root
       generateSW.navigateFallback = generateSW.navigateFallback ?? nuxt.options.app.baseURL ?? '/'
-      const devOptions = ctx.pwaCtx.resolvedOptions.devOptions
+      const devOptions = ctx.resolvedOptions.devOptions
       if (devOptions?.enabled && !devOptions.navigateFallbackAllowlist) {
         const baseURL = nuxt.options.app.baseURL
         // fix #214
@@ -68,7 +59,7 @@ export async function prepareResolvedPwaOptions<
     }
     // the user may want to disable offline support
     if (!('navigateFallback' in generateSW)) {
-      generateSW.navigateFallback = ctx.pwaCtx.base
+      generateSW.navigateFallback = ctx.base
       // generateSW.navigateFallback = nuxt.options.app.baseURL ?? '/'
     }
 
@@ -83,7 +74,7 @@ export async function prepareResolvedPwaOptions<
     config.globPatterns = ['**/*.{js,css,html}']
   }
 
-  const buildAssetsDir = ctx.buildAssetsDir
+  const buildAssetsDir = ctx.nuxt.buildAssetsDir
 
   // Vite 5 support: allow override dontCacheBustURLsMatching
   if (!('dontCacheBustURLsMatching' in config)) {
@@ -91,11 +82,11 @@ export async function prepareResolvedPwaOptions<
   }
 
   // handle payload extraction
-  if (ctx.enableGlobPatterns) {
+  if (ctx.nuxt.enableGlobPatterns) {
     config.globPatterns = config.globPatterns ?? []
     config.globPatterns.push('**/_payload.json')
-    if (ctx.pwaCtx.resolvedOptions.strategy === 'generate-sw' && ctx.experimental?.enableWorkboxPayloadQueryParams) {
-      const generateSW = ctx.pwaCtx.resolvedOptions.generateSW!
+    if (ctx.resolvedOptions.strategy === 'generate-sw' && ctx.nuxt.experimental?.enableWorkboxPayloadQueryParams) {
+      const generateSW = ctx.resolvedOptions.generateSW!
 
       generateSW.runtimeCaching = generateSW.runtimeCaching ?? []
       generateSW.runtimeCaching.push({
@@ -119,7 +110,7 @@ export async function prepareResolvedPwaOptions<
 
   // handle Nuxt App Manifest
   let appManifestFolder: string | undefined
-  if (semver.gte(ctx.nuxtVersion, '3.8.0') && nuxt.options.experimental.appManifest) {
+  if (semver.gte(ctx.nuxt.nuxtVersion, '3.8.0') && nuxt.options.experimental.appManifest) {
     config.globPatterns = config.globPatterns ?? []
     appManifestFolder = `${buildAssetsDir}builds/`
     config.globPatterns.push(`${appManifestFolder}**/*.json`)
@@ -127,13 +118,13 @@ export async function prepareResolvedPwaOptions<
 
   // allow override manifestTransforms
   if (!nuxt.options.dev && !config.manifestTransforms) {
-    config.manifestTransforms = [createManifestTransform(ctx.pwaCtx.base ?? '/', outDir, appManifestFolder)]
+    config.manifestTransforms = [createManifestTransform(ctx.base ?? '/', outDir, appManifestFolder)]
   }
 
-  if (ctx.pwaCtx.resolvedOptions.pwaAssets) {
-    ctx.pwaCtx.resolvedOptions.pwaAssets.integration = {
-      baseUrl: ctx.pwaCtx.base ?? '/',
-      publicDir: ctx.pwaCtx.publicDir,
+  if (ctx.resolvedOptions.pwaAssets) {
+    ctx.resolvedOptions.pwaAssets.integration = {
+      baseUrl: ctx.base ?? '/',
+      publicDir: ctx.publicDir,
       outDir,
     }
   }

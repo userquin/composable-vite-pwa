@@ -1,5 +1,4 @@
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { Plugin } from 'vite'
@@ -14,15 +13,14 @@ import { PwaRuntimeConfiguration } from './plugins/pwa-runtime-configuration'
 
 export async function prepareNuxtOptions<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: ViteNuxtPWAContext<UserStrategy, S, T> | ViteLegacyNuxtPWAContext<UserStrategy, S, T>,
+  ctx: ViteNuxtPWAContext<UserStrategy, T> | ViteLegacyNuxtPWAContext<UserStrategy, T>,
   nuxt: Nuxt,
 ) {
   if (nuxt.options.dev) {
-    const prefix = `${ctx.pwaCtx.base}__skip_vite/`
-    ctx.pwaCtx.normalizeDevServiceWorkerId = (
+    const prefix = `${ctx.base}__skip_vite/`
+    ctx.normalizeDevServiceWorkerId = (
       hook,
       depType,
       id,
@@ -40,7 +38,7 @@ export async function prepareNuxtOptions<
       return [assetId, assetId]
     }
 
-    const swNames = ctx.pwaCtx.dev.options.swNames
+    const swNames = ctx.dev.options.swNames
     if (swNames.hasNames) {
       nuxt.hook('vite:serverCreated', async (viteServer, { isServer }) => {
         if (isServer) {
@@ -52,27 +50,27 @@ export async function prepareNuxtOptions<
           next()
         }
 
-        if (ctx.pwaCtx.resolvedOptions.swType === 'classic-and-module') {
-          viteServer.middlewares.stack.push({ route: `${ctx.pwaCtx.base}${swNames.classic}`, handle: emptyHandle })
-          viteServer.middlewares.stack.push({ route: `${ctx.pwaCtx.base}${swNames.classic}.map`, handle: emptyHandle })
-          viteServer.middlewares.stack.push({ route: `${ctx.pwaCtx.base}${swNames.module}`, handle: emptyHandle })
-          viteServer.middlewares.stack.push({ route: `${ctx.pwaCtx.base}${swNames.module}.map`, handle: emptyHandle })
+        if (ctx.resolvedOptions.swType === 'classic-and-module') {
+          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.classic}`, handle: emptyHandle })
+          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.classic}.map`, handle: emptyHandle })
+          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.module}`, handle: emptyHandle })
+          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.module}.map`, handle: emptyHandle })
           // }
         }
         else {
-          viteServer.middlewares.stack.push({ route: `${ctx.pwaCtx.base}${swNames.name}`, handle: emptyHandle })
-          viteServer.middlewares.stack.push({ route: `${ctx.pwaCtx.base}${swNames.name}.map`, handle: emptyHandle })
+          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.name}`, handle: emptyHandle })
+          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.name}.map`, handle: emptyHandle })
         }
       })
     }
   }
 
   addVitePlugin([
-    MainPlugin(ctx.pwaCtx),
-    InfoPlugin(ctx.pwaCtx),
-    DevPlugin(ctx.pwaCtx),
-    DevMiddlewarePlugin(ctx.pwaCtx),
-    AssetsPlugin(ctx.pwaCtx),
+    MainPlugin(ctx),
+    InfoPlugin(ctx),
+    DevPlugin(ctx),
+    DevMiddlewarePlugin(ctx),
+    AssetsPlugin(ctx),
     PwaRuntimeConfiguration(ctx),
   ] as Plugin[])
 }

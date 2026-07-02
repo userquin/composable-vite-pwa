@@ -1,10 +1,8 @@
 import type {
   Bundler,
-  PWAPluginContext,
   SWNames,
 } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from './internal-types'
@@ -27,36 +25,28 @@ import { prepareBuildSwNames } from './prepare-sw-names'
 export async function prepareModule<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
-  PC extends PWAPluginContext<B, UserStrategy, S, T>,
-  NPWAC extends NuxtPWAContext<
-    B,
-    UserStrategy,
-    S,
-    T,
-    PC
-  >,
+  NPC extends NuxtPWAContext<B, UserStrategy, T>,
 >(
-  ctx: NPWAC,
+  ctx: NPC,
   nuxt: Nuxt,
 ) {
   const resolver = createResolver(import.meta.url)
-  const consumerOptions = ctx.pwaCtx.consumerOptions
+  const consumerOptions = ctx.consumerOptions
   // resolve nuxt aliases
   if (consumerOptions?.path) {
     consumerOptions.path = await resolver.resolvePath(consumerOptions.path)
   }
 
-  ctx.pwaCtx.base = nuxt.options.runtimeConfig.public.base as string || '/'
-  ctx.pwaCtx.consumerOptions.base ??= ctx.pwaCtx.base
-  ctx.pwaCtx.consumerOptions.scope ??= ctx.pwaCtx.base
-  ctx.pwaCtx.externalConfigurationLoader = true
+  ctx.base = nuxt.options.runtimeConfig.public.base as string || '/'
+  ctx.consumerOptions.base ??= ctx.base
+  ctx.consumerOptions.scope ??= ctx.base
+  ctx.externalConfigurationLoader = true
 
   const runtimeDir = resolver.resolve('./runtime')
   nuxt.options.build.transpile.push(runtimeDir)
 
-  if (ctx.client.registerPlugin) {
+  if (ctx.nuxt.client.registerPlugin) {
     addPlugin({
       src: resolver.resolve(runtimeDir, 'plugins/pwa.client'),
       mode: 'client',
@@ -77,39 +67,39 @@ export async function prepareModule<
   })
 
   // load pwa configuration
-  await ctx.loadPwaConfiguration()
+  await ctx.nuxt.loadPwaConfiguration()
 
   nuxt.hook('nitro:config', async (nitroConfig) => {
-    ctx.nitroConfig = nitroConfig
+    ctx.nuxt.nitroConfig = nitroConfig
 
     if (nuxt.options.experimental.payloadExtraction) {
-      ctx.enableGlobPatterns = nuxt.options.nitro.static || (nuxt.options as any)._generate /* TODO: remove in future */
+      ctx.nuxt.enableGlobPatterns = nuxt.options.nitro.static || (nuxt.options as any)._generate /* TODO: remove in future */
         || (
-          !!ctx.nitroConfig.prerender?.routes?.length
-          || Object.values(ctx.nitroConfig.routeRules ?? {}).some(r => r.prerender)
+          !!ctx.nuxt.nitroConfig.prerender?.routes?.length
+          || Object.values(ctx.nuxt.nitroConfig.routeRules ?? {}).some(r => r.prerender)
         )
     }
 
-    ctx.pwaCtx.resolvedOptions.base = ctx.pwaCtx.base
-    ctx.pwaCtx.resolvedOptions.scope = ctx.pwaCtx.base
-    ctx.pwaCtx.resolvedOptions.buildBase = ctx.pwaCtx.base
-    ctx.pwaCtx.strategy = ctx.pwaCtx.resolvedOptions.strategy!
-    ctx.pwaCtx.useImportRegister = false
+    ctx.resolvedOptions.base = ctx.base
+    ctx.resolvedOptions.scope = ctx.base
+    ctx.resolvedOptions.buildBase = ctx.base
+    ctx.strategy = ctx.resolvedOptions.strategy!
+    ctx.useImportRegister = false
 
     const isDev = nuxt.options.dev
     let swDisabled = false
     if (nuxt.options.dev) {
-      ctx.pwaCtx.devEnvironment = true
-      const internalDevOptions = ctx.pwaCtx.dev.options!
+      ctx.devEnvironment = true
+      const internalDevOptions = ctx.dev.options!
       internalDevOptions.tempFolder = resolve(nuxt.options.buildDir, 'pwa/.dev-dist')
-      ctx.pwaCtx.outDir = internalDevOptions.tempFolder
-      ctx.pwaCtx.rootDir = nuxt.options.rootDir
-      ctx.pwaCtx.publicDir = nuxt.options.dir.public
-      if (ctx.pwaCtx.resolvedOptions.disable) {
+      ctx.outDir = internalDevOptions.tempFolder
+      ctx.rootDir = nuxt.options.rootDir
+      ctx.publicDir = nuxt.options.dir.public
+      if (ctx.resolvedOptions.disable) {
         swDisabled = true
       }
       else {
-        const devOptions = ctx.pwaCtx.resolvedOptions.devOptions
+        const devOptions = ctx.resolvedOptions.devOptions
         if (devOptions) {
           swDisabled = !(devOptions.enabled === true)
         }
@@ -119,23 +109,23 @@ export async function prepareModule<
       }
     }
     else {
-      if (ctx.pwaCtx.resolvedOptions.disable) {
+      if (ctx.resolvedOptions.disable) {
         swDisabled = true
       }
       if (!swDisabled) {
-        prepareBuildSwNames(ctx.pwaCtx)
+        prepareBuildSwNames(ctx)
       }
     }
 
-    const webManifest = ctx.pwaCtx.resolvedOptions.manifest
+    const webManifest = ctx.resolvedOptions.manifest
     let swNames: SWNames | undefined
 
     // prepare nitro public assets
     if (isDev) {
       if (!swDisabled) {
         nitroConfig.publicAssets = nitroConfig.publicAssets || []
-        await prepareSwNamesAndGlobDirectory(ctx.pwaCtx as unknown as any)
-        swNames = ctx.pwaCtx.dev.options!.swNames
+        await prepareSwNamesAndGlobDirectory(ctx as unknown as any)
+        swNames = ctx.dev.options!.swNames
         const outDir = path.resolve(
           nuxt.options.buildDir,
           'pwa/.dev-dist',
@@ -146,31 +136,31 @@ export async function prepareModule<
         nitroConfig.publicAssets.push({
           dir: outDir,
           fallthrough: true,
-          baseURL: ctx.pwaCtx.base,
+          baseURL: ctx.base,
           maxAge: 0,
         })
       }
     }
     else {
-      swNames = ctx.pwaCtx.swNames
+      swNames = ctx.swNames
     }
 
     nitroConfig.routeRules = nitroConfig.routeRules || {}
     if (swNames?.hasNames) {
-      if (ctx.pwaCtx.resolvedOptions.swType === 'classic-and-module') {
-        nitroConfig.routeRules[`${ctx.pwaCtx.base}${swNames.classic}`] = {
+      if (ctx.resolvedOptions.swType === 'classic-and-module') {
+        nitroConfig.routeRules[`${ctx.base}${swNames.classic}`] = {
           headers: {
             'Cache-Control': 'public, max-age=0, must-revalidate',
           },
         }
-        nitroConfig.routeRules[`${ctx.pwaCtx.base}${swNames.module}`] = {
+        nitroConfig.routeRules[`${ctx.base}${swNames.module}`] = {
           headers: {
             'Cache-Control': 'public, max-age=0, must-revalidate',
           },
         }
       }
       else {
-        nitroConfig.routeRules[`${ctx.pwaCtx.base}${swNames.name}`] = {
+        nitroConfig.routeRules[`${ctx.base}${swNames.name}`] = {
           headers: {
             'Cache-Control': 'public, max-age=0, must-revalidate',
           },
@@ -178,8 +168,8 @@ export async function prepareModule<
       }
     }
 
-    if ((nuxt.options.dev || ctx.registerWebManifestInRouteRules) && webManifest) {
-      nitroConfig.routeRules[`${ctx.pwaCtx.base}${ctx.pwaCtx.resolvedOptions.manifestFilename ?? 'manifest.webmanifest'}`] = {
+    if ((nuxt.options.dev || ctx.nuxt.registerWebManifestInRouteRules) && webManifest) {
+      nitroConfig.routeRules[`${ctx.base}${ctx.resolvedOptions.manifestFilename ?? 'manifest.webmanifest'}`] = {
         headers: {
           'Content-Type': 'application/manifest+json',
           'Cache-Control': 'public, max-age=0, must-revalidate',
@@ -191,27 +181,27 @@ export async function prepareModule<
   nuxt.hook('nitro:init', async (nitro) => {
     let outDir: string
     if (nuxt.options.dev) {
-      outDir = ctx.pwaCtx.outDir
+      outDir = ctx.outDir
     }
     else {
-      ctx.pwaCtx.outDir = nitro.options.output.publicDir
-      ctx.pwaCtx.publicDir = ctx.pwaCtx.outDir
-      ctx.pwaCtx.rootDir = ctx.pwaCtx.outDir
-      outDir = ctx.pwaCtx.outDir
-      ctx.pwaCtx.resolvedOptions.outDir = ctx.pwaCtx.outDir
+      ctx.outDir = nitro.options.output.publicDir
+      ctx.publicDir = ctx.outDir
+      ctx.rootDir = ctx.outDir
+      outDir = ctx.outDir
+      ctx.resolvedOptions.outDir = ctx.outDir
     }
 
     // add custom bundler options
-    await ctx.initPwaConfiguration()
+    await ctx.nuxt.initPwaConfiguration()
 
     // apply default options
     await prepareResolvedPwaOptions(ctx as unknown as any, nuxt, outDir)
   })
 
-  await ctx.prepareNuxtOptions()
+  await ctx.nuxt.prepareNuxtOptions()
 
   if (!nuxt.options.dev) {
-    if (semver.gte(ctx.nuxtVersion, '3.8.0')) {
+    if (semver.gte(ctx.nuxt.nuxtVersion, '3.8.0')) {
       nuxt.hook('nitro:build:public-assets', async () => {
         await buildPwaAssets(ctx as unknown as any)
       })

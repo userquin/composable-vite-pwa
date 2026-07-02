@@ -11,7 +11,7 @@ import { checkForHtmlHead } from './html'
  */
 export async function injectGenerateRegisterSW(
   html: string,
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
   dev: boolean,
   injectAtDev = true,
 ): Promise<string | undefined> {

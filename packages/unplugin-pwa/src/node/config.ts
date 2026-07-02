@@ -1,4 +1,4 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
+import type { ExtractStrategy } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { ManifestOptions, ResolvedVitePWAOptions, VitePWAOptions, VitePWAStrategy } from './types'
 import fs from 'node:fs'
@@ -116,9 +116,8 @@ export function prepareManifest(
 
 export async function resolvePwaConfiguration<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(options: Partial<VitePWAOptions<UserStrategy, T>>): Promise<ResolvedVitePWAOptions<S, T>> {
+>(options: Partial<VitePWAOptions<UserStrategy, T>>): Promise<ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>> {
   const resolvedPath = options.path ?? resolveDefaultConfig(options.cwd)
   const config = await loadConfiguration(Object.assign(
     {},
@@ -182,7 +181,7 @@ export async function resolvePwaConfiguration<
           additionalManifestEntries,
           additionalManifestEntriesGenerator,
         }),
-      }) as ResolvedVitePWAOptions<S, T>
+      }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>
     }
     case 'injectManifest':
     case 'inject-manifest': {
@@ -212,7 +211,7 @@ export async function resolvePwaConfiguration<
           additionalManifestEntries,
           additionalManifestEntriesGenerator,
         }),
-      }) as ResolvedVitePWAOptions<S, T>
+      }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>
     }
     case 'build-sw':
     case 'buildSW': {
@@ -242,11 +241,11 @@ export async function resolvePwaConfiguration<
           additionalManifestEntries,
           additionalManifestEntriesGenerator,
         }),
-      }) as ResolvedVitePWAOptions<S, T>
+      }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>
     }
     case 'self-destroy-sw':
     case 'selfDestroySW': {
-      return Object.assign({}, rest, { strategy: 'self-destroy-sw' }) as ResolvedVitePWAOptions<S, T>
+      return Object.assign({}, rest, { strategy: 'self-destroy-sw' }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>
     }
   }
 

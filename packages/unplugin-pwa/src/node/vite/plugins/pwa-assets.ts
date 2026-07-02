@@ -1,4 +1,3 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Plugin, ViteDevServer } from 'vite'
 import type { VitePWAStrategy } from '../../types'
@@ -14,11 +13,15 @@ import {
 } from '../../constants'
 import { extractIcons } from '../../pwa-assets/utils'
 
+/**
+ * Vite plugin to generate virtual PWA assets modules.
+ *
+ * @param ctx The Vite PWA plugin context.
+ */
 export function AssetsPlugin<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Plugin {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>): Plugin {
   const transformHtml = async (html: string): Promise<string> => {
     if (!ctx.envApi && ctx.viteConfig.build.ssr) {
       return html
@@ -102,7 +105,7 @@ export function AssetsPlugin<
 
 async function transformIndexHtmlHandler(
   html: string,
-  ctx: VitePWAPluginContext<any, any, any, any>,
+  ctx: VitePWAPluginContext<any, any, any>,
 ): Promise<string> {
   // dev: color-theme and icon links injected using createWSResponseHandler
   if (ctx.devEnvironment && ctx.resolvedOptions.devOptions?.enabled)
@@ -116,7 +119,7 @@ async function transformIndexHtmlHandler(
 }
 
 function createWSResponseHandler(
-  ctx: VitePWAPluginContext<any, any, any, any>,
+  ctx: VitePWAPluginContext<any, any, any>,
   server: ViteDevServer,
 ): () => Promise<void> {
   return async () => {

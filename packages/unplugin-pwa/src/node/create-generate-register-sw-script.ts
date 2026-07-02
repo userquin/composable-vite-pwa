@@ -10,7 +10,7 @@ import { generateRegisterSW } from './generate-register-sw'
  * @param injectAtDev Inject the script at dev server?
  */
 export async function createGenerateRegisterSW(
-  ctx: PWAPluginContext<any, any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
   dev: boolean,
   injectAtDev = true,
 ) {

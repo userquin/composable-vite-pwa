@@ -1,8 +1,9 @@
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { PluginOption } from 'vite'
 import type { VitePWAOptions, VitePWAStrategy } from '../types'
-import { BuildPlugin } from './plugins/build'
+import { BuildPwaAssetsPlugin } from './plugins/build-pwa-assets'
 import { BuildRegisterSWPlugin } from './plugins/build-register-sw'
+import { BuildSWPlugin } from './plugins/build-sw'
 import { DevPlugin } from './plugins/dev'
 import { DevMiddlewarePlugin } from './plugins/dev-middleware'
 import { DevAssetsMiddlewarePlugin } from './plugins/dev-pwa-assets-middleware'
@@ -33,6 +34,7 @@ export function VitePWA<
     DevAssetsMiddlewarePlugin(ctx),
     AssetsPlugin(ctx),
     BuildRegisterSWPlugin(ctx),
-    BuildPlugin(ctx),
+    BuildPwaAssetsPlugin(ctx),
+    BuildSWPlugin(ctx),
   ]
 }

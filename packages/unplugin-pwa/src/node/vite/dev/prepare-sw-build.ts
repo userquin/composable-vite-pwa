@@ -1,5 +1,5 @@
 import type { BuildGenerateSWOptions, BuildWithSourcesResult } from '@composable-vite-pwa/workbox-build/build/types'
-import type { SelfDestroyingStrategyOptions, Strategy } from '@composable-vite-pwa/workbox-build/config/types'
+import type { SelfDestroyingStrategyOptions } from '@composable-vite-pwa/workbox-build/config/types'
 import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { BuildSWType } from '../../context-types'
 import type { VitePWAStrategy } from '../../types'
@@ -11,10 +11,9 @@ import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-
 
 export async function prepareSwBuild<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
 ) {
   if (!ctx.resolvedOptions.disable && ctx.resolvedOptions.devOptions?.enabled === true) {
     switch (ctx.strategy) {
@@ -38,9 +37,8 @@ export async function prepareSwBuild<
 
 function prepareSelfDestroyingSW<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): SelfDestroyingStrategyOptions {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>): SelfDestroyingStrategyOptions {
   const options = ctx.resolvedOptions.selfDestroying as SelfDestroyingStrategyOptions
   const selfDestroying = Array.isArray(options.swDest) ? options.swDest : [options.swDest]
   const internalDevOptions = ctx.dev.options!
@@ -62,10 +60,9 @@ function prepareSelfDestroyingSW<
 
 async function prepareAssets<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
   globPatternsFromOptions?: string[],
 ) {
   const internalDevOptions = ctx.dev.options!
@@ -114,9 +111,8 @@ async function prepareAssets<
 
 async function prepareGenerateSW<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Promise<Partial<BuildGenerateSWOptions<T>>> {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>): Promise<Partial<BuildGenerateSWOptions<T>>> {
   const options = ctx.resolvedOptions.generateSW as BuildGenerateSWOptions<T>
   const internalDevOptions = ctx.dev.options!
 
@@ -150,9 +146,8 @@ async function prepareGenerateSW<
 
 async function prepareBuildSW<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>): Promise<Partial<BuildSWType<ViteBundler, T>>> {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>): Promise<Partial<BuildSWType<ViteBundler, T>>> {
   const options = ctx.resolvedOptions.buildSW as BuildSWType<ViteBundler, T>
 
   const {
@@ -179,7 +174,7 @@ async function prepareBuildSW<
 
 function collectSWBuildResult(
   result: BuildResult | BuildWithSourcesResult,
-  ctx: VitePWAPluginContext<any, any, any, any>,
+  ctx: VitePWAPluginContext<any, any, any>,
 ) {
   const base = ctx.base
   const assets = ctx.dev.options!.swAssetsPaths
@@ -200,16 +195,14 @@ function collectSWBuildResult(
 
 async function buildGenerateSW<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>) {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>) {
   collectSWBuildResult(await ctx.dev.generateSW(await prepareGenerateSW(ctx)), ctx)
 }
 
 async function buildBuildSW<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>) {
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>) {
   collectSWBuildResult(await ctx.dev.buildSW(await prepareBuildSW(ctx)), ctx)
 }

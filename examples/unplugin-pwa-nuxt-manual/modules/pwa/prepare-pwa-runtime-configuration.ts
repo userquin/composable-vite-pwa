@@ -1,6 +1,5 @@
-import type { Bundler, PWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
+import type { Bundler } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from './internal-types'
@@ -9,16 +8,8 @@ import { addTemplate } from '@nuxt/kit'
 export function preparePwaRuntimeConfiguration<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
-  PC extends PWAPluginContext<B, UserStrategy, S, T>,
-  NPWAC extends NuxtPWAContext<
-    B,
-    UserStrategy,
-    S,
-    T,
-    PC
-  >,
+  NPWAC extends NuxtPWAContext<B, UserStrategy, T>,
 >(
   ctx: NPWAC,
   nuxt: Nuxt,
@@ -28,13 +19,13 @@ export function preparePwaRuntimeConfiguration<
   addTemplate({
     filename,
     getContents: async () => {
-      const { client, pwaCtx } = ctx
+      const { client } = ctx.nuxt
       let callBeforeRegisterHook = false
       const references: string[] = []
       const imports: string[] = []
       const functions: string[] = []
-      if (pwaCtx.devEnvironment) {
-        if (!pwaCtx.resolvedOptions.disable && pwaCtx.resolvedOptions.devOptions?.enabled) {
+      if (ctx.devEnvironment) {
+        if (!ctx.resolvedOptions.disable && ctx.resolvedOptions.devOptions?.enabled) {
           references.push('/// <reference types="@composable-vite-pwa/unplugin-pwa/vite-hmr-entry-point" />')
           imports.push('{ registerDevSW, setDevPWASwitcherReady } from \'virtual:pwa-entry-point-loaded\'')
           functions.push(`export function initializeDev() {
@@ -44,7 +35,7 @@ export function preparePwaRuntimeConfiguration<
 export function activateSWSwitcherDev() {
   setDevPWASwitcherReady()
 }`)
-          const internalDevOptions = pwaCtx.dev.options!
+          const internalDevOptions = ctx.dev.options!
           if (internalDevOptions.swNames.hasNames) {
             callBeforeRegisterHook = true
           }
@@ -55,11 +46,11 @@ export function activateSWSwitcherDev() {
         }
       }
       else {
-        if (!pwaCtx.resolvedOptions.disable) {
+        if (!ctx.resolvedOptions.disable) {
           callBeforeRegisterHook = true
         }
       }
-      const display = typeof pwaCtx.resolvedOptions.manifest !== 'boolean' ? pwaCtx.resolvedOptions.manifest?.display ?? 'standalone' : 'standalone'
+      const display = typeof ctx.resolvedOptions.manifest !== 'boolean' ? ctx.resolvedOptions.manifest?.display ?? 'standalone' : 'standalone'
       const installPrompt = (typeof client.installPrompt === 'undefined' || client.installPrompt === false)
         ? undefined
         : (client.installPrompt === true || client.installPrompt.trim() === '')

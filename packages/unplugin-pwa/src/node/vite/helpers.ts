@@ -1,4 +1,4 @@
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
+import type { ExtractStrategy } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type {
   BasePartial,
   ManifestEntry,
@@ -48,7 +48,7 @@ export function resolveBasePath(base: string) {
 }
 
 export function prepareAdditionalManifestEntriesGenerator(
-  ctx: VitePWAPluginContext<any, any, any, any>,
+  ctx: VitePWAPluginContext<any, any, any>,
 ): () => AsyncGenerator<string | ManifestEntry, undefined, void> {
   return additionalManifestEntriesFactory(ctx, (url) => {
     const buildBase = ctx.resolvedOptions.buildBase!
@@ -64,7 +64,7 @@ export function prepareAdditionalManifestEntriesGenerator(
  * @param ctx The resolved Vite PWA plugin context
  */
 export function normalizeManifest(
-  ctx: VitePWAPluginContext<any, any, any, any>,
+  ctx: VitePWAPluginContext<any, any, any>,
 ) {
   prepareManifest(ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>)
   const manifest = ctx.resolvedOptions.manifest
@@ -104,10 +104,9 @@ export function normalizeManifest(
 
 export function preparePWAAssetsGenerator<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
 ) {
   if (ctx.resolvedOptions.pwaAssets && !ctx.resolvedOptions.pwaAssets.disabled) {
     ctx.pwaAssetsGenerator = import('../pwa-assets/generator').then(({ loadInstructions }) => loadInstructions(ctx)).catch((e) => {
@@ -133,10 +132,9 @@ export function preparePWAAssetsGenerator<
  */
 export function preparePWAStrategy<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
   cwd: string,
   outDir: string,
   immutableAssets: string,
@@ -145,15 +143,15 @@ export function preparePWAStrategy<
   let options: Partial<BasePartial & OptionalGlobDirectoryPartial & RequiredSWDestPartial> | undefined
   switch (ctx.strategy) {
     case 'generate-sw':
-      ctx.resolvedOptions.generateSW ??= {} as ResolvedGenerateSW<S, T>
+      ctx.resolvedOptions.generateSW ??= {} as ResolvedGenerateSW<ExtractStrategy<UserStrategy>, T>
       options = ctx.resolvedOptions.generateSW
       break
     case 'inject-manifest':
-      ctx.resolvedOptions.injectManifest ??= {} as ResolvedInjectManifest<S, T>
+      ctx.resolvedOptions.injectManifest ??= {} as ResolvedInjectManifest<ExtractStrategy<UserStrategy>, T>
       options = ctx.resolvedOptions.injectManifest
       break
     case 'build-sw':
-      ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<S, T>
+      ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<ExtractStrategy<UserStrategy>, T>
       options = ctx.resolvedOptions.buildSW
       // todo: finish alias, ask sapphi-red
       // add vite/rolldown aliases
@@ -249,12 +247,11 @@ export function preparePWAStrategy<
  */
 export async function preparePWAContextDefaults<
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
   forClient: boolean,
   config: ResolvedConfig,
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, S, T>,
+  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
 ): Promise<void> {
   if (ctx.externalConfigurationLoader) {
     return
@@ -262,7 +259,7 @@ export async function preparePWAContextDefaults<
   await Promise.all([
     import('../config').then(({
       resolvePwaConfiguration,
-    }) => resolvePwaConfiguration<UserStrategy, S, T>(
+    }) => resolvePwaConfiguration<UserStrategy, T>(
       ctx.consumerOptions,
     )).then(resolvedOptions => (ctx.resolvedOptions = resolvedOptions)),
     import('@composable-vite-pwa/workbox-build/build/vite').then(({

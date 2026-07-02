@@ -1,16 +1,15 @@
-import type { Bundler, PWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
+import type { Bundler } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
-import type { Strategy } from '@composable-vite-pwa/workbox-build/config/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { NuxtPWAContext } from './internal-types'
 import { resolveSWNames } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 
 export function prepareBuildSwNames<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
-  S extends Strategy,
   T extends SWType,
 >(
-  ctx: PWAPluginContext<B, UserStrategy, S, T>,
+  ctx: NuxtPWAContext<B, UserStrategy, T>,
 ) {
   let swSrc: string | undefined
   switch (ctx.strategy) {
