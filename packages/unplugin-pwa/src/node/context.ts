@@ -22,6 +22,7 @@ export function createPWAContext<
     resolvedOptions: undefined!,
     useImportRegister: false,
     devEnvironment: false,
+    isPreview: false,
     pwaAssetsGenerator: Promise.resolve(undefined!),
     build: undefined!,
     dev: undefined!,

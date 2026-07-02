@@ -138,6 +138,7 @@ export interface PWAPluginContext<
   resolvedOptions: Partial<ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>>
   useImportRegister: boolean
   devEnvironment: boolean
+  isPreview: boolean
   hmrRequiresSwitcher?: true
   pwaAssetsGenerator: Promise<PWAAssetsGenerator | undefined>
   build: PWABuildContext
