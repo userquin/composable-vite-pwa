@@ -78,14 +78,8 @@ export function MainPlugin<
         forClient = config.consumer === 'client'
       }
     },
-    configureServer: () => {
-      /* if (ctx.bundler === 'vite-legacy' && ctx.viteConfig.build.ssr) {
-        return
-      } */
-
-      ctx.devEnvironment = true
-    },
     async configResolved(config) {
+      ctx.devEnvironment = !(config.command === 'build')
       if (ctx.envApi) {
         if (forClient) {
           ctx.viteConfig = config
