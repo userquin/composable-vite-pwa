@@ -20,7 +20,9 @@ const { title } = Astro.props as Props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		{ pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} /> }
-		<script src="/src/pwa.js"></script>
+		<script>
+			import '/src/pwa.js'
+		</script>
 	</head>
 	<body>
 		<slot />

@@ -10,6 +10,7 @@ import { hello, sayHello } from './sw-helper'
 console.log(message)
 console.log(hello)
 console.log(sayHello('from SW'))
+console.log(import.meta.env)
 
 // declare let self: ServiceWorkerGlobalScope
 

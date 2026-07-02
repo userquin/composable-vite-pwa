@@ -25,15 +25,24 @@ export function VirtualMessagePlugin() {
 
 // https://astro.build/config
 export default defineConfig({
+  vite: {
+    build: {
+      minify: false,
+    },
+  },
   integrations: [
     AstroPWAIntegration({
       swType: 'classic-and-module',
       strategies: 'build-sw',
+      injectRegister: false,
       // includeAssets: ['favicon.ico', 'favicon.svg'],
       // includeManifestIcons: true,
       minify: false,
       disable: false,
-      includeManifest: false,
+      includeManifest: true,
+      includeManifestIcons: false,
+      includeManifestShortcutIcons: false,
+      includeManifestScreenshots: false,
       manifest: {
         icons: [
           {
@@ -62,6 +71,7 @@ export default defineConfig({
       buildSW: {
         sourcemap: true,
         manifest: true,
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,ico}'],
         swSrc,
         customChunks: (moduleId, ctx) => {
           if (ctx.getModuleInfo(moduleId)?.id.includes('sw-helper')) {

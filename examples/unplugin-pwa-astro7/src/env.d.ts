@@ -1,3 +1,9 @@
-/// <reference types="astro/client" />
-/// <reference types="@composable-vite-pwa/unplugin-pwa/info" />
-/// <reference types="@composable-vite-pwa/unplugin-pwa/vanillajs" />
+interface ImportMetaEnv {
+  readonly DB_PASSWORD: string
+  readonly PUBLIC_POKEAPI: string
+  // more env variables...
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}

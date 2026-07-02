@@ -2,14 +2,6 @@ import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/typ
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { AstroIntegration } from 'astro'
 import type { AstroPWAOptions } from './types'
-import { BuildPwaAssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/build-pwa-assets'
-import { BuildRegisterSWPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/build-register-sw'
-import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
-import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
-import { DevAssetsMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-pwa-assets-middleware'
-import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/info'
-import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
-import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/pwa-assets'
 import { createAstroPWAContext } from './create-context'
 
 export function AstroPWAIntegration<
@@ -21,7 +13,11 @@ export function AstroPWAIntegration<
   return {
     name: '@vite-pwa/astro-integration',
     hooks: {
-      'astro:config:setup': async ({ command, config, updateConfig }) => {
+      'astro:config:setup': async ({
+        command,
+        config,
+        updateConfig,
+      }) => {
         ctx.astro.config = config
         switch (command) {
           case 'dev':
@@ -47,16 +43,9 @@ export function AstroPWAIntegration<
 
         updateConfig({
           vite: {
-            plugins: [
-              MainPlugin(ctx),
-              InfoPlugin(ctx),
-              DevPlugin(ctx),
-              DevMiddlewarePlugin(ctx),
-              DevAssetsMiddlewarePlugin(ctx),
-              AssetsPlugin(ctx),
-              BuildPwaAssetsPlugin(ctx),
-              BuildRegisterSWPlugin(ctx),
-            ],
+            plugins: await import('./create-plugins').then(({
+              createPlugins,
+            }) => createPlugins(ctx)),
           },
         })
       },
@@ -70,7 +59,9 @@ export function AstroPWAIntegration<
           await pwaAssetsGenerator.generate()
         }
 
-        await ctx.runBuild()
+        if (!ctx.resolvedOptions.disable) {
+          await ctx.runBuild()
+        }
       },
     },
   }

@@ -1,10 +1,17 @@
-import type { ConfigurePWAOptionsFn } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
-import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
+import type { ConfigurePWAOptionsFn, ExtractStrategy } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
+import type {
+  ResolvedBuildSW,
+  ResolvedGenerateSW,
+  ResolvedInjectManifest,
+  VitePWAStrategy,
+} from '@composable-vite-pwa/unplugin-pwa/node/types'
 import type { VitePWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
-import type { ManifestTransform, SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { EnvironmentData } from '@composable-vite-pwa/workbox-build/build/types'
+import type {
+  SWType,
+} from '@composable-vite-pwa/workbox-build/types'
 import type { AstroConfig } from 'astro'
 import type { AstroExperimentalOptions, AstroPWAOptions } from './types'
-import { fileURLToPath } from 'node:url'
 import { createVitePWAContext } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
 
 export interface AstroPWAContext<
@@ -53,77 +60,61 @@ export function createAstroPWAContext<
   return ctx
 }
 
-function _createManifestTransform(ctx: AstroPWAContext<any, any>): ManifestTransform {
-  return async (entries) => {
-    const { doBuild, trailingSlash, scope, useDirectoryFormat } = ctx.astro
-    if (!doBuild)
-      return { manifest: entries, warnings: [] }
+function prepareEnvironment<
+  UserStrategy extends VitePWAStrategy,
+  T extends SWType,
+>(
+  ctx: AstroPWAContext<UserStrategy, T>,
+  resolvedOptions: import('vite').ResolvedConfig,
+) {
+  const { define, envDir, envPrefix } = resolvedOptions
 
-    // apply transformation only when build enabled
-    entries.filter(e => e && e.url.endsWith('.html')).forEach((e) => {
-      const url = e.url.startsWith('/') ? e.url.slice(1) : e.url
-      if (url === 'index.html') {
-        e.url = scope
-      }
-      else {
-        const parts = url.split('/')
-        parts[parts.length - 1] = parts[parts.length - 1].replace(/\.html$/, '')
-        e.url = useDirectoryFormat
-          ? parts.length > 1 ? parts.slice(0, parts.length - 1).join('/') : parts[0]
-          : parts.join('/')
-
-        if (trailingSlash === 'always')
-          e.url += '/'
-      }
-    })
-
-    return { manifest: entries, warnings: [] }
+  let options: EnvironmentData | undefined
+  switch (ctx.strategy) {
+    case 'generate-sw':
+      ctx.resolvedOptions.generateSW ??= {} as ResolvedGenerateSW<ExtractStrategy<UserStrategy>, T>
+      options = ctx.resolvedOptions.generateSW
+      break
+    case 'inject-manifest':
+      ctx.resolvedOptions.injectManifest ??= {} as ResolvedInjectManifest<ExtractStrategy<UserStrategy>, T>
+      options = ctx.resolvedOptions.injectManifest
+      break
+    case 'build-sw':
+      ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<ExtractStrategy<UserStrategy>, T>
+      options = ctx.resolvedOptions.buildSW
+      break
   }
-}
 
-function _createExperimentalManifestTransform(ctx: AstroPWAContext<any, any>): ManifestTransform {
-  return async (entries) => {
-    const { doBuild, trailingSlash, scope, useDirectoryFormat } = ctx.astro
-    if (!doBuild)
-      return { manifest: entries, warnings: [] }
-
-    const additionalEntries: Parameters<ManifestTransform>[0] = []
-
-    // apply transformation only when build enabled
-    entries.filter(e => e && e.url.endsWith('.html')).forEach((e) => {
-      const url = e.url.startsWith('/') ? e.url.slice(1) : e.url
-      if (url === 'index.html') {
-        additionalEntries.push({
-          revision: e.revision,
-          url: scope,
-          size: e.size,
-        })
-      }
-      else if (url === '404.html') {
-        e.url = `404${trailingSlash === 'always' ? '/' : ''}`
+  if (options) {
+    options.envDir = envDir
+    if (define) {
+      options.define = Object.assign(
+        {},
+        options.define ?? {},
+        define,
+      )
+    }
+    const prefixes = new Set<string>(
+      envPrefix
+        ? Array.isArray(envPrefix)
+          ? envPrefix
+          : [envPrefix]
+        : [],
+    )
+    if (options.envPrefix) {
+      if (typeof options.envPrefix === 'string') {
+        prefixes.add(options.envPrefix)
       }
       else {
-        const parts = url.split('/')
-        parts[parts.length - 1] = parts[parts.length - 1].replace(/\.html$/, '')
-        let newUrl = useDirectoryFormat
-          ? parts.length > 1 ? parts.slice(0, parts.length - 1).join('/') : parts[0]
-          : parts.join('/')
-
-        if (trailingSlash === 'always')
-          newUrl += '/'
-
-        additionalEntries.push({
-          revision: e.revision,
-          url: newUrl,
-          size: e.size,
-        })
+        for (const pref of options.envPrefix) {
+          prefixes.add(pref)
+        }
       }
-    })
-
-    if (additionalEntries.length)
-      entries.push(...additionalEntries)
-
-    return { manifest: entries, warnings: [] }
+    }
+    if (!prefixes.has('PUBLIC_')) {
+      prefixes.add('PUBLIC_')
+    }
+    options.envPrefix = [...prefixes]
   }
 }
 
@@ -133,101 +124,15 @@ function createPWAConfigurer<
 >(
   ctx: AstroPWAContext<UserStrategy, T>,
 ): ConfigurePWAOptionsFn {
-  return () => {
+  return async (_forClient, config) => {
+    prepareEnvironment(ctx, config)
     if (ctx.astro.devEnvironment) {
       ctx.devEnvironment = true
       return undefined
     }
 
-    ctx.resolvedOptions.includeManifestIcons = false
-    ctx.resolvedOptions.includeManifest = false
-    ctx.resolvedOptions.includeManifestScreenshots = false
-    ctx.resolvedOptions.includeManifestShortcutIcons = false
-
-    const { base, vite, output, build, publicDir, outDir } = ctx.astro.config
-    const server = output === 'server'
-
-    if (server) {
-      ctx.outDir = fileURLToPath(build.client)
-      ctx.resolvedOptions.outDir = ctx.outDir
-    }
-
-    if (ctx.resolvedOptions.pwaAssets) {
-      ctx.resolvedOptions.pwaAssets.integration = {
-        baseUrl: base ?? vite.base ?? '/',
-        publicDir: fileURLToPath(publicDir),
-        outDir: server ? ctx.outDir : fileURLToPath(outDir),
-      }
-    }
-    /*
-    const {
-      strategies = 'generateSW',
-      registerType = 'prompt',
-      injectRegister,
-      workbox = {},
-      ...rest
-    } = options
-
-    let assets = config.build.assets ?? '_astro/'
-    if (assets[0] === '/') {
-      assets = assets.slice(1)
-    }
-    if (assets[assets.length - 1] !== '/') {
-      assets += '/'
-    }
-
-    if (strategies === 'generateSW') {
-      const useWorkbox = { ...workbox }
-      const newOptions: Partial<VitePWAOptions> = {
-        ...rest,
-        strategies,
-        registerType,
-        injectRegister,
-      }
-
-      if (server) {
-        useWorkbox.globDirectory = options.outDir
-      }
-
-      // the user may want to disable offline support
-      if (!('navigateFallback' in useWorkbox))
-        useWorkbox.navigateFallback = base ?? vite.base ?? '/'
-
-      if (directoryFormat)
-        useWorkbox.directoryIndex = 'index.html'
-
-      newOptions.workbox = useWorkbox
-      // Astro4/ Vite5 support: allow override dontCacheBustURLsMatching
-      if (!('dontCacheBustURLsMatching' in newOptions.workbox))
-        newOptions.workbox.dontCacheBustURLsMatching = new RegExp(assets)
-
-      if (!newOptions.workbox.manifestTransforms) {
-        newOptions.workbox.manifestTransforms = newOptions.workbox.manifestTransforms ?? []
-        newOptions.workbox.manifestTransforms.push(
-          options.experimental?.directoryAndTrailingSlashHandler === true
-            ? createExperimentalManifestTransform(astroPWAContext)
-            : createManifestTransform(astroPWAContext),
-        )
-      }
-    }
-
-    options.injectManifest = options.injectManifest ?? {}
-
-    if (server) {
-      options.injectManifest.globDirectory = options.outDir
-    }
-
-    // Astro4/ Vite5 support: allow override dontCacheBustURLsMatching
-    if (!('dontCacheBustURLsMatching' in options.injectManifest))
-      options.injectManifest.dontCacheBustURLsMatching = new RegExp(assets)
-
-    if (!options.injectManifest.manifestTransforms) {
-      options.injectManifest.manifestTransforms = options.injectManifest.manifestTransforms ?? []
-      options.injectManifest.manifestTransforms.push(
-        options.experimental?.directoryAndTrailingSlashHandler === true
-          ? createExperimentalManifestTransform(astroPWAContext)
-          : createManifestTransform(astroPWAContext),
-      )
-    } */
+    return await import('./prepare-build-context').then(({
+      prepareBuildContext,
+    }) => prepareBuildContext(ctx, config))
   }
 }
