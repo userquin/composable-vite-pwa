@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "types": [
+      "node",
+      "vitest/globals",
+      "@composable-vite-pwa/unplugin-pwa/node/types",
+      "@composable-vite-pwa/vitepress/types"
+    ]
+  }
+}

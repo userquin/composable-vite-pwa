@@ -14,7 +14,7 @@
     "preview": "vitepress preview"
   },
   "devDependencies": {
-    "@composable-vite-pwa/workbox-types": "workspace:../../packages/workbox/types",
+    "@composable-vite-pwa/workbox-types": "workspace:*",
     "vitepress": "catalog:vitepress2"
   }
 }

@@ -1,0 +1,15 @@
+{
+  "name": "unplugin-pwa-vitepress",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/vitepress": "workspace:*",
+    "vitepress": "catalog:vitepress2"
+  }
+}
