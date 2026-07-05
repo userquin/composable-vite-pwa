@@ -21,13 +21,9 @@
   ],
   "sideEffects": false,
   "exports": {
-    ".": {
-      "dev": "./src/index.ts",
-      "default": "./dist/index.mjs"
-    },
+    ".": "./dist/index.mjs",
     "./types": {
-      "dev": "./src/types.ts",
-      "default": "./dist/types.mjs"
+      "types": "./dist/index.d.mts"
     },
     "./package.json": "./package.json"
   },
@@ -69,12 +65,5 @@
     "typescript": "catalog:typescript",
     "vite": "catalog:vite",
     "vitepress": "catalog:vitepress2"
-  },
-  "publishConfig": {
-    "exports": {
-      ".": "./dist/index.mjs",
-      "./types": "./dist/types.mjs",
-      "./package.json": "./package.json"
-    }
   }
 }

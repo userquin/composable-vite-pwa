@@ -20,9 +20,6 @@ export default defineConfig({
   define,
   attw,
   publint,
-  exports: {
-    devExports: 'dev',
-  },
   deps: {
     neverBundle: [
       'vitepress',
