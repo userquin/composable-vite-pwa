@@ -29,7 +29,6 @@ export function createVitePressPWAContext<
   const ctx = Object.assign(
     createVitePWAContext(true, pwa),
     {
-      hmrRequiresSwitcher: true,
       vitepress: {
         runtimeCachingAdded: false,
         experimental: undefined!,
