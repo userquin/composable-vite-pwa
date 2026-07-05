@@ -23,10 +23,13 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.mjs",
-    "./preset": "./dist/preset.mjs",
     "./types": {
       "types": "./dist/types.d.mts"
     },
+    "./preset": "./dist/preset.mjs",
+    "./plugins/api": "./dist/plugins/api.mjs",
+    "./plugins/sw": "./dist/plugins/sw.mjs",
+    "./components":  "./dist/components.mjs",
     "./package.json": "./package.json"
   },
   "types": "dist/index.d.mts",
@@ -37,6 +40,9 @@
       ],
       "types": [
         "dist/types.d.mts"
+      ],
+      "components": [
+        "dist/components.d.mts"
       ]
     }
   },

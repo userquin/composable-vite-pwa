@@ -11,6 +11,7 @@ import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/
 import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
 import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/pwa-assets'
 import { createReactRouterPWAContext } from './create-pwa-context'
+import { ApiPlugin } from './plugins/api'
 
 export function ReactRouterPWAPlugin<
   UserStrategy extends VitePWAStrategy,
@@ -27,13 +28,6 @@ export function ReactRouterPWAPlugin<
     AssetsPlugin(ctx),
     BuildRegisterSWPlugin(ctx),
     BuildPwaAssetsPlugin(ctx),
-    {
-      name: 'vite-pwa:react-router:api',
-      apply: 'build',
-      enforce: 'post',
-      api: {
-        ctx,
-      },
-    },
+    ApiPlugin(ctx),
   ]
 }

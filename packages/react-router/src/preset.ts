@@ -11,7 +11,8 @@ import type {
 import type {
   Preset,
 } from '@react-router/dev/config'
-import type { ReactRouterPWAApi, ReactRouterPWAContext } from './create-pwa-context'
+import type { ReactRouterPWAContext } from './create-pwa-context'
+import { lookupReactRouterPWAContext } from './plugins/api'
 
 export function ReactRouterPWAPreset(): Preset {
   return {
@@ -22,10 +23,9 @@ export function ReactRouterPWAPreset(): Preset {
           reactRouterConfig,
           viteConfig,
         }) => {
-          const plugin = viteConfig.plugins.find(plugin => plugin.name === 'vite-pwa:react-router:api')?.api as ReactRouterPWAApi<any, any>
-          const ctx = plugin?.ctx
+          const ctx = lookupReactRouterPWAContext(viteConfig)
           if (!ctx) {
-            throw new Error('Cannot find ReactRouterPWAPlugin context in the resolved Vite configuration: missing ctx entry!')
+            throw new Error('Cannot find ReactRouterPWAContext context in the resolved Vite configuration: missing ctx entry!')
           }
           if (!ctx.resolvedOptions.disable) {
             ctx.base = reactRouterConfig.basename
@@ -35,7 +35,7 @@ export function ReactRouterPWAPreset(): Preset {
             ctx.outDir = `${reactRouterConfig.buildDirectory}/client`
             ctx.resolvedOptions.outDir = ctx.outDir
             prepareSWBuild(ctx)
-            await plugin.ctx.runBuild()
+            await ctx.runBuild()
           }
         },
       }

@@ -13,11 +13,22 @@ const _packageJson = require('./package.json')
 
 const cwd = fileURLToPath(new URL('.', import.meta.url))
 
-export default defineConfig({
-  entry: ['src/index.ts', 'src/types.ts', 'src/preset.ts'],
+export default defineConfig([{
+  entry: [
+    'src/index.ts',
+    'src/types.ts',
+    'src/preset.ts',
+    {
+      'plugins/*': ['./src/plugins/*'],
+    },
+    {
+      components: './src/components/index.ts',
+    },
+  ],
   platform: 'node',
   dts: true,
   define,
+  clean: true,
   attw,
   publint,
   deps: {
@@ -26,6 +37,7 @@ export default defineConfig({
       '@react-router/dev/config',
       '@react-router/dev/routes',
       'react',
+      'react-jsx-runtime',
       'react-dom',
       'vite',
       'rolldown',
@@ -33,6 +45,12 @@ export default defineConfig({
       '@composable-vite-pwa/unplugin-pwa',
       '@composable-vite-pwa/workbox-window',
       '@composable-vite-pwa/workbox-build',
+      'virtual:pwa-info',
+      'virtual:pwa-assets/head',
+      // 'virtual:vite-pwa/react-router/sw',
+      '@composable-vite-pwa/workbox/swkit/core',
+      '@composable-vite-pwa/workbox/swkit/precaching',
+      '@composable-vite-pwa/workbox/swkit/routing',
     ],
   },
   hooks: {
@@ -40,4 +58,29 @@ export default defineConfig({
       await cleanupJSTypes(cwd)
     },
   },
-})
+}, /* , {
+  entry: [
+    {
+      components: './src/components/index.ts',
+    },
+  ],
+  platform: 'neutral',
+  dts: true,
+  define,
+  clean: true,
+  attw,
+  publint,
+  deps: {
+    neverBundle: [
+      '@react-router/dev',
+      'react',
+      'react-dom',
+      'virtual:pwa-info',
+      'virtual:pwa-assets/head',
+      // 'virtual:vite-pwa/react-router/sw',
+      '@composable-vite-pwa/workbox/swkit/core',
+      '@composable-vite-pwa/workbox/swkit/precaching',
+      '@composable-vite-pwa/workbox/swkit/routing',
+    ],
+  },
+} */])
