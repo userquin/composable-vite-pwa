@@ -30,6 +30,7 @@ dist-ssr
 !examples/workbox-types-docs/api/index.md
 
 # examples
+examples/unplugin-pwa-react-router-v8/build/
 examples/workbox-cli/custom-sw-inject.js
 examples/workbox-cli/classic-sw*.js
 examples/workbox-cli/classic-sw*.map

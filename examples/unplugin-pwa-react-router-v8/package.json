@@ -1,0 +1,30 @@
+{
+  "name": "unplugin-pwa-react-router-v8",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "react-router build",
+    "dev": "react-router dev",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc"
+  },
+  "dependencies": {
+    "@react-router/node": "catalog:rr8",
+    "@react-router/serve": "catalog:rr8",
+    "@composable-vite-pwa/react-router": "workspace:*",
+    "isbot": "catalog:rr8",
+    "react": "catalog:rr8",
+    "react-dom": "catalog:rr8",
+    "react-router": "catalog:rr8"
+  },
+  "devDependencies": {
+    "@react-router/dev": "catalog:rr8",
+    "@tailwindcss/vite": "catalog:rr8",
+    "@types/node": "catalog:types",
+    "@types/react": "catalog:rr8",
+    "@types/react-dom": "catalog:rr8",
+    "tailwindcss": "catalog:rr8",
+    "typescript": "catalog:typescript",
+    "vite": "catalog:vite"
+  }
+}
