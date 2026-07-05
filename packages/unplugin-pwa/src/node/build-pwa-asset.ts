@@ -134,7 +134,7 @@ async function buildPwaAssetWithRolldown(
       jsdoc: false,
       annotation: false,
     },
-    minify: isDev ? false : !minify,
+    minify: isDev ? false : minify,
     codeSplitting: false,
   })
 

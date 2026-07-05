@@ -25,6 +25,7 @@ dist-ssr
 !README.md
 !.github/*.md
 !.changeset/*.md
+!examples/unplugin-pwa-vitepress/*.md
 !examples/workbox-types-docs/index.md
 !examples/workbox-types-docs/api/index.md
 

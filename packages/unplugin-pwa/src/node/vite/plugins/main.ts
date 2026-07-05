@@ -78,12 +78,12 @@ export function MainPlugin<
         forClient = config.consumer === 'client'
       }
     },
-    apply: (_, { isPreview }) => {
+    apply: (_, { command, isPreview }) => {
       ctx.isPreview = isPreview === true
+      ctx.devEnvironment = !(command === 'build') && !ctx.isPreview
       return true
     },
     async configResolved(config) {
-      ctx.devEnvironment = !(config.command === 'build') && !ctx.isPreview
       if (ctx.envApi) {
         if (forClient) {
           ctx.viteConfig = config

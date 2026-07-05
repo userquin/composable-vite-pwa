@@ -203,6 +203,13 @@ export function preparePWAStrategy<
       }
     }
 
+    if (ctx.strategy === 'generate-sw') {
+      if (ctx.resolvedOptions.registerType === 'autoUpdate') {
+        ctx.resolvedOptions.generateSW!.clientsClaim = true
+        ctx.resolvedOptions.generateSW!.skipWaiting = true
+      }
+    }
+
     if ('swDest' in options && options.swDest) {
       const resolvedSwDest = path.dirname(path.resolve(cwd, options.swDest))
       if (resolvedSwDest !== outputPath) {
