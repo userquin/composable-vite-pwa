@@ -33,6 +33,7 @@ export function withUserConfig<
     BuildPwaAssetsPlugin(ctx),
   ]
 
+  // @ts-expect-error TS2345: Argument of type PluginOption[] is not assignable to parameter of type PluginOption
   vitePlugins.push(plugins)
 
   return config
