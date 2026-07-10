@@ -17,12 +17,15 @@ export async function generateVirtualModule(
 
   const internalDevOptions = ctx.dev.options!
   const key = `virtual:pwa-register${source === 'register' ? '' : `/${source}`}`
-  if (!internalDevOptions.registerVirtualSWGenerated) {
-    const code = await ctx.customPwaAssetResolver('virtual-register-sw', source)
-    internalDevOptions.swAssetsPaths.set(key, code)
-    internalDevOptions.registerVirtualSWGenerated = true
-    return code
-  }
+  const cached = internalDevOptions.swAssetsPaths.get(key)
+  if (cached)
+    return cached
 
-  return internalDevOptions.swAssetsPaths.get(key)!
+  const code = await ctx.customPwaAssetResolver(
+    'virtual-register-sw',
+    source === 'react-effect' ? 'react' : source,
+  )
+  internalDevOptions.swAssetsPaths.set(key, code)
+  internalDevOptions.registerVirtualSWGenerated = true
+  return code
 }
