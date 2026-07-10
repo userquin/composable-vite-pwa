@@ -5,6 +5,7 @@ import type {
   VitePWAStrategy,
 } from '@composable-vite-pwa/unplugin-pwa/node/types'
 import type { VitePWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
+import type { BuildServiceWorkerOptions } from '@composable-vite-pwa/workbox-build/build/vite/index'
 import type {
   BasePartial,
   OptionalGlobDirectoryPartial,
@@ -12,9 +13,10 @@ import type {
   SWType,
 } from '@composable-vite-pwa/workbox-build/types'
 import type { Preset } from '@react-router/dev/config'
-import type { ResolvedConfig } from 'vite'
+import type { HookHandler, Plugin } from 'vite'
 import type { ReactRouterPWAOptions } from './types'
 import { createVitePWAContext } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
+import pc from 'picocolors'
 import packageJSON from '../package.json' with { type: 'json' }
 
 export interface ReactRouterPWASWContext {
@@ -26,26 +28,35 @@ export interface ReactRouterPWASWContext {
   promptForUpdate: boolean
 }
 
+export type ReactRouterPluginUserConfig = Parameters<NonNullable<Preset['reactRouterConfig']>>['0']['reactRouterUserConfig'] & {
+  __reactRouterPWAPluginContext: ReactRouterPWAContext<any, any>
+}
+
+export interface ReactRouterPluginContext {
+  __reactRouterPluginContext: {
+    reactRouterConfig: Parameters<NonNullable<Preset['reactRouterConfigResolved']>>['0']['reactRouterConfig']
+  }
+}
+
 export type ReactRouterPWAContext<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
 > = VitePWAPluginContext<'vite', UserStrategy, T> & {
   reactRouter: {
     sw: ReactRouterPWASWContext
-    context: ReactRouterContext['__reactRouterPluginContext']
-    lookupContext: () => ReactRouterContext['__reactRouterPluginContext']
-  }
-}
-
-export type ReactRouterContext = ResolvedConfig & {
-  __reactRouterPluginContext: {
-    reactRouterConfig: Parameters<NonNullable<Preset['reactRouterConfigResolved']>>['0']['reactRouterConfig']
-    publicPath: string
-    rootDirectory: string
-    entryClientFilePath: string
-    entryServerFilePath: string
-    viteManifestEnabled: boolean
-    isSsrBuild: boolean
+    /**
+     * The ReactRouter plugin context.
+     */
+    context: ReactRouterPluginContext
+    /**
+     * Resolves the ReactRouter config.
+     */
+    reactRouterConfig: () => Parameters<NonNullable<Preset['reactRouterConfigResolved']>>['0']['reactRouterConfig']
+    /**
+     * Callback from the build end preset hook.
+     * @param reactRouterConfig The resolved ReactRouter config from the preset build end hook.
+     */
+    runBuildForPresetBuild: (reactRouterConfig: Parameters<NonNullable<Preset['reactRouterConfigResolved']>>['0']['reactRouterConfig']) => Promise<void>
   }
 }
 
@@ -60,8 +71,29 @@ export function createReactRouterPWAContext<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
 >(
+  reactRouterPlugin: ReturnType<typeof import('@react-router/dev/vite')['reactRouter']>,
   options: Partial<ReactRouterPWAOptions<UserStrategy, T>>,
 ): ReactRouterPWAContext<UserStrategy, T> {
+  /* for (const p of reactRouterPlugin) {
+    if (p.name === 'react-router') {
+      const rrPluginConfig = p.config as import('vite').Plugin['config']
+      if (!rrPluginConfig) {
+        break
+      }
+      hijackHook(p, 'config', async (fn, pluginContext, args) => {
+        const result = await fn.apply(pluginContext, args)
+        if (result && '__reactRouterPluginContext' in result) {
+          rrPluginContext = result as ReactRouterPluginContext
+        }
+        // if (result && '__reactRouterPluginContext' in result) {
+        //   rrPluginContext = result as ReactRouterPluginContext
+        // }
+        return result
+      })
+      break
+    }
+  } */
+
   const ctx = Object.assign(
     createVitePWAContext(true, options),
     {
@@ -69,23 +101,44 @@ export function createReactRouterPWAContext<
       reactRouter: {
         sw: undefined!,
         context: undefined!,
-        lookupContext: () => {
+        reactRouterConfig: () => {
           if (!ctx.reactRouter.context) {
-            if ('__reactRouterPluginContext' in ctx.resolvedOptions) {
-              const context = ctx.resolvedOptions as ReactRouterContext
-              ctx.reactRouter.context = context.__reactRouterPluginContext
-            }
+            throw new Error(
+              `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('Cannot find React Router plugin context!')}\n`,
+            )
           }
 
-          return ctx.reactRouter.context
+          return ctx.reactRouter.context.__reactRouterPluginContext.reactRouterConfig
         },
+        runBuildForPresetBuild: (
+          reactRouterConfig: Parameters<NonNullable<Preset['reactRouterConfigResolved']>>['0']['reactRouterConfig'],
+        ) => runPresetBuild(
+          ctx,
+          reactRouterConfig,
+        ),
       },
     },
   ) as ReactRouterPWAContext<UserStrategy, T>
 
-  ctx.configurePWAOptions = () => {
-    const { swOptions } = (ctx.consumerOptions ?? {}) as ReactRouterPWAOptions<any, any>
-    const { buildSW } = swOptions ?? {}
+  // let rrPluginContext: ReactRouterPluginContext | undefined
+  for (const p of reactRouterPlugin) {
+    if (p.name === 'react-router') {
+      const rrPluginConfig = p.config as import('vite').Plugin['config']
+      if (!rrPluginConfig) {
+        break
+      }
+      hijackHook(p, 'config', async (fn, pluginContext, args) => {
+        const result = await fn.apply(pluginContext, args)
+        if (result && '__reactRouterPluginContext' in result) {
+          ctx.reactRouter.context = result as ReactRouterPluginContext
+        }
+        return result
+      })
+      break
+    }
+  }
+
+  ctx.configurePWAOptions = async () => {
     let options: Partial<BasePartial & OptionalGlobDirectoryPartial & RequiredSWDestPartial> | undefined
     let clientsClaimMode = false
     let cleanupOutdatedCaches = false
@@ -106,7 +159,10 @@ export function createReactRouterPWAContext<
         break
       case 'build-sw':
         ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<any, any>
-        options = ctx.resolvedOptions.buildSW
+        options = await addBuildPlugin(
+          ctx,
+          ctx.resolvedOptions.buildSW as import('@composable-vite-pwa/workbox-build/build/vite/types').BuildServiceWorkerOptions<any>,
+        )
         enablePrecaching = ctx.resolvedOptions.buildSW!.injectionPoint !== undefined
         break
     }
@@ -115,7 +171,7 @@ export function createReactRouterPWAContext<
       ctx.reactRouter.sw = {
         version: packageJSON.version,
         enablePrecaching,
-        // navigateFallback?: string
+        navigateFallback: '/',
         clientsClaimMode,
         cleanupOutdatedCaches,
         promptForUpdate,
@@ -125,7 +181,7 @@ export function createReactRouterPWAContext<
       ctx.reactRouter.sw = {
         version: packageJSON.version,
         enablePrecaching,
-        // navigateFallback?: string
+        navigateFallback: '/',
         clientsClaimMode,
         cleanupOutdatedCaches,
         promptForUpdate,
@@ -136,4 +192,109 @@ export function createReactRouterPWAContext<
   }
 
   return ctx
+}
+
+async function runPresetBuild(
+  ctx: ReactRouterPWAContext<any, any>,
+  reactRouterConfig: Parameters<NonNullable<Preset['reactRouterConfigResolved']>>['0']['reactRouterConfig'],
+) {
+  if (ctx.resolvedOptions.disable) {
+    return
+  }
+
+  ctx.reactRouter.context ??= {
+    __reactRouterPluginContext: { reactRouterConfig: undefined! },
+  }
+  ctx.reactRouter.context.__reactRouterPluginContext.reactRouterConfig = reactRouterConfig
+  ctx.base = reactRouterConfig.basename
+  ctx.resolvedOptions.base = reactRouterConfig.basename
+  ctx.resolvedOptions.buildBase = reactRouterConfig.basename
+  ctx.resolvedOptions.scope = reactRouterConfig.basename
+  ctx.outDir = `${reactRouterConfig.buildDirectory}/client`
+  ctx.resolvedOptions.outDir = ctx.outDir
+  const swName = ctx.consumerOptions.filename || 'sw.js'
+  let options: Partial<BasePartial & OptionalGlobDirectoryPartial & RequiredSWDestPartial> | undefined
+  switch (ctx.strategy) {
+    case 'generate-sw':
+      ctx.resolvedOptions.generateSW ??= {} as ResolvedGenerateSW<any, any>
+      options = ctx.resolvedOptions.generateSW
+      break
+    case 'inject-manifest':
+      ctx.resolvedOptions.injectManifest ??= {} as ResolvedInjectManifest<any, any>
+      options = ctx.resolvedOptions.injectManifest
+      break
+    case 'build-sw':
+      ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<any, any>
+      options = ctx.resolvedOptions.buildSW
+      break
+  }
+
+  if (options) {
+    Object.assign(options, {
+      globDirectory: ctx.outDir,
+    })
+
+    options.swDest = `${ctx.outDir}/${swName}`
+  }
+
+  await ctx.runBuild()
+}
+
+async function addBuildPlugin(
+  ctx: ReactRouterPWAContext<any, any>,
+  buildSW: BuildServiceWorkerOptions<any>,
+) {
+  const consumerPlugins = buildSW.plugins
+  const swPlugin = await import('./plugins/runtime/sw').then(({ SWPlugin }) => SWPlugin(ctx))
+  buildSW.plugins = () => {
+    const plugins = consumerPlugins?.() ?? []
+    plugins.unshift(swPlugin)
+    return plugins
+  }
+
+  return buildSW
+}
+
+type AnyFn = (...args: any) => any
+type AsFn<T> = T extends AnyFn ? T : AnyFn
+type PluginHookFn<K extends keyof Plugin> = AsFn<NonNullable<HookHandler<Plugin[K]>>>
+
+type HookWrapper<K extends keyof Plugin> = (
+  fn: PluginHookFn<K>,
+  context: ThisParameterType<PluginHookFn<K>>,
+  args: NonNullable<Parameters<PluginHookFn<K>>>,
+  order: string,
+) => ReturnType<PluginHookFn<K>>
+
+function hijackHook<K extends keyof Plugin>(plugin: Plugin, name: K, wrapper: HookWrapper<K>) {
+  if (!plugin[name])
+    return
+
+  // @ts-expect-error future
+  let order = plugin.order || plugin.enforce || 'normal'
+
+  const hook = plugin[name] as any
+  if ('handler' in hook) {
+    // rollup hook
+    const oldFn = hook.handler
+    order += `-${hook.order || hook.enforce || 'normal'}`
+    hook.handler = function (this: any, ...args: any) {
+      return wrapper(oldFn, this, args, order)
+    }
+  }
+  else if ('transform' in hook) {
+    // transformIndexHTML
+    const oldFn = hook.transform
+    order += `-${hook.order || hook.enforce || 'normal'}`
+    hook.transform = function (this: any, ...args: any) {
+      return wrapper(oldFn, this, args, order)
+    }
+  }
+  else {
+    // vite hook
+    const oldFn = hook
+    plugin[name] = function (this: any, ...args: any) {
+      return wrapper(oldFn, this, args, order)
+    }
+  }
 }

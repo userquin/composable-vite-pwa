@@ -27,9 +27,12 @@
       "types": "./dist/types.d.mts"
     },
     "./preset": "./dist/preset.mjs",
-    "./plugins/api": "./dist/plugins/api.mjs",
-    "./plugins/sw": "./dist/plugins/sw.mjs",
+    "./plugins/node/api": "./dist/plugins/node/api.mjs",
+    "./plugins/runtime/sw": "./dist/plugins/runtime/sw.mjs",
     "./components":  "./dist/components.mjs",
+    "./react-router-sw": {
+      "types": "./react-router-sw.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "types": "dist/index.d.mts",
@@ -47,6 +50,7 @@
     }
   },
   "files": [
+    "*.d.ts",
     "dist"
   ],
   "engines": {
@@ -58,7 +62,7 @@
     "prepublishOnly": "pnpm run build"
   },
   "peerDependencies": {
-    "@react-router/dev": "^7.0.0 || ^8.0.0",
+    "@react-router/dev": "^8.1.0",
     "@vite-pwa/assets-generator": "^1.0.0 || ^2.0.0",
     "magicast": "^0.5.0",
     "rolldown": "^1.0.0-0"
@@ -77,7 +81,8 @@
   "dependencies": {
     "@composable-vite-pwa/unplugin-pwa": "workspace:*",
     "@composable-vite-pwa/workbox-build": "workspace:*",
-    "@composable-vite-pwa/workbox-window": "workspace:*"
+    "@composable-vite-pwa/workbox-window": "workspace:*",
+    "picocolors": "catalog:utils"
   },
   "devDependencies": {
     "@react-router/dev": "catalog:rr8",

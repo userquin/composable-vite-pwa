@@ -19,7 +19,8 @@ export default defineConfig([{
     'src/types.ts',
     'src/preset.ts',
     {
-      'plugins/*': ['./src/plugins/*'],
+      'plugins/node/*': ['./src/plugins/node/*'],
+      'plugins/runtime/*': ['./src/plugins/runtime/*'],
     },
     {
       components: './src/components/index.ts',

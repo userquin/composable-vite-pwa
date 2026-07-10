@@ -11,13 +11,19 @@ import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/
 import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
 import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/pwa-assets'
 import { createReactRouterPWAContext } from './create-pwa-context'
-import { ApiPlugin } from './plugins/api'
+import { ApiPlugin } from './plugins/node/api'
 
 export function ReactRouterPWAPlugin<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
->(options: Partial<ReactRouterPWAOptions<UserStrategy, T>> = {}): PluginOption[] {
-  const ctx = createReactRouterPWAContext(options)
+>(
+  reactRouterPlugin: ReturnType<typeof import('@react-router/dev/vite')['reactRouter']>,
+  options: Partial<ReactRouterPWAOptions<UserStrategy, T>> = {},
+): PluginOption[] {
+  const ctx = createReactRouterPWAContext(
+    reactRouterPlugin,
+    options,
+  )
 
   return [
     MainPlugin(ctx),

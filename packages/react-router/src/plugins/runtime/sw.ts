@@ -1,6 +1,6 @@
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { ReactRouterPWAContext } from '../create-pwa-context'
+import type { ReactRouterPWAContext } from '../../create-pwa-context'
 
 const VIRTUAL_REACT_ROUTER_SW = 'virtual:vite-pwa/react-router/sw'
 const RESOLVED_VIRTUAL_REACT_ROUTER_SW = `\0${VIRTUAL_REACT_ROUTER_SW}`
@@ -20,7 +20,6 @@ export function SWPlugin<
 ): import('vite').Plugin {
   return {
     name: 'vite-pwa:react-router:sw:plugin',
-    enforce: 'post',
     resolveId(id, _, options) {
       return !options.ssr && id === VIRTUAL_REACT_ROUTER_SW
         ? RESOLVED_VIRTUAL_REACT_ROUTER_SW
@@ -37,8 +36,13 @@ export function SWPlugin<
           promptForUpdate,
         } = ctx.reactRouter.sw
 
+        const reactRouterConfig = ctx.reactRouter.reactRouterConfig()
+
+        console.log('load sw')
+        console.log(reactRouterConfig)
+
         // todo: check if react router has some utility helper for this
-        const routes = ctx.reactRouter.lookupContext().reactRouterConfig.routes ?? []
+        const routes = reactRouterConfig.routes ?? []
         const allRoutes = Object.values(routes).filter((r) => {
           return r.index !== true && r.id !== 'root'
         })
@@ -49,7 +53,7 @@ export function SWPlugin<
         // todo: maybe we need to change also the react-router-sw.d.ts at root
         // todo: use define instead and use import.meta.env + vite-env.d.ts with importMeta augmentation at src/sw/index.ts
         return `export const version = '${version}'
-export const ssr = ${ctx.reactRouter.lookupContext().reactRouterConfig.ssr}
+export const ssr = ${reactRouterConfig.ssr}
 export const enablePrecaching = ${enablePrecaching}
 export const navigateFallback = ${JSON.stringify(navigateFallback)}
 export const clientsClaimMode = ${JSON.stringify(clientsClaimMode)}

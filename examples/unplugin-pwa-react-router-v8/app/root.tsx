@@ -11,6 +11,20 @@ import {
 } from 'react-router'
 import './app.css'
 
+if (!import.meta.env.SSR) {
+  import('virtual:pwa-register').then(({ registerSW }) => {
+    registerSW({
+      immediate: true,
+      onRegisteredSW(swScriptUrl) {
+        console.log('SW registered: ', swScriptUrl)
+      },
+      onOfflineReady() {
+        console.log('PWA application ready to work offline')
+      },
+    })
+  })
+}
+
 export const links: Route.LinksFunction = () => [
   { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {

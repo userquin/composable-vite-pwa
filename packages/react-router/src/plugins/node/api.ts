@@ -1,7 +1,7 @@
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { ResolvedConfig } from 'vite'
-import type { ReactRouterPWAApi, ReactRouterPWAContext } from '../create-pwa-context'
+import type { ReactRouterPWAApi, ReactRouterPWAContext } from '../../create-pwa-context'
 
 const name = 'vite-pwa:react-router:api'
 
