@@ -136,6 +136,8 @@ function createManifestTransform(
   appManifestFolder?: string,
 ): import('@composable-vite-pwa/workbox-build/types').ManifestTransform {
   return async (entries) => {
+    // todo: change this and use loop
+    const regexp = /\.html$/
     entries.filter(e => e.url.endsWith('.html')).forEach((e) => {
       const url = e.url.startsWith('/') ? e.url.slice(1) : e.url
       if (url === 'index.html') {
@@ -143,7 +145,7 @@ function createManifestTransform(
       }
       else {
         const parts = url.split('/')
-        parts[parts.length - 1] = parts[parts.length - 1]!.replace(/\.html$/, '')
+        parts[parts.length - 1] = parts[parts.length - 1]!.replace(regexp, '')
         e.url = parts.length > 1 ? parts.slice(0, parts.length - 1).join('/') : parts[0] as string
       }
     })
