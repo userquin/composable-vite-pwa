@@ -28,10 +28,6 @@ export interface ReactRouterPWASWContext {
   promptForUpdate: boolean
 }
 
-export type ReactRouterPluginUserConfig = Parameters<NonNullable<Preset['reactRouterConfig']>>['0']['reactRouterUserConfig'] & {
-  __reactRouterPWAPluginContext: ReactRouterPWAContext<any, any>
-}
-
 export interface ReactRouterPluginContext {
   __reactRouterPluginContext: {
     reactRouterConfig: Parameters<NonNullable<Preset['reactRouterConfigResolved']>>['0']['reactRouterConfig']
@@ -74,26 +70,6 @@ export function createReactRouterPWAContext<
   reactRouterPlugin: ReturnType<typeof import('@react-router/dev/vite')['reactRouter']>,
   options: Partial<ReactRouterPWAOptions<UserStrategy, T>>,
 ): ReactRouterPWAContext<UserStrategy, T> {
-  /* for (const p of reactRouterPlugin) {
-    if (p.name === 'react-router') {
-      const rrPluginConfig = p.config as import('vite').Plugin['config']
-      if (!rrPluginConfig) {
-        break
-      }
-      hijackHook(p, 'config', async (fn, pluginContext, args) => {
-        const result = await fn.apply(pluginContext, args)
-        if (result && '__reactRouterPluginContext' in result) {
-          rrPluginContext = result as ReactRouterPluginContext
-        }
-        // if (result && '__reactRouterPluginContext' in result) {
-        //   rrPluginContext = result as ReactRouterPluginContext
-        // }
-        return result
-      })
-      break
-    }
-  } */
-
   const ctx = Object.assign(
     createVitePWAContext(true, options),
     {
@@ -120,7 +96,6 @@ export function createReactRouterPWAContext<
     },
   ) as ReactRouterPWAContext<UserStrategy, T>
 
-  // let rrPluginContext: ReactRouterPluginContext | undefined
   for (const p of reactRouterPlugin) {
     if (p.name === 'react-router') {
       const rrPluginConfig = p.config as import('vite').Plugin['config']
@@ -202,8 +177,13 @@ async function runPresetBuild(
     return
   }
 
-  ctx.reactRouter.context ??= {
-    __reactRouterPluginContext: { reactRouterConfig: undefined! },
+  if (ctx.reactRouter.context) {
+    ctx.reactRouter.context.__reactRouterPluginContext.reactRouterConfig = reactRouterConfig
+  }
+  else {
+    ctx.reactRouter.context = {
+      __reactRouterPluginContext: { reactRouterConfig },
+    }
   }
   ctx.reactRouter.context.__reactRouterPluginContext.reactRouterConfig = reactRouterConfig
   ctx.base = reactRouterConfig.basename
@@ -230,6 +210,24 @@ async function runPresetBuild(
   }
 
   if (options) {
+    if (reactRouterConfig.ssr) {
+      options.manifestTransforms ??= []
+      options.manifestTransforms.push((manifestEntries) => {
+        const regexp = /\.html$/
+        const base = ctx.resolvedOptions.base || '/'
+        for (const e of manifestEntries) {
+          const url = e.url?.startsWith('/') ? e.url.slice(1) : e.url
+          if (url === 'index.html') {
+            e.url = base
+          }
+          else if (url.endsWith('.html')) {
+            e.url = `${base}${url.replace(regexp, '')}`
+          }
+        }
+
+        return { manifest: manifestEntries, warnings: [] }
+      })
+    }
     Object.assign(options, {
       globDirectory: ctx.outDir,
     })
