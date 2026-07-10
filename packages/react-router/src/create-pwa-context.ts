@@ -185,7 +185,6 @@ async function runPresetBuild(
       __reactRouterPluginContext: { reactRouterConfig },
     }
   }
-  ctx.reactRouter.context.__reactRouterPluginContext.reactRouterConfig = reactRouterConfig
   ctx.base = reactRouterConfig.basename
   ctx.resolvedOptions.base = reactRouterConfig.basename
   ctx.resolvedOptions.buildBase = reactRouterConfig.basename
@@ -212,9 +211,13 @@ async function runPresetBuild(
   if (options) {
     if (reactRouterConfig.ssr) {
       options.manifestTransforms ??= []
+      // todo: add trailing slash support, check reactRouterConfig.future and how to access it
       options.manifestTransforms.push((manifestEntries) => {
         const regexp = /\.html$/
-        const base = ctx.resolvedOptions.base || '/'
+        let base = ctx.resolvedOptions.base || '/'
+        if (!base.endsWith('/')) {
+          base += '/'
+        }
         for (const e of manifestEntries) {
           const url = e.url?.startsWith('/') ? e.url.slice(1) : e.url
           if (url === 'index.html') {
