@@ -38,9 +38,6 @@ export function SWPlugin<
 
         const reactRouterConfig = ctx.reactRouter.reactRouterConfig()
 
-        console.log('load sw')
-        console.log(reactRouterConfig)
-
         // todo: check if react router has some utility helper for this
         const routes = reactRouterConfig.routes ?? []
         const allRoutes = Object.values(routes).filter((r) => {
