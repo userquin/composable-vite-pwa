@@ -114,6 +114,9 @@ export async function prepareSWCode<T extends SWType>(
     swCode.push(generateCode(precacheAndRoute).code)
   }
 
+  if (options.clientsClaim) {
+    swCode.push('clientsClaim()')
+  }
   if (options.cleanupOutdatedCaches) {
     swCode.push('cleanupOutdatedCaches()')
   }

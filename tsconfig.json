@@ -23,6 +23,15 @@
       "@composable-vite-pwa/vitepress/types": [
         "./packages/vitepress/src/types.ts"
       ],
+      "@composable-vite-pwa/react-router": [
+        "./packages/react-router/src/index.ts"
+      ],
+      "@composable-vite-pwa/react-router/types": [
+        "./packages/react-router/src/types.ts"
+      ],
+      "@composable-vite-pwa/react-router/preset": [
+        "./packages/react-router/src/preset.ts"
+      ],
       "@composable-vite-pwa/workbox-build": [
         "./packages/workbox/build/src/index.ts"
       ],

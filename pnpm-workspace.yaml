@@ -27,6 +27,7 @@ trustPolicy: no-downgrade
 packages:
   - examples/**
   - packages/astro/**
+  - packages/react-router/**
   - packages/unplugin-pwa/**
   - packages/vitepress/**
   - packages/workbox/**
@@ -73,6 +74,18 @@ catalogs:
   react:
     '@types/react': ^19.2.14
     react: ^19.2.4
+  rr8:
+    '@react-router/dev': 8.1.0
+    '@react-router/node': 8.1.0
+    '@react-router/serve': 8.1.0
+    '@tailwindcss/vite': ^4.2.2
+    '@types/react': ^19.2.14
+    '@types/react-dom': ^19.2.3
+    isbot: ^5.1.36
+    react: ^19.2.7
+    react-dom: ^19.2.7
+    react-router: 8.1.0
+    tailwindcss: ^4.2.2
   rsbuild:
     '@rsbuild/core': ^2.0.7
   rspack:
