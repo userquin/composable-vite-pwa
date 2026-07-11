@@ -49,6 +49,7 @@ export function preparePWAContext<
     }
 
     if (mode === 'auto') {
+      options.injectRegister = 'script'
       mode = 'script'
     }
 

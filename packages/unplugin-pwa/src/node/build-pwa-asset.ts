@@ -30,7 +30,7 @@ export async function buildPwaAsset<
     injectManifest,
     updateViaCache,
   } = ctx.resolvedOptions
-  const useGeneratedSW = strategy === 'generate-sw' || strategy === 'self-destroy-sw'
+  const useGenerateSW = strategy === 'generate-sw'
 
   const {
     swDestPath,
@@ -38,12 +38,12 @@ export async function buildPwaAsset<
     moduleSWDestPath,
   } = resolveSWNames(
     filename,
-    strategy === 'generate-sw' || strategy === 'self-destroy-sw'
+    strategy === 'generate-sw'
       ? ''
       : strategy === 'build-sw'
         ? buildSW!.swSrc!
         : injectManifest!.swSrc!,
-    useGeneratedSW,
+    useGenerateSW,
   )
 
   let swType: 'classic' | 'module' = 'classic'
@@ -58,7 +58,7 @@ export async function buildPwaAsset<
 
   const devEnabled = ctx.resolvedOptions.devOptions?.enabled === true
 
-  const base = (ctx.devEnvironment ? useBase : buildBase) ?? '/'
+  const base = ctx.devEnvironment ? useBase : buildBase
 
   return await buildPwaAssetWithRolldown(
     code,
@@ -68,9 +68,9 @@ export async function buildPwaAsset<
       'import.meta.PWA_SW_URL': JSON.stringify(`${base}${swDestPath}`),
       'import.meta.PWA_SW_CLASSIC_URL': JSON.stringify(`${base}${classicSWDestPath}`),
       'import.meta.PWA_SW_MODULE_URL': JSON.stringify(`${base}${moduleSWDestPath}`),
-      'import.meta.PWA_SW_SCOPE': JSON.stringify(scope ?? base),
+      'import.meta.PWA_SW_SCOPE': JSON.stringify(scope),
       'import.meta.PWA_SW_TYPE': JSON.stringify(swType),
-      'import.meta.PWA_SW_UPDATE_VIA_CACHE': JSON.stringify(updateViaCache ?? 'imports'),
+      'import.meta.PWA_SW_UPDATE_VIA_CACHE': JSON.stringify(updateViaCache),
       'import.meta.PWA_DEV_SERVER': JSON.stringify(ctx.devEnvironment),
       // HMR
       'import.meta.PWA_SW_AUTO_UPDATE': JSON.stringify(ctx.resolvedOptions.registerType === 'autoUpdate'),
