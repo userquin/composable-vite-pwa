@@ -162,7 +162,7 @@ catalogs:
     vue-tsc: ^3.3.5
   webpack5:
     webpack: 5.107.1
-    "webpack-cli": 7.2.1
+    webpack-cli: 7.2.1
 
 minimumReleaseAgeExclude:
   - vite@8.1.0
