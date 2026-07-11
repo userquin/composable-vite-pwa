@@ -4,14 +4,14 @@
 import { clientsClaim } from '@composable-vite-pwa/workbox-swkit/core'
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from '@composable-vite-pwa/workbox-swkit/precaching'
 import { NavigationRoute, registerRoute } from '@composable-vite-pwa/workbox-swkit/routing'
-import { navigateFallback, ssr } from 'virtual:vite-pwa/react-router/sw'
-import { setupRoutes } from './shared-sw'
-
-console.log(ssr, navigateFallback)
+import { basename, routes, ssr } from 'virtual:vite-pwa/react-router/sw'
 
 declare let self: ServiceWorkerGlobalScope
 
-const url = import.meta.env.DEV ? '/' : (navigateFallback ?? '/index.html')
+const url = ssr ? '/' : 'index.html'
+
+// eslint-disable-next-line no-console
+console.log({ basename, routes })
 
 /// self.__WB_MANIFEST is the default injection point
 const manifest = self.__WB_MANIFEST
@@ -24,7 +24,7 @@ if (import.meta.env.DEV) {
   manifest.push({ url, revision: Math.random().toString() })
 }
 
-precacheAndRoute(manifest)
+precacheAndRoute(manifest, { parallel: { enabled: true, concurrency: 5 } })
 
 // clean old assets
 cleanupOutdatedCaches()
@@ -43,11 +43,9 @@ if (import.meta.env.DEV) {
 
 // to allow work offline
 registerRoute(new NavigationRoute(
-  createHandlerBoundToURL(navigateFallback || '/'),
+  createHandlerBoundToURL(url),
   { allowlist },
 ))
-
-setupRoutes()
 
 self.skipWaiting()
 clientsClaim()

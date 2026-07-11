@@ -3,7 +3,6 @@ import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { PluginOption } from 'vite'
 import type { ReactRouterPWAOptions } from './types'
 import { BuildPwaAssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/build-pwa-assets'
-import { BuildRegisterSWPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/build-register-sw'
 import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
 import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
 import { DevAssetsMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-pwa-assets-middleware'
@@ -32,7 +31,6 @@ export function ReactRouterPWAPlugin<
     DevMiddlewarePlugin(ctx),
     DevAssetsMiddlewarePlugin(ctx),
     AssetsPlugin(ctx),
-    BuildRegisterSWPlugin(ctx),
     BuildPwaAssetsPlugin(ctx),
     ApiPlugin(ctx),
   ]

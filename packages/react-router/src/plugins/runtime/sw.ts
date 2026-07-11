@@ -20,45 +20,45 @@ export function SWPlugin<
 ): import('vite').Plugin {
   return {
     name: 'vite-pwa:react-router:sw:plugin',
-    resolveId(id, _, options) {
-      return !options.ssr && id === VIRTUAL_REACT_ROUTER_SW
+    resolveId(id) {
+      return id === VIRTUAL_REACT_ROUTER_SW
         ? RESOLVED_VIRTUAL_REACT_ROUTER_SW
         : undefined
     },
-    load(id) {
+    async load(id) {
       if (id === RESOLVED_VIRTUAL_REACT_ROUTER_SW) {
-        const {
-          version,
-          enablePrecaching,
-          navigateFallback,
-          clientsClaimMode,
-          cleanupOutdatedCaches,
-          promptForUpdate,
-        } = ctx.reactRouter.sw
+        let ssr = false
+        let basename = ctx.resolvedOptions.base || '/'
+        try {
+          const reactRouterConfig = ctx.reactRouter.reactRouterConfig()
+          ssr = reactRouterConfig.ssr
+          basename = reactRouterConfig.basename || basename
+          if (ctx.resolvedOptions.strategy === 'build-sw' && ctx.reactRouter.ssrRuntimeInfo && !ctx.devEnvironment) {
+            const routes = Object.values(reactRouterConfig.routes ?? {})
+              .filter(r => r.id !== 'root')
+              .map(r => ({
+                id: r.id,
+                path: r.path,
+                index: r.index,
+                parentId: r.parentId,
+              }))
 
-        const reactRouterConfig = ctx.reactRouter.reactRouterConfig()
+            return `export const ssr = ${ssr}
+export const basename = ${JSON.stringify(basename)}
+export const routes = ${JSON.stringify(routes)}
+`
+          }
+        }
+        catch (e) {
+          // dev server shouldn't have rr config resolved
+          if (!ctx.devEnvironment) {
+            throw e
+          }
+        }
 
-        // todo: check if react router has some utility helper for this
-        const routes = reactRouterConfig.routes ?? []
-        const allRoutes = Object.values(routes).filter((r) => {
-          return r.index !== true && r.id !== 'root'
-        })
-        const staticRoutes = allRoutes.filter(r => r.path && !r.path.includes(':'))
-        const dynamicRoutes = allRoutes.filter(r => r.path && r.path.includes(':'))
-
-        // todo: convert routes to a more usable format
-        // todo: maybe we need to change also the react-router-sw.d.ts at root
-        // todo: use define instead and use import.meta.env + vite-env.d.ts with importMeta augmentation at src/sw/index.ts
-        return `export const version = '${version}'
-export const ssr = ${reactRouterConfig.ssr}
-export const enablePrecaching = ${enablePrecaching}
-export const navigateFallback = ${JSON.stringify(navigateFallback)}
-export const clientsClaimMode = ${JSON.stringify(clientsClaimMode)}
-export const cleanupOutdatedCaches = ${cleanupOutdatedCaches}
-export const promptForUpdate = ${promptForUpdate}
-export const staticRoutes = ${JSON.stringify(staticRoutes)}
-export const dynamicRoutes = ${JSON.stringify(dynamicRoutes)}
-export const routes = ${JSON.stringify(allRoutes)}
+        return `export const ssr = ${JSON.stringify(ssr)}
+export const basename = ${JSON.stringify(basename)} 
+export const routes = []
 `
       }
     },

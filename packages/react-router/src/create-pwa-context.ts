@@ -17,16 +17,6 @@ import type { HookHandler, Plugin } from 'vite'
 import type { ReactRouterPWAOptions } from './types'
 import { createVitePWAContext } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
 import pc from 'picocolors'
-import packageJSON from '../package.json' with { type: 'json' }
-
-export interface ReactRouterPWASWContext {
-  version: string
-  enablePrecaching: boolean
-  navigateFallback?: string
-  clientsClaimMode: 'auto' | boolean
-  cleanupOutdatedCaches: boolean
-  promptForUpdate: boolean
-}
 
 export interface ReactRouterPluginContext {
   __reactRouterPluginContext: {
@@ -39,7 +29,7 @@ export type ReactRouterPWAContext<
   T extends SWType,
 > = VitePWAPluginContext<'vite', UserStrategy, T> & {
   reactRouter: {
-    sw: ReactRouterPWASWContext
+    ssrRuntimeInfo: boolean
     /**
      * The ReactRouter plugin context.
      */
@@ -70,12 +60,17 @@ export function createReactRouterPWAContext<
   reactRouterPlugin: ReturnType<typeof import('@react-router/dev/vite')['reactRouter']>,
   options: Partial<ReactRouterPWAOptions<UserStrategy, T>>,
 ): ReactRouterPWAContext<UserStrategy, T> {
+  // rr pwa doesn't support inject register
+  options.injectRegister = false
+
+  const { ssrRuntimeInfo = false, ...pwaOptions } = options
+
   const ctx = Object.assign(
-    createVitePWAContext(true, options),
+    createVitePWAContext(true, pwaOptions),
     {
       hmrRequiresSwitcher: true,
       reactRouter: {
-        sw: undefined!,
+        ssrRuntimeInfo,
         context: undefined!,
         reactRouterConfig: () => {
           if (!ctx.reactRouter.context) {
@@ -114,53 +109,20 @@ export function createReactRouterPWAContext<
   }
 
   ctx.configurePWAOptions = async () => {
-    let options: Partial<BasePartial & OptionalGlobDirectoryPartial & RequiredSWDestPartial> | undefined
-    let clientsClaimMode = false
-    let cleanupOutdatedCaches = false
-    let enablePrecaching = false
-
     switch (ctx.strategy) {
       case 'generate-sw':
         ctx.resolvedOptions.generateSW ??= {} as ResolvedGenerateSW<any, any>
-        options = ctx.resolvedOptions.generateSW
-        clientsClaimMode = ctx.resolvedOptions.generateSW!.clientsClaim === true
-        cleanupOutdatedCaches = ctx.resolvedOptions.generateSW!.cleanupOutdatedCaches === true
-        enablePrecaching = true
         break
       case 'inject-manifest':
         ctx.resolvedOptions.injectManifest ??= {} as ResolvedInjectManifest<any, any>
-        options = ctx.resolvedOptions.injectManifest
-        enablePrecaching = ctx.resolvedOptions.injectManifest!.injectionPoint !== undefined
         break
       case 'build-sw':
         ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<any, any>
-        options = await addBuildPlugin(
+        await addBuildPlugin(
           ctx,
           ctx.resolvedOptions.buildSW as import('@composable-vite-pwa/workbox-build/build/vite/types').BuildServiceWorkerOptions<any>,
         )
-        enablePrecaching = ctx.resolvedOptions.buildSW!.injectionPoint !== undefined
         break
-    }
-    const promptForUpdate = ctx.resolvedOptions.registerType !== 'autoUpdate'
-    if (options) {
-      ctx.reactRouter.sw = {
-        version: packageJSON.version,
-        enablePrecaching,
-        navigateFallback: '/',
-        clientsClaimMode,
-        cleanupOutdatedCaches,
-        promptForUpdate,
-      }
-    }
-    else {
-      ctx.reactRouter.sw = {
-        version: packageJSON.version,
-        enablePrecaching,
-        navigateFallback: '/',
-        clientsClaimMode,
-        cleanupOutdatedCaches,
-        promptForUpdate,
-      }
     }
 
     return undefined
@@ -212,7 +174,7 @@ async function runPresetBuild(
     if (reactRouterConfig.ssr) {
       options.manifestTransforms ??= []
       // todo: add trailing slash support, check reactRouterConfig.future and how to access it
-      options.manifestTransforms.push((manifestEntries) => {
+      options.manifestTransforms.unshift((manifestEntries) => {
         const regexp = /\.html$/
         let base = ctx.resolvedOptions.base || '/'
         if (!base.endsWith('/')) {

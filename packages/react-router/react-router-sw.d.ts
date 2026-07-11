@@ -23,25 +23,19 @@ declare module 'virtual:vite-pwa/react-router/sw' {
      * The unique `id` for this route's parent route, if there is one.
      */
     parentId?: string
-    /**
-     * The path to the entry point for this route, relative to
-     * `config.appDirectory`.
-     */
-    file: string
   }
 
   export interface RouteManifest {
     [routeId: string]: RouteManifestEntry
   }
 
-  export const version: string
   export const ssr: boolean
-  export const enablePrecaching: boolean
-  export const navigateFallback: string | undefined
-  export const clientsClaimMode: 'auto' | boolean
-  export const cleanupOutdatedCaches: boolean
-  export const promptForUpdate: boolean
-  export const staticRoutes: RouteManifest
-  export const dynamicRoutes: RouteManifest
+  export const basename: string
+  /**
+   * Routes will be empty when:
+   * - `ssrRuntimeInfo` is disabled at pwa options
+   * - not using `buildSW` strategy
+   * - running `Dev Server`: use `import.meta.env.DEV` when required to disable your logic
+   */
   export const routes: RouteManifest
 }

@@ -27,6 +27,7 @@
       "types": "./dist/types.d.mts"
     },
     "./preset": "./dist/preset.mjs",
+    "./create-pwa-context": "./dist/create-pwa-context.mjs",
     "./plugins/node/api": "./dist/plugins/node/api.mjs",
     "./plugins/runtime/sw": "./dist/plugins/runtime/sw.mjs",
     "./components":  "./dist/components.mjs",
@@ -38,14 +39,23 @@
   "types": "dist/index.d.mts",
   "typesVersions": {
     "*": {
+      "components": [
+        "dist/components.d.mts"
+      ],
+      "create-pwa-context": [
+        "dist/create-pwa-context.d.mts"
+      ],
+      "plugins/node/api": [
+        "dist/plugins/node/api.d.mts"
+      ],
+      "plugins/runtime/sw": [
+        "dist/plugins/runtime/sw.d.mts"
+      ],
       "preset": [
         "dist/preset.d.mts"
       ],
       "types": [
         "dist/types.d.mts"
-      ],
-      "components": [
-        "dist/components.d.mts"
       ]
     }
   },

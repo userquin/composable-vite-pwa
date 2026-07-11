@@ -1,39 +1,20 @@
 import type { VitePWAOptions, VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 
-export interface ReactRouterPWAInjectManifest {
-  /**
-   * Remove old assets once the new service worker activated?
-   *
-   * @default true
-   */
-  cleanupOutdatedCaches?: boolean
-  /**
-   * This option is about the Automatic reload when a new service worker is activated.
-   *
-   * If you use any Vite PWA virtual module, you **MUST** to set this option to `true`.
-   *
-   * With `auto`, the page will be reloaded without using a Vite PWA virtual module.
-   *
-   * **NOTE**: this option will be ignored if `registerType` is `autoUpdate` in your PWA options: the default value is `prompt`.
-   *
-   * @default 'auto'
-   * @see https://vite-pwa-org.netlify.app/guide/auto-update.html
-   */
-  clientsClaimMode?: 'auto' | boolean
-}
-
-export interface ReactRouterPWASWOptions {
-  /**
-   * Options when using `@vite-pwa/react-router/sw` module in your custom service worker
-   */
-  buildSW?: ReactRouterPWAInjectManifest
-  // Add Remix-specific workbox options here: runtime caching for example
-}
-
 export type ReactRouterPWAOptions<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
-> = VitePWAOptions<UserStrategy, T> & {
-  swOptions?: ReactRouterPWASWOptions
+> = Omit<VitePWAOptions<UserStrategy, T>, 'injectRegister'> & {
+  injectRegister: false
+  /**
+   * Include React Router SSR virtual info?
+   *
+   * If you enable SSR, you can access React Router info in your service worker via `virtual:vite-pwa/react-router/sw` virtual module, will expose the followinf info:
+   * -
+   *
+   * **NOTE**: the virtual will have the configuration only available if you set this option to `true` and using `buildSW` strategy.
+   *
+   * @default false
+   */
+  ssrRuntimeInfo?: boolean
 }

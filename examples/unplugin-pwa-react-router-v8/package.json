@@ -3,8 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:plain-sw": "PLAIN_SW=true react-router build",
-    "dev:plain-sw": "PLAIN_SW=true react-router dev",
+    "dev:sw": "BUILD_SW=true react-router dev",
+    "dev:generate": "react-router dev",
+    "build:sw": "BUILD_SW=true react-router build",
+    "build:generate": "react-router build",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },

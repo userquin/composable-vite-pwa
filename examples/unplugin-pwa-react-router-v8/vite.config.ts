@@ -4,22 +4,11 @@ import { reactRouter } from '@react-router/dev/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 
-// for testing purposes only
-const usingRemixSW = process.env.PLAIN_SW !== 'true'
-// for testing purposes only
-const virtualPwaModule = process.env.VIRTUAL_PWA_MODULE !== 'false'
-
-process.env.VITE_VIRTUAL_PWA_MODULE = virtualPwaModule.toString()
-process.env.VITE_PUBLIC_VIRTUAL_PWA_MODULE = process.env.VITE_VIRTUAL_PWA_MODULE
-process.env.VITE_BUILD_DATE = JSON.stringify(new Date().toISOString())
-
 const reactRouterPlugin = reactRouter()
 
 export default defineConfig({
-  define: {
-    VITE_VIRTUAL_PWA_MODULE: process.env.VITE_VIRTUAL_PWA_MODULE,
-    VITE_PUBLIC_VIRTUAL_PWA_MODULE: process.env.VITE_VIRTUAL_PWA_MODULE,
-    VITE_BUILD_DATE: process.env.VITE_BUILD_DATE,
+  build: {
+    minify: false,
   },
   plugins: [
     tailwindcss(),
@@ -27,18 +16,21 @@ export default defineConfig({
     ReactRouterPWAPlugin(
       reactRouterPlugin,
       {
+        ssrRuntimeInfo: true,
         minify: false,
-        strategies: 'build-sw',
+        strategies: process.env.BUILD_SW ? 'build-sw' : 'generate-sw',
         swType: 'classic-and-module',
         registerType: 'autoUpdate',
         includeManifestIcons: false,
-        injectRegister: usingRemixSW || virtualPwaModule ? false : 'auto',
         base: '/',
         generateSW: {
           globPatterns: ['**/*.{css,js,html,svg,png,ico,txt,woff2}'],
+          sourcemap: true,
+          clientsClaim: true,
+          cleanupOutdatedCaches: true,
         },
         buildSW: {
-          swSrc: usingRemixSW ? 'app/sw.ts' : 'app/plain-sw.ts',
+          swSrc: 'app/plain-sw.ts',
           globPatterns: ['**/*.{css,js,html,svg,png,ico,txt,woff2}'],
           sourcemap: true,
         },
