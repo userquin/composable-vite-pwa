@@ -1,10 +1,12 @@
-import type { ExtractStrategy } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { ExtractStrategy } from './context-types'
 import type { ManifestOptions, ResolvedVitePWAOptions, VitePWAOptions, VitePWAStrategy } from './types'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
+import pc from 'picocolors'
+import { detectEsmServiceWorker } from './detect-esm-service-worker'
 import { resolvePWAAssetsOptions } from './pwa-assets/options'
 
 function deepMergeObject(magicast: any, object: any) {
@@ -127,7 +129,7 @@ export async function resolvePwaConfiguration<
   const {
     pwaAssets,
     filename = 'sw.js',
-    strategies,
+    strategies = 'generateSW',
     swType,
     includeManifest = true,
     includeManifestIcons = true,
@@ -153,7 +155,12 @@ export async function resolvePwaConfiguration<
     case 'generate-sw': {
       const { workbox, generateSW, ...strategyOptions } = rest
       if (workbox && !generateSW) {
-        // todo: warn here
+        console.warn([
+          `\n${pc.yellow(pc.bold('[Vite PWA]'))} ${pc.yellow('DEPRECATION WARNING')}:`,
+          `You are using ${pc.cyan('workbox')} option, which is now deprecated.`,
+          `Please replace ${pc.cyan('workbox')} with ${pc.green('generateSW')} option.`,
+          `${pc.cyan('workbox')} option will be removed in the next major version.\n`,
+        ].join('\n'))
       }
       return Object.assign({}, strategyOptions, {
         strategy: 'generate-sw',
@@ -185,6 +192,43 @@ export async function resolvePwaConfiguration<
     }
     case 'injectManifest':
     case 'inject-manifest': {
+      if (await detectEsmServiceWorker(options)) {
+        console.warn([
+          `\n${pc.yellow(pc.bold('[Vite PWA]'))} ${pc.yellow('DEPRECATION WARNING')}:`,
+          `You are using ${pc.cyan('injectManifest')} option with an ESM service worker, which is now deprecated.`,
+          `Please migrate to ${pc.green('buildSW')} option.`,
+          `${pc.cyan('injectManifest')} option should be only used when you need to inject a manifest into an existing service worker.\n`,
+        ].join('\n'))
+
+        return Object.assign({}, rest, {
+          strategy: 'build-sw',
+          swType,
+          includeManifest,
+          includeManifestIcons,
+          includeManifestShortcutIcons,
+          includeManifestScreenshots,
+          disable,
+          injectRegister,
+          registerType,
+          useCredentials,
+          manifest,
+          manifestFilename,
+          minify,
+          updateViaCache,
+          pwaAssets: resolvedPwaAssets,
+        }, {
+          buildSW: Object.assign(rest.injectManifest ?? {}, {
+            swDest: filename,
+            swType,
+            minify,
+            maximumFileSizeToCacheInBytes,
+            throwMaximumFileSizeToCacheInBytes,
+            additionalManifestEntries,
+            additionalManifestEntriesGenerator,
+          }),
+        }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>
+      }
+
       return Object.assign({}, rest, {
         strategy: 'inject-manifest',
         swType,

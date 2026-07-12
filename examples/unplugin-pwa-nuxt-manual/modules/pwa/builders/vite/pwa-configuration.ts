@@ -38,7 +38,7 @@ export async function initPwaConfiguration<
   }
   if (nuxt.options.dev) {
     // const cwd = resolveAlias('~~')
-    preparePWAStrategy(
+    await preparePWAStrategy(
       ctx,
       process.cwd(),
       ctx.dev.options.tempFolder,
@@ -46,7 +46,7 @@ export async function initPwaConfiguration<
     )
   }
   else {
-    preparePWAStrategy(
+    await preparePWAStrategy(
       ctx,
       process.cwd(),
       ctx.outDir,
