@@ -1,4 +1,4 @@
-import { defaultExclude, defineConfig } from 'vitest/config'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
@@ -9,11 +9,6 @@ export default defineConfig({
           name: 'node',
           environment: 'node',
           include: ['test/*.spec.ts'],
-          exclude: [
-            'test/fixtures/**',
-            'test/generate-sw.spec.ts',
-            ...defaultExclude,
-          ],
         },
       },
     ],
