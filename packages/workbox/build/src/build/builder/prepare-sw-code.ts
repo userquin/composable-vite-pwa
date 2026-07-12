@@ -35,12 +35,11 @@ export async function prepareSWCode<T extends SWType>(
   if (options.cacheId) {
     swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/core', imported: 'setCacheNameDetails' })
   }
-
-  if (options.skipWaiting) {
-    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/core', imported: 'skipWaiting' })
-  }
   if (options.clientsClaim) {
     swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/core', imported: 'clientsClaim' })
+  }
+  if (options.skipWaiting) {
+    swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/core', imported: 'skipWaiting' })
   }
   if (options.cleanupOutdatedCaches) {
     swModule.imports.$append({ from: '@composable-vite-pwa/workbox-swkit/precaching', imported: 'cleanupOutdatedCaches' })
@@ -89,6 +88,10 @@ export async function prepareSWCode<T extends SWType>(
 })`)
   }
 
+  if (options.clientsClaim) {
+    swCode.push('clientsClaim()')
+  }
+
   if (manifestEntries.manifestEntries.length > 0) {
     const precacheOptions: any = {}
     if (options.directoryIndex) {
@@ -114,9 +117,6 @@ export async function prepareSWCode<T extends SWType>(
     swCode.push(generateCode(precacheAndRoute).code)
   }
 
-  if (options.clientsClaim) {
-    swCode.push('clientsClaim()')
-  }
   if (options.cleanupOutdatedCaches) {
     swCode.push('cleanupOutdatedCaches()')
   }
