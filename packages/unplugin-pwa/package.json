@@ -45,6 +45,7 @@
     },
     "./node/create-generate-register-sw-script": "./dist/node/create-generate-register-sw-script.mjs",
     "./node/create-web-manifest-html-link": "./dist/node/create-web-manifest-html-link.mjs",
+    "./node/detect-esm-service-worker": "./dist/node/detect-esm-service-worker.mjs",
     "./node/dual-sw-utilities": "./dist/node/dual-sw-utilities.mjs",
     "./node/generate-register-sw": "./dist/node/generate-register-sw.mjs",
     "./node/generate-virtual-module": "./dist/node/generate-virtual-module.mjs",
@@ -138,7 +139,8 @@
   "scripts": {
     "build": "tsdown --config-loader unrun",
     "test:typecheck": "tsc --noEmit",
-    "prepublishOnly": "pnpm run build"
+    "test:ci": "vitest run",
+    "test": "vitest"
   },
   "peerDependencies": {
     "@vite-pwa/assets-generator": "^1.0.0 || ^2.0.0",

@@ -194,11 +194,6 @@ export interface VitePWAOptions<
    */
   swType?: T
   /**
-   * TODO: is this necessary??
-   * @default 'public'
-   */
-  srcDir?: string
-  /**
    * @default 'dist'
    */
   outDir?: string

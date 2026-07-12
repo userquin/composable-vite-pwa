@@ -1,4 +1,3 @@
-import type { ExtractStrategy } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type {
   BasePartial,
   ManifestEntry,
@@ -7,6 +6,7 @@ import type {
   SWType,
 } from '@composable-vite-pwa/workbox-build/types'
 import type { ResolvedConfig } from 'vite'
+import type { ExtractStrategy } from '../context-types'
 import type {
   ResolvedBuildSW,
   ResolvedGenerateSW,
@@ -16,10 +16,10 @@ import type {
 } from '../types'
 import type { ViteBundler, VitePWAPluginContext } from './vite-context'
 import path from 'node:path'
-import { prepareSwNames } from '@composable-vite-pwa/unplugin-pwa/node/prepare-sw-names'
 import pc from 'picocolors'
 import { additionalManifestEntriesFactory } from '../additional-manifest-entries'
 import { prepareManifest } from '../config'
+import { prepareSwNames } from '../prepare-sw-names'
 
 const normalizePathRegexp = /\\/g
 
@@ -125,12 +125,12 @@ export function preparePWAAssetsGenerator<
 
 /**
  * Configures the PWA strategy at the resolved PWA options.
- * @param ctx
- * @param cwd
- * @param outDir
- * @param immutableAssets
+ * @param ctx The PWA context.
+ * @param cwd The current working directory.
+ * @param outDir The output directory.
+ * @param immutableAssets The immutable assets directory.
  */
-export function preparePWAStrategy<
+export async function preparePWAStrategy<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
 >(
@@ -315,7 +315,7 @@ export async function preparePWAContextDefaults<
     }
   }
   normalizeManifest(ctx)
-  preparePWAStrategy(ctx, cwd, outDir, immutableAssets)
+  await preparePWAStrategy(ctx, cwd, outDir, immutableAssets)
   preparePWAAssetsGenerator(ctx)
   // todo: review this for self-destroy-sw
   if (!ctx.devEnvironment && !ctx.resolvedOptions.disable) {
