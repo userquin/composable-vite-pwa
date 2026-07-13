@@ -42,8 +42,9 @@ export function BuildSWPlugin<
       },
     },
     async buildEnd(error) {
-      if (error)
+      if (error) {
         throw error
+      }
     },
   }
 }

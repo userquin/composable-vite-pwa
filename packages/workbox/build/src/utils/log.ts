@@ -1,7 +1,14 @@
-import type { ManifestEntry } from '../types'
+/* eslint-disable no-console */
+import type { BuildResult, ManifestEntry } from '../types'
+import type { LogLevel } from './constants'
 import type { InternalManifestEntry } from './types'
+import fs from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
 import pc from 'picocolors'
+import pkg from '../../package.json' with { type: 'json' }
 import { errors } from '../validation/errors'
+import { normalizePath } from './resolve-sw-names'
 
 export function checkMaximumFileSizeToCacheExceeded(
   error: boolean,
@@ -79,4 +86,57 @@ export function formatBytes(bytes: number) {
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   const val = Number.parseFloat((bytes / k ** i).toFixed(2))
   return `${val} ${pc.dim(sizes[i])}`
+}
+
+export function logInjectManifestResult(
+  buildResult: BuildResult,
+  totalTime: number,
+  logLevel: LogLevel,
+  root: string = process.cwd(),
+) {
+  if (logLevel === 'silent')
+    return
+
+  const { count, size, filePaths, warnings } = buildResult
+
+  console.info(`\n${pc.cyan(pc.bold(`Vite PWA v${pkg.version}`))}`)
+  console.info(`${pc.dim('strategy')}  ${pc.magenta('inject-manifest')}`)
+
+  // Precaching Summary
+  console.info(`${pc.dim('precache')}  ${pc.green(`${count} entries`)} ${pc.dim(`(${(size / 1024).toFixed(2)} KiB)`)}`)
+
+  // Files generated table
+  console.info(`\n${pc.green('✓')} files generated:`)
+
+  // Single pass to collect data and calculate max lengths
+  const { files, maxP, maxS } = filePaths.reduce((acc, fp) => {
+    const np = normalizePath(path.relative(root, fp))
+    const sizeStr = `${(fs.statSync(fp).size / 1024).toFixed(2)} kB`
+
+    acc.files.push({ np, size: sizeStr })
+    acc.maxP = Math.max(acc.maxP, np.length)
+    acc.maxS = Math.max(acc.maxS, sizeStr.length)
+
+    return acc
+  }, { files: [] as { np: string, size: string }[], maxP: 0, maxS: 0 })
+
+  for (const { np, size } of files) {
+    const isMap = np.endsWith('.map')
+    const line = `  ${np.padEnd(maxP)} ${size.padStart(maxS)}`
+
+    if (isMap) {
+      console.info(`${pc.dim(line)} ${pc.dim('│ map')}`)
+    }
+    else {
+      // We only bold the size for primary files
+      console.info(`${pc.dim(line.slice(0, maxP + 3))}${pc.bold(line.slice(maxP + 3))}`)
+    }
+  }
+
+  // Warnings are always shown unless silent
+  if (warnings && warnings.length > 0) {
+    console.warn(pc.yellow(`\n${pc.bold('[Vite PWA] Warnings:')}\n${warnings.join('\n')}\n`))
+  }
+
+  console.info(`\n${pc.green(`✓ injection point added in ${totalTime.toFixed(4)}ms`)}`)
 }
