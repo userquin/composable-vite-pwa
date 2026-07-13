@@ -19,6 +19,15 @@ dist-ssr
 *.sln
 *.sw?
 
+# tanstack start stuff
+.nitro
+.tanstack
+.wrangler
+.output
+.vinxi
+__unconfig*
+todos.json
+
 # premove PWA stuff
 .github/pwa-labeler.yml
 *.md

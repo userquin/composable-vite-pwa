@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "lib": ["ES2020", "DOM", "WebWorker", "DOM.Iterable"],
+    "types": [
+      "node",
+      "vite/client",
+      "vitest/globals",
+      "nitro/vite",
+      "@composable-vite-pwa/unplugin-pwa/info",
+      "@composable-vite-pwa/unplugin-pwa/pwa-assets"
+    ]
+  },
+  "include": ["src/**/*"],
+}
