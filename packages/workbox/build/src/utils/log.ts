@@ -106,7 +106,7 @@ export function logInjectManifestResult(
   console.info(`${pc.dim('precache')}  ${pc.green(`${count} entries`)} ${pc.dim(`(${(size / 1024).toFixed(2)} KiB)`)}`)
 
   // Files generated table
-  console.info(`\n${pc.green('✓')} files generated:`)
+  console.info(`\n${pc.green('✓')} files modified:`)
 
   // Single pass to collect data and calculate max lengths
   const { files, maxP, maxS } = filePaths.reduce((acc, fp) => {
