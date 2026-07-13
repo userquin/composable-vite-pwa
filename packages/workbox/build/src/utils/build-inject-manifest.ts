@@ -8,10 +8,11 @@ import { errors } from '../validation/errors'
 import { validateInjectManifest } from '../validation/validation-helper'
 import { escapeRegExp } from './escape-regexp'
 import { generateManifestEntries } from './generate-manifest-entries'
-import { throwInvalidInjectionPoint } from './log'
+import { logInjectManifestResult, throwInvalidInjectionPoint } from './log'
 import { deepMergeObject, prepareInjectManifestGlobIgnores } from './utils'
 
 export async function buildInjectManifest(
+  buildStart: ReturnType<typeof performance.now>,
   options: InjectManifestOptions,
 ): Promise<BuildResult> {
   if (options.injectionPoint === false || options.injectionPoint === null) {
@@ -126,6 +127,12 @@ export async function buildInjectManifest(
   else {
     await fsp.writeFile(destPath, finalCode, 'utf-8')
   }
+
+  logInjectManifestResult(
+    { count, size, warnings, filePaths },
+    performance.now() - buildStart,
+    options.logLevel ?? 'info',
+  )
 
   return {
     count,
