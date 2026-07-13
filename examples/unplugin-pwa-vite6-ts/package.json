@@ -1,0 +1,20 @@
+{
+  "name": "unplugin-pwa-vite6-ts",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/unplugin-pwa": "workspace:*",
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "magic-string": "catalog:utils",
+    "magicast": "catalog:utils",
+    "rolldown": "catalog:utils",
+    "vite": "catalog:vite6",
+    "vite-plugin-inspect": "catalog:vite-plugin-inspect-legacy"
+  }
+}
