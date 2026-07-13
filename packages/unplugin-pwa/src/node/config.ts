@@ -248,8 +248,6 @@ export async function resolvePwaConfiguration<
       }, {
         injectManifest: Object.assign(rest.injectManifest ?? {}, {
           swDest: filename,
-          swType,
-          minify,
           maximumFileSizeToCacheInBytes,
           throwMaximumFileSizeToCacheInBytes,
           additionalManifestEntries,

@@ -1,5 +1,5 @@
 {
-  "name": "unplugin-pwa-vite-legacy-ts",
+  "name": "unplugin-pwa-vite-legacy-ip-ts",
   "type": "module",
   "version": "0.0.0",
   "private": true,
@@ -15,8 +15,6 @@
     "magic-string": "catalog:utils",
     "magicast": "catalog:utils",
     "rolldown": "catalog:utils",
-    "sharp": "catalog:sharp",
-    "sharp-ico": "catalog:sharp",
     "vite": "catalog:vite5",
     "vite-plugin-inspect": "catalog:vite-plugin-inspect-ancient"
   }

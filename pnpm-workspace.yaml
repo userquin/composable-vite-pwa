@@ -90,6 +90,9 @@ catalogs:
     '@rsbuild/core': ^2.0.7
   rspack:
     '@rspack/core': ^2.0.4
+  sharp:
+    sharp: ^0.35.3
+    sharp-ico: ^0.1.5
   solid-js:
     solid-js: ^1.9.12
   svelte:
