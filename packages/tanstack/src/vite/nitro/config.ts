@@ -34,10 +34,14 @@ export function NitroConfigurationPlugin<
       return environment.name === 'client'
     },
     async configResolved(config) {
-      if (ctx.tanstack.nitro.options.dev) {
+      if (!ctx.tanstack.nitro || ctx.tanstack.nitro.options.dev) {
         return
       }
-      // won't be used
+
+      // at this point nitro has configured most of the entries from its hooks, we only need:
+      // - add publicDir from vite
+      // - add publicDir from vite
+      // - use vite config.build.assetsDir for assetsDir: dontCacheBurst
       ctx.viteConfig = config
       console.log('configResolved:build')
       ctx.publicDir = config.publicDir || 'public'
@@ -80,7 +84,7 @@ export function NitroConfigurationPlugin<
     },
     configResolved(config) {
       // no way, apply serve doesn't prevent nitro prerender instance call this plugin
-      if (!ctx.tanstack.nitro.options.dev) {
+      if (!ctx.tanstack.nitro || !ctx.tanstack.nitro.options.dev) {
         return
       }
       console.log('configResolved:dev')
@@ -164,7 +168,7 @@ function prepareNitroModule<
 
         // init some more paths
         const {
-          base = ctx.viteConfig.base || '/',
+          base = nitro.options.baseURL || '/',
           scope,
           buildBase,
         } = ctx.resolvedOptions
@@ -201,7 +205,7 @@ function prepareNitroModule<
         const { filename = 'sw.js' } = ctx.consumerOptions
         nitro.options.routeRules = nitro.options.routeRules || {}
         if (options) {
-          options.globDirectory = ctx.outDir
+          options.globDirectory = normalizePath(path.relative(process.cwd(), ctx.outDir))
           options.manifestTransforms ??= []
           options.manifestTransforms.push(createManifestTransform(ctx.base || '/'))
         }
@@ -212,7 +216,7 @@ function prepareNitroModule<
             classicSWDest,
             moduleSWDest,
           } = resolveSWNames(
-            normalizePath(path.relative(process.cwd(), path.resolve(ctx.outDir, filename))),
+            path.resolve(ctx.outDir, filename),
             swSrc as string,
             ctx.strategy === 'generate-sw',
           )
@@ -224,20 +228,23 @@ function prepareNitroModule<
             module: moduleSWDest,
           }
 
+          // resolveSWNames requires relative path but the combination of root and nitro.options.output.publicDir
+          // will force resolveSWNames to return the SW path names with ./output/public/ prefix
+          // at routeRules we just use the file names since it is the nitro manifest to prevent caching
           if (ctx.resolvedOptions.swType === 'classic-and-module') {
-            nitro.options.routeRules[`${base}${ctx.swNames.classic}`] = {
+            nitro.options.routeRules[`${base}${path.basename(ctx.swNames.classic)}`] = {
               headers: {
                 'Cache-Control': 'public, max-age=0, must-revalidate',
               },
             }
-            nitro.options.routeRules[`${base}${ctx.swNames.module}`] = {
+            nitro.options.routeRules[`${base}${path.basename(ctx.swNames.module)}`] = {
               headers: {
                 'Cache-Control': 'public, max-age=0, must-revalidate',
               },
             }
           }
           else {
-            nitro.options.routeRules[`${base}${ctx.swNames.name}`] = {
+            nitro.options.routeRules[`${base}${path.basename(ctx.swNames.name)}`] = {
               headers: {
                 'Cache-Control': 'public, max-age=0, must-revalidate',
               },
