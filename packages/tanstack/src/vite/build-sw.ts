@@ -23,7 +23,7 @@ export function BuildSWPlugin<
     buildApp: {
       order: 'post',
       async handler() {
-        if (ctx.tanstack.nitro) {
+        if (!ctx.tanstack || 'nitro' in ctx.tanstack) {
           return
         }
 
