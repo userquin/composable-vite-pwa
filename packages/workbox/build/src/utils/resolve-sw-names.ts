@@ -81,5 +81,6 @@ export function resolveSWNames(
     swDestPath: path.relative(destDist, rootSWDest),
     classicSWDestPath: path.relative(destDist, classicSWDest),
     moduleSWDestPath: path.relative(destDist, moduleSWDest),
+    prefix,
   }
 }

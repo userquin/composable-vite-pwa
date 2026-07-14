@@ -16,6 +16,7 @@ import type {
   OriginalEnvironmentData,
   ResolvedSWTargets,
 } from './bundler-types'
+import path from 'node:path'
 import {
   resolveSWNames,
 } from '../../utils/resolve-sw-names'
@@ -90,23 +91,37 @@ export function resolveSWNamesAndGlobIgnores(
     moduleSWSrc,
     moduleSWChunkName,
     moduleSWDest,
+    prefix,
   } = resolveSWNames(options.swDest, swSrc, generateSW)
+
+  // globIgnores is compared to cwd: globDirectory (tinyglobby), but the
+  // *Dest paths in resolveSWNames are relative to process.cwd() with
+  // `prefix` (destDist) in front. If swDest lives inside globDirectory
+  // (normal case, single output directory), `prefix` matches
+  // path.relative(cwd, globDirectory) + '/' and must be removed for
+  // the ignore to match. The *Src paths (source code, outside the outDir)
+  // do not have this prefix and are not touched.
+  function stripPrefix(value: string): string {
+    return prefix.length > 0 ? path.basename(value) : value
+  }
 
   options.globIgnores ??= []
   if (generateSW) {
-    options.globIgnores.push(newSWSrc)
+    options.globIgnores.push(stripPrefix(newSWSrc))
+    options.globIgnores.push(stripPrefix(classicSWSrc))
+    options.globIgnores.push(stripPrefix(moduleSWSrc))
   }
   else {
     options.globIgnores.push(swSrc)
+    options.globIgnores.push(classicSWSrc)
+    options.globIgnores.push(moduleSWSrc)
   }
-  options.globIgnores.push(classicSWSrc)
-  options.globIgnores.push(moduleSWSrc)
-  options.globIgnores.push(options.swDest)
-  options.globIgnores.push(`${options.swDest}.map`)
-  options.globIgnores.push(classicSWDest)
-  options.globIgnores.push(`${classicSWDest}.map`)
-  options.globIgnores.push(moduleSWDest)
-  options.globIgnores.push(`${moduleSWDest}.map`)
+  options.globIgnores.push(stripPrefix(options.swDest))
+  options.globIgnores.push(`${stripPrefix(options.swDest)}.map`)
+  options.globIgnores.push(stripPrefix(classicSWDest))
+  options.globIgnores.push(`${stripPrefix(classicSWDest)}.map`)
+  options.globIgnores.push(stripPrefix(moduleSWDest))
+  options.globIgnores.push(`${stripPrefix(moduleSWDest)}.map`)
   options.globIgnores.push('**/workbox-*.js')
   options.globIgnores.push('**/workbox-*.js.map')
   options.globIgnores.push('**/.vite-pwa/sw-manifest*.json')
