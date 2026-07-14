@@ -8,6 +8,7 @@ import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from './internal-types'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 import {
   prepareSwNamesAndGlobDirectory,
 } from '@composable-vite-pwa/unplugin-pwa/node/vite/dev/prepare-sw-names-and-glob-directory'
@@ -113,7 +114,13 @@ export async function prepareModule<
         swDisabled = true
       }
       if (!swDisabled) {
-        prepareBuildSwNames(ctx)
+        const publicDir = nitroConfig.output?.publicDir ?? nuxt.options.nitro?.output?.publicDir
+
+        // todo: ask Daniel
+        prepareBuildSwNames(
+          ctx,
+          publicDir ? path.resolve(process.cwd(), publicDir) : path.resolve(process.cwd(), './.output/public'),
+        )
       }
     }
 
@@ -123,7 +130,6 @@ export async function prepareModule<
     // prepare nitro public assets
     if (isDev) {
       if (!swDisabled) {
-        nitroConfig.publicAssets = nitroConfig.publicAssets || []
         await prepareSwNamesAndGlobDirectory(ctx as unknown as any)
         swNames = ctx.dev.options!.swNames
         const outDir = path.resolve(
