@@ -1,8 +1,8 @@
-import type { TanStackPWAOptions } from '@composable-vite-pwa/tanstack/types'
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nitro } from 'nitro/types'
 import type { TanStackPWAContext } from './create-pwa-context'
+import type { TanStackPWAOptions } from './types'
 import { createTanStackPWAContext } from './create-pwa-context'
 
 export type TanStackNitroPWAContext<
