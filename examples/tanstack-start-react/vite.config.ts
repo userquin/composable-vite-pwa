@@ -1,5 +1,5 @@
 import process from 'node:process'
-import { TanStackPWAPlugin } from '@composable-vite-pwa/tanstack'
+import { TanStackNitroPWAPlugin } from '@composable-vite-pwa/tanstack/vite/nitro'
 import tailwindcss from '@tailwindcss/vite'
 import { devtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -33,6 +33,7 @@ const config = defineConfig({
     {
       name: 'test',
       apply: 'build',
+      enforce: 'post',
       applyToEnvironment(environment) {
         console.log('applyToEnvironment:', environment.name)
         return true
@@ -44,7 +45,7 @@ const config = defineConfig({
         console.log('configResolved:', config.build.outDir)
       },
     },
-    {
+    /* {
       name: 'test2',
       apply: 'build',
       applyToEnvironment(environment) {
@@ -54,8 +55,8 @@ const config = defineConfig({
       closeBundle() {
         console.log('test2:closeBundle')
       },
-    },
-    TanStackPWAPlugin({
+    }, */
+    TanStackNitroPWAPlugin({
       minify: false,
       strategies: process.env.BUILD_SW ? 'build-sw' : 'generate-sw',
       swType: 'classic-and-module',

@@ -26,9 +26,12 @@
     "./types": {
       "types": "./dist/types.d.mts"
     },
+    "./create-nitro-pwa-context": "./dist/create-nitro-pwa-context.mjs",
     "./create-pwa-context": "./dist/create-pwa-context.mjs",
-    "./plugins/build-sw": "./dist/plugins/build-sw.mjs",
-    "./plugins/nitro": "./dist/plugins/nitro.mjs",
+    "./load-external-configuration": "./dist/load-external-configuration.mjs",
+    "./vite/build-sw": "./dist/vite/build-sw.mjs",
+    "./vite/nitro": "./dist/vite/nitro.mjs",
+    "./vite/nitro/config": "./dist/vite/nitro/config.mjs",
     "./react-components":  "./dist/react-components.mjs",
     "./package.json": "./package.json"
   },
@@ -38,11 +41,20 @@
       "create-pwa-context": [
         "dist/create-pwa-context.d.mts"
       ],
-      "plugins/build-sw": [
-        "dist/plugins/build-sw.d.mts"
+      "create-nitro-pwa-context": [
+        "dist/create-nitro-pwa-context.d.mts"
       ],
-      "plugins/nitro": [
-        "dist/plugins/nitro.d.mts"
+      "load-external-configuration": [
+        "dist/load-external-configuration.d.mts"
+      ],
+      "vite/build-sw": [
+        "dist/vite/build-sw.d.mts"
+      ],
+      "vite/nitro": [
+        "dist/vite/nitro.d.mts"
+      ],
+      "vite/nitro/config": [
+        "dist/vite/nitro/config.d.mts"
       ],
       "react-components": [
         "dist/react-components.d.mts"

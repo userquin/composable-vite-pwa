@@ -21,7 +21,7 @@
     "@tanstack/react-start": "catalog:tanstackreact",
     "@tanstack/router-plugin": "catalog:tanstackreact",
     "lucide-react": "catalog:tanstackreact",
-    "nitro": "catalog:nitrov3",
+    "nitro": "https://pkg.pr.new/nitro@9faccf8",
     "react": "catalog:tanstackreact",
     "react-dom": "catalog:tanstackreact",
     "tailwindcss": "catalog:tanstackreact"

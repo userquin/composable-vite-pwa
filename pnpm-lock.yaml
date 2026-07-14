@@ -457,8 +457,8 @@ importers:
         specifier: catalog:tanstackreact
         version: 0.545.0(react@19.2.7)
       nitro:
-        specifier: catalog:nitrov3
-        version: nitro-nightly@3.0.1-20260712-095235-05bf1c38(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.3.0)(ioredis@5.11.1)(jiti@2.7.0)(lru-cache@11.5.1)(vite@8.1.0)
+        specifier: https://pkg.pr.new/nitro@9faccf8
+        version: https://pkg.pr.new/nitro@9faccf8(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.3.0)(ioredis@5.11.1)(jiti@2.7.0)(lru-cache@11.5.1)(vite@8.1.0)
       react:
         specifier: catalog:tanstackreact
         version: 19.2.7
@@ -7405,6 +7405,38 @@ packages:
 
   nitro-nightly@3.0.1-20260712-095235-05bf1c38:
     resolution: {integrity: sha512-aOE3Pc2BNMorvXCMlBdBRAkWY+brTFEbg1EKbiouYdhbTcdjpfzwhlvk8duirKiIA+c2B06MlnrNHXUMLkI/mQ==}
+    engines: {node: ^20.19.0 || >=22.12.0}
+    hasBin: true
+    peerDependencies:
+      '@vercel/queue': ^0.4.0
+      dotenv: '*'
+      giget: '*'
+      jiti: ^2.7.0
+      rollup: ^4.62.0
+      vite: ^7 || ^8
+      xml2js: ^0.6.2
+      zephyr-agent: ^1.1.2
+    peerDependenciesMeta:
+      '@vercel/queue':
+        optional: true
+      dotenv:
+        optional: true
+      giget:
+        optional: true
+      jiti:
+        optional: true
+      rollup:
+        optional: true
+      vite:
+        optional: true
+      xml2js:
+        optional: true
+      zephyr-agent:
+        optional: true
+
+  nitro@https://pkg.pr.new/nitro@9faccf8:
+    resolution: {integrity: sha512-LoTn4xB0wLsuYyPhwJ1DhhVyxt1++TU1u40nVSEsBSddRxLdoaUBiZivD9xATxN8TmmiVOLc1VD94ZvUeKwOww==, tarball: https://pkg.pr.new/nitro@9faccf8}
+    version: 3.0.260610-beta
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -16024,6 +16056,61 @@ snapshots:
   nf3@0.3.22: {}
 
   nitro-nightly@3.0.1-20260712-095235-05bf1c38(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.3.0)(ioredis@5.11.1)(jiti@2.7.0)(lru-cache@11.5.1)(vite@8.1.0):
+    dependencies:
+      consola: 3.4.2
+      crossws: 0.4.10(srvx@0.11.22)
+      db0: 0.3.4
+      env-runner: 0.1.16
+      h3: 2.0.1-rc.25(crossws@0.4.10)
+      h3-rules: 0.1.0(h3@2.0.1-rc.25)(ocache@0.2.0)
+      hookable: 6.1.1
+      nf3: 0.3.22
+      ocache: 0.2.0
+      ofetch: 2.0.0-alpha.3
+      ohash: 2.0.11
+      rolldown: 1.1.2
+      rou3: 0.9.1
+      srvx: 0.11.22
+      unenv: 2.0.0-rc.24
+      unstorage: 2.0.0-alpha.7(chokidar@5.0.0)(db0@0.3.4)(ioredis@5.11.1)(lru-cache@11.5.1)(ofetch@2.0.0-alpha.3)
+    optionalDependencies:
+      dotenv: 17.4.2
+      giget: 3.3.0
+      jiti: 2.7.0
+      vite: 8.1.0(@types/node@24.12.2)(@vitejs/devtools@0.3.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)
+    transitivePeerDependencies:
+      - '@azure/app-configuration'
+      - '@azure/cosmos'
+      - '@azure/data-tables'
+      - '@azure/identity'
+      - '@azure/keyvault-secrets'
+      - '@azure/storage-blob'
+      - '@capacitor/preferences'
+      - '@deno/kv'
+      - '@electric-sql/pglite'
+      - '@libsql/client'
+      - '@netlify/blobs'
+      - '@netlify/runtime'
+      - '@planetscale/database'
+      - '@upstash/redis'
+      - '@vercel/blob'
+      - '@vercel/functions'
+      - '@vercel/kv'
+      - aws4fetch
+      - better-sqlite3
+      - chokidar
+      - drizzle-orm
+      - idb-keyval
+      - ioredis
+      - lru-cache
+      - miniflare
+      - mongodb
+      - mysql2
+      - sqlite3
+      - uploadthing
+      - wrangler
+
+  nitro@https://pkg.pr.new/nitro@9faccf8(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.3.0)(ioredis@5.11.1)(jiti@2.7.0)(lru-cache@11.5.1)(vite@8.1.0):
     dependencies:
       consola: 3.4.2
       crossws: 0.4.10(srvx@0.11.22)

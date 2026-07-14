@@ -15,11 +15,14 @@ const cwd = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   entry: [
-    'src/index.ts',
+    'src/create-nitro-pwa-context.ts',
     'src/create-pwa-context.ts',
+    'src/index.ts',
+    'src/load-external-configuration.ts',
     'src/types.ts',
     {
-      'plugins/*': ['./src/plugins/*'],
+      'vite/*': ['./src/vite/*'],
+      'vite/nitro/*': ['./src/vite/nitro/*'],
     },
     {
       'react-components': './src/react-components/index.ts',
