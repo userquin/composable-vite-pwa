@@ -154,19 +154,19 @@ export async function prepareModule<
     nitroConfig.routeRules = nitroConfig.routeRules || {}
     if (swNames?.hasNames) {
       if (ctx.resolvedOptions.swType === 'classic-and-module') {
-        nitroConfig.routeRules[`${ctx.base}${swNames.classic}`] = {
+        nitroConfig.routeRules[`${ctx.base}${path.basename(swNames.classic)}`] = {
           headers: {
             'Cache-Control': 'public, max-age=0, must-revalidate',
           },
         }
-        nitroConfig.routeRules[`${ctx.base}${swNames.module}`] = {
+        nitroConfig.routeRules[`${ctx.base}${path.basename(swNames.module)}`] = {
           headers: {
             'Cache-Control': 'public, max-age=0, must-revalidate',
           },
         }
       }
       else {
-        nitroConfig.routeRules[`${ctx.base}${swNames.name}`] = {
+        nitroConfig.routeRules[`${ctx.base}${path.basename(swNames.name)}`] = {
           headers: {
             'Cache-Control': 'public, max-age=0, must-revalidate',
           },
