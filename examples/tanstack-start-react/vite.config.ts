@@ -9,15 +9,19 @@ import { defineConfig } from 'vite'
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
+  // base: '/app/',
   build: {
     minify: false,
   },
   plugins: [
     devtools(),
     nitro({
+      // baseURL: '/app/',
       routeRules: {
         '/': { prerender: true },
         '/about': { prerender: true },
+        // '/app/': { prerender: true },
+        // '/app/about': { prerender: true },
       },
       rollupConfig: {
         external: [/^@sentry\//],
@@ -63,6 +67,8 @@ const config = defineConfig({
       registerType: 'autoUpdate',
       includeManifestIcons: false,
       base: '/',
+      // base: '/app/',
+      // scope: '/app/',
       generateSW: {
         globPatterns: ['**/*.{css,js,html,svg,png,ico,txt,woff2}'],
         sourcemap: true,
