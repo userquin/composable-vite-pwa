@@ -102,7 +102,7 @@ export function resolveSWNamesAndGlobIgnores(
   // the ignore to match. The *Src paths (source code, outside the outDir)
   // do not have this prefix and are not touched.
   function stripPrefix(value: string): string {
-    return prefix.length > 0 ? path.basename(value) : value
+    return prefix && value.startsWith(prefix) ? value.slice(prefix.length) : value
   }
 
   options.globIgnores ??= []
