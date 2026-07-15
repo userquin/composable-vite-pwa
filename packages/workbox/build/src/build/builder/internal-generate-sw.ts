@@ -42,6 +42,7 @@ export async function internalGenerateSW<
     swDest,
     classicSWDest,
     moduleSWDest,
+    prefix,
   } = resolveSWNamesAndGlobIgnores(
     context.options,
     '',
@@ -96,6 +97,7 @@ export async function internalGenerateSW<
     originalEnvironmentData: context.originalEnvironmentData,
     chunkNames,
     manifest,
+    swNamesPrefix: prefix,
   })
 
   context.builds = builds

@@ -45,6 +45,7 @@ describe('common bundler options are correctly generated', () => {
           "moduleSWChunkName": "sw-temp-module",
           "moduleSWDest": "sw-module.js",
           "moduleSWSrc": "sw-temp-module.js",
+          "prefix": "",
           "swChunkName": "sw-temp",
           "swDest": "sw.js",
           "swSrc": "sw-temp.js",
@@ -64,6 +65,7 @@ describe('common bundler options are correctly generated', () => {
           "moduleSWChunkName": "custom-sw-temp-module",
           "moduleSWDest": "custom-sw-module.js",
           "moduleSWSrc": "custom-sw-temp-module.js",
+          "prefix": "",
           "swChunkName": "custom-sw-temp",
           "swDest": "custom-sw.js",
           "swSrc": "custom-sw-temp.js",
@@ -83,6 +85,7 @@ describe('common bundler options are correctly generated', () => {
           "moduleSWChunkName": "sw",
           "moduleSWDest": "sw-module.js",
           "moduleSWSrc": "sw.js",
+          "prefix": "",
           "swChunkName": "sw",
           "swDest": "sw.js",
           "swSrc": "sw.js",
@@ -100,6 +103,7 @@ describe('common bundler options are correctly generated', () => {
           "moduleSWChunkName": "sw",
           "moduleSWDest": "custom-sw-module.js",
           "moduleSWSrc": "sw.js",
+          "prefix": "",
           "swChunkName": "sw",
           "swDest": "custom-sw.js",
           "swSrc": "sw.js",
@@ -141,6 +145,7 @@ describe('common bundler options are correctly generated', () => {
         workboxRuntimeCompatible: false,
         generateSW: { swCode: 'console.log("sw")' },
         originalEnvironmentData: undefined!,
+        swNamesPrefix: '',
       } satisfies PrepareBundlerOptions
 
       const {
@@ -191,6 +196,7 @@ describe('common bundler options are correctly generated', () => {
         target: { classic: 'es2015', module: 'esnext' },
         workboxRuntimeCompatible: false,
         originalEnvironmentData: undefined!,
+        swNamesPrefix: '',
       } satisfies PrepareBundlerOptions
 
       const {

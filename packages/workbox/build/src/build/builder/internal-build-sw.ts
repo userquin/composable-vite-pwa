@@ -56,6 +56,7 @@ export async function internalBuildSW<
     swDest,
     classicSWDest,
     moduleSWDest,
+    prefix,
   } = resolveSWNamesAndGlobIgnores(
     injectManifest,
     injectManifest.swSrc,
@@ -99,6 +100,7 @@ export async function internalBuildSW<
     originalEnvironmentData: context.originalEnvironmentData,
     chunkNames,
     manifest,
+    swNamesPrefix: prefix,
   })
 
   context.builds = builds

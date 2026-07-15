@@ -136,6 +136,7 @@ export function resolveSWNamesAndGlobIgnores(
     moduleSWSrc,
     moduleSWChunkName,
     moduleSWDest,
+    prefix,
   }
 }
 

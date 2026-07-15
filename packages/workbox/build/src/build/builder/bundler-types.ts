@@ -32,6 +32,7 @@ export interface BundlerOptions {
   chunkNames?: 'dash' | 'dot'
   manifest?: boolean
   sources: string[]
+  swNamesPrefix: string
 }
 
 export interface PrepareBundlerOptions {
@@ -57,6 +58,7 @@ export interface PrepareBundlerOptions {
   originalEnvironmentData: OriginalEnvironmentData
   chunkNames?: 'dash' | 'dot'
   manifest?: boolean
+  swNamesPrefix: string
 }
 
 export interface ClassicRegionReplacement {
