@@ -86,8 +86,8 @@ export function DevMiddlewarePlugin<
           if (
             normalizedId === swNames.name
           ) {
-            ctx.sources.add(swSrc)
             if (!ctx.dev.options.swGenerated) {
+              ctx.sources.add(swSrc)
               await prepareSwBuild(ctx)
             }
             const asset = swAssetsPaths.get(swId)
@@ -103,13 +103,11 @@ export function DevMiddlewarePlugin<
 
           if (req.headers.referer && !req.headers.referer.endsWith('.html')) {
             const referer = new URL(req.headers.referer)
-            const [normalizedAsset, assetId] = ctx.normalizeDevServiceWorkerId?.(
+            const [normalizedAsset] = ctx.normalizeDevServiceWorkerId?.(
               'load',
               'sw-dep',
               referer.pathname,
             ) ?? referer.pathname
-            // console.log(swAssetsPaths)
-            console.log('PASO2:', { url, dep: referer.pathname, normalizedAsset, assetId })
             // dependency found: the incoming request from some internal built dependency
             // sw.js => import x from './b.js' => we need to add b.js to sources
             // referer.pathname in previous case is the sw.js
@@ -120,7 +118,6 @@ export function DevMiddlewarePlugin<
                 'sw-dep',
                 url,
               ) ?? url
-              console.log('PASO3:', { url, dep: referer.pathname, normalizedAssetDep, assetDepId })
               // the path for the incoming request shouldn't be at temp folder: resolve it from swSrc path
               if (!swAssetsPaths.has(normalizedAssetDep)) {
                 const depPath = path.resolve(swSrcPath, assetDepId.startsWith('/') ? assetDepId.slice(1) : assetDepId)
