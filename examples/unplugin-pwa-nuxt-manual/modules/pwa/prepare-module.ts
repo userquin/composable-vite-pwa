@@ -8,6 +8,7 @@ import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from './internal-types'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import process from 'node:process'
 import {
   prepareSwNamesAndGlobDirectory,
 } from '@composable-vite-pwa/unplugin-pwa/node/vite/dev/prepare-sw-names-and-glob-directory'
@@ -113,7 +114,13 @@ export async function prepareModule<
         swDisabled = true
       }
       if (!swDisabled) {
-        prepareBuildSwNames(ctx)
+        const publicDir = nitroConfig.output?.publicDir ?? nuxt.options.nitro?.output?.publicDir
+
+        // todo: ask Daniel
+        prepareBuildSwNames(
+          ctx,
+          publicDir ? path.resolve(process.cwd(), publicDir) : path.resolve(process.cwd(), './.output/public'),
+        )
       }
     }
 
@@ -123,7 +130,6 @@ export async function prepareModule<
     // prepare nitro public assets
     if (isDev) {
       if (!swDisabled) {
-        nitroConfig.publicAssets = nitroConfig.publicAssets || []
         await prepareSwNamesAndGlobDirectory(ctx as unknown as any)
         swNames = ctx.dev.options!.swNames
         const outDir = path.resolve(
@@ -148,19 +154,19 @@ export async function prepareModule<
     nitroConfig.routeRules = nitroConfig.routeRules || {}
     if (swNames?.hasNames) {
       if (ctx.resolvedOptions.swType === 'classic-and-module') {
-        nitroConfig.routeRules[`${ctx.base}${swNames.classic}`] = {
+        nitroConfig.routeRules[`${ctx.base}${path.basename(swNames.classic)}`] = {
           headers: {
             'Cache-Control': 'public, max-age=0, must-revalidate',
           },
         }
-        nitroConfig.routeRules[`${ctx.base}${swNames.module}`] = {
+        nitroConfig.routeRules[`${ctx.base}${path.basename(swNames.module)}`] = {
           headers: {
             'Cache-Control': 'public, max-age=0, must-revalidate',
           },
         }
       }
       else {
-        nitroConfig.routeRules[`${ctx.base}${swNames.name}`] = {
+        nitroConfig.routeRules[`${ctx.base}${path.basename(swNames.name)}`] = {
           headers: {
             'Cache-Control': 'public, max-age=0, must-revalidate',
           },

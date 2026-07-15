@@ -1,0 +1,47 @@
+{
+  "name": "unplugin-pwa-tanstack-start",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "generate-routes": "tsr generate",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-devtools": "catalog:tanstackreact",
+    "@tanstack/react-router": "catalog:tanstackreact",
+    "@tanstack/react-router-devtools": "catalog:tanstackreact",
+    "@tanstack/react-router-ssr-query": "catalog:tanstackreact",
+    "@tanstack/react-start": "catalog:tanstackreact",
+    "@tanstack/router-plugin": "catalog:tanstackreact",
+    "lucide-react": "catalog:tanstackreact",
+    "nitro": "https://pkg.pr.new/nitro@9faccf8",
+    "react": "catalog:tanstackreact",
+    "react-dom": "catalog:tanstackreact",
+    "tailwindcss": "catalog:tanstackreact"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/tanstack": "workspace:*",
+    "@composable-vite-pwa/unplugin-pwa": "workspace:*",
+    "@composable-vite-pwa/workbox-build": "workspace:*",
+    "@tailwindcss/typography": "catalog:tanstackreact",
+    "@tanstack/devtools-vite": "catalog:tanstackreact",
+    "@tanstack/router-cli": "catalog:tanstackreact",
+    "@testing-library/dom": "catalog:tanstackreact",
+    "@testing-library/react": "catalog:tanstackreact",
+    "@types/node": "catalog:types",
+    "@types/react": "catalog:tanstackreact",
+    "@types/react-dom": "catalog:tanstackreact",
+    "@vitejs/plugin-react": "catalog:tanstackreact",
+    "jsdom": "catalog:tanstackreact",
+    "typescript": "catalog:typescript",
+    "vite": "catalog:vite",
+    "vitest": "catalog:test"
+  }
+}

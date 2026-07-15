@@ -32,6 +32,12 @@
       "@composable-vite-pwa/react-router/preset": [
         "./packages/react-router/src/preset.ts"
       ],
+      "@composable-vite-pwa/tanstack": [
+        "./packages/tanstack/src/index.ts"
+      ],
+      "@composable-vite-pwa/tanstack/*": [
+        "./packages/tanstack/src/*.ts"
+      ],
       "@composable-vite-pwa/workbox-build": [
         "./packages/workbox/build/src/index.ts"
       ],

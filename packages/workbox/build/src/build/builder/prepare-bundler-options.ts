@@ -2,15 +2,10 @@ import type {
   BundlerOptions,
   PrepareBundlerOptions,
 } from './bundler-types'
-import fsp from 'node:fs/promises'
-import path from 'node:path'
-import process from 'node:process'
 
 interface PrepareBundlerOptionsType {
   builds: BundlerOptions[]
   filePathsMap: Map<'classic' | 'module', string[]>
-  tempFiles: string[]
-  tempFileWrites: Promise<void>[]
   classicCircularDependencies: string[]
   moduleCircularDependencies: string[]
   classicSources: string[]
@@ -39,13 +34,12 @@ export function prepareBundlerOptions(
     manifestEntries,
     chunkNames,
     manifest,
+    swNamesPrefix,
   } = options
 
   const builds: BundlerOptions[] = []
   const filePathsMap = new Map<'classic' | 'module', string[]>([['classic', []], ['module', []]])
   const swType = options.swType!
-  const tempFileWrites: Promise<void>[] = []
-  const tempFiles: string[] = []
   const classicCircularDependencies: string[] = []
   const moduleCircularDependencies: string[] = []
   const classicSources: string[] = []
@@ -56,13 +50,6 @@ export function prepareBundlerOptions(
       swSrc = classicSWSrc
       swChunkName = classicSWChunkName
       swDest = swType === 'classic-and-module' || !workboxRuntimeCompatible ? classicSWDest : swDest
-      const file = path.resolve(process.cwd(), classicSWSrc)
-      tempFiles.push(file)
-      tempFileWrites.push(fsp.writeFile(
-        file,
-        generateSW.swCode,
-        'utf-8',
-      ))
     }
     else {
       swDest = swType === 'classic-and-module' || !workboxRuntimeCompatible ? classicSWDest : swDest
@@ -85,11 +72,13 @@ export function prepareBundlerOptions(
       originalSWType: swType,
       swType: 'classic',
       generateSW: !!generateSW,
+      generateSWCode: generateSW?.swCode || '',
       originalEnvironmentData: options.originalEnvironmentData,
       circularDependencies: classicCircularDependencies,
       chunkNames,
       manifest,
       sources: classicSources,
+      swNamesPrefix,
     })
   }
 
@@ -98,13 +87,6 @@ export function prepareBundlerOptions(
       swSrc = moduleSWSrc
       swChunkName = moduleSWChunkName
       swDest = swType === 'classic-and-module' || !workboxRuntimeCompatible ? moduleSWDest : swDest
-      const file = path.resolve(process.cwd(), moduleSWSrc)
-      tempFiles.push(file)
-      tempFileWrites.push(fsp.writeFile(
-        file,
-        generateSW.swCode,
-        'utf-8',
-      ))
     }
     else {
       swDest = swType === 'classic-and-module' || !workboxRuntimeCompatible ? moduleSWDest : swDest
@@ -127,19 +109,19 @@ export function prepareBundlerOptions(
       originalSWType: swType,
       swType: 'module',
       generateSW: !!generateSW,
+      generateSWCode: generateSW?.swCode || '',
       originalEnvironmentData: options.originalEnvironmentData,
       circularDependencies: moduleCircularDependencies,
       chunkNames,
       manifest,
       sources: moduleSources,
+      swNamesPrefix,
     })
   }
 
   return {
     builds,
     filePathsMap,
-    tempFiles,
-    tempFileWrites,
     classicCircularDependencies,
     moduleCircularDependencies,
     classicSources,

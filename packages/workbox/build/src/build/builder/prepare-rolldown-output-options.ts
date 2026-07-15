@@ -31,10 +31,12 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     workboxRuntimeCompatible,
     plugins = [],
     generateSW,
+    generateSWCode,
     filePaths,
     manifestEntries,
     chunkNames = '-',
     sources,
+    swNamesPrefix,
   } = options
 
   const sep = chunkNames === 'dot' ? '.' : '-'
@@ -78,9 +80,11 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     swType,
     filePaths,
     generateSW,
+    generateSWCode,
     region: {
       search: swSrc,
-      replacement: swDest,
+      // replace relative path with empty string: build/client/sw.js => sw.js => swNamesPrefix should be build/client/
+      replacement: swNamesPrefix && swDest.startsWith(swNamesPrefix) ? swDest.slice(swNamesPrefix.length) : swDest,
     },
     swChunkName,
     workboxName,

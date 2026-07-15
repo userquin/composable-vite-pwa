@@ -1,5 +1,4 @@
 import type { PrepareBundlerOptions } from '../src/build/builder/bundler-types'
-import fsp from 'node:fs/promises'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { prepareBundlerOptions } from '../src/build/builder/prepare-bundler-options'
 import { resolveSWNamesAndGlobIgnores, transformESMTargetToRolldown } from '../src/build/builder/utils'
@@ -39,15 +38,16 @@ describe('common bundler options are correctly generated', () => {
         true,
       )).toMatchInlineSnapshot(`
         {
-          "classicSWChunkName": "sw-temp-classic",
+          "classicSWChunkName": "sw-classic",
           "classicSWDest": "sw-classic.js",
-          "classicSWSrc": "sw-temp-classic.js",
-          "moduleSWChunkName": "sw-temp-module",
+          "classicSWSrc": "sw-classic.js",
+          "moduleSWChunkName": "sw-module",
           "moduleSWDest": "sw-module.js",
-          "moduleSWSrc": "sw-temp-module.js",
-          "swChunkName": "sw-temp",
+          "moduleSWSrc": "sw-module.js",
+          "prefix": "",
+          "swChunkName": "sw",
           "swDest": "sw.js",
-          "swSrc": "sw-temp.js",
+          "swSrc": "sw.js",
         }
       `)
     })
@@ -58,15 +58,16 @@ describe('common bundler options are correctly generated', () => {
         true,
       )).toMatchInlineSnapshot(`
         {
-          "classicSWChunkName": "custom-sw-temp-classic",
+          "classicSWChunkName": "custom-sw-classic",
           "classicSWDest": "custom-sw-classic.js",
-          "classicSWSrc": "custom-sw-temp-classic.js",
-          "moduleSWChunkName": "custom-sw-temp-module",
+          "classicSWSrc": "custom-sw-classic.js",
+          "moduleSWChunkName": "custom-sw-module",
           "moduleSWDest": "custom-sw-module.js",
-          "moduleSWSrc": "custom-sw-temp-module.js",
-          "swChunkName": "custom-sw-temp",
+          "moduleSWSrc": "custom-sw-module.js",
+          "prefix": "",
+          "swChunkName": "custom-sw",
           "swDest": "custom-sw.js",
-          "swSrc": "custom-sw-temp.js",
+          "swSrc": "custom-sw.js",
         }
       `)
     })
@@ -83,6 +84,7 @@ describe('common bundler options are correctly generated', () => {
           "moduleSWChunkName": "sw",
           "moduleSWDest": "sw-module.js",
           "moduleSWSrc": "sw.js",
+          "prefix": "",
           "swChunkName": "sw",
           "swDest": "sw.js",
           "swSrc": "sw.js",
@@ -100,6 +102,7 @@ describe('common bundler options are correctly generated', () => {
           "moduleSWChunkName": "sw",
           "moduleSWDest": "custom-sw-module.js",
           "moduleSWSrc": "sw.js",
+          "prefix": "",
           "swChunkName": "sw",
           "swDest": "custom-sw.js",
           "swSrc": "sw.js",
@@ -141,25 +144,16 @@ describe('common bundler options are correctly generated', () => {
         workboxRuntimeCompatible: false,
         generateSW: { swCode: 'console.log("sw")' },
         originalEnvironmentData: undefined!,
+        swNamesPrefix: '',
       } satisfies PrepareBundlerOptions
 
       const {
         builds,
-        tempFiles,
-        tempFileWrites,
       } = prepareBundlerOptions(options)
-
-      expect(tempFiles).toHaveLength(2)
-      expect(tempFileWrites).toHaveLength(2)
-      await Promise.all(tempFileWrites)
-      expect(fsp.writeFile).toHaveBeenCalledTimes(2)
 
       expect(builds).toHaveLength(2)
       expect(builds[0].inlineWorkboxRuntime !== true && builds[0].inlineWorkboxRuntime.workboxChunkName).toBe('workbox-classic')
       expect(builds[1].inlineWorkboxRuntime !== true && builds[1].inlineWorkboxRuntime.workboxChunkName).toBe('workbox-module')
-
-      expect(tempFiles[0]).toMatch(/sw-temp-classic\.js$/)
-      expect(tempFiles[1]).toMatch(/sw-temp-module\.js$/)
     })
     it('classic-and-module generates 2 bundler options for buildSW', async () => {
       const {
@@ -190,17 +184,14 @@ describe('common bundler options are correctly generated', () => {
         manifestEntries: [],
         target: { classic: 'es2015', module: 'esnext' },
         workboxRuntimeCompatible: false,
+        generateSW: { swCode: 'console.log("sw")' },
         originalEnvironmentData: undefined!,
+        swNamesPrefix: '',
       } satisfies PrepareBundlerOptions
 
       const {
         builds,
-        tempFiles,
-        tempFileWrites,
       } = prepareBundlerOptions(options)
-
-      expect(tempFiles).toHaveLength(0)
-      expect(tempFileWrites).toHaveLength(0)
 
       expect(builds).toHaveLength(2)
       expect(builds[0].inlineWorkboxRuntime !== true && builds[0].inlineWorkboxRuntime.workboxChunkName).toBe('workbox-classic')

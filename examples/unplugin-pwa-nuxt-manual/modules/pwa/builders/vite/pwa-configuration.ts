@@ -37,7 +37,6 @@ export async function initPwaConfiguration<
       break
   }
   if (nuxt.options.dev) {
-    // const cwd = resolveAlias('~~')
     await preparePWAStrategy(
       ctx,
       process.cwd(),

@@ -27,6 +27,7 @@ export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
   minify: false,
   disable: false,
   includeManifest: false,
+  registerWebManifestInRouteRules: true,
   client: {
     registerPlugin: false,
   },

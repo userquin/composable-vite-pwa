@@ -85,12 +85,14 @@ export function MainPlugin<
     },
     async configResolved(config) {
       if (ctx.envApi) {
-        if (forClient) {
+        // don't override if already configured
+        if (forClient && !ctx.viteConfig) {
           ctx.viteConfig = config
         }
       }
       else {
-        if (!config.build.ssr) {
+        // don't override if already configured
+        if (!config.build.ssr && !ctx.viteConfig) {
           ctx.viteConfig = config
         }
       }

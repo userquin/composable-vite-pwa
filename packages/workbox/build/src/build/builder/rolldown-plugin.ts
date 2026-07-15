@@ -27,7 +27,7 @@ export function RolldownPlugin<T extends SWType, B extends Bundler>(
     customChunksInfo,
     sourcemap,
   }: RolldownPluginOptions<T, B>,
-  swSrc?: string,
+  swSrc: string,
 ): BundlerPluginType<B> {
   let resolvedId: string | undefined
   return {
@@ -35,9 +35,12 @@ export function RolldownPlugin<T extends SWType, B extends Bundler>(
     // enforce: bundler === 'vite' ? 'pre' : undefined,
     // apply: bundler === 'vite' ? 'build' : undefined,
     async buildStart() {
-      if (!swSrc) {
+      if (classicBuild.generateSW) {
         return
       }
+      // if (!swSrc) {
+      //   return
+      // }
       let resolved = await this.resolve(swSrc)
       if (!swSrc.startsWith('./')) {
         resolved ||= await this.resolve(`./${swSrc}`)
@@ -54,6 +57,18 @@ export function RolldownPlugin<T extends SWType, B extends Bundler>(
         }
         sources.push(normalizePath(id))
       }
+    },
+    resolveId(id: string) {
+      if (!classicBuild.generateSW) {
+        return undefined
+      }
+
+      // const name = classicBuild.swNamesPrefix && id.startsWith(classicBuild.swNamesPrefix) ? id.slice(classicBuild.swNamesPrefix.length) : id
+
+      return swSrc === id ? id : undefined
+    },
+    load(id: string) {
+      return classicBuild.generateSW && swSrc === id ? classicBuild.generateSWCode : undefined
     },
     async generateBundle(_, bundle) {
       // rolldown fails to generate sourcemap for importScripts => use writeBundle instead
