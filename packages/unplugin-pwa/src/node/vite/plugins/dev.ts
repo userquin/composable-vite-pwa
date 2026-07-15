@@ -175,6 +175,7 @@ export function DevPlugin<
       },
     },
     async handleHotUpdate({ server, file }) {
+      console.log('handleHotUpdate: ', file, ctx.sources.has(file))
       if (ctx.sources.has(file)) {
         // regenerate service workers without reset ctx.dev.options.swGenerated
         await prepareSwBuild(ctx)

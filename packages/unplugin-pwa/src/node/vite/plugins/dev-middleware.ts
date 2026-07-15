@@ -3,6 +3,10 @@ import type { Plugin } from 'vite'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 import { promises as fs } from 'node:fs'
+import path from 'node:path'
+import process from 'node:process'
+import { prepareSwBuild } from '@composable-vite-pwa/unplugin-pwa/node/vite/dev/prepare-sw-build'
+import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 import pc from 'picocolors'
 import { generateWebManifest } from '../../generate-web-manifest'
 
@@ -61,6 +65,79 @@ export function DevMiddlewarePlugin<
         res.write(await fs.readFile(map, 'utf-8'))
         res.end()
       })
+
+      if (ctx.strategy === 'inject-manifest') {
+        const swSrc = normalizePath(path.resolve(process.cwd(), ctx.resolvedOptions.injectManifest!.swSrc as string))
+        const swSrcPath = normalizePath(path.dirname(swSrc))
+        server.middlewares.use(async (req, res, next) => {
+          const url = req.url
+          if (!url) {
+            return next()
+          }
+
+          const internalDevOptions = ctx.dev.options!
+          const swAssetsPaths = internalDevOptions.swAssetsPaths
+          const [normalizedId, swId] = ctx.normalizeDevServiceWorkerId?.(
+            'load',
+            'sw',
+            url,
+          ) ?? ([url.startsWith(ctx.base) ? url.slice(ctx.base.length) : url, url])
+          const swNames = internalDevOptions.swNames
+          if (
+            normalizedId === swNames.name
+          ) {
+            ctx.sources.add(swSrc)
+            if (!ctx.dev.options.swGenerated) {
+              await prepareSwBuild(ctx)
+            }
+            const asset = swAssetsPaths.get(swId)
+            if (asset) {
+              res.statusCode = 200
+              res.setHeader('Content-Type', 'application/javascript')
+              res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+              res.write(await fs.readFile(asset, 'utf-8'))
+              res.end()
+              return
+            }
+          }
+
+          if (req.headers.referer && !req.headers.referer.endsWith('.html')) {
+            const referer = new URL(req.headers.referer)
+            const [normalizedAsset, assetId] = ctx.normalizeDevServiceWorkerId?.(
+              'load',
+              'sw-dep',
+              referer.pathname,
+            ) ?? referer.pathname
+            // console.log(swAssetsPaths)
+            console.log('PASO2:', { url, dep: referer.pathname, normalizedAsset, assetId })
+            // dependency found: the incoming request from some internal built dependency
+            // sw.js => import x from './b.js' => we need to add b.js to sources
+            // referer.pathname in previous case is the sw.js
+            if (swAssetsPaths.has(normalizedAsset)) {
+              // now check if already registered at sources
+              const [normalizedAssetDep, assetDepId] = ctx.normalizeDevServiceWorkerId?.(
+                'load',
+                'sw-dep',
+                url,
+              ) ?? url
+              console.log('PASO3:', { url, dep: referer.pathname, normalizedAssetDep, assetDepId })
+              // the path for the incoming request shouldn't be at temp folder: resolve it from swSrc path
+              if (!swAssetsPaths.has(normalizedAssetDep)) {
+                const depPath = path.resolve(swSrcPath, assetDepId.startsWith('/') ? assetDepId.slice(1) : assetDepId)
+                try {
+                  await fs.access(depPath, fs.constants.R_OK)
+                  ctx.sources.add(normalizePath(depPath))
+                }
+                catch {
+                  // ignore??
+                }
+              }
+            }
+          }
+
+          return next()
+        })
+      }
     },
   }
 }
