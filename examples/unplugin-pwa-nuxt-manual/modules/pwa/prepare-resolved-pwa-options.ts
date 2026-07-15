@@ -136,9 +136,11 @@ function createManifestTransform(
   appManifestFolder?: string,
 ): import('@composable-vite-pwa/workbox-build/types').ManifestTransform {
   return async (entries) => {
-    // todo: change this and use loop
     const regexp = /\.html$/
-    entries.filter(e => e.url.endsWith('.html')).forEach((e) => {
+    for (const e of entries) {
+      if (!e.url.endsWith('.html')) {
+        continue
+      }
       const url = e.url.startsWith('/') ? e.url.slice(1) : e.url
       if (url === 'index.html') {
         e.url = base
@@ -148,7 +150,7 @@ function createManifestTransform(
         parts[parts.length - 1] = parts[parts.length - 1]!.replace(regexp, '')
         e.url = parts.length > 1 ? parts.slice(0, parts.length - 1).join('/') : parts[0] as string
       }
-    })
+    }
 
     if (appManifestFolder) {
       // this shouldn't be necessary, since we are using dontCacheBustURLsMatching

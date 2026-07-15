@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-globals */
+
 (function () {
   const hello = 'Hello World!'
   function sayHello(who) {

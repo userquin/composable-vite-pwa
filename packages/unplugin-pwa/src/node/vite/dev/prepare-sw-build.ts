@@ -1,6 +1,6 @@
 import type { BuildGenerateSWOptions, BuildWithSourcesResult } from '@composable-vite-pwa/workbox-build/build/types'
 import type { SelfDestroyingStrategyOptions } from '@composable-vite-pwa/workbox-build/config/types'
-import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { BuildResult, InjectManifestOptions, SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { BuildSWType } from '../../context-types'
 import type { VitePWAStrategy } from '../../types'
 import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
@@ -17,8 +17,8 @@ export async function prepareSwBuild<
 ) {
   if (!ctx.resolvedOptions.disable && ctx.resolvedOptions.devOptions?.enabled === true) {
     switch (ctx.strategy) {
-      case 'self-destroy-sw':
-        await ctx.dev.selfDestroyingSW(prepareSelfDestroyingSW(ctx))
+      case 'inject-manifest':
+        await buildInjectManifest(ctx)
         break
       case 'build-sw':
         await buildBuildSW(ctx)
@@ -26,7 +26,7 @@ export async function prepareSwBuild<
       case 'generate-sw':
         await buildGenerateSW(ctx)
         break
-      case 'inject-manifest':
+      case 'self-destroy-sw':
         await ctx.dev.selfDestroyingSW(prepareSelfDestroyingSW(ctx))
         break
     }
@@ -144,6 +144,34 @@ async function prepareGenerateSW<
   }
 }
 
+async function prepareInjectManifest<
+  UserStrategy extends VitePWAStrategy,
+  T extends SWType,
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>): Promise<Partial<InjectManifestOptions>> {
+  const options = ctx.resolvedOptions.injectManifest as InjectManifestOptions
+
+  const {
+    devSWDest,
+    globPatterns,
+    globDirectory,
+  } = await prepareAssets(
+    ctx,
+    options.globPatterns,
+  )
+
+  return {
+    // prevent build error
+    globStrict: true,
+    globDirectory,
+    additionalManifestEntries: [{
+      url: ctx.resolvedOptions.devOptions?.navigateFallback || 'index.html',
+      revision: Math.random().toString(32),
+    }],
+    globPatterns,
+    swDest: devSWDest,
+  }
+}
+
 async function prepareBuildSW<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
@@ -191,6 +219,13 @@ function collectSWBuildResult(
       ctx.sources.add(source)
     }
   }
+}
+
+async function buildInjectManifest<
+  UserStrategy extends VitePWAStrategy,
+  T extends SWType,
+>(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>) {
+  collectSWBuildResult(await ctx.dev.injectManifest(await prepareInjectManifest(ctx)), ctx)
 }
 
 async function buildGenerateSW<

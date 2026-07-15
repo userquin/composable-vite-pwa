@@ -48,7 +48,8 @@ export function resolveSWNames(
   // dest files are the filename from options.swDest
 
   if (generateSW) {
-    newSWSrc = swDest.replace(jsRegexp, '-temp.js')
+    newSWSrc = swDest.replace(jsRegexp, '.js')
+    // newSWSrc = swDest.replace(jsRegexp, '-temp.js')
     swChunkName = path.basename(newSWSrc, '.js')
     classicSWSrc = `${prefix}${swChunkName}-classic.js`
     classicSWChunkName = `${swChunkName}-classic`
@@ -81,5 +82,6 @@ export function resolveSWNames(
     swDestPath: path.relative(destDist, rootSWDest),
     classicSWDestPath: path.relative(destDist, classicSWDest),
     moduleSWDestPath: path.relative(destDist, moduleSWDest),
+    prefix,
   }
 }

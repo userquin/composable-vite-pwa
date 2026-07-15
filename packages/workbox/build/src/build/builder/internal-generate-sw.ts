@@ -42,6 +42,7 @@ export async function internalGenerateSW<
     swDest,
     classicSWDest,
     moduleSWDest,
+    prefix,
   } = resolveSWNamesAndGlobIgnores(
     context.options,
     '',
@@ -71,8 +72,6 @@ export async function internalGenerateSW<
   const {
     builds,
     filePathsMap,
-    tempFiles,
-    tempFileWrites,
     classicCircularDependencies,
     moduleCircularDependencies,
   } = prepareBundlerOptions({
@@ -96,6 +95,7 @@ export async function internalGenerateSW<
     originalEnvironmentData: context.originalEnvironmentData,
     chunkNames,
     manifest,
+    swNamesPrefix: prefix,
   })
 
   context.builds = builds
@@ -106,9 +106,7 @@ export async function internalGenerateSW<
     warnings,
     builds,
     filePathsMap,
-    tempFileWrites,
     () => prepareBuilds(context),
-    tempFiles,
   )
 
   // since the source code is the same, on dual build we pick classic ones

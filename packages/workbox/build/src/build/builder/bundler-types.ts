@@ -26,12 +26,14 @@ export interface BundlerOptions {
   }
   manifestEntries: ManifestEntry[]
   generateSW: boolean
+  generateSWCode: string
   detectCircularDeps?: true
   originalEnvironmentData: OriginalEnvironmentData
   circularDependencies: string[]
   chunkNames?: 'dash' | 'dot'
   manifest?: boolean
   sources: string[]
+  swNamesPrefix: string
 }
 
 export interface PrepareBundlerOptions {
@@ -57,6 +59,7 @@ export interface PrepareBundlerOptions {
   originalEnvironmentData: OriginalEnvironmentData
   chunkNames?: 'dash' | 'dot'
   manifest?: boolean
+  swNamesPrefix: string
 }
 
 export interface ClassicRegionReplacement {
@@ -70,6 +73,7 @@ export interface ClassicBuild {
   swChunkName: string
   filePaths: string[]
   generateSW: boolean
+  generateSWCode: string
   workboxName?: string
   manifestEntries: ManifestEntry[]
   addChunksSuffixes: boolean

@@ -28,6 +28,7 @@ packages:
   - examples/**
   - packages/astro/**
   - packages/react-router/**
+  - packages/tanstack/**
   - packages/unplugin-pwa/**
   - packages/vitepress/**
   - packages/workbox/**
@@ -66,6 +67,8 @@ catalogs:
     '@antfu/eslint-config': ^8.2.0
     eslint: ^10.2.1
     eslint-plugin-antfu: ^3.2.2
+  nitrov3:
+    nitro: npm:nitro-nightly@latest
   nuxt4:
     nuxt: 4.4.8
     vue-router: 5.1.0
@@ -104,6 +107,28 @@ catalogs:
     '@sveltejs/vite-plugin-svelte': ^7.1.2
     svelte: ^5.56.1
     svelte-check: ^4.6.0
+  tanstackreact:
+    # deps
+    '@tanstack/react-devtools': ^0.10.8
+    '@tanstack/react-router': ^1.170.17
+    '@tanstack/react-router-devtools': ^1.167.0
+    '@tanstack/react-router-ssr-query': ^1.167.1
+    '@tanstack/react-start': ^1.168.27
+    '@tanstack/router-plugin': ^1.132.0
+    lucide-react: ^0.545.0
+    react: ^19.2.0
+    react-dom: ^19.2.0
+    tailwindcss: ^4.1.18
+    # dev deps
+    '@tailwindcss/typography': ^0.5.16
+    '@tanstack/devtools-vite': ^0.8.1
+    '@tanstack/router-cli': ^1.132.0
+    '@testing-library/dom': ^10.4.1
+    '@testing-library/react': ^16.3.0
+    '@types/react': ^19.2.0
+    '@types/react-dom': ^19.2.0
+    '@vitejs/plugin-react': ^6.0.1
+    jsdom: ^28.1.0
   test:
     '@vitest/ui': ^4.1.5
     vitest: ^4.1.5
