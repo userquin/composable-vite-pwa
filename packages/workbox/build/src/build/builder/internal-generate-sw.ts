@@ -72,8 +72,6 @@ export async function internalGenerateSW<
   const {
     builds,
     filePathsMap,
-    tempFiles,
-    tempFileWrites,
     classicCircularDependencies,
     moduleCircularDependencies,
   } = prepareBundlerOptions({
@@ -108,9 +106,7 @@ export async function internalGenerateSW<
     warnings,
     builds,
     filePathsMap,
-    tempFileWrites,
     () => prepareBuilds(context),
-    tempFiles,
   )
 
   // since the source code is the same, on dual build we pick classic ones

@@ -26,6 +26,7 @@ export interface BundlerOptions {
   }
   manifestEntries: ManifestEntry[]
   generateSW: boolean
+  generateSWCode: string
   detectCircularDeps?: true
   originalEnvironmentData: OriginalEnvironmentData
   circularDependencies: string[]
@@ -72,6 +73,7 @@ export interface ClassicBuild {
   swChunkName: string
   filePaths: string[]
   generateSW: boolean
+  generateSWCode: string
   workboxName?: string
   manifestEntries: ManifestEntry[]
   addChunksSuffixes: boolean

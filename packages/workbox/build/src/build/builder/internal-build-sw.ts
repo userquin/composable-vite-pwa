@@ -111,7 +111,6 @@ export async function internalBuildSW<
     warnings,
     builds,
     filePathsMap,
-    [],
     () => prepareBuilds(context),
   )
 

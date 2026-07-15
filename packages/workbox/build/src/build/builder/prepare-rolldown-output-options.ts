@@ -31,6 +31,7 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     workboxRuntimeCompatible,
     plugins = [],
     generateSW,
+    generateSWCode,
     filePaths,
     manifestEntries,
     chunkNames = '-',
@@ -79,6 +80,7 @@ export async function prepareRolldownOutputOptions<B extends Bundler>(
     swType,
     filePaths,
     generateSW,
+    generateSWCode,
     region: {
       search: swSrc,
       // replace relative path with empty string: build/client/sw.js => sw.js => swNamesPrefix should be build/client/
