@@ -45,7 +45,6 @@
     },
     "./node/create-generate-register-sw-script": "./dist/node/create-generate-register-sw-script.mjs",
     "./node/create-web-manifest-html-link": "./dist/node/create-web-manifest-html-link.mjs",
-    "./node/detect-esm-service-worker": "./dist/node/detect-esm-service-worker.mjs",
     "./node/dual-sw-utilities": "./dist/node/dual-sw-utilities.mjs",
     "./node/generate-register-sw": "./dist/node/generate-register-sw.mjs",
     "./node/generate-virtual-module": "./dist/node/generate-virtual-module.mjs",
@@ -56,6 +55,7 @@
     "./node/prepare-pwa-context": "./dist/node/prepare-pwa-context.mjs",
     "./node/prepare-sw-names": "./dist/node/prepare-sw-names.mjs",
     "./node/vite/legacy": "./dist/node/vite/legacy.mjs",
+    "./node/vite/inject-manifest-hook": "./dist/node/vite/inject-manifest-hook.mjs",
     "./node/vite/helpers": "./dist/node/vite/helpers.mjs",
     "./node/vite/pwa-assets-resolver": "./dist/node/vite/pwa-assets-resolver.mjs",
     "./node/vite/vite-context": "./dist/node/vite/vite-context.mjs",
@@ -148,9 +148,7 @@
     "build": "tsdown --config-loader unrun",
     "test": "pnpm run build && vitest",
     "test:ci": "pnpm run build && vitest run",
-    "test:typecheck": "tsc --noEmit",
-    "test:ci": "vitest run",
-    "test": "vitest"
+    "test:typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
     "@vite-pwa/assets-generator": "^1.0.0 || ^2.0.0",

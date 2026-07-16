@@ -20,18 +20,18 @@ export async function prepareResolvedPwaOptions<
   nuxt: Nuxt,
   outDir: string,
 ) {
-  let config: Partial<
+  let config: undefined | Partial<
     import('@composable-vite-pwa/workbox-build/types').BasePartial
       & import('@composable-vite-pwa/workbox-build/types').GlobPartial
       & import('@composable-vite-pwa/workbox-build/types').RequiredGlobDirectoryPartial
   >
 
-  if (ctx.resolvedOptions.strategy === 'build-sw') {
+  if (ctx.strategy === 'build-sw') {
     const resolver = createResolver(import.meta.filename)
     ctx.resolvedOptions.buildSW!.swSrc = await resolver.resolvePath(ctx.resolvedOptions.buildSW!.swSrc)
     config = ctx.resolvedOptions.buildSW!
   }
-  else {
+  else if (ctx.strategy === 'generate-sw') {
     ctx.resolvedOptions.generateSW ??= {}
     const generateSW = ctx.resolvedOptions.generateSW!
     if (
@@ -64,6 +64,14 @@ export async function prepareResolvedPwaOptions<
     }
 
     config = generateSW
+  }
+  else if (ctx.strategy === 'inject-manifest') {
+    ctx.resolvedOptions.injectManifest ??= {}
+    config = ctx.resolvedOptions.injectManifest
+  }
+
+  if (!config) {
+    return
   }
 
   if (!nuxt.options.dev) {

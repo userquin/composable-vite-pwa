@@ -4,6 +4,7 @@ import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { HookResult } from '@nuxt/schema'
 import type { PwaModuleHooks, PwaModuleOptions } from './types'
 import { defineNuxtModule } from '@nuxt/kit'
+import { createNuxtPwaContext } from './create-nuxt-pwa-context'
 import { prepareModule } from './prepare-module'
 
 export type * from './types'
@@ -51,8 +52,11 @@ export type ModuleRuntimeHooks = PWAModuleRuntimeHooks
 
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: '@unplugin-pwa/nuxt',
+    name: '@vite-pwa/nuxt',
     configKey: 'pwa',
+    compatibility: {
+      nuxt: '>=3.6.5',
+    },
   },
   defaults: nuxt => ({
     base: nuxt.options.app.baseURL,
@@ -68,10 +72,12 @@ export default defineNuxtModule<ModuleOptions>({
     },
   }),
   async setup(options, nuxt) {
-    const ctx = await import('./create-nuxt-pwa-context').then(({
-      createNuxtPwaContext,
-    }) => createNuxtPwaContext(options, nuxt))
-
-    await prepareModule(ctx as unknown as any, nuxt)
+    await createNuxtPwaContext(
+      options,
+      nuxt,
+    ).then(config => prepareModule(
+      config,
+      nuxt,
+    ))
   },
 })
