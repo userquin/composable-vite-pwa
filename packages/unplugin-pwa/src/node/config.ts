@@ -382,6 +382,7 @@ export async function resolvePwaConfiguration<
     case 'buildSW': {
       return checkOptions(
         resolverOptions.isDev,
+        pwaOptions,
         Object.assign({}, rest, {
           strategy: 'build-sw',
           swType,
