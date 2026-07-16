@@ -116,6 +116,85 @@ export function prepareManifest(
   }, options.manifest ?? {}) as ManifestOptions
 }
 
+function checkInjectRegister<
+  UserStrategy extends VitePWAStrategy,
+  T extends SWType,
+>(
+  strategy: UserStrategy,
+  injectRegister: import('@composable-vite-pwa/unplugin-pwa/node/types').VitePWAOptions<UserStrategy, T>['injectRegister'],
+  swType: T,
+  color: typeof pc.yellow | typeof pc.red,
+  buildWarning: string,
+): string | undefined {
+  return swType === 'classic-and-module' && injectRegister === 'inline'
+    ? [
+        `\n${color(pc.bold('[Vite PWA]'))} ${color('WRONG CONFIGURATION')}:`,
+        `You are using ${pc.cyan('inline')} for inject register with dual service worker registration.`,
+        `Specify other value at ${pc.cyan('injectRegister')} option${buildWarning}.\n`,
+      ].join('\n')
+    : undefined
+}
+
+function checkOptions<
+  UserStrategy extends VitePWAStrategy,
+  T extends SWType,
+>(
+  isDev: boolean,
+  consumerOptions: Partial<VitePWAOptions<UserStrategy, T>>,
+  resolvedOptions: ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>,
+): ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T> {
+  const isDevEnabled = consumerOptions.devOptions?.enabled === true
+  const isWarning = isDev && !isDevEnabled
+  const color = isWarning ? pc.yellow : pc.red
+  const warning = isWarning ? `, ${pc.yellow('running build command will fail')}` : ''
+  let message: string | undefined
+
+  switch (resolvedOptions.strategy) {
+    case 'inject-manifest': {
+      const { swType } = resolvedOptions.injectManifest!
+      if (swType === 'classic-and-module') {
+        message = [
+          `\n${color(pc.bold('[Vite PWA]'))} ${color('WRONG CONFIGURATION')}:`,
+          `You are using ${pc.cyan(consumerOptions.strategies)} with ${pc.cyan(swType)} service worker type.`,
+          `Specify ${pc.green('classic')} or ${pc.green('module')} at ${pc.cyan('swType')} option${warning}.\n`,
+        ].join('\n')
+      }
+      break
+    }
+    case 'generate-sw': {
+      message = checkInjectRegister(
+        'generate-sw',
+        resolvedOptions.injectRegister!,
+        resolvedOptions.generateSW!.swType as SWType,
+        color,
+        warning,
+      )
+      break
+    }
+    case 'build-sw': {
+      message = checkInjectRegister(
+        'build-sw',
+        consumerOptions.injectRegister!,
+        resolvedOptions.buildSW!.swType as SWType,
+        color,
+        warning,
+      )
+      break
+    }
+  }
+
+  if (message) {
+    if (isWarning) {
+      console.warn(message)
+    }
+    else {
+      throw new Error(message)
+    }
+  }
+
+  return resolvedOptions
+}
+
 export async function resolvePwaConfiguration<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
@@ -176,33 +255,37 @@ export async function resolvePwaConfiguration<
           `${pc.cyan('workbox')} option will be removed in the next major version.\n`,
         ].join('\n'))
       }
-      return Object.assign({}, strategyOptions, {
-        strategy: 'generate-sw',
-        swType,
-        includeManifest,
-        includeManifestIcons,
-        includeManifestShortcutIcons,
-        includeManifestScreenshots,
-        disable,
-        injectRegister,
-        registerType,
-        useCredentials,
-        manifest,
-        manifestFilename,
-        minify,
-        updateViaCache,
-        pwaAssets: resolvedPwaAssets,
-      }, {
-        generateSW: Object.assign(generateSW ?? workbox ?? {}, {
-          swDest: filename,
+      return checkOptions(
+        resolverOptions.isDev,
+        pwaOptions,
+        Object.assign({}, strategyOptions, {
+          strategy: 'generate-sw',
           swType,
+          includeManifest,
+          includeManifestIcons,
+          includeManifestShortcutIcons,
+          includeManifestScreenshots,
+          disable,
+          injectRegister,
+          registerType,
+          useCredentials,
+          manifest,
+          manifestFilename,
           minify,
-          maximumFileSizeToCacheInBytes,
-          throwMaximumFileSizeToCacheInBytes,
-          additionalManifestEntries,
-          additionalManifestEntriesGenerator,
-        }),
-      }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>
+          updateViaCache,
+          pwaAssets: resolvedPwaAssets,
+        }, {
+          generateSW: Object.assign(generateSW ?? workbox ?? {}, {
+            swDest: filename,
+            swType,
+            minify,
+            maximumFileSizeToCacheInBytes,
+            throwMaximumFileSizeToCacheInBytes,
+            additionalManifestEntries,
+            additionalManifestEntriesGenerator,
+          }),
+        }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>,
+      )
     }
     case 'injectManifest':
     case 'inject-manifest': {
@@ -210,20 +293,20 @@ export async function resolvePwaConfiguration<
       if (!swSrcName) {
         throw new Error([
           `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('WRONG CONFIGURATION')}:`,
-          `You are using ${pc.cyan('injectManifest')} option without ${pc.cyan('swSrc')} specified.\n`,
+          `You are using ${pc.cyan(strategies)} option without ${pc.cyan('swSrc')} option.\n`,
         ].join('\n'))
       }
       const isTS = swSrcName.endsWith('.ts') || swSrcName.endsWith('.mts')
       const invalidStrategy = isTS || await resolverOptions.isWrongInjectManifest(normalizePath(path.resolve(process.cwd(), swSrcName)))
       if (invalidStrategy) {
         const isWarning = resolverOptions.isDev && !(pwaOptions?.devOptions?.enabled === true)
-        const warning = isWarning ? `,pc.yellow('running build command will fail)'}` : ''
+        const warning = isWarning ? `, ${pc.yellow('running build command will fail')}` : ''
         const color = isWarning ? pc.yellow : pc.red
         const message = [
           `\n${color(pc.bold('[Vite PWA]'))} ${color('WRONG CONFIGURATION')}:`,
-          `You are using ${pc.cyan('injectManifest')} option with a service worker ${isTS ? 'worker as static asset' : 'using TypeScript'}.`,
+          `You are using ${pc.cyan(strategies)} option with a service worker ${isTS ? 'as static asset' : 'using TypeScript'}.`,
           `Please migrate to ${pc.green('buildSW')} option${warning}.`,
-          `${pc.cyan('injectManifest')} option should be only used when you need to inject a manifest into an existing service worker.\n`,
+          `${pc.cyan(strategies)} option should be only used when you need to inject a manifest into an existing service worker.\n`,
         ].join('\n')
         if (isWarning) {
           console.warn(message)
@@ -232,7 +315,74 @@ export async function resolvePwaConfiguration<
           throw new Error(message)
         }
 
-        return Object.assign({}, rest, {
+        return checkOptions(
+          resolverOptions.isDev,
+          pwaOptions,
+          Object.assign({}, rest, {
+            strategy: 'build-sw',
+            swType,
+            includeManifest,
+            includeManifestIcons,
+            includeManifestShortcutIcons,
+            includeManifestScreenshots,
+            disable,
+            injectRegister,
+            registerType,
+            useCredentials,
+            manifest,
+            manifestFilename,
+            minify,
+            updateViaCache,
+            pwaAssets: resolvedPwaAssets,
+          }, {
+            buildSW: Object.assign(rest.injectManifest ?? {}, {
+              swDest: filename,
+              swType,
+              minify,
+              maximumFileSizeToCacheInBytes,
+              throwMaximumFileSizeToCacheInBytes,
+              additionalManifestEntries,
+              additionalManifestEntriesGenerator,
+            }),
+          }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>,
+        )
+      }
+
+      return checkOptions(
+        resolverOptions.isDev,
+        pwaOptions,
+        Object.assign({}, rest, {
+          strategy: 'inject-manifest',
+          swType,
+          includeManifest,
+          includeManifestIcons,
+          includeManifestShortcutIcons,
+          includeManifestScreenshots,
+          disable,
+          injectRegister,
+          registerType,
+          useCredentials,
+          manifest,
+          manifestFilename,
+          minify,
+          updateViaCache,
+          pwaAssets: resolvedPwaAssets,
+        }, {
+          injectManifest: Object.assign(rest.injectManifest ?? {}, {
+            swDest: filename,
+            maximumFileSizeToCacheInBytes,
+            throwMaximumFileSizeToCacheInBytes,
+            additionalManifestEntries,
+            additionalManifestEntriesGenerator,
+          }),
+        }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>,
+      )
+    }
+    case 'build-sw':
+    case 'buildSW': {
+      return checkOptions(
+        resolverOptions.isDev,
+        Object.assign({}, rest, {
           strategy: 'build-sw',
           swType,
           includeManifest,
@@ -249,7 +399,7 @@ export async function resolvePwaConfiguration<
           updateViaCache,
           pwaAssets: resolvedPwaAssets,
         }, {
-          buildSW: Object.assign(rest.injectManifest ?? {}, {
+          buildSW: Object.assign(rest.buildSW ?? {}, {
             swDest: filename,
             swType,
             minify,
@@ -258,64 +408,8 @@ export async function resolvePwaConfiguration<
             additionalManifestEntries,
             additionalManifestEntriesGenerator,
           }),
-        }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>
-      }
-
-      return Object.assign({}, rest, {
-        strategy: 'inject-manifest',
-        swType,
-        includeManifest,
-        includeManifestIcons,
-        includeManifestShortcutIcons,
-        includeManifestScreenshots,
-        disable,
-        injectRegister,
-        registerType,
-        useCredentials,
-        manifest,
-        manifestFilename,
-        minify,
-        updateViaCache,
-        pwaAssets: resolvedPwaAssets,
-      }, {
-        injectManifest: Object.assign(rest.injectManifest ?? {}, {
-          swDest: filename,
-          maximumFileSizeToCacheInBytes,
-          throwMaximumFileSizeToCacheInBytes,
-          additionalManifestEntries,
-          additionalManifestEntriesGenerator,
-        }),
-      }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>
-    }
-    case 'build-sw':
-    case 'buildSW': {
-      return Object.assign({}, rest, {
-        strategy: 'build-sw',
-        swType,
-        includeManifest,
-        includeManifestIcons,
-        includeManifestShortcutIcons,
-        includeManifestScreenshots,
-        disable,
-        injectRegister,
-        registerType,
-        useCredentials,
-        manifest,
-        manifestFilename,
-        minify,
-        updateViaCache,
-        pwaAssets: resolvedPwaAssets,
-      }, {
-        buildSW: Object.assign(rest.buildSW ?? {}, {
-          swDest: filename,
-          swType,
-          minify,
-          maximumFileSizeToCacheInBytes,
-          throwMaximumFileSizeToCacheInBytes,
-          additionalManifestEntries,
-          additionalManifestEntriesGenerator,
-        }),
-      }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>
+        }) as ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>,
+      )
     }
     case 'self-destroy-sw':
     case 'selfDestroySW': {
