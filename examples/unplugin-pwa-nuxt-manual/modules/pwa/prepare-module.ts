@@ -12,6 +12,7 @@ import process from 'node:process'
 import {
   prepareSwNamesAndGlobDirectory,
 } from '@composable-vite-pwa/unplugin-pwa/node/vite/dev/prepare-sw-names-and-glob-directory'
+import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 import {
   addComponent,
   addPlugin,
@@ -35,7 +36,7 @@ export async function prepareModule<
   const resolver = createResolver(import.meta.url)
   const publicDirs = new Set<string>()
   for (const layer of nuxt.options._layers) {
-    publicDirs.add(resolver.resolve(layer.config.rootDir, layer.config.dir?.public || 'public'))
+    publicDirs.add(normalizePath(resolver.resolve(layer.config.rootDir, layer.config.dir?.public || 'public')))
   }
 
   ctx.nuxt.publicDirs = [...publicDirs].filter(dir => existsSync(dir))
