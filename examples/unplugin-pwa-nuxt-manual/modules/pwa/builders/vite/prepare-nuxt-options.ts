@@ -8,7 +8,7 @@ import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite
 import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/info'
 import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
 import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/pwa-assets'
-import { addVitePlugin } from '@nuxt/kit'
+import { addDevServerHandler, addVitePlugin } from '@nuxt/kit'
 import { PwaRuntimeConfiguration } from './plugins/pwa-runtime-configuration'
 
 export async function prepareNuxtOptions<
@@ -18,7 +18,7 @@ export async function prepareNuxtOptions<
   ctx: ViteNuxtPWAContext<UserStrategy, T> | ViteLegacyNuxtPWAContext<UserStrategy, T>,
   nuxt: Nuxt,
 ) {
-  if (nuxt.options.dev) {
+  if (nuxt.options.dev && ctx.resolvedOptions.devOptions!.enabled) {
     const prefix = `${ctx.base}__skip_vite/`
     ctx.normalizeDevServiceWorkerId = (
       hook,
@@ -61,6 +61,30 @@ export async function prepareNuxtOptions<
           viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.name}`, handle: emptyHandle })
           viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.name}.map`, handle: emptyHandle })
         }
+      })
+    }
+    // remove vue router warnings when requesting sourcemap files
+    let sourcemapEnabled = false
+    switch (ctx.strategy) {
+      case 'build-sw': {
+        const buildSW = ctx.resolvedOptions.buildSW!
+        sourcemapEnabled = buildSW.sourcemap === true || buildSW.sourcemap === 'hidden'
+        break
+      }
+      case 'generate-sw': {
+        const generateSW = ctx.resolvedOptions.generateSW!
+        sourcemapEnabled = generateSW.sourcemap === true || generateSW.sourcemap === 'hidden'
+        break
+      }
+    }
+    if (sourcemapEnabled) {
+      // @ts-expect-error no idea how to fix the types
+      addDevServerHandler({
+        route: '',
+        handler: await import('h3').then(({ defineLazyEventHandler }) => defineLazyEventHandler(async () => {
+          const { devEventHandlerSourcemap } = await import('../../dev-event-handler-sourcemap')
+          return devEventHandlerSourcemap(ctx)
+        })),
       })
     }
   }

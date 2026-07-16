@@ -48,7 +48,7 @@ export function createViteLegacyNuxtPwaContext<
     ),
     {
       nuxt: {
-        loadPwaConfiguration: () => loadPwaConfiguration(ctx),
+        loadPwaConfiguration: () => loadPwaConfiguration(ctx, nuxt),
         initPwaConfiguration: () => initPwaConfiguration(ctx, nuxt),
         prepareNuxtOptions: () => prepareNuxtOptions(ctx, nuxt),
         nuxtVersion,
@@ -58,6 +58,7 @@ export function createViteLegacyNuxtPwaContext<
         experimental,
         registerWebManifestInRouteRules,
         writePlugin,
+        publicDirs: [],
       },
     },
   ) as ViteLegacyNuxtPWAContext<UserStrategy, T>

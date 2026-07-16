@@ -41,6 +41,7 @@ export function createPWAContext<
     webManifestData: undefined!,
     registerSWData: undefined!,
     runBuild: undefined!,
+    injectManifestSWAtPublicDir: undefined!,
   })
 }
 

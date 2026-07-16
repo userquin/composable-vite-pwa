@@ -3,6 +3,7 @@ import type { ResolvedConfig } from 'vite'
 import type { PWAPluginContext } from '../context-types'
 import type { VitePWAOptions, VitePWAStrategy } from '../types'
 import { createPWAContext } from '../context'
+import { injectManifestSWAtPublicDir } from './inject-manifest-hook'
 import { pwaAssetsResolver } from './pwa-assets-resolver'
 
 export type ViteBundler = 'vite' | 'vite-legacy'
@@ -65,6 +66,7 @@ export function createCustomVitePWAContext<
     },
   )
 
+  ctx.injectManifestSWAtPublicDir = injectManifestSWAtPublicDir(ctx)
   ctx.customPwaAssetResolver = pwaAssetsResolver(ctx)
 
   return ctx
@@ -90,6 +92,7 @@ export function createVitePWAContext<
     },
   )
 
+  ctx.injectManifestSWAtPublicDir = injectManifestSWAtPublicDir(ctx)
   ctx.customPwaAssetResolver = pwaAssetsResolver(ctx)
 
   return ctx
@@ -113,6 +116,7 @@ export function createViteLegacyPWAContext<
     },
   )
 
+  ctx.injectManifestSWAtPublicDir = injectManifestSWAtPublicDir(ctx)
   ctx.customPwaAssetResolver = pwaAssetsResolver(ctx)
 
   return ctx

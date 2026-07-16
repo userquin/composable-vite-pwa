@@ -73,7 +73,7 @@ const logger = (
           ]
 
           // When in a group, the workbox prefix is not displayed.
-          const logPrefix = inGroup ? [] : ['%cworkbox', styles.join(';')]
+          const logPrefix = inGroup ? [] : ['%c@vite-pwa/workbox-swkit', styles.join(';')]
 
           // eslint-disable-next-line no-console
           console[method](...logPrefix, ...args)

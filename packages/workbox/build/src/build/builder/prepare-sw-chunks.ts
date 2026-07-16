@@ -140,8 +140,6 @@ export async function prepareSWChunks<T extends Bundler>({
       restoreClassicGenerateSWRegions(region, magicString)
     }
 
-    console.log({ changed: magicString?.hasChanged(), name: chunk.fileName })
-
     if (magicString?.hasChanged()) {
       chunk.code = magicString.toString()
       if (chunk.map) {

@@ -16,6 +16,7 @@ import type {
 } from '../types'
 import type { ViteBundler, VitePWAPluginContext } from './vite-context'
 import path from 'node:path'
+import process from 'node:process'
 import pc from 'picocolors'
 import { additionalManifestEntriesFactory } from '../additional-manifest-entries'
 import { prepareManifest } from '../config'
@@ -268,6 +269,15 @@ export async function preparePWAContextDefaults<
       resolvePwaConfiguration,
     }) => resolvePwaConfiguration<UserStrategy, T>(
       ctx.consumerOptions,
+      {
+        isDev: ctx.devEnvironment,
+        isWrongInjectManifest: (swSrc) => {
+          const swSrcDir = normalizePath(path.dirname(swSrc))
+          const publicDir = normalizePath(path.resolve(process.cwd(), ctx.viteConfig.publicDir || 'public'))
+
+          return swSrcDir === publicDir
+        },
+      },
     )).then(resolvedOptions => (ctx.resolvedOptions = resolvedOptions)),
     import('@composable-vite-pwa/workbox-build/build/vite').then(({
       detect,
