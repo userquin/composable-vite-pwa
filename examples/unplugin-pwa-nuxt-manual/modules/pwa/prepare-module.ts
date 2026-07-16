@@ -6,7 +6,7 @@ import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/typ
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from './internal-types'
-import { promises as fs } from 'node:fs'
+import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import {
@@ -33,6 +33,13 @@ export async function prepareModule<
   nuxt: Nuxt,
 ) {
   const resolver = createResolver(import.meta.url)
+  const publicDirs = new Set<string>()
+  for (const layer of nuxt.options._layers) {
+    publicDirs.add(resolver.resolve(layer.config.rootDir, layer.config.dir?.public || 'public'))
+  }
+
+  ctx.nuxt.publicDirs = [...publicDirs].filter(dir => existsSync(dir))
+
   const consumerOptions = ctx.consumerOptions
   // resolve nuxt aliases
   if (consumerOptions?.path) {
@@ -70,6 +77,9 @@ export async function prepareModule<
   // load pwa configuration
   await ctx.nuxt.loadPwaConfiguration()
 
+  // init strategy
+  ctx.strategy = ctx.resolvedOptions.strategy!
+
   nuxt.hook('nitro:config', async (nitroConfig) => {
     ctx.nuxt.nitroConfig = nitroConfig
 
@@ -84,7 +94,6 @@ export async function prepareModule<
     ctx.resolvedOptions.base = ctx.base
     ctx.resolvedOptions.scope = ctx.base
     ctx.resolvedOptions.buildBase = ctx.base
-    ctx.strategy = ctx.resolvedOptions.strategy!
     ctx.useImportRegister = false
 
     const isDev = nuxt.options.dev

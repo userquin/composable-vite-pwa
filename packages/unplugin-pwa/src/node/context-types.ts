@@ -150,6 +150,13 @@ export interface PWAPluginContext<
   sources: Set<string>
   swNames: SWNames
   /**
+   * When using `inject-manifest` this hook will resolve if the service worker is inside public directory.
+   *
+   * Integrations can override this hook, for example, Vite integration will check the `publicDir`, or Nuxt will
+   * check Nitro public dirs.
+   */
+  injectManifestSWAtPublicDir: () => boolean
+  /**
    * The custom resolver to resolve PWA assets for `registerSW.js` and virtual PWA modules.
    */
   customPwaAssetResolver: CustomPwaAssetResolver

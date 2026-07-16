@@ -66,7 +66,7 @@ export function DevMiddlewarePlugin<
         res.end()
       })
 
-      if (ctx.strategy === 'inject-manifest') {
+      if (ctx.strategy === 'inject-manifest' && ctx.injectManifestSWAtPublicDir()) {
         const swSrc = normalizePath(path.resolve(process.cwd(), ctx.resolvedOptions.injectManifest!.swSrc as string))
         const swSrcPath = normalizePath(path.dirname(swSrc))
         server.middlewares.use(async (req, res, next) => {

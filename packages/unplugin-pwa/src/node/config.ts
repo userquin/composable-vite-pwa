@@ -5,8 +5,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
+import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 import pc from 'picocolors'
-import { detectEsmServiceWorker } from './detect-esm-service-worker'
 import { resolvePWAAssetsOptions } from './pwa-assets/options'
 
 function deepMergeObject(magicast: any, object: any) {
@@ -119,11 +119,25 @@ export function prepareManifest(
 export async function resolvePwaConfiguration<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
->(options: Partial<VitePWAOptions<UserStrategy, T>>): Promise<ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>> {
-  const resolvedPath = options.path ?? resolveDefaultConfig(options.cwd)
+>(
+  pwaOptions: Partial<VitePWAOptions<UserStrategy, T>>,
+  resolverOptions: {
+    /**
+     * Whether the current environment is a development environment.
+     */
+    isDev: boolean
+    /**
+     * When using `inject-manifest` this must resolve if the strategy is wrong, the default implementation should be:
+     * - if the service worker `.ts` or `.mts` then it is `build-sw` strategy (must return false) or
+     * - if the service worker inside public dir then it is `build-sw` strategy (must return false)
+     */
+    isWrongInjectManifest: (swSrc: string) => boolean | Promise<boolean>
+  },
+): Promise<ResolvedVitePWAOptions<ExtractStrategy<UserStrategy>, T>> {
+  const resolvedPath = pwaOptions.path ?? resolveDefaultConfig(pwaOptions.cwd)
   const config = await loadConfiguration(Object.assign(
     {},
-    options,
+    pwaOptions,
     { path: resolvedPath },
   ))
   const {
@@ -192,13 +206,31 @@ export async function resolvePwaConfiguration<
     }
     case 'injectManifest':
     case 'inject-manifest': {
-      if (await detectEsmServiceWorker(options)) {
-        console.warn([
-          `\n${pc.yellow(pc.bold('[Vite PWA]'))} ${pc.yellow('DEPRECATION WARNING')}:`,
-          `You are using ${pc.cyan('injectManifest')} option with an ESM service worker, which is now deprecated.`,
-          `Please migrate to ${pc.green('buildSW')} option.`,
-          `${pc.cyan('injectManifest')} option should be only used when you need to inject a manifest into an existing service worker.\n`,
+      const swSrcName = pwaOptions.injectManifest?.swSrc
+      if (!swSrcName) {
+        throw new Error([
+          `\n${pc.red(pc.bold('[Vite PWA]'))} ${pc.red('WRONG CONFIGURATION')}:`,
+          `You are using ${pc.cyan('injectManifest')} option without ${pc.cyan('swSrc')} specified.\n`,
         ].join('\n'))
+      }
+      const isTS = swSrcName.endsWith('.ts') || swSrcName.endsWith('.mts')
+      const invalidStrategy = isTS || await resolverOptions.isWrongInjectManifest(normalizePath(path.resolve(process.cwd(), swSrcName)))
+      if (invalidStrategy) {
+        const isWarning = resolverOptions.isDev && !(pwaOptions?.devOptions?.enabled === true)
+        const warning = isWarning ? `,pc.yellow('running build command will fail)'}` : ''
+        const color = isWarning ? pc.yellow : pc.red
+        const message = [
+          `\n${color(pc.bold('[Vite PWA]'))} ${color('WRONG CONFIGURATION')}:`,
+          `You are using ${pc.cyan('injectManifest')} option with a service worker ${isTS ? 'worker as static asset' : 'using TypeScript'}.`,
+          `Please migrate to ${pc.green('buildSW')} option${warning}.`,
+          `${pc.cyan('injectManifest')} option should be only used when you need to inject a manifest into an existing service worker.\n`,
+        ].join('\n')
+        if (isWarning) {
+          console.warn(message)
+        }
+        else {
+          throw new Error(message)
+        }
 
         return Object.assign({}, rest, {
           strategy: 'build-sw',

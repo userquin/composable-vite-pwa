@@ -12,6 +12,7 @@ export interface NuxtPWAContext<
   nuxt: {
     nuxtVersion: string
     nitroConfig: NitroConfig
+    publicDirs: string[]
     buildAssetsDir: string
     enableGlobPatterns?: boolean
     appManifestFolder?: string
