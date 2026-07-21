@@ -275,7 +275,7 @@ export async function preparePWAContextDefaults<
           const swSrcDir = normalizePath(path.dirname(swSrc))
           const publicDir = normalizePath(path.resolve(process.cwd(), ctx.viteConfig.publicDir || 'public'))
 
-          return swSrcDir === publicDir
+          return !(swSrcDir === publicDir)
         },
       },
     )).then(resolvedOptions => (ctx.resolvedOptions = resolvedOptions)),

@@ -2,6 +2,7 @@ import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Bundler, PWAPluginContext } from './context-types'
 import type { VitePWAOptions, VitePWAStrategy } from './types'
 import process from 'node:process'
+import { Hookable } from 'hookable'
 import pkg from '../../package.json' with { type: 'json' }
 import { preparePWAContext } from './prepare-pwa-context'
 
@@ -42,6 +43,7 @@ export function createPWAContext<
     registerSWData: undefined!,
     runBuild: undefined!,
     injectManifestSWAtPublicDir: undefined!,
+    hooks: new Hookable(),
   })
 }
 

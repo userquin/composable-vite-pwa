@@ -1,6 +1,8 @@
 // @ts-check
 import { AstroPWAIntegration } from '@composable-vite-pwa/astro'
+import { DevTools } from '@vitejs/devtools'
 import { defineConfig } from 'astro/config'
+import Inspect from 'vite-plugin-inspect'
 
 const swSrc = 'src/sw.js'
 const swDest = 'sw.js'
@@ -26,6 +28,10 @@ export function VirtualMessagePlugin() {
 // https://astro.build/config
 export default defineConfig({
   vite: {
+    plugins: [
+      DevTools(),
+      Inspect(),
+    ],
     build: {
       minify: false,
     },
@@ -86,6 +92,7 @@ export default defineConfig({
       devOptions: {
         enabled: true,
         type: 'module',
+        inspector: 'vite-devtools',
         suppressWarnings: true,
         navigateFallback: '/',
         navigateFallbackAllowlist: [/^\/$/],

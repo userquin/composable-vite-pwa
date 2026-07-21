@@ -21,7 +21,7 @@
     "@tanstack/react-start": "catalog:tanstackreact",
     "@tanstack/router-plugin": "catalog:tanstackreact",
     "lucide-react": "catalog:tanstackreact",
-    "nitro": "https://pkg.pr.new/nitro@9faccf8",
+    "nitro": "https://pkg.pr.new/nitro@e0582fc",
     "react": "catalog:tanstackreact",
     "react-dom": "catalog:tanstackreact",
     "tailwindcss": "catalog:tanstackreact"
@@ -38,10 +38,12 @@
     "@types/node": "catalog:types",
     "@types/react": "catalog:tanstackreact",
     "@types/react-dom": "catalog:tanstackreact",
+    "@vitejs/devtools": "catalog:inspector",
     "@vitejs/plugin-react": "catalog:tanstackreact",
     "jsdom": "catalog:tanstackreact",
     "typescript": "catalog:typescript",
     "vite": "catalog:vite",
+    "vite-plugin-inspect": "catalog:vite-plugin-inspect",
     "vitest": "catalog:test"
   }
 }

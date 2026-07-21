@@ -18,9 +18,11 @@
 		"@sveltejs/adapter-static": "catalog:sveltekit2",
 		"@sveltejs/kit": "catalog:sveltekit2",
 		"@sveltejs/vite-plugin-svelte": "catalog:sveltekit2",
+		"@vitejs/devtools": "catalog:inspector",
 		"svelte": "catalog:sveltekit2",
 		"svelte-check": "catalog:sveltekit2",
 		"typescript": "catalog:typescript",
-		"vite": "catalog:vite"
+		"vite": "catalog:vite",
+		"vite-plugin-inspect": "catalog:vite-plugin-inspect"
 	}
 }

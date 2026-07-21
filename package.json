@@ -28,7 +28,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "catalog:eslint",
     "@antfu/ni": "catalog:utils",
-    "@arethetypeswrong/cli": "catalog:utils",
+    "@arethetypeswrong/core": "catalog:utils",
     "@types/node": "catalog:types",
     "@types/react": "catalog:react",
     "@types/trusted-types": "catalog:types",
@@ -48,6 +48,7 @@
     "taze": "catalog:utils",
     "tsdown": "catalog:build",
     "typescript": "catalog:typescript",
+    "unrun": "catalog:utils",
     "vitest": "catalog:test",
     "vue": "catalog:vue"
   }

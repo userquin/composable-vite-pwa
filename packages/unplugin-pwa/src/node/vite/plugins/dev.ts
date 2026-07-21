@@ -122,7 +122,17 @@ export function DevPlugin<
           id.startsWith('./') ? id.slice(1) : id,
         ])
 
-        return swAssetsPaths.has(normalizedAsset) ? assetId : undefined
+        // fast path when ctx.base === '/'
+        if (swAssetsPaths.has(normalizedAsset)) {
+          return assetId
+        }
+
+        // assets stored with ctx.base
+        if (swAssetsPaths.has(`${ctx.base}${normalizedAsset.startsWith('/') ? normalizedAsset.slice(1) : normalizedAsset}`)) {
+          return assetId
+        }
+
+        return undefined
       },
     },
     load: {
@@ -142,6 +152,7 @@ export function DevPlugin<
           return swAssetsPaths.get(DEV_SW_VIRTUAL)
         }
 
+        // TODO: remove pair we only need an id (every impl. returning the same pair)
         const [normalizedId, swId] = ctx.normalizeDevServiceWorkerId?.(
           'load',
           'sw',
@@ -158,17 +169,32 @@ export function DevPlugin<
             await prepareSwBuild(ctx)
           }
 
-          return await fs.readFile(swAssetsPaths.get(swId)!, 'utf8')
+          // assets stored with ctx.base
+          return await fs.readFile(
+            swAssetsPaths.get(swId) ?? swAssetsPaths.get(`${ctx.base}${swId.startsWith('/') ? swId.slice(1) : swId}`)!,
+            'utf8',
+          )
         }
 
+        // TODO: remove pair we only need an id (every impl. returning the same pair)
         const [normalizedAsset, assetId] = ctx.normalizeDevServiceWorkerId?.(
           'load',
           'sw-dep',
           id,
         ) ?? id
 
-        if (swAssetsPaths.has(normalizedAsset)) {
-          return await fs.readFile(swAssetsPaths.get(assetId)!, 'utf-8')
+        // fast path when ctx.base === '/'
+        let asset = swAssetsPaths.get(normalizedAsset)
+
+        if (asset) {
+          return await fs.readFile(asset, 'utf-8')
+        }
+
+        // assets stored with ctx.base
+        asset = swAssetsPaths.get(`${ctx.base}${normalizedAsset.startsWith('/') ? normalizedAsset.slice(1) : normalizedAsset}`)
+
+        if (asset) {
+          return await fs.readFile(asset, 'utf-8')
         }
 
         return undefined
@@ -339,5 +365,7 @@ function createSwitchServiceWorkerResponseHandler(
     }
 
     sendMessage({ type: 'full-reload' })
+
+    await ctx.hooks.callHook('service-worker:switched')
   }
 }

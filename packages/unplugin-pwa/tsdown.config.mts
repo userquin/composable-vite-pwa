@@ -18,6 +18,7 @@ export default defineConfig([{
       'node/vite/*': ['./src/node/vite/*.ts'],
       'node/vite/dev/*': ['./src/node/vite/dev/*.ts'],
       'node/vite/plugins/*': ['./src/node/vite/plugins/*.ts'],
+      // 'node/vite/plugins/*': ['./src/node/vite/plugins/*.ts', '!./src/node/vite/plugins/inspector.ts'],
     },
   ],
   platform: 'node',
@@ -29,6 +30,8 @@ export default defineConfig([{
   },
   deps: {
     neverBundle: [
+      '@vitejs/devtools',
+      'devframe',
       'vite',
       'webpack',
       'rspack',

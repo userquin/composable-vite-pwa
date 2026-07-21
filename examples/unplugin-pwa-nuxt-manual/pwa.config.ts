@@ -55,6 +55,118 @@ export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
         purpose: 'maskable',
       },
     ],
+    shortcuts: [
+      {
+        name: 'Home',
+        url: '/home',
+        icons: [
+          {
+            src: 'shortcuts/home-96x96.png',
+            sizes: '96x96',
+            type: 'image/png',
+          },
+          {
+            src: 'shortcuts/home.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+        ],
+      },
+      {
+        name: 'Local',
+        url: '/?local-pwa-shortcut=true',
+        icons: [
+          {
+            src: 'shortcuts/local-96x96.png',
+            sizes: '96x96',
+            type: 'image/png',
+          },
+          {
+            src: 'shortcuts/local.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+        ],
+      },
+      {
+        name: 'Notifications',
+        url: '/?notifications-pwa-shortcut=true',
+        icons: [
+          {
+            src: 'shortcuts/notifications-96x96.png',
+            sizes: '96x96',
+            type: 'image/png',
+          },
+          {
+            src: 'shortcuts/notifications.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+        ],
+      },
+      {
+        name: 'Compose',
+        url: '/compose',
+        icons: [
+          {
+            src: 'shortcuts/compose-96x96.png',
+            sizes: '96x96',
+            type: 'image/png',
+          },
+          {
+            src: 'shortcuts/compose.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+        ],
+      },
+      {
+        name: 'Settings',
+        url: '/settings',
+        icons: [
+          {
+            src: 'shortcuts/settings-96x96.png',
+            sizes: '96x96',
+            type: 'image/png',
+          },
+          {
+            src: 'shortcuts/settings.png',
+            sizes: '192x192',
+            type: 'image/png',
+          },
+        ],
+      },
+    ],
+    screenshots: [
+      {
+        src: 'screenshots/dark-1.webp',
+        sizes: '3840x2400',
+        type: 'image/webp',
+        form_factor: 'wide',
+        label: 'Screenshot of Elk running on desktop in dark mode ',
+      },
+      {
+        src: 'screenshots/light-1.webp',
+        sizes: '3840x2400',
+        type: 'image/webp',
+        form_factor: 'wide',
+        label: 'Screenshot of Elk running on desktop in light mode',
+      },
+      {
+        src: 'screenshots/dark-2.webp',
+        sizes: '1080x2400',
+        type: 'image/webp',
+        form_factor: 'narrow',
+        label: 'Screenshot of Elk running on mobile in dark mode',
+      },
+      {
+        src: 'screenshots/light-2.webp',
+        sizes: '1080x2400',
+        type: 'image/webp',
+        form_factor: 'narrow',
+        label: 'Screenshot of Elk running on mobile in light mode',
+      },
+    ],
   },
   buildSW: {
     sourcemap: true,
@@ -73,6 +185,7 @@ export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
   devOptions: {
     enabled: true,
     type: 'module',
+    inspector: 'standalone',
     suppressWarnings: true,
     navigateFallback: '/',
     navigateFallbackAllowlist: [/^\/$/],

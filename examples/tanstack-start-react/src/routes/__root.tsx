@@ -8,6 +8,11 @@ import Header from '../components/Header'
 import appCss from '../styles.css?url'
 
 if (!import.meta.env.SSR) {
+  if (import.meta.env.DEV) {
+    import('@vitejs/devtools/client/inject').then(() => {
+      console.log('Vite Devtools injected')
+    })
+  }
   import('virtual:pwa-register').then(({ registerSW }) => {
     registerSW({
       immediate: true,

@@ -6,7 +6,9 @@ import { BuildPwaAssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vit
 import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
 import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
 import { DevAssetsMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-pwa-assets-middleware'
+import { DevtoolsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/devtools'
 import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/info'
+import { InspectorPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/inspector'
 import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
 import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/pwa-assets'
 import { createTanStackNitroPWAContext } from '../create-nitro-pwa-context'
@@ -31,5 +33,7 @@ export function TanStackNitroPWAPlugin<
     DevAssetsMiddlewarePlugin(ctx),
     AssetsPlugin(ctx),
     BuildPwaAssetsPlugin(ctx),
+    DevtoolsPlugin(ctx),
+    InspectorPlugin(ctx),
   ]
 }

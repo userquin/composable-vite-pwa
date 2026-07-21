@@ -200,15 +200,18 @@ async function prepareBuildSW<
   }
 }
 
-function collectSWBuildResult(
+async function collectSWBuildResult(
   result: BuildResult | BuildWithSourcesResult,
   ctx: VitePWAPluginContext<any, any, any>,
 ) {
   const base = ctx.base
   const assets = ctx.dev.options!.swAssetsPaths
+  const keys = ctx.dev.options!.swAssetKeys
+  keys.clear()
   const root = process.cwd()
   for (const chunk of result.filePaths) {
     const name = `${base}${basename(chunk)}`
+    keys.add(name)
     if (!assets.has(name)) {
       assets.set(name, path.resolve(root, chunk))
     }
@@ -219,25 +222,27 @@ function collectSWBuildResult(
       ctx.sources.add(source)
     }
   }
+
+  await ctx.hooks.callHook('service-worker:generated')
 }
 
 async function buildInjectManifest<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>) {
-  collectSWBuildResult(await ctx.dev.injectManifest(await prepareInjectManifest(ctx)), ctx)
+  await collectSWBuildResult(await ctx.dev.injectManifest(await prepareInjectManifest(ctx)), ctx)
 }
 
 async function buildGenerateSW<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>) {
-  collectSWBuildResult(await ctx.dev.generateSW(await prepareGenerateSW(ctx)), ctx)
+  await collectSWBuildResult(await ctx.dev.generateSW(await prepareGenerateSW(ctx)), ctx)
 }
 
 async function buildBuildSW<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>) {
-  collectSWBuildResult(await ctx.dev.buildSW(await prepareBuildSW(ctx)), ctx)
+  await collectSWBuildResult(await ctx.dev.buildSW(await prepareBuildSW(ctx)), ctx)
 }
