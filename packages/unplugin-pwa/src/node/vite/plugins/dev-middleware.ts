@@ -87,6 +87,7 @@ export function DevMiddlewarePlugin<
             normalizedId === swNames.name
           ) {
             if (!ctx.dev.options.swGenerated) {
+              ctx.dev.options.swAssetKeys.add(swSrc)
               ctx.sources.add(swSrc)
               await prepareSwBuild(ctx)
             }
@@ -123,7 +124,9 @@ export function DevMiddlewarePlugin<
                 const depPath = path.resolve(swSrcPath, assetDepId.startsWith('/') ? assetDepId.slice(1) : assetDepId)
                 try {
                   await fs.access(depPath, fs.constants.R_OK)
-                  ctx.sources.add(normalizePath(depPath))
+                  const nPath = normalizePath(depPath)
+                  ctx.sources.add(nPath)
+                  ctx.dev.options.swAssetKeys.add(nPath)
                 }
                 catch {
                   // ignore??

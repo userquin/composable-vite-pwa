@@ -28,7 +28,6 @@
     },
     "./create-nitro-pwa-context": "./dist/create-nitro-pwa-context.mjs",
     "./create-pwa-context": "./dist/create-pwa-context.mjs",
-    "./load-external-configuration": "./dist/load-external-configuration.mjs",
     "./vite/build-sw": "./dist/vite/build-sw.mjs",
     "./vite/nitro": "./dist/vite/nitro.mjs",
     "./vite/nitro/config": "./dist/vite/nitro/config.mjs",
@@ -43,9 +42,6 @@
       ],
       "create-nitro-pwa-context": [
         "dist/create-nitro-pwa-context.d.mts"
-      ],
-      "load-external-configuration": [
-        "dist/load-external-configuration.d.mts"
       ],
       "vite/build-sw": [
         "dist/vite/build-sw.d.mts"
@@ -105,7 +101,7 @@
     "@composable-vite-pwa/workbox-window": "workspace:*"
   },
   "devDependencies": {
-    "nitro": "catalog:nitrov3",
+    "nitro": "https://pkg.pr.new/nitro@e0582fc",
     "react": "catalog:tanstackreact",
     "typescript": "catalog:typescript",
     "vite": "catalog:vite"

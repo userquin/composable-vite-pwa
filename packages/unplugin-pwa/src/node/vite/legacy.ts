@@ -8,6 +8,7 @@ import { DevPlugin } from './plugins/dev'
 import { DevMiddlewarePlugin } from './plugins/dev-middleware'
 import { DevAssetsMiddlewarePlugin } from './plugins/dev-pwa-assets-middleware'
 import { InfoPlugin } from './plugins/info'
+import { InspectorPlugin } from './plugins/inspector'
 import { MainPlugin } from './plugins/main'
 import { AssetsPlugin } from './plugins/pwa-assets'
 import { pwaAssetsResolver } from './pwa-assets-resolver'
@@ -37,5 +38,6 @@ export function ViteLegacyPWA<
     BuildRegisterSWPlugin(ctx),
     BuildPwaAssetsPlugin(ctx),
     BuildSWPlugin(ctx),
+    InspectorPlugin(ctx),
   ]
 }

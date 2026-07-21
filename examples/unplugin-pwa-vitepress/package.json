@@ -10,6 +10,8 @@
   },
   "devDependencies": {
     "@composable-vite-pwa/vitepress": "workspace:*",
-    "vitepress": "catalog:vitepress2"
+    "@vitejs/devtools": "catalog:inspector",
+    "vitepress": "catalog:vitepress2",
+    "vite-plugin-inspect": "catalog:vite-plugin-inspect"
   }
 }

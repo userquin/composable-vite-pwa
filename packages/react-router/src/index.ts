@@ -6,7 +6,9 @@ import { BuildPwaAssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vit
 import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
 import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
 import { DevAssetsMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-pwa-assets-middleware'
+import { DevtoolsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/devtools'
 import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/info'
+import { InspectorPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/inspector'
 import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
 import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/pwa-assets'
 import { createReactRouterPWAContext } from './create-pwa-context'
@@ -33,5 +35,7 @@ export function ReactRouterPWAPlugin<
     AssetsPlugin(ctx),
     BuildPwaAssetsPlugin(ctx),
     ApiPlugin(ctx),
+    DevtoolsPlugin(ctx),
+    InspectorPlugin(ctx),
   ]
 }

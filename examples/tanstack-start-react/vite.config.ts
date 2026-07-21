@@ -3,25 +3,28 @@ import { TanStackNitroPWAPlugin } from '@composable-vite-pwa/tanstack/vite/nitro
 import tailwindcss from '@tailwindcss/vite'
 import { devtools } from '@tanstack/devtools-vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import { DevTools as ViteDevTools } from '@vitejs/devtools'
 import viteReact from '@vitejs/plugin-react'
 import { nitro } from 'nitro/vite'
 import { defineConfig } from 'vite'
+import Inspect from 'vite-plugin-inspect'
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
-  // base: '/app/',
+  base: '/app/',
   build: {
     minify: false,
   },
   plugins: [
+    ViteDevTools(),
     devtools(),
     nitro({
-      // baseURL: '/app/',
+      baseURL: '/app/',
       routeRules: {
-        '/': { prerender: true },
-        '/about': { prerender: true },
-        // '/app/': { prerender: true },
-        // '/app/about': { prerender: true },
+        // looks like we need to add the baseURL, otherwise index.html being created later
+        // and missing from the SW precache manifest, will check it with the new hook
+        '/app/': { prerender: true },
+        '/app/about': { prerender: true },
       },
       rollupConfig: {
         external: [/^@sentry\//],
@@ -62,14 +65,16 @@ const config = defineConfig({
     }, */
     TanStackNitroPWAPlugin({
       minify: false,
+      disable: false,
       strategies: process.env.BUILD_SW ? 'build-sw' : 'generate-sw',
       swType: 'classic-and-module',
       registerType: 'autoUpdate',
       includeManifestIcons: false,
-      base: '/',
-      // base: '/app/',
-      // scope: '/app/',
+      // base: '/',
+      base: '/app/',
+      scope: '/app/',
       generateSW: {
+        navigateFallback: '/app/',
         globPatterns: ['**/*.{css,js,html,svg,png,ico,txt,woff2}'],
         sourcemap: true,
         clientsClaim: true,
@@ -109,10 +114,14 @@ const config = defineConfig({
         enabled: true,
         type: 'module',
         suppressWarnings: true,
-        navigateFallback: '/',
-        navigateFallbackAllowlist: [/^\/$/],
+        inspector: 'vite-devtools',
+        // navigateFallback: '/',
+        // navigateFallbackAllowlist: [/^\/$/],
+        navigateFallback: '/app/',
+        navigateFallbackAllowlist: [/^\/app\/$/],
       },
     }),
+    Inspect(),
   ],
 })
 

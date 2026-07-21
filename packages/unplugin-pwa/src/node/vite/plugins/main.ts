@@ -101,7 +101,15 @@ export function MainPlugin<
         return
       }
 
-      await preparePWAContextDefaults(forClient, config, ctx)
+      try {
+        await preparePWAContextDefaults(forClient, config, ctx)
+      }
+      catch (e) {
+        await ctx.hooks.callHook('context:ready', e)
+        throw e
+      }
+
+      await ctx.hooks.callHook('context:ready')
     },
     resolveId: {
       filter: { id: [prefixRegex('virtual:pwa-register'), exactRegex(DEV_SW_VIRTUAL_VIRTUAL)] },

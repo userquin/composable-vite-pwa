@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@composable-vite-pwa/astro": "workspace:*",
-    "astro": "catalog:astro"
+    "@vitejs/devtools": "catalog:inspector",
+    "astro": "catalog:astro",
+    "vite-plugin-inspect": "catalog:vite-plugin-inspect"
   }
 }

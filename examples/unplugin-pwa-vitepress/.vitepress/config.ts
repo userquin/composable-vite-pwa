@@ -1,4 +1,6 @@
 import { withPwa } from '@composable-vite-pwa/vitepress'
+import { DevTools } from '@vitejs/devtools'
+import Inspect from 'vite-plugin-inspect'
 import { defineConfig } from 'vitepress'
 
 export default withPwa(defineConfig({
@@ -12,6 +14,12 @@ export default withPwa(defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'About', link: '/about', activeMatch: '/about' },
+    ],
+  },
+  vite: {
+    plugins: [
+      DevTools(),
+      Inspect(),
     ],
   },
   pwa: {
@@ -54,6 +62,7 @@ export default withPwa(defineConfig({
     devOptions: {
       enabled: true,
       type: 'module',
+      inspector: 'vite-devtools',
       suppressWarnings: true,
       navigateFallback: '/',
       navigateFallbackAllowlist: [/^\/$/],

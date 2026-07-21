@@ -20,6 +20,9 @@ console.log(sayHelloFromRoot('from SW'))
 precacheAndRoute(self.__WB_MANIFEST)
 
 cleanupOutdatedCaches()
-registerRoute(new NavigationRoute(createHandlerBoundToURL('index.html')))
+registerRoute(new NavigationRoute(
+  createHandlerBoundToURL('index.html'),
+  { denylist: [/^\/__unplugin_pwa_inspector/, /^\/__inspect/] },
+))
 self.skipWaiting()
 clientsClaim()

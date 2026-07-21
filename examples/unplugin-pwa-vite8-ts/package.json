@@ -11,7 +11,7 @@
   "devDependencies": {
     "@composable-vite-pwa/unplugin-pwa": "workspace:*",
     "@composable-vite-pwa/workbox-build": "workspace:*",
-    "@vitejs/devtools": "catalog:vite-plugin-inspect",
+    "@vitejs/devtools": "catalog:inspector",
     "magic-string": "catalog:utils",
     "magicast": "catalog:utils",
     "vite": "catalog:vite",

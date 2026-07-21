@@ -31,7 +31,9 @@ import { BuildRegisterSWPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vi
 import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
 import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
 import { DevAssetsMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-pwa-assets-middleware'
+import { DevtoolsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/devtools'
 import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/info'
+import { InspectorPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/inspector'
 import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
 import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/pwa-assets'
 import {
@@ -186,6 +188,8 @@ function SvelteKitPlugin<
     AssetsPlugin(ctx),
     BuildRegisterSWPlugin(ctx),
     SvelteKitBuildPlugin(ctx),
+    DevtoolsPlugin(ctx),
+    InspectorPlugin(ctx),
   ]
 }
 
@@ -268,18 +272,23 @@ function createManifestTransform(
         // SSG pages in `.svelte-kit/output/prerendered/pages` folder.
         // static adapter with load functions in `.svelte-kit/output/prerendered/dependencies/<page>/__data.json`.
         // fallback page in `.svelte-kit/output/prerendered` folder (fallback.html is the default).
-        if (url.startsWith('client/'))
+        if (url.startsWith('client/')) {
           url = url.slice(7)
-        else if (url.startsWith('prerendered/dependencies/'))
+        }
+        else if (url.startsWith('prerendered/dependencies/')) {
           url = url.slice(25)
-        else if (url.startsWith('prerendered/pages/'))
+        }
+        else if (url.startsWith('prerendered/pages/')) {
           url = url.slice(18)
-        else if (url === defaultAdapterFallback)
+        }
+        else if (url === defaultAdapterFallback) {
           url = adapterFallback!
+        }
 
         if (url.endsWith('.html')) {
-          if (url.startsWith('/'))
+          if (url.startsWith('/')) {
             url = url.slice(1)
+          }
 
           if (url === 'index.html') {
             url = base
@@ -288,11 +297,13 @@ function createManifestTransform(
             const idx = url.lastIndexOf('/')
             if (idx > -1) {
               // abc/index.html -> abc/?
-              if (url.endsWith('/index.html'))
+              if (url.endsWith('/index.html')) {
                 url = `${url.slice(0, idx)}${suffix}`
                 // abc/def.html -> abc/def/?
-              else
+              }
+              else {
                 url = `${url.substring(0, url.lastIndexOf('.'))}${suffix}`
+              }
             }
             else {
               // xxx.html -> xxx/?
@@ -325,8 +336,9 @@ function createManifestTransform(
       }
     }
 
-    if (!webManifestName)
+    if (!webManifestName) {
       return { manifest }
+    }
 
     return { manifest: manifest.filter(e => e.url !== webManifestName) }
   }
@@ -334,14 +346,17 @@ function createManifestTransform(
 
 function buildGlobPatterns(globPatterns?: string[]) {
   if (globPatterns) {
-    if (!globPatterns.some(g => g.startsWith('prerendered/')))
+    if (!globPatterns.some(g => g.startsWith('prerendered/'))) {
       globPatterns.push('prerendered/**/*.{html,json}')
+    }
 
-    if (!globPatterns.some(g => g.startsWith('client/')))
+    if (!globPatterns.some(g => g.startsWith('client/'))) {
       globPatterns.push('client/**/*.{js,css,ico,png,svg,webp,webmanifest}')
+    }
 
-    if (!globPatterns.some(g => g.includes('webmanifest')))
+    if (!globPatterns.some(g => g.includes('webmanifest'))) {
       globPatterns.push('client/*.webmanifest')
+    }
 
     return globPatterns
   }
@@ -351,8 +366,9 @@ function buildGlobPatterns(globPatterns?: string[]) {
 
 function buildGlobIgnores(globIgnores?: string[]) {
   if (globIgnores) {
-    if (!globIgnores.some(g => g.startsWith('server/')))
+    if (!globIgnores.some(g => g.startsWith('server/'))) {
       globIgnores.push('server/**')
+    }
 
     return globIgnores
   }
@@ -378,11 +394,12 @@ function prepareEnv<
   ctx: SvelteKitPWAContext<UserStrategy, T>,
 ) {
   const { kitConfig = {} } = ctx
+  // todo: review this, check log when running dev
   if (kitConfig.experimental?.explicitEnvironmentVariables === true) {
 
   }
-  console.log(kitConfig)
-  console.log(config.resolve.alias)
+  // console.log(kitConfig)
+  // console.log(config.resolve.alias)
 }
 
 function createPWAConfigurer<

@@ -6,7 +6,9 @@ import { BuildRegisterSWPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vi
 import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
 import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
 import { DevAssetsMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-pwa-assets-middleware'
+import { DevtoolsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/devtools'
 import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/info'
+import { InspectorPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/inspector'
 import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
 import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/pwa-assets'
 import { createVitePressPWAContext } from './create-context'
@@ -31,9 +33,11 @@ export function withUserConfig<
     AssetsPlugin(ctx),
     BuildRegisterSWPlugin(ctx),
     BuildPwaAssetsPlugin(ctx),
+    DevtoolsPlugin(ctx),
+    InspectorPlugin(ctx),
   ]
 
-  // @ts-expect-error TS2345: Argument of type PluginOption[] is not assignable to parameter of type PluginOption
+  // @xts-expect-error TS2345: Argument of type PluginOption[] is not assignable to parameter of type PluginOption
   vitePlugins.push(plugins)
 
   return config

@@ -31,12 +31,11 @@
     "./esm-sw-detector": "./dist/esm-sw-detector.js",
     "./package.json": "./package.json"
   },
-  "types": "dist/index.d.ts",
+  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
       "esm-sw-detector": [
-        "./dist/esm-sw-detector.d.ts",
-        "./dist/esm-sw-detector.js"
+        "./dist/esm-sw-detector.d.ts"
       ]
     }
   },
