@@ -195,23 +195,31 @@ export async function prepareModule<
   })
 
   nuxt.hook('nitro:init', async (nitro) => {
-    let outDir: string
-    if (nuxt.options.dev) {
-      outDir = ctx.outDir
+    try {
+      let outDir: string
+      if (nuxt.options.dev) {
+        outDir = ctx.outDir
+      }
+      else {
+        ctx.outDir = nitro.options.output.publicDir
+        ctx.publicDir = ctx.outDir
+        ctx.rootDir = ctx.outDir
+        outDir = ctx.outDir
+        ctx.resolvedOptions.outDir = ctx.outDir
+      }
+
+      // add custom bundler options
+      await ctx.nuxt.initPwaConfiguration()
+
+      // apply default options
+      await prepareResolvedPwaOptions(ctx as unknown as any, nuxt, outDir)
     }
-    else {
-      ctx.outDir = nitro.options.output.publicDir
-      ctx.publicDir = ctx.outDir
-      ctx.rootDir = ctx.outDir
-      outDir = ctx.outDir
-      ctx.resolvedOptions.outDir = ctx.outDir
+    catch (e) {
+      await ctx.hooks.callHook('context:ready', e)
+      throw e
     }
 
-    // add custom bundler options
-    await ctx.nuxt.initPwaConfiguration()
-
-    // apply default options
-    await prepareResolvedPwaOptions(ctx as unknown as any, nuxt, outDir)
+    await ctx.hooks.callHook('context:ready')
   })
 
   await ctx.nuxt.prepareNuxtOptions()

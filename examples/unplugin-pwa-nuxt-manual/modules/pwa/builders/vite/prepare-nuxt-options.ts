@@ -3,9 +3,15 @@ import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { Plugin } from 'vite'
 import type { ViteLegacyNuxtPWAContext, ViteNuxtPWAContext } from './internal-types'
+import {
+  INSPECTOR_BASE_PATH,
+  INSPECTOR_BASE_PATH_URL,
+} from '@composable-vite-pwa/unplugin-pwa/node/constants'
 import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
 import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
+import { DevtoolsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/devtools'
 import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/info'
+import { InspectorPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/inspector'
 import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
 import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/pwa-assets'
 import { addDevServerHandler, addVitePlugin } from '@nuxt/kit'
@@ -78,9 +84,9 @@ export async function prepareNuxtOptions<
       }
     }
     if (sourcemapEnabled) {
-      // @ts-expect-error no idea how to fix the types
       addDevServerHandler({
         route: '',
+        // @ts-expect-error no idea how to fix the types here
         handler: await import('h3').then(({ defineLazyEventHandler }) => defineLazyEventHandler(async () => {
           const { devEventHandlerSourcemap } = await import('../../dev-event-handler-sourcemap')
           return devEventHandlerSourcemap(ctx)
@@ -89,6 +95,27 @@ export async function prepareNuxtOptions<
     }
   }
 
+  // when inspector is vite-devtools, consumer should use nuxt devtools v4
+  if (nuxt.options.dev && ctx.resolvedOptions.devOptions?.inspector === 'standalone') {
+    // @ts-expect-error missing type
+    nuxt.hook('devtools:customTabs', (tabs) => {
+      tabs.push({
+        title: 'Vite PWA Inspector',
+        name: 'vite-pwa:nuxt:inspector',
+        icon: `${INSPECTOR_BASE_PATH}/icon_light.svg`,
+        // icon: {
+        //   light: `${INSPECTOR_BASE_PATH}/icon_light.svg`,
+        //   dark: `${INSPECTOR_BASE_PATH}/icon_dark.svg`,
+        // },
+        view: {
+          type: 'iframe',
+          src: INSPECTOR_BASE_PATH_URL,
+        },
+      })
+    })
+  }
+
+  // @ts-expect-error no idea why cannot infer proper plugin types
   addVitePlugin([
     MainPlugin(ctx),
     InfoPlugin(ctx),
@@ -96,5 +123,9 @@ export async function prepareNuxtOptions<
     DevMiddlewarePlugin(ctx),
     AssetsPlugin(ctx),
     PwaRuntimeConfiguration(ctx),
-  ] as Plugin[])
+    InspectorPlugin(ctx),
+    nuxt.options.dev && ctx.resolvedOptions.devOptions?.inspector === 'vite-devtools'
+      ? DevtoolsPlugin(ctx)
+      : undefined,
+  ].filter(Boolean) as Plugin[])
 }

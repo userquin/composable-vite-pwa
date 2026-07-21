@@ -423,6 +423,22 @@ export interface ShareTargetFiles {
 }
 
 /**
+ * @see https://developer.mozilla.org/en-US/docs/Web/Manifest/share_target
+ * @see https://w3c.github.io/web-share-target/level-2/#share_target-member
+ */
+export interface ManifestShareTarget {
+  action: string
+  method?: 'GET' | 'POST'
+  enctype?: string
+  params: {
+    title?: string
+    text?: string
+    url?: string
+    files?: ShareTargetFiles | ShareTargetFiles[]
+  }
+}
+
+/**
  * @see https://developer.mozilla.org/en-US/docs/Web/Manifest/launch_handler#launch_handler_item_values
  */
 export type LaunchHandlerClientMode = 'auto' | 'focus-existing' | 'navigate-existing' | 'navigate-new'
@@ -453,6 +469,30 @@ export interface IconResource {
    * **NOTE**: string values for backward compatibility with the old type.
    */
   purpose?: StringLiteralUnion<IconPurpose> | IconPurpose[]
+}
+
+/**
+ * @see https://developer.mozilla.org/en-US/docs/Web/Manifest/shortcuts
+ * @see https://w3c.github.io/manifest/#shortcuts-member
+ */
+export interface ManifestShortcut {
+  name: string
+  short_name?: string
+  url: string
+  description?: string
+  icons?: IconResource[]
+}
+
+/**
+ * @see https://developer.mozilla.org/en-US/docs/Web/Manifest/screenshots
+ */
+export interface ManifestScreenshot {
+  src: string
+  sizes: string
+  label?: string
+  platform?: 'android' | 'ios' | 'kaios' | 'macos' | 'windows' | 'windows10x' | 'chrome_web_store' | 'play' | 'itunes' | 'microsoft-inbox' | 'microsoft-store' | string
+  form_factor?: 'narrow' | 'wide'
+  type?: string
 }
 
 export interface ManifestOptions {
@@ -555,25 +595,12 @@ export interface ManifestOptions {
    * @see https://developer.mozilla.org/en-US/docs/Web/Manifest/shortcuts
    * @see https://w3c.github.io/manifest/#shortcuts-member
    */
-  shortcuts: {
-    name: string
-    short_name?: string
-    url: string
-    description?: string
-    icons?: IconResource[]
-  }[]
+  shortcuts: ManifestShortcut[]
   /**
    * @default []
    * @see https://developer.mozilla.org/en-US/docs/Web/Manifest/screenshots
    */
-  screenshots: {
-    src: string
-    sizes: string
-    label?: string
-    platform?: 'android' | 'ios' | 'kaios' | 'macos' | 'windows' | 'windows10x' | 'chrome_web_store' | 'play' | 'itunes' | 'microsoft-inbox' | 'microsoft-store' | string
-    form_factor?: 'narrow' | 'wide'
-    type?: string
-  }[]
+  screenshots: ManifestScreenshot[]
   /**
    * @default []
    */
@@ -586,17 +613,7 @@ export interface ManifestOptions {
    * @see https://developer.mozilla.org/en-US/docs/Web/Manifest/share_target
    * @see https://w3c.github.io/web-share-target/level-2/#share_target-member
    */
-  share_target: {
-    action: string
-    method?: 'GET' | 'POST'
-    enctype?: string
-    params: {
-      title?: string
-      text?: string
-      url?: string
-      files?: ShareTargetFiles | ShareTargetFiles[]
-    }
-  }
+  share_target: ManifestShareTarget
   /**
    * @see https://github.com/WICG/pwa-url-handler/blob/main/handle_links/explainer.md#handle_links-manifest-member
    */
@@ -687,6 +704,12 @@ export interface DevOptions {
    * @default true
    */
   enableUISwitcher?: boolean
+  /**
+   * Enable Vite PWA inspector?
+   *
+   * @default undefined
+   */
+  inspector?: 'standalone' | 'vite-devtools'
   /**
    * The service worker type.
    *

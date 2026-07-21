@@ -2,7 +2,9 @@ import process from 'node:process'
 import { ReactRouterPWAPlugin } from '@composable-vite-pwa/react-router'
 import { reactRouter } from '@react-router/dev/vite'
 import tailwindcss from '@tailwindcss/vite'
+import { DevTools } from '@vitejs/devtools'
 import { defineConfig } from 'vite'
+import Inspect from 'vite-plugin-inspect'
 
 const reactRouterPlugin = reactRouter()
 
@@ -11,6 +13,7 @@ export default defineConfig({
     minify: false,
   },
   plugins: [
+    DevTools(),
     tailwindcss(),
     reactRouterPlugin,
     ReactRouterPWAPlugin(
@@ -62,12 +65,14 @@ export default defineConfig({
         devOptions: {
           enabled: true,
           type: 'module',
+          inspector: 'vite-devtools',
           suppressWarnings: true,
           navigateFallback: '/',
           navigateFallbackAllowlist: [/^\/$/],
         },
       },
     ),
+    Inspect(),
   ],
   resolve: {
     tsconfigPaths: true,

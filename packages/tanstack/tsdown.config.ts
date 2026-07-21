@@ -18,11 +18,13 @@ export default defineConfig({
     'src/create-nitro-pwa-context.ts',
     'src/create-pwa-context.ts',
     'src/index.ts',
-    'src/load-external-configuration.ts',
     'src/types.ts',
     {
       'vite/*': ['./src/vite/*'],
-      'vite/nitro/*': ['./src/vite/nitro/*'],
+      'vite/nitro/*': [
+        './src/vite/nitro/*',
+        '!./src/vite/nitro/load-external-configuration.ts',
+      ],
     },
     {
       'react-components': './src/react-components/index.ts',

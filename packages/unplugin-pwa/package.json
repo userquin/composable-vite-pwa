@@ -52,6 +52,7 @@
     "./node/html": "./dist/node/html.mjs",
     "./node/inject-generate-register-sw": "./dist/node/inject-generate-register-sw.mjs",
     "./node/inject-web-manifest-html-link": "./dist/node/inject-web-manifest-html-link.mjs",
+    "./node/logs": "./dist/node/logs.mjs",
     "./node/prepare-pwa-context": "./dist/node/prepare-pwa-context.mjs",
     "./node/prepare-sw-names": "./dist/node/prepare-sw-names.mjs",
     "./node/vite/legacy": "./dist/node/vite/legacy.mjs",
@@ -72,7 +73,9 @@
     "./node/vite/plugins/dev": "./dist/node/vite/plugins/dev.mjs",
     "./node/vite/plugins/dev-middleware": "./dist/node/vite/plugins/dev-middleware.mjs",
     "./node/vite/plugins/dev-pwa-assets-middleware": "./dist/node/vite/plugins/dev-pwa-assets-middleware.mjs",
+    "./node/vite/plugins/devtools": "./dist/node/vite/plugins/devtools.mjs",
     "./node/vite/plugins/info": "./dist/node/vite/plugins/info.mjs",
+    "./node/vite/plugins/inspector": "./dist/node/vite/plugins/inspector.mjs",
     "./node/vite/plugins/main": "./dist/node/vite/plugins/main.mjs",
     "./node/vite/plugins/pwa-assets": "./dist/node/vite/plugins/pwa-assets.mjs",
     "./webpack": {
@@ -145,7 +148,7 @@
     "node": ">=22.14.0"
   },
   "scripts": {
-    "build": "tsdown --config-loader unrun",
+    "build": "tsdown --config-loader unrun && vite build inspector",
     "test": "pnpm run build && vitest",
     "test:ci": "pnpm run build && vitest run",
     "test:typecheck": "tsc --noEmit"
@@ -182,22 +185,32 @@
     "@composable-vite-pwa/workbox-build": "workspace:*",
     "@composable-vite-pwa/workbox-window": "workspace:*",
     "@types/trusted-types": "catalog:types",
+    "hookable": "catalog:utils",
     "picocolors": "catalog:utils",
     "unplugin": "catalog:utils",
     "unplugin-utils": "catalog:utils"
   },
   "devDependencies": {
+    "@iconify-json/mdi": "catalog:inspector",
+    "@iconify-json/tabler": "catalog:inspector",
     "@types/react": "catalog:react",
     "@types/webpack": "catalog:types",
+    "@unocss/reset": "catalog:inspector",
     "@vite-pwa/assets-generator": "catalog:utils",
+    "@vitejs/devtools": "catalog:inspector",
+    "@vitejs/devtools-kit": "catalog:inspector",
+    "@vitejs/plugin-vue": "catalog:vue",
+    "devframe": "catalog:inspector",
     "preact": "catalog:preact",
     "publint": "catalog:utils",
     "react": "catalog:react",
     "solid-js": "catalog:solid-js",
     "svelte": "catalog:svelte",
+    "unocss": "catalog:inspector",
     "vite": "catalog:vite",
     "vitest": "catalog:test",
     "vue": "catalog:vue",
+    "vue-router": "catalog:inspector",
     "webpack": "catalog:webpack5",
     "webpack-virtual-modules": "catalog:utils"
   }

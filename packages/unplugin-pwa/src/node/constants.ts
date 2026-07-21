@@ -31,3 +31,7 @@ export const DEV_PWA_ASSETS_NAME = 'unplugin-pwa:pwa-assets'
 export const DEV_SWITCHER_NAME = 'unplugin-pwa:pwa-switcher'
 export const DEV_PWA_DUAL_SW_SWITCHER_NAME = './switcher.js'
 export const DEV_PWA_REGISTER_NAME = './register.js'
+
+export const INSPECTOR_BASE_PATH = '/__unplugin_pwa_inspector'
+export const INSPECTOR_BASE_PATH_URL = `${INSPECTOR_BASE_PATH}/`
+export const INSPECTOR_BASE_PATH_API = `${INSPECTOR_BASE_PATH}_api`

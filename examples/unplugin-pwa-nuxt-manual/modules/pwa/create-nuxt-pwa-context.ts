@@ -64,6 +64,6 @@ export async function createNuxtPwaContext<
 
   throw new Error([
     '',
-    pc.cyan(`[Vite PWA for Nuxt] Bundler '${nuxt.options.builder}' not yet supported`),
+    pc.cyan(`[Nuxt PWA] Bundler '${nuxt.options.builder}' not yet supported`),
   ].join('\n'))
 }

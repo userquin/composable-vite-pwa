@@ -18,6 +18,7 @@ export default defineConfig([{
       'node/vite/*': ['./src/node/vite/*.ts'],
       'node/vite/dev/*': ['./src/node/vite/dev/*.ts'],
       'node/vite/plugins/*': ['./src/node/vite/plugins/*.ts'],
+      // 'node/vite/plugins/*': ['./src/node/vite/plugins/*.ts', '!./src/node/vite/plugins/inspector.ts'],
       'node/webpack/*': ['./src/node/webpack/*.ts'],
       'node/webpack/dev/*': ['./src/node/webpack/dev/*.ts'],
     },
@@ -31,6 +32,8 @@ export default defineConfig([{
   },
   deps: {
     neverBundle: [
+      '@vitejs/devtools',
+      'devframe',
       'vite',
       'webpack',
       'webpack-virtual-modules',
@@ -53,6 +56,7 @@ export default defineConfig([{
     'client/build/*': ['./src/client/build/*.ts'],
     'client/dev/*': ['./src/client/dev/*.ts'],
     'client/dev/vite/*': ['./src/client/dev/vite/*.ts'],
+    // 'client/dev/vite/*': ['./src/client/dev/vite/*.ts'],
     'client/dev/webpack/*': ['./src/client/dev/webpack/*.ts'],
   },
   platform: 'browser',

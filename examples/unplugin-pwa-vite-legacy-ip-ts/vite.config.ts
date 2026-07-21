@@ -52,6 +52,7 @@ export default defineConfig({
       devOptions: {
         enabled: true,
         type: 'classic',
+        inspector: 'standalone',
       },
     }) as PluginOption,
     Inspect(),

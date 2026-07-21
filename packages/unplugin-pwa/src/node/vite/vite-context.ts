@@ -12,7 +12,7 @@ export type ServiceWorkerAssetNormalizer = (
   hook: 'resolveId' | 'load',
   depType: 'sw' | 'sw-dep',
   id: string,
-) => [normalizedId: string, assetName: string]
+) => [normalizedId: string, assetName: string] // TODO: remove pair we only need an id (every impl. returning the same pair)
 
 export type VitePWAPluginContext<
   B extends ViteBundler,

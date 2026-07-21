@@ -1,6 +1,7 @@
 import type { BuildGenerateSWOptions, BuildWithSourcesResult } from '@composable-vite-pwa/workbox-build/build/types'
 import type { InjectManifestStrategyOptions, SelfDestroyingStrategyOptions } from '@composable-vite-pwa/workbox-build/config/types'
 import type { BuildResult, SWType } from '@composable-vite-pwa/workbox-build/types'
+import type { Hookable } from 'hookable'
 import type { ResolvedConfig } from 'vite'
 import type { PWAAssetsGenerator } from './pwa-assets/types'
 import type { RegisterSWData, ResolvedVitePWAOptions, VitePWAOptions, VitePWAStrategy, WebManifestData } from './types'
@@ -95,6 +96,7 @@ export interface PWABuildDevContext<
     registerVirtualSWGenerated: boolean
     hmrEntryPointGenerated: boolean
     navigateFallbackAllowlist?: RegExp[]
+    swAssetKeys: Set<string>
     swAssetsPaths: Map<string, string>
     tempFolder: string
     /**
@@ -123,6 +125,13 @@ export type ConfigurePWAOptionsFn = (
   forClient: boolean,
   config: ResolvedConfig,
 ) => ConfigurePWAOptions | undefined | Promise<ConfigurePWAOptions | undefined>
+
+export type HookResult = void | Promise<void>
+export interface PWAHooks {
+  'context:ready': (error?: unknown) => HookResult
+  'service-worker:generated': () => HookResult
+  'service-worker:switched': () => HookResult
+}
 
 export interface PWAPluginContext<
   B extends Bundler,
@@ -175,4 +184,5 @@ export interface PWAPluginContext<
    */
   registerSWData: () => Promise<RegisterSWData & { module: boolean } | undefined>
   runBuild: () => Promise<BuildResult | boolean>
+  hooks: Hookable<PWAHooks>
 }
