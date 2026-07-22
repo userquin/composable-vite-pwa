@@ -10,11 +10,11 @@ import {
   INSPECTOR_BASE_PATH_API,
   INSPECTOR_BASE_PATH_URL,
 } from '../../constants'
-import { inspectorWithInjectManifestWarning } from '../../logs'
 import {
   preparePWAConfigurationData,
   prepareServiceWorkerData,
-} from './inspector-utils'
+} from '../../inspector-utils'
+import { inspectorWithInjectManifestWarning } from '../../logs'
 
 export function InspectorPlugin<
   UserStrategy extends VitePWAStrategy,

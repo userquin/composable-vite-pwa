@@ -1,17 +1,15 @@
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { VitePWAStrategy } from '../../types'
-import type {
-  ViteBundler,
-  VitePWAPluginContext,
-} from '../vite-context'
+import type { Bundler, PWAPluginContext } from './context-types'
+import type { VitePWAStrategy } from './types'
 import path from 'node:path'
 import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
-import packageJson from '../../../../package.json' with { type: 'json' }
+import packageJson from '../../package.json' with { type: 'json' }
 
 export function preparePWAConfigurationData<
+  B extends Bundler,
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>) {
+>(ctx: PWAPluginContext<B, UserStrategy, T>) {
   const resolvedOptions = ctx.resolvedOptions
   const devOptions = resolvedOptions.devOptions
 
@@ -29,9 +27,10 @@ export function preparePWAConfigurationData<
 }
 
 export function prepareServiceWorkerData<
+  B extends Bundler,
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
->(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>) {
+>(ctx: PWAPluginContext<B, UserStrategy, T>) {
   const root = ctx.rootDir
   const injectManifest = ctx.strategy === 'inject-manifest'
   const devOptions = ctx.resolvedOptions.devOptions
