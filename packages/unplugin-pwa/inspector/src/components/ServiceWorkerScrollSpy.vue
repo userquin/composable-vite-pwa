@@ -10,7 +10,7 @@ const { resolvedHeaders } = defineProps<{
 const container = useTemplateRef('container')
 const marker = useTemplateRef('marker')
 
-const spyKey = 'vite-pwa-inspector:manifest:spy-pinned'
+const spyKey = 'vite-pwa-inspector:sw:spy-pinned'
 
 const isPinned = shallowRef(localStorage.getItem(spyKey) === 'true')
 watch(isPinned, (val) => {
@@ -23,7 +23,7 @@ function togglePin() {
 
 const { goTo } = useActiveAnchor(resolvedHeaders, container, marker)
 /* to test --scrollbar add this to style block: added at useActiveAnchor::onMounted
-.manifest-spy:before {
+.sw-spy:before {
   content: counter(val) "px";
   counter-reset: val tan(atan2(var(--scrollbar),1px));
 }
@@ -33,8 +33,8 @@ const { goTo } = useActiveAnchor(resolvedHeaders, container, marker)
 <template>
   <nav
     ref="container"
-    aria-labelledby="manifest-on-this-page"
-    class="manifest-spy absolute top-[0.5rem] z-10"
+    aria-labelledby="sw-on-this-page"
+    class="sw-spy absolute top-[0.5rem] z-10"
     :class="!isPinned ? 'group' : ''"
     style="right: var(--scrollbar, 17px); width: calc(210px - var(--scrollbar, 17px))"
   >
@@ -53,10 +53,10 @@ const { goTo } = useActiveAnchor(resolvedHeaders, container, marker)
       />
       <div class="flex items-center justify-between h-[32px] mb-1">
         <h2
-          id="manifest-on-this-page"
+          id="sw-on-this-page"
           class="text-sm font-semibold m-0 text-gray-500 dark:text-gray-400"
         >
-          On this manifest
+          On this service worker
         </h2>
         <button
           role="switch"
@@ -79,22 +79,13 @@ const { goTo } = useActiveAnchor(resolvedHeaders, container, marker)
       >
         <ul class="flex flex-col">
           <li>
-            <a href="/#identity" class="block h-[32px] leading-[32px] text-[14px] font-normal truncate text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 [&.active]:text-blue-600 dark:[&.active]:text-blue-400" @click="goTo($event, 'identity')">Identity</a>
+            <a href="/#info" class="block h-[32px] leading-[32px] text-[14px] font-normal truncate text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 [&.active]:text-blue-600 dark:[&.active]:text-blue-400" @click="goTo($event, 'info')">Info</a>
           </li>
           <li>
-            <a href="/#presentation" class="block h-[32px] leading-[32px] text-[14px] font-normal truncate text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 [&.active]:text-blue-600 dark:[&.active]:text-blue-400" @click="goTo($event, 'presentation')">Presentation</a>
+            <a href="/#chunks" class="block h-[32px] leading-[32px] text-[14px] font-normal truncate text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 [&.active]:text-blue-600 dark:[&.active]:text-blue-400" @click="goTo($event, 'chunks')">Chunks</a>
           </li>
           <li>
-            <a href="/#icons" class="block h-[32px] leading-[32px] text-[14px] font-normal truncate text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 [&.active]:text-blue-600 dark:[&.active]:text-blue-400" @click="goTo($event, 'icons')">Icons</a>
-          </li>
-          <li>
-            <a href="/#window-controls-overlay" class="block h-[32px] leading-[32px] text-[14px] font-normal truncate text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 [&.active]:text-blue-600 dark:[&.active]:text-blue-400" @click="goTo($event, 'window-controls-overlay')">Window Controls Overlay</a>
-          </li>
-          <li>
-            <a href="/#shortcuts" class="block h-[32px] leading-[32px] text-[14px] font-normal truncate text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 [&.active]:text-blue-600 dark:[&.active]:text-blue-400" @click="goTo($event, 'shortcuts')">Shortcuts</a>
-          </li>
-          <li>
-            <a href="/#screenshots" class="block h-[32px] leading-[32px] text-[14px] font-normal truncate text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 [&.active]:text-blue-600 dark:[&.active]:text-blue-400" @click="goTo($event, 'screenshots')">Screenshots</a>
+            <a href="/#dependencies" class="block h-[32px] leading-[32px] text-[14px] font-normal truncate text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 [&.active]:text-blue-600 dark:[&.active]:text-blue-400" @click="goTo($event, 'dependencies')">Dependencies</a>
           </li>
         </ul>
       </div>

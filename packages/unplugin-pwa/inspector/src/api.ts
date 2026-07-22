@@ -1,6 +1,6 @@
 import type { PWAConfiguration, SWInfo } from './state'
 import { fecthSWInfo, fetchMode, fetchPWAConfiguration } from './api/fetcher'
-import { currentSWInfo, error, pwaConfiguration, ready } from './state'
+import { currentSWInfo, pwaConfiguration, ready } from './state'
 
 let api: {
   load: () => Promise<PWAConfiguration>
@@ -39,15 +39,9 @@ async function initApi(): Promise<void> {
 }
 
 export async function loadPWAConfiguration(): Promise<void> {
-  try {
-    await initApi()
-    pwaConfiguration.value = await api.load()
-    ready.value = true
-  }
-  catch (e) {
-    console.error('cannot initialize pa configuration', e)
-    error.value = true
-  }
+  await initApi()
+  pwaConfiguration.value = await api.load()
+  ready.value = true
 }
 
 export async function loadSWInfo(): Promise<void> {

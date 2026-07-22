@@ -331,11 +331,11 @@ if (import.meta.hot && import.meta.PWA_ESM_FALLBACK_SW) {
   let initialTop = 0
   let idleTimeout: ReturnType<typeof setTimeout>
 
-  // Separamos el estado físico de la red del estado de HMR
+  // We separate the physical state of the network from the HMR state
   let isOnline = navigator.onLine ?? true
-  let isHMRConnected = true // Por defecto asumimos que arranca conectado
+  let isHMRConnected = true // By default we assume it starts connected
 
-  // Única fuente de la verdad para saber si el componente está 100% operativo
+  // Single source of truth to know if the component is 100% operational
   const isConnected = () => isOnline && isHMRConnected
 
   const STORAGE_KEY = 'unplugin-pwa-switcher-pos'
@@ -403,7 +403,7 @@ if (import.meta.hot && import.meta.PWA_ESM_FALLBACK_SW) {
     }
   }
 
-  // Máquina de estados para la Conexión
+  // State machine for the Connection
   function checkConnection() {
     if (!isConnected()) {
       button.classList.add('is-offline')

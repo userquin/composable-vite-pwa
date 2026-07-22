@@ -71,6 +71,7 @@ catalogs:
     eslint-plugin-antfu: ^3.2.2
   inspector:
     '@iconify-json/mdi': ^1.2.3
+    '@iconify-json/svg-spinners': ^1.2.4
     '@iconify-json/tabler': ^1.2.35
     '@unocss/reset': ^66.7.5
     '@vitejs/devtools': ^0.4.1

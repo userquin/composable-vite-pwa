@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import ErrorBoundary from './components/ErrorBoundary.vue'
+import ErrorBoundaryError from './components/ErrorBoundaryError.vue'
 import InspectorHero from './components/InspectorHero.vue'
 import NavTabs from './components/NavTabs.vue'
 import PWAInfo from './components/PWAInfo.vue'
+import { ready } from './state'
 
 onMounted(async () => {
   await import('./api').then(({ loadPWAConfiguration }) => loadPWAConfiguration())
+  ready.value = true
 })
 </script>
 
@@ -15,12 +19,17 @@ onMounted(async () => {
     <PWAInfo class="border-l border-main row-span-2" />
     <NavTabs />
     <div class="col-span-2 h-full of-hidden">
-      <Suspense>
-        <RouterView />
-        <template #fallback>
-          Loading...
+      <ErrorBoundary>
+        <Suspense>
+          <RouterView />
+          <template #fallback>
+            Loading...
+          </template>
+        </Suspense>
+        <template #error="{ clearError }">
+          <ErrorBoundaryError @clear-error="clearError" />
         </template>
-      </Suspense>
+      </ErrorBoundary>
     </div>
   </div>
 </template>
