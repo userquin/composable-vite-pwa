@@ -192,7 +192,7 @@ export default defineConfig({
             return 'sw-helper'
           }
         },
-        plugins: (swType) => {
+        plugins: (_swType) => {
           // if (swType === 'classic') {
           //   return [virtualMessagePlugin()]
           // }
