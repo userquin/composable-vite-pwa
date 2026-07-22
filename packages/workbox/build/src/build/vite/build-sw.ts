@@ -9,9 +9,10 @@ import { createBuildContext } from './build-context'
 
 async function prepareBuildSWPlugins(
   plugins: ServiceWorkerOptions['plugins'],
+  swType: WorkerType,
   asyncFlatten: typeof import('../builder/utils')['asyncFlatten'],
 ): Promise<import('vite').PluginOption[]> {
-  const pluginsFactoryResult = plugins ? plugins() : []
+  const pluginsFactoryResult = plugins ? plugins(swType) : []
   const pluginsArray = Array.isArray(pluginsFactoryResult)
     ? pluginsFactoryResult
     : [pluginsFactoryResult]
@@ -34,6 +35,7 @@ function prepareViteBuilds<T extends SWType>(
     b.detectCircularDeps = withCustomChunks ? true : undefined
     return await prepareBuildSWPlugins(
       options.plugins,
+      b.swType,
       asyncFlatten,
     ).then((plugins) => {
       return prepareViteBuild(Object.assign(b, {

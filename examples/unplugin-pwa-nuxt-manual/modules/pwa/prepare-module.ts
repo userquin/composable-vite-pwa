@@ -226,6 +226,9 @@ export async function prepareModule<
 
   if (!nuxt.options.dev) {
     if (semver.gte(ctx.nuxt.nuxtVersion, '3.8.0')) {
+      // nuxt 5 should use nitro 'vite:before:compile' hook and maybe this hook is wrong
+      // nuxt 5 has this new option experimental.nitroViteEnvironment to enable nitro/vite (v3)
+      // maybe we even need a new hook at nitro v3
       nuxt.hook('nitro:build:public-assets', async () => {
         await buildPwaAssets(ctx as unknown as any)
       })

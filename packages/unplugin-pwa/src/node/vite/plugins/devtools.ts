@@ -101,6 +101,7 @@ export function DevtoolsPlugin<
           name: 'unplugin-pwa:service-worker-info',
           type: 'action',
           handler: () => {
+            console.log(ctx.sources)
             const devOptions = ctx.resolvedOptions.devOptions
             const dependencies = devOptions?.enabled === true && ctx.dev.options?.swAssetKeys
               ? [...ctx.dev.options.swAssetKeys].filter(d => !d.endsWith('.map'))

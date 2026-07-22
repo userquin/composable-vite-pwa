@@ -209,8 +209,8 @@ async function addBuildPlugin(
 ) {
   const consumerPlugins = buildSW.plugins
   const swPlugin = await import('./plugins/runtime/sw').then(({ SWPlugin }) => SWPlugin(ctx))
-  buildSW.plugins = () => {
-    const plugins = consumerPlugins?.() ?? []
+  buildSW.plugins = (swType) => {
+    const plugins = consumerPlugins?.(swType) ?? []
     plugins.unshift(swPlugin)
     return plugins
   }

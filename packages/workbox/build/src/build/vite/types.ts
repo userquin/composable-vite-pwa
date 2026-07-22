@@ -17,7 +17,7 @@ export interface ServiceWorkerOptions {
    * @see https://vite.dev/guide/env-and-mode#env-files
    */
   envPrefix?: import('vite').UserConfig['envPrefix']
-  plugins?: () => import('vite').PluginOption[]
+  plugins?: (swType: WorkerType) => import('vite').PluginOption[]
   sourcemap?: import('vite').BuildOptions['sourcemap']
 }
 
