@@ -17,18 +17,19 @@
         const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
         // check nuxt devtools color scheme switcher
         const setting = localStorage.getItem('nuxt-devtools-color-mode') || 'auto'
-        if (setting === 'dark' || (prefersDark && setting !== 'light'))
+        if (setting === 'dark' || (prefersDark && setting !== 'light')) {
           document.documentElement.classList.toggle('dark', true)
-      })()
+        }
+      })();
 
-      ;(function () {
+      (function () {
         if (!location.pathname.endsWith('/'))
           location.pathname += '/'
-      })()
+      })();
     </script>
 </head>
 <body class="bg-main text-main font-sans">
-<div id="app"></div>
+<div id="vite-pwa-inspector"></div>
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

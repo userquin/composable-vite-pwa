@@ -1,12 +1,8 @@
 html,
 body,
-#app {
+#vite-pwa-inspector {
     height: 100%;
     overflow: hidden;
-}
-
-html:not(.dark) {
-    color-scheme: light;
 }
 
 html.dark {

@@ -54,9 +54,9 @@ const { goTo } = useActiveAnchor(resolvedHeaders, container, marker)
       <div class="flex items-center justify-between h-[32px] mb-1">
         <h2
           id="sw-on-this-page"
-          class="text-sm font-semibold m-0 text-gray-500 dark:text-gray-400"
+          class="text-md font-semibold m-0 text-gray-500 dark:text-gray-400"
         >
-          On this service worker
+          On this page
         </h2>
         <button
           role="switch"
