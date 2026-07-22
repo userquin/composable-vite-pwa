@@ -40,11 +40,20 @@ export function pwaAssetsResolver<
       : path.resolve(base, '../../client/build', 'register.js')
 
     let code = await fs.readFile(virtualPath, 'utf-8')
-    if (ctx.devEnvironment && ctx.hmrRequiresSwitcher) {
-      const prefaceIdx = code.indexOf('export function registerSW(')
-      const imports = code.slice(0, prefaceIdx)
-      const registerSWCode = code.slice(prefaceIdx)
-      code = `import { registerDevSW } from "./hmr.js";
+    if (ctx.devEnvironment) {
+      if (ctx.bundler === 'vite' && ctx.inspectorRequiresViteDevtools && ctx.resolvedOptions.devOptions?.inspector === 'vite-devtools') {
+        code += `
+if (import.meta.env.DEV) {
+  import('@vitejs/devtools/client/inject').then(({ init }) => init());
+}
+`
+      }
+
+      if (ctx.hmrRequiresSwitcher) {
+        const prefaceIdx = code.indexOf('export function registerSW(')
+        const imports = code.slice(0, prefaceIdx)
+        const registerSWCode = code.slice(prefaceIdx)
+        code = `import { registerDevSW } from "./hmr.js";
 ${imports}
 
 if (import.meta.hot) {
@@ -53,6 +62,7 @@ if (import.meta.hot) {
 
 ${registerSWCode}
 `
+      }
     }
 
     return await buildPwaAsset(

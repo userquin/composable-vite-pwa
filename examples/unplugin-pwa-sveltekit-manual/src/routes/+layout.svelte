@@ -1,6 +1,6 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
-	import { browser, dev } from '$app/environment'
+	// import { browser, dev } from '$app/environment'
 	import { pwaInfo } from 'virtual:pwa-info'
 	// import { onMount } from 'svelte';
 
@@ -12,11 +12,11 @@
 	// const webManifest = $derived(pwaInfo && !dev ? pwaInfo.webManifest.linkTag : '')
 	const webManifest = $derived(pwaInfo  ? pwaInfo.webManifest.linkTag : '')
 
-	if (browser && dev) {
+	/*if (browser && dev) {
 		import('@vitejs/devtools/client/inject').then(() => {
 			console.log('Vite Devtools injected')
 		})
-	}
+	}*/
 
 	/*onMount(async () => {
 		console.log(browser)

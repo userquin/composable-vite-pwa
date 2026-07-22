@@ -162,6 +162,7 @@ function createSvelteKitPWAContext<
     createVitePWAContext(envApi, rest),
     {
       hmrRequiresSwitcher: true,
+      inspectorRequiresViteDevtools: true,
       kitConfig: config,
       kitOptions: kit,
     },
