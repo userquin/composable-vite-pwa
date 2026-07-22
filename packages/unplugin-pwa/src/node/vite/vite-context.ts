@@ -41,6 +41,7 @@ export type VitePWAPluginContext<
    * @return The normalized id to check against the service worker or its dependency and the name in the build pair.
    */
   normalizeDevServiceWorkerId?: ServiceWorkerAssetNormalizer
+  inspectorRequiresViteDevtools?: true
 }
 
 /**

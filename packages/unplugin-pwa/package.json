@@ -202,6 +202,7 @@
     "@vitejs/devtools": "catalog:inspector",
     "@vitejs/devtools-kit": "catalog:inspector",
     "@vitejs/plugin-vue": "catalog:vue",
+    "@vueuse/core": "catalog:inspector",
     "devframe": "catalog:inspector",
     "preact": "catalog:preact",
     "publint": "catalog:utils",

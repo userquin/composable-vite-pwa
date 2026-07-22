@@ -42,6 +42,7 @@ export function createAstroPWAContext<
     createVitePWAContext(true, rest),
     {
       hmrRequiresSwitcher: true,
+      inspectorRequiresViteDevtools: true,
       astro: {
         config: undefined!,
         devEnvironment: false,

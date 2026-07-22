@@ -22,11 +22,6 @@ const { title } = Astro.props as Props;
 		{ pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} /> }
 		<script>
 			import '/src/pwa.js'
-			if (import.meta.env.DEV) {
-				import('@vitejs/devtools/client/inject').then(() => {
-					console.log('Vite Devtools injected')
-				})
-			}
 		</script>
 	</head>
 	<body>

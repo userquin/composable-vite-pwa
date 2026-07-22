@@ -102,7 +102,7 @@ export async function prepareNuxtOptions<
       tabs.push({
         title: 'Vite PWA Inspector',
         name: 'vite-pwa:nuxt:inspector',
-        icon: `${INSPECTOR_BASE_PATH}/icon_light.svg`,
+        icon: `${INSPECTOR_BASE_PATH}/icon_gray.svg`,
         // icon: {
         //   light: `${INSPECTOR_BASE_PATH}/icon_light.svg`,
         //   dark: `${INSPECTOR_BASE_PATH}/icon_dark.svg`,

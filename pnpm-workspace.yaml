@@ -76,6 +76,7 @@ catalogs:
     '@unocss/reset': ^66.7.5
     '@vitejs/devtools': ^0.4.1
     '@vitejs/devtools-kit': ^0.4.1
+    '@vueuse/core': ^14.3.0
     devframe: ^0.7.5
     unocss: ^66.7.5
     vue-router: ^5.2.0

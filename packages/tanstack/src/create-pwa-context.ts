@@ -38,6 +38,7 @@ export function createTanStackPWAContext<
     createVitePWAContext(true, options),
     {
       hmrRequiresSwitcher: true,
+      inspectorRequiresViteDevtools: true,
       tanstack: {
         /**
          * Alias for `build-sw` strategy if any, check `TanStackNitroPWAContext`.
