@@ -7,12 +7,15 @@ import type {
   VitePWAPluginContext,
 } from '../vite-context'
 import { fileURLToPath } from 'node:url'
-import packageJson from '../../../../package.json' with { type: 'json' }
 import {
   INSPECTOR_BASE_PATH,
   INSPECTOR_BASE_PATH_URL,
 } from '../../constants'
 import { inspectorWithInjectManifestWarning } from '../../logs'
+import {
+  preparePWAConfigurationData,
+  prepareServiceWorkerData,
+} from './inspector-utils'
 
 export function DevtoolsPlugin<
   UserStrategy extends VitePWAStrategy,
@@ -80,36 +83,13 @@ export function DevtoolsPlugin<
         context.rpc.register({
           name: 'unplugin-pwa:pwa-configuration',
           type: 'action',
-          handler: () => {
-            const resolvedOptions = ctx.resolvedOptions
-            const devOptions = resolvedOptions.devOptions
-            return {
-              version: packageJson.version,
-              base: ctx.base,
-              swEnabled: ctx.resolvedOptions.disable === false,
-              strategy: ctx.strategy,
-              swType: resolvedOptions.swType,
-              swDevEnabled: devOptions?.enabled === true,
-              currentSWType: ctx.dev.options.swType,
-              swNames: ctx.dev.options.swNames,
-              manifest: resolvedOptions.manifest,
-            }
-          },
+          handler: () => preparePWAConfigurationData(ctx),
         })
 
         context.rpc.register({
           name: 'unplugin-pwa:service-worker-info',
           type: 'action',
-          handler: () => {
-            const devOptions = ctx.resolvedOptions.devOptions
-            const dependencies = devOptions?.enabled === true && ctx.dev.options?.swAssetKeys
-              ? [...ctx.dev.options.swAssetKeys].filter(d => !d.endsWith('.map'))
-              : undefined
-            return {
-              swType: devOptions?.enabled === true ? ctx.dev.options?.swType : undefined,
-              dependencies,
-            }
-          },
+          handler: () => prepareServiceWorkerData(ctx),
         })
       },
     },
