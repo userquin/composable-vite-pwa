@@ -1,7 +1,9 @@
 import { computed, shallowRef } from 'vue'
 
 export const ready = shallowRef(false)
-export const error = shallowRef(false)
+export const error = shallowRef()
+export const swReady = shallowRef(false)
+export const loadingSW = shallowRef(true)
 
 export interface PWAConfiguration {
   version: string
@@ -17,6 +19,7 @@ export interface PWAConfiguration {
 
 export interface SWInfo {
   swType?: WorkerType
+  chunks?: string[]
   dependencies?: string[]
 }
 
@@ -28,6 +31,7 @@ export const swInfo = computed<{
   buildEnabled: boolean
   devEnabled: boolean
   currentType?: WorkerType
+  chunks?: string[]
   dependencies?: string[]
 }>(() => {
   const c = pwaConfiguration.value
@@ -53,14 +57,14 @@ export const swInfo = computed<{
     }
   }
 
-  let dependencies: string[] = [...i.dependencies ?? []]
+  let chunks: string[] = [...i.chunks ?? []]
 
   if (c.swType === 'classic-and-module') {
     if (i.swType === 'classic') {
-      dependencies = dependencies.filter(d => d.includes('-classic'))
+      chunks = chunks.filter(d => d.includes('-classic'))
     }
     else {
-      dependencies = dependencies.filter(d => d.includes('-module'))
+      chunks = chunks.filter(d => d.includes('-module'))
     }
   }
 
@@ -68,7 +72,8 @@ export const swInfo = computed<{
     buildEnabled: c.swEnabled,
     devEnabled: c.swDevEnabled,
     currentType: i.swType,
-    dependencies,
+    chunks,
+    dependencies: i.dependencies ?? [],
   }
 })
 

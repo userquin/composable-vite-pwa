@@ -9,8 +9,16 @@ import VueRouter from 'vue-router/vite'
 
 export default defineConfig({
   base: INSPECTOR_BASE_PATH_URL,
+  define: {
+    // disable options api in production build
+    __VUE_OPTIONS_API__: 'false',
+    // disable hydration mismatch details in production build
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+  },
   build: {
+    target: 'esnext',
     minify: false,
+    emptyOutDir: true,
     outDir: '../dist/inspector',
     rolldownOptions: {
       devtools: {},

@@ -15,6 +15,7 @@ declare module '@vitejs/devtools-kit' {
     }>
     'unplugin-pwa:service-worker-info': () => Promise<{
       swType?: WorkerType
+      chunks?: string[]
       dependencies?: string[]
     }>
   }

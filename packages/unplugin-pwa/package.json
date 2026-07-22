@@ -52,6 +52,7 @@
     "./node/html": "./dist/node/html.mjs",
     "./node/inject-generate-register-sw": "./dist/node/inject-generate-register-sw.mjs",
     "./node/inject-web-manifest-html-link": "./dist/node/inject-web-manifest-html-link.mjs",
+    "./node/inspector-utils": "./dist/node/inspector-utils.mjs",
     "./node/logs": "./dist/node/logs.mjs",
     "./node/prepare-pwa-context": "./dist/node/prepare-pwa-context.mjs",
     "./node/prepare-sw-names": "./dist/node/prepare-sw-names.mjs",
@@ -174,6 +175,7 @@
   },
   "devDependencies": {
     "@iconify-json/mdi": "catalog:inspector",
+    "@iconify-json/svg-spinners": "catalog:inspector",
     "@iconify-json/tabler": "catalog:inspector",
     "@types/react": "catalog:react",
     "@unocss/reset": "catalog:inspector",

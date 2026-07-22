@@ -28,7 +28,7 @@ const showMinimumSafeArea = shallowRef(false)
 
 <template>
   <div class="h-full relative overflow-hidden">
-    <div class="manifest-container h-full overflow-y-auto py3 text-sm">
+    <div class="h-full overflow-y-auto py3 text-sm">
       <h1 class="text-lg font-bold mb-6 mx-4 flex items-center gap-2">
         <span>Manifest</span>
       </h1>

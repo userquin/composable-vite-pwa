@@ -6,11 +6,14 @@ import type {
   VitePWAPluginContext,
 } from '../vite-context'
 import { fileURLToPath } from 'node:url'
-import packageJson from '../../../../package.json'
 import {
   INSPECTOR_BASE_PATH_API,
   INSPECTOR_BASE_PATH_URL,
 } from '../../constants'
+import {
+  preparePWAConfigurationData,
+  prepareServiceWorkerData,
+} from '../../inspector-utils'
 import { inspectorWithInjectManifestWarning } from '../../logs'
 
 export function InspectorPlugin<
@@ -67,17 +70,7 @@ export function InspectorPlugin<
 
         if (req.url === '/') {
           res.setHeader('Content-Type', 'application/json')
-          res.write(JSON.stringify({
-            version: packageJson.version,
-            base: ctx.base,
-            swEnabled: ctx.resolvedOptions.disable === false,
-            strategy: ctx.strategy,
-            swType: resolvedOptions.swType,
-            swDevEnabled: devOptions?.enabled === true,
-            currentSWType: ctx.dev.options.swType,
-            swNames: ctx.dev.options.swNames,
-            manifest: resolvedOptions.manifest,
-          }))
+          res.write(JSON.stringify(preparePWAConfigurationData(ctx)))
           res.end()
           return
         }
@@ -96,15 +89,8 @@ export function InspectorPlugin<
         }
 
         if (req.url.startsWith('/sw')) {
-          const devOptions = ctx.resolvedOptions.devOptions
-          const dependencies = devOptions?.enabled === true && ctx.dev.options?.swAssetKeys
-            ? [...ctx.dev.options.swAssetKeys].filter(d => !d.endsWith('.map'))
-            : undefined
           res.setHeader('Content-Type', 'application/json')
-          res.write(JSON.stringify({
-            swType: devOptions?.enabled === true ? ctx.dev.options?.swType : undefined,
-            dependencies,
-          }))
+          res.write(JSON.stringify(prepareServiceWorkerData(ctx)))
           res.end()
           return
         }
