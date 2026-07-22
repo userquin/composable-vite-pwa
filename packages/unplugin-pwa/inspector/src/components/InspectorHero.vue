@@ -1,11 +1,32 @@
 <script setup lang="ts">
+import { useLocalStorage, useMediaQuery } from '@vueuse/core'
+import { computed } from 'vue'
+
 const base = import.meta.env.BASE_URL
 const light = `${base}icon_light.svg`
 const dark = `${base}icon_dark.svg`
+
+const nuxtDevtoolsSetting = useLocalStorage('nuxt-devtools-color-mode', 'auto', {
+  shallow: true,
+  initOnMounted: false,
+  listenToStorageChanges: true,
+  writeDefaults: false,
+})
+
+const prefersDark = useMediaQuery('(prefers-color-scheme: dark)')
+
+const heroClass = computed(() => {
+  const setting = nuxtDevtoolsSetting.value
+  const pd = prefersDark.value
+
+  return setting === 'dark' || (pd && setting !== 'light') ? 'dark' : 'light'
+})
 </script>
 
 <template>
-  <header class="px-4 py-2 border-b border-main flex children:my-auto">
+  <header
+    class="px-4 py-2 border-b border-main flex children:my-auto"
+  >
     <div class="flex flex-auto children:my-auto ws-nowrap">
       <div class="w-8 h-8">
         <img
@@ -13,12 +34,14 @@ const dark = `${base}icon_dark.svg`
           class="w-full h-full m-auto dark-hidden"
           alt="Vite PWA Inspector logo"
           draggable="false"
+          :class="heroClass"
         >
         <img
           :src="dark"
           class="w-full h-full m-auto light-hidden"
           alt="Vite PWA Inspector logo"
           draggable="false"
+          :class="heroClass"
         >
       </div>
       <div class="of-hidden pl-2 mt-[3px]">
@@ -41,16 +64,16 @@ const dark = `${base}icon_dark.svg`
   }
 }
 
-html.dark .light-hidden {
+.dark.light-hidden {
   display: unset;
 }
-html.dark .dark-hidden {
+.dark.dark-hidden {
   display: none;
 }
-html.light .dark-hidden {
+.light.dark-hidden {
   display: unset;
 }
-html.light .light-hidden {
+.light.light-hidden {
   display: none;
 }
 </style>

@@ -109,7 +109,7 @@ function* mapIcons(
     if (icon.src.startsWith('/')) {
       src = icon.src.slice(1)
     }
-    yield Object.assign({}, icon, { src: `${base}${src}` })
+    yield Object.assign({}, icon, { src: `${base}${src}`, sizes: `${icon.sizes}px` })
   }
 }
 
@@ -166,7 +166,7 @@ function* mapScreenshots(
     if (screenshot.src.startsWith('/')) {
       src = screenshot.src.slice(1)
     }
-    yield Object.assign({}, screenshot, { src: `${base}${src}` })
+    yield Object.assign({}, screenshot, { src: `${base}${src}`, sizes: `${screenshot.sizes}px` })
   }
 }
 
