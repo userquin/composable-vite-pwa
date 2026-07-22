@@ -6,7 +6,7 @@ export type AllResolveOptions = NonNullable<import('rolldown').InputOptions['res
 export interface ServiceWorkerOptions {
   define?: import('rolldown').TransformOptions['define']
   alias?: AllResolveOptions['alias']
-  plugins?: () => import('rolldown').Plugin[]
+  plugins?: (swType: WorkerType) => import('rolldown').Plugin[]
   sourcemap?: import('rolldown').OutputOptions['sourcemap']
 }
 

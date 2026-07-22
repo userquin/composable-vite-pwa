@@ -1,5 +1,6 @@
 import type { Plugin } from 'vite'
 import { VitePWA } from '@composable-vite-pwa/unplugin-pwa'
+import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { DevTools } from '@vitejs/devtools'
 import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
@@ -191,7 +192,24 @@ export default defineConfig({
             return 'sw-helper'
           }
         },
-        plugins: () => [virtualMessagePlugin()],
+        plugins: (_swType) => {
+          // if (swType === 'classic') {
+          //   return [virtualMessagePlugin()]
+          // }
+
+          return [
+            virtualMessagePlugin(),
+            sentryVitePlugin({
+              org: 'dummy-org',
+              project: 'dummy-project',
+              authToken: 'dummy-token',
+              telemetry: false,
+              release: { name: 'repro-release' },
+              // Prevent it from trying to upload anything (that would require real authentication)
+              sourcemaps: { disable: true },
+            }),
+          ]
+        },
       },
       generateSW: {
         sourcemap: true,

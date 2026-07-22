@@ -56,22 +56,23 @@ const esmServiceWorkerRegex = {
   split: /[._]/,
 } as const
 
+// ORDER MATTERS: most-specific browser tokens first, generic chrome/firefox/opera last
 const esmServiceWorkerRules: Record<Browser, Rule> = {
-  'chrome': (userAgent, os) => (!os || os !== 'Android') ? esmServiceWorkerRegex.chrome.exec(userAgent) : null,
   'edge-chromium': userAgent => esmServiceWorkerRegex.edge.exec(userAgent),
+  'samsung': userAgent => esmServiceWorkerRegex.samsung.exec(userAgent),
+  'uc-browser-android': (userAgent, os) => os === 'Android' && esmServiceWorkerRegex.operaMobile.test(userAgent) ? esmServiceWorkerRegex.ucBrowser.exec(userAgent) : null,
+  'qq-browser': userAgent => esmServiceWorkerRegex.qq.exec(userAgent),
+  'chromium-webview': (userAgent, os) => os === 'Android' ? esmServiceWorkerRegex.webview.exec(userAgent) : null,
+  'opera-mobile': userAgent => esmServiceWorkerRegex.operaMobile.test(userAgent) ? esmServiceWorkerRegex.opera.exec(userAgent) : null,
+  'opera': userAgent => esmServiceWorkerRegex.operaMobile.test(userAgent) ? null : esmServiceWorkerRegex.opera.exec(userAgent),
+  'firefox-android': (userAgent, os) => os === 'Android' ? esmServiceWorkerRegex.firefoxVersion.exec(userAgent) : null,
+  'firefox': userAgent => esmServiceWorkerRegex.firefoxVersion.exec(userAgent),
+  'chrome-android': (userAgent, os) => os === 'Android' ? esmServiceWorkerRegex.chrome.exec(userAgent) : null,
+  'ios-safari': (userAgent, os) => os === 'iOS' ? esmServiceWorkerRegex.safariVersion.exec(userAgent) : null,
+  'chrome': (userAgent, os) => (!os || os !== 'Android') ? esmServiceWorkerRegex.chrome.exec(userAgent) : null,
   'safari': (userAgent, os) => {
     return os === 'Mac OS' && esmServiceWorkerRegex.safari.test(userAgent) ? esmServiceWorkerRegex.safariVersion.exec(userAgent) : null
   },
-  'firefox': userAgent => esmServiceWorkerRegex.firefoxVersion.exec(userAgent),
-  'opera': userAgent => esmServiceWorkerRegex.operaMobile.test(userAgent) ? null : esmServiceWorkerRegex.opera.exec(userAgent),
-  'chrome-android': (userAgent, os) => os === 'Android' ? esmServiceWorkerRegex.chrome.exec(userAgent) : null,
-  'ios-safari': (userAgent, os) => os === 'iOS' ? esmServiceWorkerRegex.safariVersion.exec(userAgent) : null,
-  'samsung': userAgent => esmServiceWorkerRegex.samsung.exec(userAgent),
-  'opera-mobile': userAgent => esmServiceWorkerRegex.operaMobile.test(userAgent) ? esmServiceWorkerRegex.opera.exec(userAgent) : null,
-  'uc-browser-android': (userAgent, os) => os === 'Android' && esmServiceWorkerRegex.operaMobile.test(userAgent) ? esmServiceWorkerRegex.ucBrowser.exec(userAgent) : null,
-  'chromium-webview': (userAgent, os) => os === 'Android' ? esmServiceWorkerRegex.webview.exec(userAgent) : null,
-  'firefox-android': (userAgent, os) => os === 'Android' ? esmServiceWorkerRegex.firefoxVersion.exec(userAgent) : null,
-  'qq-browser': userAgent => esmServiceWorkerRegex.qq.exec(userAgent),
 }
 
 export function isServiceWorkerModuleSupported(userAgent = navigator.userAgent): boolean {

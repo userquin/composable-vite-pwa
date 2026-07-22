@@ -45,6 +45,7 @@ patchedDependencies:
 
 allowBuilds:
   '@parcel/watcher': false
+  '@sentry/cli': true
   core-js: false
   esbuild: false
   sharp: true
@@ -152,6 +153,7 @@ catalogs:
     '@antfu/ni': ^25.0.0
     '@arethetypeswrong/core': ^0.18.5
     '@clack/prompts': ^1.5.1
+    '@sentry/vite-plugin': ^5.4.0
     '@vite-pwa/assets-generator': ^1.0.2
     ansis: ^4.2.0
     cac: ^7.0.0
