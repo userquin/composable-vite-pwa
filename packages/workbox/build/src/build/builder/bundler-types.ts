@@ -18,7 +18,7 @@ export interface BundlerOptions {
   swChunkName: string
   swDest: string
   originalSWType: SWType
-  swType: 'classic' | 'module'
+  swType: WorkerType
   target: SWTargets
   minify: boolean
   inlineWorkboxRuntime: true | {

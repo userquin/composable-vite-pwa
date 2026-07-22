@@ -5,7 +5,7 @@ export interface ServiceWorkerOptions {
   define?: import('rolldown').TransformOptions['define']
   envDir?: string | false
   envPrefix?: string | string[]
-  plugins?: () => import('rolldown').Plugin[]
+  plugins?: (swType: WorkerType) => import('rolldown').Plugin[]
   sourcemap?: import('rolldown').OutputOptions['sourcemap']
 }
 
