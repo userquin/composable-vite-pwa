@@ -10,7 +10,7 @@ export const VIRTUAL_MODULES_MAP: Record<string, string> = {
   'virtual:pwa-register/solid': 'solid',
 }
 export const VIRTUAL_MODULES_RESOLVE_PREFIX = '/@unplugin-pwa/'
-export const VIRTUAL_MODULES = Object.keys(VIRTUAL_MODULES_MAP)
+export const VIRTUAL_MODULES = /* @__PURE__ */ Object.keys(VIRTUAL_MODULES_MAP)
 
 export const PWA_INFO_VIRTUAL = 'virtual:pwa-info'
 export const RESOLVED_PWA_INFO_VIRTUAL = `\0${PWA_INFO_VIRTUAL}`
