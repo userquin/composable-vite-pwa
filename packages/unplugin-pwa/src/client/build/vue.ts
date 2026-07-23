@@ -12,6 +12,8 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
     onOfflineReady,
     onRegisteredSW,
     onRegisterError,
+    trustedScriptUrl,
+    updateViaCache,
   } = options
 
   const needRefresh = shallowRef(false)
@@ -19,6 +21,8 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
 
   registerSW({
     immediate,
+    trustedScriptUrl,
+    updateViaCache,
     onNeedReload,
     onNeedRefresh() {
       needRefresh.value = true

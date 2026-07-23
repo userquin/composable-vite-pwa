@@ -17,6 +17,8 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
     onOfflineReady,
     onRegisteredSW,
     onRegisterError,
+    trustedScriptUrl,
+    updateViaCache,
   } = options
 
   const [needRefresh, setNeedRefresh] = useState(false)
@@ -24,6 +26,8 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
 
   registerSW({
     immediate,
+    trustedScriptUrl,
+    updateViaCache,
     onNeedReload,
     onOfflineReady() {
       setOfflineReady(true)
