@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { findPackageJSON } from 'node:module'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
-import semver from 'semver'
+import { getMajor, isGreaterOrEqual } from 'verkit'
 
 const base = pathToFileURL(`${process.cwd()}/`).href
 
@@ -27,7 +27,7 @@ export async function detectRolldown(): Promise<boolean | undefined> {
     if (!version) {
       return false
     }
-    return semver.major(version) >= 1
+    return getMajor(version) >= 1
   }
   catch { return undefined }
 }
@@ -38,7 +38,7 @@ export async function detectMagicast(): Promise<boolean | undefined> {
     if (!version) {
       return false
     }
-    return semver.gte(version, '0.5.0')
+    return isGreaterOrEqual(version, '0.5.0')
   }
   catch { return undefined }
 }
@@ -49,7 +49,7 @@ export async function detectVite(): Promise<boolean | undefined> {
     if (!version) {
       return false
     }
-    return semver.major(version) >= 8
+    return getMajor(version) >= 8
   }
   catch { return undefined }
 }
@@ -59,7 +59,7 @@ export async function detectViteEnvironmentApi(): Promise<boolean | undefined> {
     if (!version) {
       return false
     }
-    return semver.major(version) >= 6
+    return getMajor(version) >= 6
   }
   catch { return undefined }
 }
@@ -112,7 +112,7 @@ export function includeRolldownOxcPlugin() {
     if (!version) {
       return true
     }
-    return semver.lt(version, '1.1.2')
+    return isGreaterOrEqual('1.1.2', version)
   }
   catch {
     return false

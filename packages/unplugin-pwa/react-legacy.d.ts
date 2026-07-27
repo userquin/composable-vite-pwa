@@ -1,4 +1,4 @@
-declare module 'virtual:pwa-register/react' {
+declare module 'virtual:pwa-register/react-legacy' {
   import type { PWATrustedScriptURL, RegisterSWOptions } from '@composable-vite-pwa/unplugin-pwa/types'
   // eslint-disable-next-line ts/ban-ts-comment
   // @ts-ignore ignore when react is not installed

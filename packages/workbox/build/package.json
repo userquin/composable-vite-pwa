@@ -188,14 +188,13 @@
     "magic-string": "catalog:utils",
     "picocolors": "catalog:utils",
     "proper-tags": "catalog:utils",
-    "semver": "catalog:utils",
     "serialize-javascript": "catalog:utils",
     "tinyglobby": "catalog:utils",
-    "valibot": "catalog:utils"
+    "valibot": "catalog:utils",
+    "verkit": "catalog:utils"
   },
   "devDependencies": {
     "@rspack/core": "catalog:rspack",
-    "@types/semver": "catalog:types",
     "@types/serialize-javascript": "catalog:types",
     "@types/webpack": "catalog:types",
     "dotenv-expand": "catalog:utils",

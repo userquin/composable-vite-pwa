@@ -19,7 +19,7 @@ import {
   createResolver,
 } from '@nuxt/kit'
 import { resolve } from 'pathe'
-import semver from 'semver'
+import { isGreaterOrEqual } from 'verkit'
 import { buildPwaAssets } from './build-pwa-assets'
 import { prepareResolvedPwaOptions } from './prepare-resolved-pwa-options'
 import { prepareBuildSwNames } from './prepare-sw-names'
@@ -225,7 +225,7 @@ export async function prepareModule<
   await ctx.nuxt.prepareNuxtOptions()
 
   if (!nuxt.options.dev) {
-    if (semver.gte(ctx.nuxt.nuxtVersion, '3.8.0')) {
+    if (isGreaterOrEqual(ctx.nuxt.nuxtVersion, '3.8.0')) {
       // nuxt 5 should use nitro 'vite:before:compile' hook and maybe this hook is wrong
       // nuxt 5 has this new option experimental.nitroViteEnvironment to enable nitro/vite (v3)
       // maybe we even need a new hook at nitro v3

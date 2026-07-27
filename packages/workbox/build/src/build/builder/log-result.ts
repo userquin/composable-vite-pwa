@@ -30,13 +30,13 @@ export function logPWAWorkboxResult(
 
   const currentBundlerLogLevel = bundlersLogLevel[bundler] || 'info'
 
+  console.info(`\n${pc.cyan(pc.bold(`Vite PWA v${version} [${BundlerNames[bundler]}]`))}`)
+  console.info(`${pc.dim('strategy')}  ${pc.magenta(strategy)}`)
+
+  // Precaching Summary
+  console.info(`${pc.dim('precache')}  ${pc.green(`${count} entries`)} ${pc.dim(`(${(size / 1024).toFixed(2)} KiB)`)}`)
+
   if (currentBundlerLogLevel !== 'info' && currentBundlerLogLevel !== 'debug') {
-    console.info(`\n${pc.cyan(pc.bold(`Vite PWA v${version} [${BundlerNames[bundler]}]`))}`)
-    console.info(`${pc.dim('strategy')}  ${pc.magenta(strategy)}`)
-
-    // Precaching Summary
-    console.info(`${pc.dim('precache')}  ${pc.green(`${count} entries`)} ${pc.dim(`(${(size / 1024).toFixed(2)} KiB)`)}`)
-
     // Files generated table
     console.info(`\n${pc.green('✓')} files generated:`)
 

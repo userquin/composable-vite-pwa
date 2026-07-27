@@ -22,6 +22,7 @@
 		"svelte": "catalog:sveltekit2",
 		"svelte-check": "catalog:sveltekit2",
 		"typescript": "catalog:typescript",
+		"verkit": "catalog:utils",
 		"vite": "catalog:vite",
 		"vite-plugin-inspect": "catalog:vite-plugin-inspect"
 	}
