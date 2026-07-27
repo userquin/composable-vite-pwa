@@ -8,7 +8,7 @@ import { promises as fs } from 'node:fs'
 import { lstat } from 'node:fs/promises'
 import { createResolver } from '@nuxt/kit'
 import { resolve } from 'pathe'
-import semver from 'semver'
+import { isGreaterOrEqual } from 'verkit'
 
 export async function prepareResolvedPwaOptions<
   B extends Bundler,
@@ -118,7 +118,7 @@ export async function prepareResolvedPwaOptions<
 
   // handle Nuxt App Manifest
   let appManifestFolder: string | undefined
-  if (semver.gte(ctx.nuxt.nuxtVersion, '3.8.0') && nuxt.options.experimental.appManifest) {
+  if (isGreaterOrEqual(ctx.nuxt.nuxtVersion, '3.8.0') && nuxt.options.experimental.appManifest) {
     config.globPatterns = config.globPatterns ?? []
     appManifestFolder = `${buildAssetsDir}builds/`
     config.globPatterns.push(`${appManifestFolder}**/*.json`)
