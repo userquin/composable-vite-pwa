@@ -14,6 +14,7 @@
     "@composable-vite-pwa/workbox-build": "workspace:*",
     "nuxt": "catalog:nuxt4",
     "rolldown": "catalog:utils",
+    "verkit": "catalog:utils",
     "vite": "catalog:vite",
     "vue": "catalog:vue",
     "vue-router": "catalog:nuxt4"

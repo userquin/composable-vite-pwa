@@ -41,7 +41,7 @@ import {
 } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
 import { VERSION } from '@sveltejs/kit'
 import { sveltekit } from '@sveltejs/kit/vite'
-import semver from 'semver'
+import { getMajor } from 'verkit'
 
 export interface KitOptions {
   /**
@@ -156,7 +156,7 @@ function createSvelteKitPWAContext<
   config: SvelteKitConfig = {},
   options: Partial<SvelteKitPWAOptions<UserStrategy, T>> = {},
 ): SvelteKitPWAContext<UserStrategy, T> {
-  const envApi = semver.major(VERSION) > 2
+  const envApi = getMajor(VERSION) > 2
   const { kit, ...rest } = options || {}
   const ctx = Object.assign(
     createVitePWAContext(envApi, rest),

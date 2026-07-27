@@ -6,7 +6,7 @@ import type { NuxtPWAContext } from './internal-types'
 import type { PwaModuleOptions } from './types'
 import { getNuxtVersion } from '@nuxt/kit'
 import pc from 'picocolors'
-import semver from 'semver'
+import { getMajor } from 'verkit'
 
 export async function createNuxtPwaContext<
   B extends Bundler,
@@ -27,7 +27,7 @@ export async function createNuxtPwaContext<
   }
 
   if (nuxt.options.builder === '@nuxt/vite-builder') {
-    const enableEnvApi = semver.major(nuxtVersion) === 4 && nuxt.options.experimental.viteEnvironmentApi
+    const enableEnvApi = getMajor(nuxtVersion) === 4 && nuxt.options.experimental.viteEnvironmentApi
     if (enableEnvApi) {
       console.log(
         await Promise.all([
@@ -40,7 +40,7 @@ export async function createNuxtPwaContext<
         ]),
       )
     }
-    if (semver.major(nuxtVersion) >= 5 || enableEnvApi) {
+    if (getMajor(nuxtVersion) >= 5 || enableEnvApi) {
       return await import('./builders/vite/create-vite-nuxt-pwa-context').then(({
         createViteNuxtPwaContext,
       }) => createViteNuxtPwaContext(
