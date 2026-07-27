@@ -12,7 +12,6 @@ import {
 import {
   DevAssetsMiddlewarePlugin,
 } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-pwa-assets-middleware'
-import { DevtoolsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/devtools'
 import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/info'
 import { InspectorPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/inspector'
 import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
@@ -39,6 +38,10 @@ export function LegacySvelteKitPWA<
     options,
   )
 
+  if (ctx.consumerOptions.devOptions?.inspector === 'vite-devtools') {
+    ctx.consumerOptions.devOptions.inspector = 'standalone'
+  }
+
   return [
     LegacySvelteKitMainPlugin(ctx),
     MainPlugin(ctx),
@@ -50,7 +53,6 @@ export function LegacySvelteKitPWA<
     BuildRegisterSWPlugin(ctx),
     SvelteKitBuildPlugin(ctx),
     LegacySvelteKitBuildPlugin(ctx),
-    DevtoolsPlugin(ctx),
     InspectorPlugin(ctx),
   ]
 }
