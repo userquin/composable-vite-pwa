@@ -1,0 +1,4 @@
+// place files you want to import through the `$lib` alias in this folder.
+import ReloadPrompt from './components/ReloadPrompt.svelte'
+
+export { ReloadPrompt }

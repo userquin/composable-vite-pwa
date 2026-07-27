@@ -10,5 +10,6 @@ export function useRegisterSW(_options: RegisterSWOptions = {}) {
   return {
     needRefresh,
     offlineReady,
+    updateServiceWorker: () => Promise.resolve(),
   }
 }

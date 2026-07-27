@@ -1,0 +1,45 @@
+{
+  "name": "unplugin-pwa-sveltekit2-legacy",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "sw-dev": "vite dev",
+    "dev": "vite dev",
+    "dev-generate": "GENERATE_SW=true vite dev",
+    "dev-generate-suppress-w": "GENERATE_SW=true SUPPRESS_WARNING=true vite dev",
+    "build-generate-sw": "GENERATE_SW=true vite build",
+    "build-generate-sw-node": "NODE_ADAPTER=true GENERATE_SW=true vite build",
+    "build-inject-manifest": "vite build",
+    "build-inject-manifest-node": "NODE_ADAPTER=true vite build",
+    "build-self-destroying": "SELF_DESTROYING_SW=true vite build",
+    "preview": "vite preview --port=4173",
+    "preview-node": "PORT=4173 node build",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "lint": "eslint .",
+    "lint-fix": "nr lint --fix"
+  },
+  "dependencies": {
+    "@fontsource/fira-mono": "5.0.8"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/sveltekit": "workspace:*",
+    "@sveltejs/adapter-node": "catalog:sveltekit2legacy",
+    "@sveltejs/adapter-static": "catalog:sveltekit2legacy",
+    "@sveltejs/kit": "catalog:sveltekit2legacy",
+    "@sveltejs/vite-plugin-svelte": "3.0.1",
+    "@types/cookie": "^0.6.0",
+    "@typescript-eslint/eslint-plugin": "6.14.0",
+    "@typescript-eslint/parser": "6.14.0",
+    "magic-string": "catalog:utils",
+    "magicast": "catalog:utils",
+    "rolldown": "catalog:utils",
+    "svelte": "catalog:sveltekit2legacy",
+    "svelte-check": "catalog:sveltekit2legacy",
+    "tslib": "2.8.1",
+    "typescript": "5.6.3",
+    "vite": "catalog:vite5",
+    "vite-plugin-inspect": "catalog:vite-plugin-inspect-ancient"
+  }
+}

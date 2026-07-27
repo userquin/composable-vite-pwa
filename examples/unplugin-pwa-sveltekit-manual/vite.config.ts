@@ -1,11 +1,12 @@
 import type { Plugin } from 'vite'
 import process from 'node:process'
+// import { withPwa } from './sveltekit-pwa-integration.ts'
+import { withPwa } from '@composable-vite-pwa/sveltekit'
 import AdapterNode from '@sveltejs/adapter-node'
 import AdpaterStatic from '@sveltejs/adapter-static'
 import { DevTools } from '@vitejs/devtools'
 import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
-import { withPwa } from './sveltekit-pwa-integration.ts'
 
 export const staticAdapter = process.env.STATIC_ADAPTER === 'true'
 
