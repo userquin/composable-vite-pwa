@@ -15,7 +15,15 @@ export function registerSW(options: RegisterSWOptions = {}) {
   } = options
 
   let wb: import('@composable-vite-pwa/workbox-window').Workbox | undefined
+  let registerPromise: Promise<void>
+  let sendSkipWaitingMessage: () => void | undefined
 
+  const updateServiceWorker = async () => {
+    await registerPromise
+    if (!import.meta.PWA_SW_AUTO_UPDATE) {
+      sendSkipWaitingMessage?.()
+    }
+  }
   let useSWURL: string | TrustedScriptURL = import.meta.PWA_SW_URL
   let useSWType = import.meta.PWA_SW_TYPE
 
@@ -64,8 +72,17 @@ export function registerSW(options: RegisterSWOptions = {}) {
         return undefined
       })
 
-      if (!wb)
+      if (!wb) {
         return
+      }
+
+      sendSkipWaitingMessage = () => {
+        // Send a message to the waiting service worker,
+        // instructing it to activate.
+        // Note: for this to work, you have to add a message
+        // listener in your service worker. See below.
+        wb?.messageSkipWaiting()
+      }
 
       if (!import.meta.PWA_SELF_DESTROYING_SW) {
         if (import.meta.PWA_SW_AUTO_UPDATE) {
@@ -140,5 +157,7 @@ export function registerSW(options: RegisterSWOptions = {}) {
     }
   }
 
-  register().then(() => {})
+  registerPromise = register()
+
+  return updateServiceWorker
 }

@@ -7,7 +7,7 @@ declare module 'virtual:pwa-register' {
    * Registers the service worker returning a callback to reload the current page when an update is found.
    *
    * @param options the options to register the service worker.
-   * @return () => void.
+   * @return The callback to activate the new service worker.
    */
-  export function registerSW(options?: RegisterSWOptions): () => void
+  export function registerSW(options?: RegisterSWOptions): () => Promise<void>
 }

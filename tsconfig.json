@@ -17,6 +17,12 @@
       "@composable-vite-pwa/astro/types": [
         "./packages/astro/src/types.ts"
       ],
+      "@composable-vite-pwa/sveltekit": [
+        "./packages/sveltekit/src/index.ts"
+      ],
+      "@composable-vite-pwa/sveltekit/*": [
+        "./packages/sveltekit/src/*.ts"
+      ],
       "@composable-vite-pwa/vitepress": [
         "./packages/vitepress/src/index.ts"
       ],

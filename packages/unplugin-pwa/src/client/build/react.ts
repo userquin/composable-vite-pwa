@@ -4,6 +4,8 @@ import { registerSW } from './register'
 
 export type { RegisterSWOptions }
 
+type UpdateServiceWorker = ReturnType<typeof registerSW>
+
 export function useRegisterSW(options: RegisterSWOptions = {}) {
   const {
     immediate = true,
@@ -20,6 +22,13 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
   const [offlineReady, setOfflineReady] = useState(false)
 
   const registered = useRef(false)
+  const updateServiceWorkerRef = useRef<UpdateServiceWorker>(undefined)
+
+  const [updateServiceWorker] = useState<UpdateServiceWorker>(() => {
+    return async (...args) => {
+      await updateServiceWorkerRef.current?.(...args)
+    }
+  })
 
   useEffect(() => {
     if (registered.current) {
@@ -27,8 +36,7 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
     }
 
     registered.current = true
-
-    registerSW({
+    updateServiceWorkerRef.current = registerSW({
       immediate,
       trustedScriptUrl,
       updateViaCache,
@@ -49,5 +57,6 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
   return {
     needRefresh: [needRefresh, setNeedRefresh],
     offlineReady: [offlineReady, setOfflineReady],
+    updateServiceWorker,
   }
 }

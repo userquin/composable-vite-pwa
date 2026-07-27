@@ -19,7 +19,7 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
   const needRefresh = shallowRef(false)
   const offlineReady = shallowRef(false)
 
-  registerSW({
+  const updateServiceWorker = registerSW({
     immediate,
     trustedScriptUrl,
     updateViaCache,
@@ -39,5 +39,6 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
   return {
     offlineReady,
     needRefresh,
+    updateServiceWorker,
   }
 }

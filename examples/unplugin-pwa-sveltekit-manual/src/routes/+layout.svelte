@@ -1,5 +1,5 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '#lib/assets/favicon.svg';
 	// import { browser, dev } from '$app/environment'
 	import { pwaInfo } from 'virtual:pwa-info'
 	// import { onMount } from 'svelte';
@@ -39,6 +39,6 @@
 
 {@render children()}
 
-{#await import('$lib') then { ReloadPrompt: ReloadPrompt } }
+{#await import('#lib') then { ReloadPrompt: ReloadPrompt } }
 	<ReloadPrompt />
 {/await}
