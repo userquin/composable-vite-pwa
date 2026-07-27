@@ -45,7 +45,7 @@ function replaceImportsWithGlobalVars(
   let varDeclaration: string
 
   const importRegex = new RegExp(
-    `import\\s+\\{([^}]+)\\}\\s+from\\s+['"]\\.\\/${importName}['"]`,
+    `import\\s?\\{([^}]+)\\}\\s?from\\s?['"]\\.\\/${importName}['"]`,
     'g',
   )
 
@@ -53,10 +53,9 @@ function replaceImportsWithGlobalVars(
   while ((match = importRegex.exec(code)) !== null) {
     const [fullMatch, imports] = match
 
-    const cleanImports = imports.split(',').map((i) => {
-      const parts = i.trim().split(/\s+as\s+/)
-      return parts.length > 1 ? parts[1].trim() : parts[0].trim()
-    }).join(', ')
+    const cleanImports = imports.split(',')
+      .map(part => part.trim().replace(asRegexp, ': '))
+      .join(', ')
 
     let chunkName = customChunksInfo.importedFileChunks.get(importName)
     if (!chunkName) {
@@ -136,7 +135,16 @@ export async function transformClassicChunk(
       throw new Error(`${name} chunk has more than 1 export, which is not supported in classic mode.`)
     }
     const [fullMatch, content] = match
-    const members = content.split(',').map(e => e.trim().split(asRegexp)[0].trim()).join(', ')
+    // const members = content.split(',').map(e => e.trim().split(asRegexp)[0].trim()).join(', ')
+    const members = content.split(',')
+      .map((part) => {
+        const tokens = part.trim().split(asRegexp)
+        if (tokens.length === 2) {
+          return `${tokens[1]}: ${tokens[0]}`
+        }
+        return part
+      })
+      .join(', ')
 
     // replace the export with the assigment
     const replacement = `\nself.workbox = self.workbox || {};\nself.workbox.${useName} = { ${members} };`

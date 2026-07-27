@@ -127,7 +127,7 @@ async function prepareGenerateSW<
 
   return {
     // prevent build error
-    globStrict: true,
+    globStrict: false,
     navigateFallbackAllowlist: internalDevOptions.navigateFallbackAllowlist ?? [/^\/$/],
     runtimeCaching: ctx.resolvedOptions.devOptions?.disableRuntimeConfig ? undefined : options.runtimeCaching,
     // we only include navigateFallback: add revision to remove workbox-build warning
@@ -161,7 +161,7 @@ async function prepareInjectManifest<
 
   return {
     // prevent build error
-    globStrict: true,
+    globStrict: false,
     globDirectory,
     additionalManifestEntries: [{
       url: ctx.resolvedOptions.devOptions?.navigateFallback || 'index.html',
@@ -189,7 +189,7 @@ async function prepareBuildSW<
 
   return {
     // prevent build error
-    globStrict: true,
+    globStrict: false,
     globDirectory,
     additionalManifestEntries: [{
       url: ctx.resolvedOptions.devOptions?.navigateFallback || 'index.html',

@@ -43,7 +43,7 @@ export function pwaAssetsResolver<
     if (ctx.devEnvironment) {
       if (ctx.bundler === 'vite' && ctx.inspectorRequiresViteDevtools && ctx.resolvedOptions.devOptions?.inspector === 'vite-devtools') {
         code += `
-if (import.meta.env.DEV) {
+if (typeof window !== 'undefined' && import.meta.env.DEV) {
   import('@vitejs/devtools/client/inject').then(({ init }) => init());
 }
 `

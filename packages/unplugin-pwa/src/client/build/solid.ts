@@ -19,7 +19,7 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
   const [needRefresh, setNeedRefresh] = createSignal(false)
   const [offlineReady, setOfflineReady] = createSignal(false)
 
-  registerSW({
+  const updateServiceWorker = registerSW({
     immediate,
     trustedScriptUrl,
     updateViaCache,
@@ -39,5 +39,6 @@ export function useRegisterSW(options: RegisterSWOptions = {}) {
   return {
     needRefresh: [needRefresh, setNeedRefresh],
     offlineReady: [offlineReady, setOfflineReady],
+    updateServiceWorker,
   }
 }

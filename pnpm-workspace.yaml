@@ -28,6 +28,7 @@ packages:
   - examples/**
   - packages/astro/**
   - packages/react-router/**
+  - packages/sveltekit/**
   - packages/tanstack/**
   - packages/unplugin-pwa/**
   - packages/vitepress/**
@@ -46,6 +47,7 @@ patchedDependencies:
 allowBuilds:
   '@parcel/watcher': false
   '@sentry/cli': true
+  '@sveltejs/kit': true
   core-js: false
   esbuild: false
   sharp: true
@@ -111,6 +113,12 @@ catalogs:
     solid-js: ^1.9.12
   svelte:
     svelte: ^5.55.0
+  sveltekit2legacy:
+    '@sveltejs/adapter-node': 2.0.0
+    '@sveltejs/adapter-static': 3.0.0
+    '@sveltejs/kit': 2.7.4
+    svelte: 5.1.9
+    svelte-check: 4.0.5
   sveltekit2:
     '@sveltejs/adapter-node': ^5.5.7
     '@sveltejs/adapter-static': ^3.0.10
@@ -118,6 +126,13 @@ catalogs:
     '@sveltejs/vite-plugin-svelte': ^7.1.2
     svelte: ^5.56.1
     svelte-check: ^4.6.0
+  sveltekit3:
+    '@sveltejs/adapter-node': 6.0.0-next.6
+    '@sveltejs/adapter-static': 4.0.0-next.1
+    '@sveltejs/kit': 3.0.0-next.12
+    '@sveltejs/vite-plugin-svelte': 7.2.0
+    svelte: 5.56.8
+    svelte-check: 4.7.3
   tanstackreact:
     # deps
     '@tanstack/react-devtools': ^0.10.8

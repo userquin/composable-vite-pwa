@@ -4,29 +4,30 @@ declare global {
   }
 }
 
-window.setDevPWASwitcherReady = () => {}
-if (import.meta.hot && import.meta.PWA_ESM_FALLBACK_SW) {
-  // 1. Create the host and attach Shadow DOM to isolate styles
-  const host = document.createElement('div')
-  host.setAttribute('id', 'vite-pwa-ui-switcher')
-  const shadow = host.attachShadow({ mode: 'open' })
+if (typeof window !== 'undefined') {
+  window.setDevPWASwitcherReady = () => {}
+  if (import.meta.hot && import.meta.PWA_ESM_FALLBACK_SW) {
+    // 1. Create the host and attach Shadow DOM to isolate styles
+    const host = document.createElement('div')
+    host.setAttribute('id', 'vite-pwa-ui-switcher')
+    const shadow = host.attachShadow({ mode: 'open' })
 
-  const button = document.createElement('button')
-  button.className = 'pwa-switcher'
+    const button = document.createElement('button')
+    button.className = 'pwa-switcher'
 
-  let isPWASwitcherReady = false
-  window.setDevPWASwitcherReady = () => {
-    if (!isPWASwitcherReady) {
-      isPWASwitcherReady = true
-      button.classList.add('ready')
-      // eslint-disable-next-line no-console
-      console.log(`[Vite PWA] Switcher UI is now ready.`)
+    let isPWASwitcherReady = false
+    window.setDevPWASwitcherReady = () => {
+      if (!isPWASwitcherReady) {
+        isPWASwitcherReady = true
+        button.classList.add('ready')
+        // eslint-disable-next-line no-console
+        console.log(`[Vite PWA] Switcher UI is now ready.`)
+      }
     }
-  }
 
-  // 2. Setup styles
-  const style = document.createElement('style')
-  style.textContent = `
+    // 2. Setup styles
+    const style = document.createElement('style')
+    style.textContent = `
     .pwa-switcher {
       /* --- LIGHT THEME (Backgrounds are DARK) --- */
       --pwa-bg: #006d44;       
@@ -281,11 +282,11 @@ if (import.meta.hot && import.meta.PWA_ESM_FALLBACK_SW) {
     }
   `
 
-  // 3. Mount content
-  const currentType = import.meta.PWA_DEV_CURRENT_SW_TYPE
-  const nextType = currentType === 'classic' ? 'module' : 'classic'
+    // 3. Mount content
+    const currentType = import.meta.PWA_DEV_CURRENT_SW_TYPE
+    const nextType = currentType === 'classic' ? 'module' : 'classic'
 
-  button.innerHTML = `
+    button.innerHTML = `
     <div class="icon-container">
       <svg class="brand-logo" viewBox="0 0 155 155" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M50.6853 104.345C48.3909 100.398 46.0047 96.3602 43.7103 92.4138C43.5268 92.1385 43.435 91.8632 43.5267 91.4043C45.8211 84.4293 48.1155 77.3626 50.4099 70.3876C50.4099 70.2959 50.5017 70.1123 50.5935 69.837C53.255 75.0682 55.8247 80.2076 58.4862 85.4389C58.6697 85.0717 58.7615 84.7964 58.8533 84.5211C62.4326 73.508 66.0118 62.5867 69.5911 51.5736C69.7746 51.1147 69.9582 50.9312 70.417 51.0229C73.6292 51.0229 76.8413 51.0229 80.1453 51.0229C80.6959 51.0229 80.8795 51.2065 81.063 51.6654C84.367 62.5867 87.6709 73.4162 90.9748 84.3375C91.0666 84.6129 91.1584 84.98 91.3419 85.4389C91.8008 84.5211 92.1679 83.6033 92.4432 82.7774C96.9402 72.3149 101.345 61.9443 105.842 51.4818C105.934 51.2065 106.026 51.0229 106.393 51.0229C110.982 51.0229 115.571 51.0229 120.068 51.0229C120.068 51.0229 120.16 51.0229 120.251 51.0229C119.701 52.3078 119.242 53.5009 118.783 54.7857C112.175 71.0301 105.659 87.3661 99.0511 103.61C98.9593 103.794 98.7757 103.978 98.8675 104.253C94.0952 104.253 89.3229 104.253 84.5505 104.253C84.6423 104.069 84.5505 103.794 84.4587 103.61C84.0916 102.417 83.7245 101.224 83.3574 100.031C80.6042 91.3125 77.9426 82.6856 75.1894 73.9669C75.1894 73.7833 75.1894 73.5998 74.9141 73.508C71.5184 83.6951 68.2144 93.974 64.8187 104.161C60.0464 104.345 55.3658 104.345 50.6853 104.345Z" fill="var(--pwa-logo-w)"/>
@@ -316,258 +317,259 @@ if (import.meta.hot && import.meta.PWA_ESM_FALLBACK_SW) {
     </div>
   `
 
-  if (currentType === 'module') {
-    button.classList.add('is-module')
-  }
-
-  // --- LOGIC ---
-  let hasDragged = false
-  let loading = false
-  let isHovered = false
-  let isFocused = false
-  let startX = 0
-  let startY = 0
-  let initialLeft = 0
-  let initialTop = 0
-  let idleTimeout: ReturnType<typeof setTimeout>
-
-  // We separate the physical state of the network from the HMR state
-  let isOnline = navigator.onLine ?? true
-  let isHMRConnected = true // By default we assume it starts connected
-
-  // Single source of truth to know if the component is 100% operational
-  const isConnected = () => isOnline && isHMRConnected
-
-  const STORAGE_KEY = 'unplugin-pwa-switcher-pos'
-  const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val))
-
-  const savePosition = () => {
-    if (button.style.left && button.style.left !== 'auto') {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        x: Number.parseFloat(button.style.left),
-        y: Number.parseFloat(button.style.top),
-      }))
+    if (currentType === 'module') {
+      button.classList.add('is-module')
     }
-  }
 
-  const restorePosition = () => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      try {
-        const { x, y } = JSON.parse(saved)
-        button.style.left = `${x}px`
-        button.style.top = `${y}px`
-        button.style.bottom = 'auto'
-        button.style.right = 'auto'
-      }
-      catch {
-        // Silently ignore corrupted local storage data
+    // --- LOGIC ---
+    let hasDragged = false
+    let loading = false
+    let isHovered = false
+    let isFocused = false
+    let startX = 0
+    let startY = 0
+    let initialLeft = 0
+    let initialTop = 0
+    let idleTimeout: ReturnType<typeof setTimeout>
+
+    // We separate the physical state of the network from the HMR state
+    let isOnline = navigator.onLine ?? true
+    let isHMRConnected = true // By default we assume it starts connected
+
+    // Single source of truth to know if the component is 100% operational
+    const isConnected = () => isOnline && isHMRConnected
+
+    const STORAGE_KEY = 'unplugin-pwa-switcher-pos'
+    const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val))
+
+    const savePosition = () => {
+      if (button.style.left && button.style.left !== 'auto') {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          x: Number.parseFloat(button.style.left),
+          y: Number.parseFloat(button.style.top),
+        }))
       }
     }
-  }
 
-  const checkBounds = () => {
-    if (button.style.left && button.style.left !== 'auto') {
-      const currentLeft = Number.parseFloat(button.style.left)
-      const currentTop = Number.parseFloat(button.style.top)
+    const restorePosition = () => {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        try {
+          const { x, y } = JSON.parse(saved)
+          button.style.left = `${x}px`
+          button.style.top = `${y}px`
+          button.style.bottom = 'auto'
+          button.style.right = 'auto'
+        }
+        catch {
+          // Silently ignore corrupted local storage data
+        }
+      }
+    }
+
+    const checkBounds = () => {
+      if (button.style.left && button.style.left !== 'auto') {
+        const currentLeft = Number.parseFloat(button.style.left)
+        const currentTop = Number.parseFloat(button.style.top)
+
+        const maxX = document.documentElement.clientWidth - button.offsetWidth
+        const maxY = document.documentElement.clientHeight - button.offsetHeight
+
+        const newLeft = clamp(currentLeft, 0, maxX)
+        const newTop = clamp(currentTop, 0, Math.max(0, maxY))
+
+        button.style.left = `${newLeft}px`
+        button.style.top = `${newTop}px`
+
+        savePosition()
+      }
+    }
+
+    const setIdle = (idle: boolean) => {
+      if (idle) {
+        button.classList.add('is-idle')
+      }
+      else {
+        button.classList.remove('is-idle')
+      }
+    }
+
+    const startIdleTimer = () => {
+      clearTimeout(idleTimeout)
+      setIdle(false)
+      if (!isHovered && !isFocused && !loading && isConnected()) {
+        idleTimeout = setTimeout(() => {
+          setIdle(true)
+        }, 3000)
+      }
+    }
+
+    // State machine for the Connection
+    function checkConnection() {
+      if (!isConnected()) {
+        button.classList.add('is-offline')
+        button.classList.remove('is-idle')
+        clearTimeout(idleTimeout)
+      }
+      else {
+        button.classList.remove('is-offline')
+        if (isPWASwitcherReady) {
+          startIdleTimer()
+        }
+      }
+    }
+
+    window.addEventListener('resize', checkBounds)
+
+    button.addEventListener('mouseenter', () => {
+      isHovered = true
+      setIdle(false)
+      clearTimeout(idleTimeout)
+    })
+
+    button.addEventListener('mouseleave', () => {
+      isHovered = false
+      startIdleTimer()
+    })
+
+    button.addEventListener('focus', () => {
+      isFocused = true
+      setIdle(false)
+      clearTimeout(idleTimeout)
+    })
+
+    button.addEventListener('blur', () => {
+      isFocused = false
+      startIdleTimer()
+    })
+
+    const onMouseMove = (e: MouseEvent | PointerEvent) => {
+      const dx = e.clientX - startX
+      const dy = e.clientY - startY
+
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+        hasDragged = true
+      }
+
+      const newLeft = initialLeft + dx
+      const newTop = initialTop + dy
 
       const maxX = document.documentElement.clientWidth - button.offsetWidth
       const maxY = document.documentElement.clientHeight - button.offsetHeight
 
-      const newLeft = clamp(currentLeft, 0, maxX)
-      const newTop = clamp(currentTop, 0, Math.max(0, maxY))
+      button.style.left = `${clamp(newLeft, 0, maxX)}px`
+      button.style.top = `${clamp(newTop, 0, maxY)}px`
+    }
 
-      button.style.left = `${newLeft}px`
-      button.style.top = `${newTop}px`
+    const onMouseUp = () => {
+      button.style.transition = 'all 0.4s ease, background-color 0.3s ease, color 0.3s ease'
+
+      document.documentElement.style.removeProperty('cursor')
+      button.style.cursor = ''
+
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
 
       savePosition()
     }
-  }
 
-  const setIdle = (idle: boolean) => {
-    if (idle) {
-      button.classList.add('is-idle')
-    }
-    else {
-      button.classList.remove('is-idle')
-    }
-  }
+    button.addEventListener('mousedown', (e) => {
+      hasDragged = false
+      startX = e.clientX
+      startY = e.clientY
 
-  const startIdleTimer = () => {
-    clearTimeout(idleTimeout)
-    setIdle(false)
-    if (!isHovered && !isFocused && !loading && isConnected()) {
-      idleTimeout = setTimeout(() => {
-        setIdle(true)
-      }, 3000)
-    }
-  }
+      document.documentElement.style.setProperty('cursor', 'grabbing', 'important')
+      button.style.cursor = 'grabbing'
 
-  // State machine for the Connection
-  function checkConnection() {
-    if (!isConnected()) {
-      button.classList.add('is-offline')
-      button.classList.remove('is-idle')
+      button.style.transform = 'none'
+      const rect = button.getBoundingClientRect()
+      button.style.transform = ''
+
+      button.style.left = `${rect.left}px`
+      button.style.top = `${rect.top}px`
+      button.style.bottom = 'auto'
+      button.style.right = 'auto'
+      button.style.transition = 'none'
+
+      initialLeft = rect.left
+      initialTop = rect.top
+
+      window.addEventListener('mousemove', onMouseMove)
+      window.addEventListener('mouseup', onMouseUp)
+    })
+
+    button.addEventListener('click', async (e) => {
+      if (hasDragged || loading || !isConnected()) {
+        e.preventDefault()
+        return
+      }
+
+      loading = true
       clearTimeout(idleTimeout)
-    }
-    else {
-      button.classList.remove('is-offline')
-      if (isPWASwitcherReady) {
+      button.classList.add('is-loading')
+
+      await new Promise(resolve => setTimeout(resolve, 256))
+
+      // eslint-disable-next-line no-console
+      console.log(`[Vite PWA] Switching Service Worker to: ${nextType}...`)
+      try {
+        import.meta.hot!.send(import.meta.PWA_DEV_PWA_SWITCHER_EVENT_NAME, { type: nextType })
+      }
+      catch (e) {
+        console.error(`[Vite PWA] Error switching Service Worker to: ${nextType}...`, e)
+        button.classList.remove('is-loading')
+        loading = false
+        await new Promise(resolve => setTimeout(resolve, 0))
         startIdleTimer()
       }
-    }
+    })
+
+    // Restore the position before mounting to avoid visual jumps
+    restorePosition()
+
+    // Assemble and inject into the document body
+    shadow.appendChild(style)
+    shadow.appendChild(button)
+    document.body.appendChild(host)
+
+    // Ensure bounds are respected upon load
+    requestAnimationFrame(() => {
+      checkBounds()
+    })
+
+    window.addEventListener('online', () => {
+      isOnline = true
+      checkConnection()
+    })
+    window.addEventListener('offline', () => {
+      isOnline = false
+      console.warn('[Vite PWA] Network disconnected')
+      checkConnection()
+    })
+
+    import.meta.hot.on('vite:ws:connect', () => {
+      isHMRConnected = true
+      // eslint-disable-next-line no-console
+      console.info('[Vite PWA] HMR connected')
+      checkConnection()
+    })
+
+    import.meta.hot.on('vite:ws:disconnect', () => {
+      isHMRConnected = false
+      console.warn('[Vite PWA] HMR disconnected')
+      checkConnection()
+    })
+
+    import.meta.hot.on('vite:error', (err) => {
+      console.error(`[Vite PWA] HMR error:`, err)
+      if (loading) {
+        loading = false
+        button.classList.remove('is-loading')
+      }
+      // isHMRConnected = false
+      checkConnection()
+    })
+
+    checkConnection()
   }
-
-  window.addEventListener('resize', checkBounds)
-
-  button.addEventListener('mouseenter', () => {
-    isHovered = true
-    setIdle(false)
-    clearTimeout(idleTimeout)
-  })
-
-  button.addEventListener('mouseleave', () => {
-    isHovered = false
-    startIdleTimer()
-  })
-
-  button.addEventListener('focus', () => {
-    isFocused = true
-    setIdle(false)
-    clearTimeout(idleTimeout)
-  })
-
-  button.addEventListener('blur', () => {
-    isFocused = false
-    startIdleTimer()
-  })
-
-  const onMouseMove = (e: MouseEvent | PointerEvent) => {
-    const dx = e.clientX - startX
-    const dy = e.clientY - startY
-
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
-      hasDragged = true
-    }
-
-    const newLeft = initialLeft + dx
-    const newTop = initialTop + dy
-
-    const maxX = document.documentElement.clientWidth - button.offsetWidth
-    const maxY = document.documentElement.clientHeight - button.offsetHeight
-
-    button.style.left = `${clamp(newLeft, 0, maxX)}px`
-    button.style.top = `${clamp(newTop, 0, maxY)}px`
-  }
-
-  const onMouseUp = () => {
-    button.style.transition = 'all 0.4s ease, background-color 0.3s ease, color 0.3s ease'
-
-    document.documentElement.style.removeProperty('cursor')
-    button.style.cursor = ''
-
-    window.removeEventListener('mousemove', onMouseMove)
-    window.removeEventListener('mouseup', onMouseUp)
-
-    savePosition()
-  }
-
-  button.addEventListener('mousedown', (e) => {
-    hasDragged = false
-    startX = e.clientX
-    startY = e.clientY
-
-    document.documentElement.style.setProperty('cursor', 'grabbing', 'important')
-    button.style.cursor = 'grabbing'
-
-    button.style.transform = 'none'
-    const rect = button.getBoundingClientRect()
-    button.style.transform = ''
-
-    button.style.left = `${rect.left}px`
-    button.style.top = `${rect.top}px`
-    button.style.bottom = 'auto'
-    button.style.right = 'auto'
-    button.style.transition = 'none'
-
-    initialLeft = rect.left
-    initialTop = rect.top
-
-    window.addEventListener('mousemove', onMouseMove)
-    window.addEventListener('mouseup', onMouseUp)
-  })
-
-  button.addEventListener('click', async (e) => {
-    if (hasDragged || loading || !isConnected()) {
-      e.preventDefault()
-      return
-    }
-
-    loading = true
-    clearTimeout(idleTimeout)
-    button.classList.add('is-loading')
-
-    await new Promise(resolve => setTimeout(resolve, 256))
-
-    // eslint-disable-next-line no-console
-    console.log(`[Vite PWA] Switching Service Worker to: ${nextType}...`)
-    try {
-      import.meta.hot!.send(import.meta.PWA_DEV_PWA_SWITCHER_EVENT_NAME, { type: nextType })
-    }
-    catch (e) {
-      console.error(`[Vite PWA] Error switching Service Worker to: ${nextType}...`, e)
-      button.classList.remove('is-loading')
-      loading = false
-      await new Promise(resolve => setTimeout(resolve, 0))
-      startIdleTimer()
-    }
-  })
-
-  // Restore the position before mounting to avoid visual jumps
-  restorePosition()
-
-  // Assemble and inject into the document body
-  shadow.appendChild(style)
-  shadow.appendChild(button)
-  document.body.appendChild(host)
-
-  // Ensure bounds are respected upon load
-  requestAnimationFrame(() => {
-    checkBounds()
-  })
-
-  window.addEventListener('online', () => {
-    isOnline = true
-    checkConnection()
-  })
-  window.addEventListener('offline', () => {
-    isOnline = false
-    console.warn('[Vite PWA] Network disconnected')
-    checkConnection()
-  })
-
-  import.meta.hot.on('vite:ws:connect', () => {
-    isHMRConnected = true
-    // eslint-disable-next-line no-console
-    console.info('[Vite PWA] HMR connected')
-    checkConnection()
-  })
-
-  import.meta.hot.on('vite:ws:disconnect', () => {
-    isHMRConnected = false
-    console.warn('[Vite PWA] HMR disconnected')
-    checkConnection()
-  })
-
-  import.meta.hot.on('vite:error', (err) => {
-    console.error(`[Vite PWA] HMR error:`, err)
-    if (loading) {
-      loading = false
-      button.classList.remove('is-loading')
-    }
-    // isHMRConnected = false
-    checkConnection()
-  })
-
-  checkConnection()
 }
