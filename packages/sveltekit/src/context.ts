@@ -258,6 +258,8 @@ function createPWAConfigurer<
         ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<ExtractStrategy<UserStrategy>, T>
         options = ctx.resolvedOptions.buildSW
         // todo: finish alias, ask sapphi-red
+        // cannot be merged:
+        // sapphi-red: resolve.alias in vite and resolve.alias in rolldown has a different behavior so you cannot merge it
         // add vite/rolldown aliases
         /* if (ctx.bundler === 'vite') {
           const viteOptions = options as import('@composable-vite-pwa/workbox-build/build/vite/types').ServiceWorkerOptions
