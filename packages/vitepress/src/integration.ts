@@ -24,7 +24,7 @@ export function withUserConfig<
   const viteConf = config.vite ??= {}
   const vitePlugins = viteConf.plugins ??= []
 
-  const plugins: import('vite').PluginOption = [
+  vitePlugins.push([
     MainPlugin(ctx),
     InfoPlugin(ctx),
     DevPlugin(ctx),
@@ -35,10 +35,7 @@ export function withUserConfig<
     BuildPwaAssetsPlugin(ctx),
     DevtoolsPlugin(ctx),
     InspectorPlugin(ctx),
-  ]
-
-  // @xts-expect-error TS2345: Argument of type PluginOption[] is not assignable to parameter of type PluginOption
-  vitePlugins.push(plugins)
+  ])
 
   return config
 }

@@ -75,6 +75,8 @@ export async function loadConfiguration<
     deepMergeObject(external, options)
   }
 
+  external.path = normalizePath(configPath)
+
   return external
 }
 
