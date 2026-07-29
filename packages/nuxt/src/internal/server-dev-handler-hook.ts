@@ -17,7 +17,6 @@ export function serverDevHandlerHook<
     const devOptions = ctx.resolvedOptions.devOptions
 
     if (nuxt.options.dev && devOptions && devOptions.inspector) {
-      console.log('nuxt build:done')
       await ctx.hooks.callHook('context:ready')
     }
   }

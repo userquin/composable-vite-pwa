@@ -49,7 +49,7 @@ export async function initPwaConfiguration<
     ctx,
     process.cwd(),
     nuxt.options.dev ? ctx.dev.options.tempFolder : ctx.outDir,
-    // this wont be applied, nitro:init will override it before calling initPwaConfiguration
+    // this won't be applied, nitro:init will override it before calling initPwaConfiguration
     nuxt.options.app.buildAssetsDir ?? '_nuxt/',
   )
 }

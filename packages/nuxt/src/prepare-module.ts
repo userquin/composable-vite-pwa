@@ -5,6 +5,8 @@ import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/typ
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from './internal-types'
+import { resolveDefaultConfig } from '@composable-vite-pwa/unplugin-pwa/node/config'
+import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 import {
   addComponent,
   addPlugin,
@@ -17,7 +19,7 @@ import { nitroConfigHook } from './internal/nitro-config-hook'
 import { nitroInitHook } from './internal/nitro-init-hook'
 import { prepareTypesHook } from './internal/prepare-types-hook'
 import { addPWAIconsPluginTemplate } from './internal/pwa-icons-helper'
-import { serverDevHandlerHook } from './internal/server-dev-handler-hook.ts'
+import { serverDevHandlerHook } from './internal/server-dev-handler-hook'
 
 export async function prepareModule<
   B extends Bundler,
@@ -29,6 +31,28 @@ export async function prepareModule<
   nuxt: Nuxt,
 ) {
   const resolver = ctx.nuxt.moduleResolver
+
+  const consumerOptions = ctx.consumerOptions
+  if (consumerOptions?.path) {
+    // resolve nuxt aliases
+    consumerOptions.path = await resolver.resolvePath(
+      consumerOptions.path,
+      {
+        cwd: nuxt.options.rootDir,
+        alias: nuxt.options.alias,
+      },
+    )
+  }
+  else {
+    // check first for srcDir, then rootDir
+    for (const path of [nuxt.options.srcDir, nuxt.options.rootDir]) {
+      const resolvedPath = resolveDefaultConfig(path)
+      if (resolvedPath) {
+        consumerOptions.path = normalizePath(resolvedPath)
+        break
+      }
+    }
+  }
 
   ctx.base ??= ctx.consumerOptions.base || '/'
   ctx.consumerOptions.base ??= ctx.base

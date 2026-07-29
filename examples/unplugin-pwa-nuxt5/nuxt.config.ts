@@ -14,9 +14,9 @@ export default defineNuxtConfig({
   // experimental: {
   //   viteEnvironmentApi: true,
   // },
-  // pwa: {
-  //   path: '~~/pwa.config.ts',
-  // },
+  pwa: {
+    path: '~~/pwa.config.ts',
+  },
   routeRules: {
     // offline support
     '/': { prerender: true },

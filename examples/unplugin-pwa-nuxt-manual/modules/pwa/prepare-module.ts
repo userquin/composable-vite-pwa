@@ -45,7 +45,13 @@ export async function prepareModule<
   const consumerOptions = ctx.consumerOptions
   if (consumerOptions?.path) {
     // resolve nuxt aliases
-    consumerOptions.path = await resolver.resolvePath(consumerOptions.path)
+    consumerOptions.path = await resolver.resolvePath(
+      consumerOptions.path,
+      {
+        cwd: nuxt.options.rootDir,
+        alias: nuxt.options.alias,
+      },
+    )
   }
   else {
     // check first for srcDir, then rootDir
