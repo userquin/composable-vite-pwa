@@ -1,7 +1,6 @@
 import type { Bundler } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from '../internal-types'
 import {
   INSPECTOR_BASE_PATH,
@@ -15,11 +14,10 @@ export function devtoolsCustomTabsHook<
   NPWAC extends NuxtPWAContext<B, UserStrategy, T>,
 >(
   ctx: NPWAC,
-  nuxt: Nuxt,
 ): import('@nuxt/schema').NuxtHooks['devtools:customTabs'] {
   return (tabs) => {
     // when inspector is vite-devtools, consumer should use nuxt devtools v4
-    if (nuxt.options.dev && ctx.resolvedOptions.devOptions?.inspector === 'standalone') {
+    if (ctx.resolvedOptions.devOptions?.inspector === 'standalone') {
       tabs.push({
         title: 'Vite PWA Inspector',
         name: 'vite-pwa:nuxt:inspector',

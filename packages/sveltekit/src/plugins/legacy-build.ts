@@ -17,6 +17,7 @@ export function LegacySvelteKitBuildPlugin<
     name: 'vite-pwa:sveltekit:build-legacy',
     enforce: 'post',
     apply: 'build',
+    sharedDuringBuild: true,
     closeBundle: {
       sequential: true,
       order: 'pre',

@@ -59,7 +59,7 @@ export async function prepareModule<
   // 3) add PWA types and registers composables
   nuxt.hook('prepare:types', prepareTypesHook<B, UserStrategy, T, NPC>(ctx, runtimeDir))
   // 4) prepare devtools tab: this hook runs between prepare:types and component:extend, cannot use build:before hook
-  nuxt.hook('devtools:customTabs', devtoolsCustomTabsHook<B, UserStrategy, T, NPC>(ctx, nuxt))
+  nuxt.hook('devtools:customTabs', devtoolsCustomTabsHook<B, UserStrategy, T, NPC>(ctx))
   // 5) add PWA components (components:extend)
   addComponent({
     name: 'NuxtPwaAssets',

@@ -3,10 +3,6 @@ import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { Plugin } from 'vite'
 import type { ViteLegacyNuxtPWAContext, ViteNuxtPWAContext } from './internal-types'
-import {
-  INSPECTOR_BASE_PATH,
-  INSPECTOR_BASE_PATH_URL,
-} from '@composable-vite-pwa/unplugin-pwa/node/constants'
 import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
 import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
 import { DevtoolsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/devtools'
@@ -93,26 +89,6 @@ export async function prepareNuxtOptions<
         })),
       })
     }
-  }
-
-  // when inspector is vite-devtools, consumer should use nuxt devtools v4
-  if (nuxt.options.dev && ctx.resolvedOptions.devOptions?.inspector === 'standalone') {
-    // @xts-expect-error missing type
-    nuxt.hook('devtools:customTabs', (tabs) => {
-      tabs.push({
-        title: 'Vite PWA Inspector',
-        name: 'vite-pwa:nuxt:inspector',
-        icon: `${INSPECTOR_BASE_PATH}/icon_gray.svg`,
-        // icon: {
-        //   light: `${INSPECTOR_BASE_PATH}/icon_light.svg`,
-        //   dark: `${INSPECTOR_BASE_PATH}/icon_dark.svg`,
-        // },
-        view: {
-          type: 'iframe',
-          src: INSPECTOR_BASE_PATH_URL,
-        },
-      })
-    })
   }
 
   // @ts-expect-error no idea why cannot infer proper plugin types

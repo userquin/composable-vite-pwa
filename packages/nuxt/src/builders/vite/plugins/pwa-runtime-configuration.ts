@@ -15,6 +15,7 @@ export function PwaRuntimeConfiguration<
   return {
     name: 'vite-pwa:nuxt:runtime-configuration',
     enforce: 'pre',
+    sharedDuringBuild: true,
     applyToEnvironment(environment) {
       return environment.config.consumer === 'client'
     },

@@ -23,6 +23,7 @@ export function MainPlugin<
   return {
     name: 'unplugin-pwa:main',
     enforce: 'pre',
+    sharedDuringBuild: true,
     /* configEnvironment(_name, config) {
       // todo: review returned options here
       if (config.consumer === 'server') {
