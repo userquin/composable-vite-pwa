@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     '@composable-vite-pwa/nuxt': r(`../../packages/nuxt/dist/module.mjs`),
   },
   // experimental: {
-  //   viteEnvironmentApi: true,
+  //   nitroViteEnvironment: true,
   // },
   pwa: {
     path: '~~/pwa.config.ts',

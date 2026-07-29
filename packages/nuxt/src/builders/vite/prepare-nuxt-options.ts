@@ -10,7 +10,7 @@ import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/
 import { InspectorPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/inspector'
 import { MainPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/main'
 import { AssetsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/pwa-assets'
-import { addDevServerHandler, addVitePlugin } from '@nuxt/kit'
+import { /* addDevServerHandler, */addVitePlugin } from '@nuxt/kit'
 import { PwaRuntimeConfiguration } from './plugins/pwa-runtime-configuration'
 
 export async function prepareNuxtOptions<
@@ -22,6 +22,22 @@ export async function prepareNuxtOptions<
 ) {
   if (nuxt.options.dev && ctx.resolvedOptions.devOptions!.enabled) {
     const prefix = `${ctx.base}__skip_vite/`
+    let buildAssetsDir = nuxt.options.app.buildAssetsDir ?? '_nuxt/'
+    if (buildAssetsDir[0] === '/') {
+      buildAssetsDir = buildAssetsDir.slice(1)
+    }
+    if (buildAssetsDir[buildAssetsDir.length - 1] === '/') {
+      buildAssetsDir = buildAssetsDir.slice(0, buildAssetsDir.length - 1)
+    }
+    buildAssetsDir = `${ctx.base}${buildAssetsDir}`
+    // we don't know sw deps names, only sw names
+    // unplugin-pwa dev middleware receiving /_nuxt/workbox-classic-xxxx.js.map
+    ctx.dev.options.mapSWSourcemapFile = (url) => {
+      if (!url.startsWith(buildAssetsDir)) {
+        return undefined
+      }
+      return url.slice(buildAssetsDir.length)
+    }
     ctx.normalizeDevServiceWorkerId = (
       hook,
       depType,
@@ -83,8 +99,10 @@ export async function prepareNuxtOptions<
         }
       })
     }
+
+    // TODO: remove once tested with nuxt 3
     // remove vue router warnings when requesting sourcemap files
-    let sourcemapEnabled = false
+    /* let sourcemapEnabled = false
     switch (ctx.strategy) {
       case 'build-sw': {
         const buildSW = ctx.resolvedOptions.buildSW!
@@ -97,15 +115,22 @@ export async function prepareNuxtOptions<
         break
       }
     }
-    if (sourcemapEnabled) {
+     if (sourcemapEnabled) {
+      let buildAssetsDir = nuxt.options.app.buildAssetsDir ?? '_nuxt/'
+      if (buildAssetsDir[0] === '/') {
+        buildAssetsDir = buildAssetsDir.slice(1)
+      }
+      if (buildAssetsDir[buildAssetsDir.length - 1] !== '/') {
+        buildAssetsDir += '/'
+      }
       addDevServerHandler({
-        route: '',
+        route: `${buildAssetsDir}*.js.map`,
         handler: await import('h3').then(({ defineLazyEventHandler }) => defineLazyEventHandler(async () => {
           const { devEventHandlerSourcemap } = await import('../../dev-event-handler-sourcemap')
           return devEventHandlerSourcemap(ctx)
         })),
       })
-    }
+    } */
   }
 
   // @ts-expect-error no idea why cannot infer proper plugin types

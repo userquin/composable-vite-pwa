@@ -5,6 +5,7 @@ import type { NuxtPWAContext } from './internal-types'
 import { promises as fs } from 'node:fs'
 import { defineHandler } from 'nitro'
 
+// TODO: remove once tested with nuxt 3
 export function devEventHandlerSourcemap<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
