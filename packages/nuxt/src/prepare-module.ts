@@ -12,6 +12,7 @@ import {
 import { isGreaterOrEqual } from 'verkit'
 import { buildPwaAssets } from './build-pwa-assets'
 import { buildBeforeHook } from './internal/build-before-hook'
+import { buildDoneHook } from './internal/build-done-hook'
 import { devtoolsCustomTabsHook } from './internal/devtools-custom-tabs-hook'
 import { nitroConfigHook } from './internal/nitro-config-hook'
 import { nitroInitHook } from './internal/nitro-init-hook'
@@ -55,7 +56,7 @@ export async function prepareModule<
   // 1) configures nitroConfig at ctx.nuxt
   nuxt.hook('nitro:config', nitroConfigHook<B, UserStrategy, T, NPC>(ctx, nuxt))
   // 2) load configuration and prepare the PWA context: will configure pwa assets icons and runtime stuff
-  nuxt.hook('nitro:init', nitroInitHook<B, UserStrategy, T, NPC>(ctx, nuxt, runtimeDir))
+  nuxt.hook('nitro:init', nitroInitHook<B, UserStrategy, T, NPC>(ctx, nuxt))
   // 3) add PWA types and registers composables
   nuxt.hook('prepare:types', prepareTypesHook<B, UserStrategy, T, NPC>(ctx, runtimeDir))
   // 4) prepare devtools tab: this hook runs between prepare:types and component:extend, cannot use build:before hook
@@ -71,6 +72,8 @@ export async function prepareModule<
   })
   // 6) add bundler stuff: for example, when using vite, will add unplugin-pwa plugins and some middlewares
   nuxt.hook('build:before', buildBeforeHook<B, UserStrategy, T, NPC>(ctx))
+  // 7) register nuxt hook to call PWA context:ready hook
+  nuxt.hook('build:done', buildDoneHook<B, UserStrategy, T, NPC>(ctx, nuxt))
 
   // build SW when building/generating
   if (!nuxt.options.dev) {

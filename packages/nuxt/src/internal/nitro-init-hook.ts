@@ -19,7 +19,6 @@ export function nitroInitHook<
 >(
   ctx: NPWAC,
   nuxt: Nuxt,
-  runtimeDir: string,
 ): import('@nuxt/schema').NuxtHooks['nitro:init'] {
   return async (nitro) => {
     const publicDirs = new Set<string>()
@@ -58,24 +57,16 @@ export function nitroInitHook<
     ctx.resolvedOptions.buildBase ??= ctx.base
     ctx.resolvedOptions.scope ??= ctx.base
 
-    try {
-      // apply nuxt pwa default options
-      await prepareResolvedPwaOptions<B, UserStrategy, T, NPWAC>(ctx, nuxt, ctx.outDir)
+    // apply nuxt pwa default options
+    await prepareResolvedPwaOptions<B, UserStrategy, T, NPWAC>(ctx, nuxt, ctx.outDir)
 
-      // add custom bundler options
-      await ctx.nuxt.initPwaConfiguration()
+    // add custom bundler options
+    await ctx.nuxt.initPwaConfiguration()
 
-      // add nitro routes
-      await prepareNitroRoutes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
+    // add nitro routes
+    await prepareNitroRoutes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
 
-      // add pwa icons types
-      await registerPwaIconsTypes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
-    }
-    catch (e) {
-      await ctx.hooks.callHook('context:ready', e)
-      throw e
-    }
-
-    await ctx.hooks.callHook('context:ready')
+    // add pwa icons types
+    await registerPwaIconsTypes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
   }
 }

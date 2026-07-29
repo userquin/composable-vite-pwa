@@ -256,6 +256,10 @@ export async function prepareModule<
     console.log('devtools:customTabs')
   })
 
+  nuxt.hook('ready', () => {
+    console.log('ready')
+  })
+
   nuxt.hook('nitro:init', async (nitro) => {
     console.log('nitro:init')
     try {

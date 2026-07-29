@@ -22,7 +22,7 @@ export function DevtoolsPlugin<
   T extends SWType,
 >(ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>): Plugin {
   const defer = createDefer<boolean>()
-  ctx.hooks.hook('context:ready', (e) => {
+  ctx.hooks.hookOnce('context:ready', (e) => {
     if (e) {
       defer.resolve(false)
     }
