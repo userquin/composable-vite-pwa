@@ -1,0 +1,32 @@
+includeWorkspaceRoot: false
+ignoreDepScripts: true
+ignoreWorkspaceRootCheck: false
+autoInstallPeers: true
+shamefullyHoist: true
+shellEmulator: true
+strictPeerDependencies: false
+trustPolicy: no-downgrade
+
+allowBuilds:
+  '@parcel/watcher': false
+  '@sentry/cli': true
+  '@sveltejs/kit': true
+  core-js: false
+  esbuild: false
+  sharp: true
+  unrs-resolver: false
+  vue-demi: false
+
+overrides:
+  '@nuxt/nitro-server-nightly': 5.0.0-29753941.df18c4a8
+  devframe: 0.7.14
+  nuxt: npm:nuxt-nightly@5x
+
+minimumReleaseAgeExclude:
+  - vite@8.1.0
+  - devframe@0.7.14
+  - nuxt@5.0.0-29753224.b118e435
+  - '@nuxt/nitro-server-nightly@5.0.0-29753941.df18c4a8'
+
+patchedDependencies:
+  '@nuxt/nitro-server-nightly@5.0.0-29754058.39aa9974': patches/@nuxt__nitro-server-nightly@5.0.0-29754058.39aa9974.patch

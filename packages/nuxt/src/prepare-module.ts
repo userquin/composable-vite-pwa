@@ -12,12 +12,12 @@ import {
 import { isGreaterOrEqual } from 'verkit'
 import { buildPwaAssets } from './build-pwa-assets'
 import { buildBeforeHook } from './internal/build-before-hook'
-import { buildDoneHook } from './internal/build-done-hook'
 import { devtoolsCustomTabsHook } from './internal/devtools-custom-tabs-hook'
 import { nitroConfigHook } from './internal/nitro-config-hook'
 import { nitroInitHook } from './internal/nitro-init-hook'
 import { prepareTypesHook } from './internal/prepare-types-hook'
 import { addPWAIconsPluginTemplate } from './internal/pwa-icons-helper'
+import { serverDevHandlerHook } from './internal/server-dev-handler-hook.ts'
 
 export async function prepareModule<
   B extends Bundler,
@@ -72,8 +72,10 @@ export async function prepareModule<
   })
   // 6) add bundler stuff: for example, when using vite, will add unplugin-pwa plugins and some middlewares
   nuxt.hook('build:before', buildBeforeHook<B, UserStrategy, T, NPC>(ctx))
-  // 7) register nuxt hook to call PWA context:ready hook
-  nuxt.hook('build:done', buildDoneHook<B, UserStrategy, T, NPC>(ctx, nuxt))
+  // 7) register nuxt hook to call PWA context:ready hook: cannot use build:done since builders hooks not
+  //    being called and nuxt devtools should be ready after server:devHandler; unplugin-pwa devtools plugins
+  //    awaiting at vite devtools setup PWA ready, this hook will call the PWA context:ready hook
+  nuxt.hook('server:devHandler', serverDevHandlerHook<B, UserStrategy, T, NPC>(ctx, nuxt))
 
   // build SW when building/generating
   if (!nuxt.options.dev) {

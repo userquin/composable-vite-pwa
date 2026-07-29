@@ -26,6 +26,7 @@ trustPolicy: no-downgrade
 
 packages:
   - examples/**
+  - '!examples/unplugin-pwa-nuxt5/**'
   - packages/astro/**
   - packages/nuxt/**
   - packages/react-router/**

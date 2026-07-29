@@ -4,7 +4,7 @@ import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from '../internal-types'
 
-export function buildDoneHook<
+export function serverDevHandlerHook<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
@@ -12,7 +12,7 @@ export function buildDoneHook<
 >(
   ctx: NPWAC,
   nuxt: Nuxt,
-): import('@nuxt/schema').NuxtHooks['build:done'] {
+): import('@nuxt/schema').NuxtHooks['server:devHandler'] {
   return async () => {
     const devOptions = ctx.resolvedOptions.devOptions
 
