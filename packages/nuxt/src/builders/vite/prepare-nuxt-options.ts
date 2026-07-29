@@ -53,15 +53,33 @@ export async function prepareNuxtOptions<
         }
 
         if (ctx.resolvedOptions.swType === 'classic-and-module') {
-          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.classic}`, handle: emptyHandle })
-          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.classic}.map`, handle: emptyHandle })
-          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.module}`, handle: emptyHandle })
-          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.module}.map`, handle: emptyHandle })
+          viteServer.middlewares.stack.push({
+            route: `${ctx.base}${swNames.classic}`,
+            handle: emptyHandle,
+          })
+          viteServer.middlewares.stack.push({
+            route: `${ctx.base}${swNames.classic}.map`,
+            handle: emptyHandle,
+          })
+          viteServer.middlewares.stack.push({
+            route: `${ctx.base}${swNames.module}`,
+            handle: emptyHandle,
+          })
+          viteServer.middlewares.stack.push({
+            route: `${ctx.base}${swNames.module}.map`,
+            handle: emptyHandle,
+          })
           // }
         }
         else {
-          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.name}`, handle: emptyHandle })
-          viteServer.middlewares.stack.push({ route: `${ctx.base}${swNames.name}.map`, handle: emptyHandle })
+          viteServer.middlewares.stack.push({
+            route: `${ctx.base}${swNames.name}`,
+            handle: emptyHandle,
+          })
+          viteServer.middlewares.stack.push({
+            route: `${ctx.base}${swNames.name}.map`,
+            handle: emptyHandle,
+          })
         }
       })
     }
@@ -82,7 +100,6 @@ export async function prepareNuxtOptions<
     if (sourcemapEnabled) {
       addDevServerHandler({
         route: '',
-        // @xts-expect-error no idea how to fix the types here
         handler: await import('h3').then(({ defineLazyEventHandler }) => defineLazyEventHandler(async () => {
           const { devEventHandlerSourcemap } = await import('../../dev-event-handler-sourcemap')
           return devEventHandlerSourcemap(ctx)

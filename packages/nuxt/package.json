@@ -109,6 +109,7 @@
       "node:child_process",
       "node:fs",
       "h3",
+      "nitro",
       "rolldown",
       "vite",
       "vue",

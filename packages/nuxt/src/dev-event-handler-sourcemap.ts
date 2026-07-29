@@ -3,7 +3,7 @@ import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/typ
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { NuxtPWAContext } from './internal-types'
 import { promises as fs } from 'node:fs'
-import { eventHandler } from 'h3'
+import { defineHandler } from 'nitro'
 
 export function devEventHandlerSourcemap<
   B extends Bundler,
@@ -12,7 +12,7 @@ export function devEventHandlerSourcemap<
 >(
   ctx: NuxtPWAContext<B, UserStrategy, T>,
 ) {
-  return eventHandler(async (event) => {
+  return defineHandler(async (event) => {
     const url = event.url?.pathname
     if (!url || !url.endsWith('.js.map')) {
       return
