@@ -76,22 +76,6 @@ export function nitroInitHook<
       throw e
     }
 
-    /*
-    nuxt.options.alias['#pwa'] = resolver.resolve(runtimeDir, 'composables/index')
-    nuxt.options.build.transpile.push('#pwa')
-
-    if (ctx.nuxt.client.registerPlugin) {
-      addPlugin({
-        src: resolver.resolve(runtimeDir, 'plugins/pwa.client'),
-        mode: 'client',
-      })
-    }
-
-    const pwaAssets = ctx.consumerOptions?.pwaAssets
-
-    addPWAIconsPluginTemplate(!!pwaAssets && pwaAssets.disabled !== true)
-
-*/
     await ctx.hooks.callHook('context:ready')
   }
 }
