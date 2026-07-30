@@ -22,6 +22,7 @@ export function ApiPlugin<
     name,
     apply: 'build',
     enforce: 'post',
+    sharedDuringBuild: true,
     api: {
       ctx,
     },

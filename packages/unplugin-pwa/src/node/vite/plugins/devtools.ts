@@ -33,6 +33,7 @@ export function DevtoolsPlugin<
 
   return {
     name: 'unplugin-pwa:vite:devtools',
+    apply: 'serve',
     devtools: {
       capabilities: {
         dev: {

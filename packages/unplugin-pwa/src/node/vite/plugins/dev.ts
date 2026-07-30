@@ -16,13 +16,13 @@ import {
   VIRTUAL_MODULES,
   VIRTUAL_MODULES_RESOLVE_PREFIX,
 } from '../../constants'
+import { prepareSwNamesAndGlobDirectory } from '../../dev/prepare-sw-names-and-glob-directory'
 import { isDualServiceWorker } from '../../dual-sw-utilities'
 import { injectWebManifestHtmlLink } from '../../inject-web-manifest-html-link'
 import { createHmrScript } from '../dev/create-hmr-script'
 import { injectHmrScript } from '../dev/inject-hmr-script'
 import { prepareRegisterSw } from '../dev/prepare-register-sw'
 import { prepareSwBuild } from '../dev/prepare-sw-build'
-import { prepareSwNamesAndGlobDirectory } from '../dev/prepare-sw-names-and-glob-directory'
 
 export function DevPlugin<
   UserStrategy extends VitePWAStrategy,

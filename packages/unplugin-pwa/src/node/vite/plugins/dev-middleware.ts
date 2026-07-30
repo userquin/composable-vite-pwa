@@ -54,14 +54,21 @@ export function DevMiddlewarePlugin<
         }
 
         const internalDevOptions = ctx.dev.options!
-        const map = internalDevOptions.swAssetsPaths.get(url)
+        let map = internalDevOptions.swAssetsPaths.get(url)
+        if (!map) {
+          map = internalDevOptions.mapSWSourcemapFile?.(url)
+          map = map
+            ? internalDevOptions.swAssetsPaths.get(map)
+            : undefined
+        }
+
         if (!map) {
           return next()
         }
 
         res.statusCode = 200
         res.setHeader('Content-Type', 'application/json')
-        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate')
+        res.setHeader('Cache-Control', 'public, max-age=1, must-revalidate')
         res.write(await fs.readFile(map, 'utf-8'))
         res.end()
       })

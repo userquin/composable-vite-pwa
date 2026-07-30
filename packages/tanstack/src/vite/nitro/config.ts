@@ -54,7 +54,7 @@ export function NitroConfigurationPlugin<
       const {
         preparePWAStrategy,
         preparePWAAssetsGenerator,
-      } = await import('@composable-vite-pwa/unplugin-pwa/node/vite/helpers').then(({
+      } = await import('@composable-vite-pwa/unplugin-pwa/node/helpers').then(({
         preparePWAStrategy,
         preparePWAAssetsGenerator,
       }) => ({
@@ -141,7 +141,7 @@ function prepareNitroModule<
         ] = await Promise.all([
           import('./load-external-configuration').then(({ loadExternalConfiguration }) => loadExternalConfiguration),
           import('../../create-manifest-transform').then(({ createManifestTransform }) => createManifestTransform),
-          import('@composable-vite-pwa/unplugin-pwa/node/vite/helpers').then(({
+          import('@composable-vite-pwa/unplugin-pwa/node/helpers').then(({
             normalizeManifest,
           }) => (normalizeManifest)),
           import('@composable-vite-pwa/workbox-build/utils/resolve-sw-names').then(({

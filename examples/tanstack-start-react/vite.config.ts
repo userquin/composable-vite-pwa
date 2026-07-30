@@ -1,4 +1,3 @@
-import process from 'node:process'
 import { TanStackNitroPWAPlugin } from '@composable-vite-pwa/tanstack/vite/nitro'
 import tailwindcss from '@tailwindcss/vite'
 import { devtools } from '@tanstack/devtools-vite'
@@ -11,7 +10,8 @@ import Inspect from 'vite-plugin-inspect'
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
-  base: '/app/',
+  // base: '/app/',
+  base: '/',
   build: {
     minify: false,
   },
@@ -19,16 +19,19 @@ const config = defineConfig({
     ViteDevTools(),
     devtools(),
     nitro({
-      baseURL: '/app/',
+      baseURL: '/',
+      // baseURL: '/app/',
       routeRules: {
         // looks like we need to add the baseURL, otherwise index.html being created later
         // and missing from the SW precache manifest, will check it with the new hook
-        '/app/': { prerender: true },
-        '/app/about': { prerender: true },
+        '/': { prerender: true },
+        '/about': { prerender: true },
+        // '/app/': { prerender: true },
+        // '/app/about': { prerender: true },
       },
-      rollupConfig: {
-        external: [/^@sentry\//],
-      },
+      // rollupConfig: {
+      //   external: [/^@sentry\//],
+      // },
     }),
     tailwindcss(),
     tanstackStart({
@@ -66,15 +69,16 @@ const config = defineConfig({
     TanStackNitroPWAPlugin({
       minify: false,
       disable: false,
-      strategies: process.env.BUILD_SW ? 'build-sw' : 'generate-sw',
+      strategies: 'build-sw', // process.env.BUILD_SW ? 'build-sw' : 'generate-sw',
       swType: 'classic-and-module',
       registerType: 'autoUpdate',
       includeManifestIcons: false,
-      // base: '/',
-      base: '/app/',
-      scope: '/app/',
+      base: '/',
+      // base: '/app/',
+      // scope: '/app/',
       generateSW: {
-        navigateFallback: '/app/',
+        navigateFallback: '/',
+        // navigateFallback: '/app/',
         globPatterns: ['**/*.{css,js,html,svg,png,ico,txt,woff2}'],
         sourcemap: true,
         clientsClaim: true,
@@ -84,6 +88,11 @@ const config = defineConfig({
         swSrc: 'src/plain-sw.ts',
         globPatterns: ['**/*.{css,js,html,svg,png,ico,txt,woff2}'],
         sourcemap: true,
+        customChunks: (moduleId, ctx) => {
+          if (ctx.getModuleInfo(moduleId)?.id.includes('sw-helper')) {
+            return 'sw-helper'
+          }
+        },
       },
       manifest: {
         icons: [
@@ -115,10 +124,10 @@ const config = defineConfig({
         type: 'module',
         suppressWarnings: true,
         inspector: 'vite-devtools',
-        // navigateFallback: '/',
-        // navigateFallbackAllowlist: [/^\/$/],
-        navigateFallback: '/app/',
-        navigateFallbackAllowlist: [/^\/app\/$/],
+        navigateFallback: '/',
+        navigateFallbackAllowlist: [/^\/$/],
+        // navigateFallback: '/app/',
+        // navigateFallbackAllowlist: [/^\/app\/$/],
       },
     }),
     Inspect(),

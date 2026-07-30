@@ -1,6 +1,5 @@
 import type {
   BasePartial,
-  ManifestEntry,
   OptionalGlobDirectoryPartial,
   RequiredSWDestPartial,
   SWType,
@@ -11,118 +10,21 @@ import type {
   ResolvedBuildSW,
   ResolvedGenerateSW,
   ResolvedInjectManifest,
-  ResolvedVitePWAOptions,
   VitePWAStrategy,
 } from '../types'
 import type { ViteBundler, VitePWAPluginContext } from './vite-context'
 import path from 'node:path'
 import process from 'node:process'
-import pc from 'picocolors'
-import { additionalManifestEntriesFactory } from '../additional-manifest-entries'
-import { prepareManifest } from '../config'
+import {
+  normalizeManifest,
+  normalizePath,
+  prepareAdditionalManifestEntriesGenerator,
+  preparePWAAssetsGenerator,
+  resolveBasePath,
+  resolveFrom,
+  resolveSWSrc,
+} from '../helpers'
 import { prepareSwNames } from '../prepare-sw-names'
-
-const normalizePathRegexp = /\\/g
-
-export function normalizePath(path: string): string {
-  return path.replace(normalizePathRegexp, '/')
-}
-
-export function resolveFrom(base: string, value: string): string {
-  return normalizePath(path.isAbsolute(value) ? path.relative(base, value) : path.join(base, value))
-}
-
-export function resolveSWSrc(base: string, value: string): string {
-  return normalizePath(path.isAbsolute(value) ? path.relative(base, value) : value)
-}
-
-export function isAbsolute(url: string) {
-  return url.match(/^(?:[a-z]+:)?\/\//i)
-}
-
-export function resolveBasePath(base: string) {
-  if (isAbsolute(base))
-    return base
-  return (!base.startsWith('/') && !base.startsWith('./'))
-    ? `/${base}`
-    : base
-}
-
-export function prepareAdditionalManifestEntriesGenerator(
-  ctx: VitePWAPluginContext<any, any, any>,
-): () => AsyncGenerator<string | ManifestEntry, undefined, void> {
-  return additionalManifestEntriesFactory(ctx, (url) => {
-    const buildBase = ctx.resolvedOptions.buildBase!
-    return path.resolve(ctx.publicDir, url.startsWith(buildBase) ? url.slice(buildBase.length) : url)
-  })
-}
-
-/**
- * Loads the default manifest and normalizes the manifest icons' purpose and scope_extensions.
- *
- * **NOTE**: this function calls `prepareManifest` to load the default manifest.
- *
- * @param ctx The resolved Vite PWA plugin context
- */
-export function normalizeManifest(
-  ctx: VitePWAPluginContext<any, any, any>,
-) {
-  prepareManifest(ctx.resolvedOptions as ResolvedVitePWAOptions<any, any>)
-  const manifest = ctx.resolvedOptions.manifest
-  // convert icons' purpose
-  if (manifest) {
-    if (manifest.icons) {
-      manifest.icons = manifest.icons.map((icon) => {
-        if (icon.purpose && Array.isArray(icon.purpose))
-          icon.purpose = icon.purpose.join(' ')
-
-        return icon
-      })
-    }
-    if (manifest.shortcuts) {
-      manifest.shortcuts.forEach((shortcut) => {
-        if (shortcut.icons) {
-          shortcut.icons = shortcut.icons.map((icon) => {
-            if (icon.purpose && Array.isArray(icon.purpose))
-              icon.purpose = icon.purpose.join(' ')
-
-            return icon
-          })
-        }
-      })
-    }
-
-    if (manifest.scope_extensions) {
-      manifest.scope_extensions = manifest.scope_extensions.map((scopeExtension) => {
-        return {
-          origin: scopeExtension.origin,
-          type: scopeExtension.type ?? 'origin',
-        }
-      })
-    }
-  }
-}
-
-export function preparePWAAssetsGenerator<
-  UserStrategy extends VitePWAStrategy,
-  T extends SWType,
->(
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
-) {
-  if (ctx.resolvedOptions.pwaAssets && !ctx.resolvedOptions.pwaAssets.disabled) {
-    ctx.pwaAssetsGenerator = import('../pwa-assets/generator').then(({ loadInstructions }) => loadInstructions(ctx)).catch((e) => {
-      console.error([
-        '',
-        pc.cyan(`PWA v${ctx.version}`),
-        pc.yellow('WARNING: you must install the following dev dependencies to use the PWA assets generator:'),
-        pc.yellow('- "@vite-pwa/assets-generator"'),
-        pc.yellow('- "sharp" (should be installed when installing @vite-pwa/assets-generator)'),
-        pc.yellow('- "sharp-ico" (should be installed when installing @vite-pwa/assets-generator)'),
-      ].join('\n'), e)
-      return Promise.resolve(undefined)
-    })
-  }
-}
 
 /**
  * Configures the PWA strategy at the resolved PWA options.

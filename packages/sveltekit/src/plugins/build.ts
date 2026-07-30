@@ -18,11 +18,11 @@ export function SvelteKitBuildPlugin<
     name: 'vite-pwa:sveltekit:build',
     enforce: 'post',
     apply: 'build',
+    sharedDuringBuild: true,
     applyToEnvironment(environment) {
       return environment.config.consumer === 'client'
     },
     async generateBundle(_, bundle) {
-      console.log('paso')
       if (!ctx.envApi && ctx.viteConfig.build.ssr) {
         return
       }

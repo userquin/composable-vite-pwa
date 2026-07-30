@@ -9,9 +9,10 @@ import type { NuxtPWAContext } from './internal-types'
 import { existsSync, promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { resolveDefaultConfig } from '@composable-vite-pwa/unplugin-pwa/node/config'
 import {
   prepareSwNamesAndGlobDirectory,
-} from '@composable-vite-pwa/unplugin-pwa/node/vite/dev/prepare-sw-names-and-glob-directory'
+} from '@composable-vite-pwa/unplugin-pwa/node/dev/prepare-sw-names-and-glob-directory'
 import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 import {
   addComponent,
@@ -42,9 +43,25 @@ export async function prepareModule<
   ctx.nuxt.publicDirs = [...publicDirs].filter(dir => existsSync(dir))
 
   const consumerOptions = ctx.consumerOptions
-  // resolve nuxt aliases
   if (consumerOptions?.path) {
-    consumerOptions.path = await resolver.resolvePath(consumerOptions.path)
+    // resolve nuxt aliases
+    consumerOptions.path = await resolver.resolvePath(
+      consumerOptions.path,
+      {
+        cwd: nuxt.options.rootDir,
+        alias: nuxt.options.alias,
+      },
+    )
+  }
+  else {
+    // check first for srcDir, then rootDir
+    for (const path of [nuxt.options.srcDir, nuxt.options.rootDir]) {
+      const resolvedPath = resolveDefaultConfig(path)
+      if (resolvedPath) {
+        consumerOptions.path = normalizePath(resolvedPath)
+        break
+      }
+    }
   }
 
   ctx.base = nuxt.options.runtimeConfig.public.base as string || '/'
@@ -68,6 +85,7 @@ export async function prepareModule<
   })
 
   nuxt.hook('prepare:types', ({ references }) => {
+    console.log('prepare:types')
     references.push({ path: resolver.resolve(runtimeDir, 'plugins/types') })
     references.push({ types: '../modules/pwa/configuration.d.ts' })
     references.push({ types: '@composable-vite-pwa/unplugin-pwa/vue' })
@@ -82,6 +100,7 @@ export async function prepareModule<
   ctx.strategy = ctx.resolvedOptions.strategy!
 
   nuxt.hook('nitro:config', async (nitroConfig) => {
+    console.log('nitro:config')
     ctx.nuxt.nitroConfig = nitroConfig
 
     if (nuxt.options.experimental.payloadExtraction) {
@@ -194,7 +213,61 @@ export async function prepareModule<
     }
   })
 
+  nuxt.hook('components:extend', () => {
+    console.log('components:extend')
+  })
+
+  nuxt.hook('modules:before', () => {
+    console.log('modules:before')
+  })
+  nuxt.hook('modules:done', () => {
+    console.log('modules:done')
+  })
+  const externalPWAPath = ctx.resolvedOptions.path
+  console.log(ctx.resolvedOptions.path)
+  console.log(externalPWAPath)
+  console.log(nuxt.options.rootDir)
+  console.log(nuxt.options.srcDir)
+  if (externalPWAPath) {
+    console.log(nuxt.options.srcDir, normalizePath(path.relative(nuxt.options.srcDir, externalPWAPath)))
+    // NUXT createWatcher and createGranularWatcher prevent use absolute paths outside srcDir
+    nuxt.options.watch.push(externalPWAPath)
+  }
+  nuxt.hook('build:before', () => {
+    console.log('build:before')
+  })
+  nuxt.hook('build:done', () => {
+    console.log('build:done')
+  })
+  nuxt.hook('imports:context', () => {
+    console.log('imports:context')
+  })
+  nuxt.hook('imports:sources', () => {
+    console.log('imports:sources')
+  })
+  nuxt.hook('imports:extend', () => {
+    console.log('imports:extend')
+  })
+  nuxt.hook('vite:configResolved', () => {
+    console.log('vite:configResolved')
+  })
+  nuxt.hook('vite:extendConfig', () => {
+    console.log('vite:extendConfig')
+  })
+  nuxt.hook('nitro:build:before', () => {
+    console.log('nitro:build:before')
+  })
+
+  nuxt.hook('devtools:customTabs', () => {
+    console.log('devtools:customTabs')
+  })
+
+  nuxt.hook('ready', () => {
+    console.log('ready')
+  })
+
   nuxt.hook('nitro:init', async (nitro) => {
+    console.log('nitro:init')
     try {
       let outDir: string
       if (nuxt.options.dev) {
@@ -223,6 +296,12 @@ export async function prepareModule<
   })
 
   await ctx.nuxt.prepareNuxtOptions()
+
+  if (nuxt.options.dev) {
+    nuxt.hooks.hook('builder:watch', (event, path) => {
+      console.log('builder:watch', { event, path })
+    })
+  }
 
   if (!nuxt.options.dev) {
     if (isGreaterOrEqual(ctx.nuxt.nuxtVersion, '3.8.0')) {

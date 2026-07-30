@@ -16,6 +16,7 @@ export function LegacySvelteKitMainPlugin<
   return {
     name: 'vite-pwa:sveltekit:legacy-main',
     enforce: 'pre',
+    sharedDuringBuild: true,
     configResolved(config) {
       ctx.envApi = false
       ctx.viteConfig = config

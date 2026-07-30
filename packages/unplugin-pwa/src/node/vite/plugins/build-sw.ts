@@ -16,6 +16,7 @@ export function BuildSWPlugin<
     name: 'unplugin-pwa:build:sw',
     enforce: 'post',
     apply: 'build',
+    sharedDuringBuild: true,
     applyToEnvironment(environment) {
       return environment.config.consumer === 'client'
     },

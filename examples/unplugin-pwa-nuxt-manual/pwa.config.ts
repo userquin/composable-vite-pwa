@@ -22,8 +22,8 @@ export function VirtualMessagePlugin(): Plugin {
 export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
   swType: 'classic-and-module',
   strategies: 'build-sw',
-  includeAssets: ['favicon.ico', 'favicon.svg'],
-  // includeManifestIcons: true,
+  // includeAssets: ['favicon.ico', 'favicon.svg'],
+  includeManifestIcons: true,
   minify: false,
   disable: false,
   includeManifest: false,

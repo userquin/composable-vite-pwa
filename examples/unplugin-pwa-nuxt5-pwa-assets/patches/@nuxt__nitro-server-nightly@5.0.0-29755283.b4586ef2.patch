@@ -1,0 +1,13 @@
+diff --git a/dist/index.mjs b/dist/index.mjs
+index b089a43f9de5bdb433049f1534587780a45a179d..a881012950bdd36a4e08e02de5e1b1208b4e8f0b 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -192,7 +192,7 @@ function setupNitroViteEnvironment(nuxt, nitro$1) {
+ 			close: () => viteServer.close()
+ 		};
+ 	});
+-	if (!nuxt.options.dev) nitro$1.hooks.hook("compiled", () => nuxt.callHook("nitro:build:public-assets", nitro$1));
++	if (!nuxt.options.dev) nitro$1.hooks.hook("vite:before:compile", () => nuxt.callHook("nitro:build:public-assets", nitro$1));
+ }
+ const VIRTUAL_PREFIX = "\0nuxt-build-output:";
+ const NITRO_VIRTUAL_PREFIX = "\0nuxt-nitro-virtual:";
