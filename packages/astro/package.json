@@ -63,6 +63,7 @@
     "@composable-vite-pwa/workbox-window": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "catalog:types",
     "astro": "catalog:astro",
     "typescript": "catalog:typescript",
     "vite": "catalog:vite"
