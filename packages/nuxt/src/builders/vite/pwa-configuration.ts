@@ -10,7 +10,7 @@ import {
   normalizeManifest,
   preparePWAAssetsGenerator,
   preparePWAStrategy,
-} from '@composable-vite-pwa/unplugin-pwa/node/vite/helpers'
+} from '@composable-vite-pwa/unplugin-pwa/node/helpers'
 
 export async function loadPwaConfiguration<
   UserStrategy extends VitePWAStrategy,

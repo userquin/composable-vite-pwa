@@ -27,8 +27,7 @@
     "./configuration": {
       "types": "./configuration.d.ts"
     },
-    "./package.json": "./package.json",
-    "./*": "./*"
+    "./package.json": "./package.json"
   },
   "main": "./dist/module.mjs",
   "types": "./dist/types.d.mts",

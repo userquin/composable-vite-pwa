@@ -1,4 +1,4 @@
-import type { VitePWAPluginContext } from '../vite-context'
+import type { PWAPluginContext } from '../context-types'
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
@@ -44,7 +44,7 @@ function resolveTempFolder(): string {
 }
 
 export async function prepareTempFolder(
-  ctx: VitePWAPluginContext<any, any, any>,
+  ctx: PWAPluginContext<any, any, any>,
 ) {
   const internalOptions = ctx.dev.options!
   const tempFolderResolver = ctx.resolvedOptions.devOptions?.resolveTempFolder

@@ -1,10 +1,10 @@
 import type { GlobPartial, RequiredSWDestPartial, SWType } from '@composable-vite-pwa/workbox-build/types'
-import type { VitePWAStrategy } from '../../types'
-import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
+import type { Bundler, PWAPluginContext } from '../context-types'
+import type { VitePWAStrategy } from '../types'
 import path from 'node:path'
 import process from 'node:process'
 import { normalizePath, resolveSWNames } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
-import { isDualServiceWorker } from '../../dual-sw-utilities'
+import { isDualServiceWorker } from '../dual-sw-utilities'
 import { prepareTempFolder } from './prepare-temp-folder'
 
 /**
@@ -15,10 +15,11 @@ import { prepareTempFolder } from './prepare-temp-folder'
  * @param ctx The PWA Vite plugin context.
  */
 export async function prepareSwNamesAndGlobDirectory<
+  B extends Bundler,
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
 >(
-  ctx: VitePWAPluginContext<ViteBundler, UserStrategy, T>,
+  ctx: PWAPluginContext<B, UserStrategy, T>,
 ) {
   if (ctx.dev.options.swNames.hasNames) {
     return

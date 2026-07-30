@@ -7,7 +7,7 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import {
   prepareSwNamesAndGlobDirectory,
-} from '@composable-vite-pwa/unplugin-pwa/node/vite/dev/prepare-sw-names-and-glob-directory'
+} from '@composable-vite-pwa/unplugin-pwa/node/dev/prepare-sw-names-and-glob-directory'
 import { prepareBuildSwNames } from './prepare-sw-names'
 
 export async function prepareNitroRoutes<
@@ -54,7 +54,7 @@ export async function prepareNitroRoutes<
   if (isDev) {
     if (!swDisabled) {
       // todo: move this module outside vite at unplugin-pwa
-      await prepareSwNamesAndGlobDirectory<UserStrategy, T>(ctx as unknown as any)
+      await prepareSwNamesAndGlobDirectory<B, UserStrategy, T>(ctx as unknown as any)
       swNames = ctx.dev.options!.swNames
       const outDir = ctx.outDir
 

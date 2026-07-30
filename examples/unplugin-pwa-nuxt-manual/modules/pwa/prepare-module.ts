@@ -12,7 +12,7 @@ import process from 'node:process'
 import { resolveDefaultConfig } from '@composable-vite-pwa/unplugin-pwa/node/config'
 import {
   prepareSwNamesAndGlobDirectory,
-} from '@composable-vite-pwa/unplugin-pwa/node/vite/dev/prepare-sw-names-and-glob-directory'
+} from '@composable-vite-pwa/unplugin-pwa/node/dev/prepare-sw-names-and-glob-directory'
 import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 import {
   addComponent,
