@@ -1,4 +1,4 @@
-import type { PwaMaskableImageProps } from '#build/pwa-icons/PwaMaskableImage.js'
+import type { PwaMaskableImageProps } from '#build/pwa-icons/PwaMaskableImage'
 import { defineComponent, h } from 'vue'
 import { useMaskablePwaIcon } from '#pwa'
 

@@ -1,4 +1,4 @@
-import type { PwaFaviconImageProps } from '#build/pwa-icons/PwaFaviconImage.js'
+import type { PwaFaviconImageProps } from '#build/pwa-icons/PwaFaviconImage'
 import { defineComponent, h } from 'vue'
 import { useFaviconPwaIcon } from '#pwa'
 

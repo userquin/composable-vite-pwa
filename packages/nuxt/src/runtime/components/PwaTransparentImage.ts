@@ -1,4 +1,4 @@
-import type { PwaTransparentImageProps } from '#build/pwa-icons/PwaTransparentImage.js'
+import type { PwaTransparentImageProps } from '#build/pwa-icons/PwaTransparentImage'
 import { defineComponent, h } from 'vue'
 import { useTransparentPwaIcon } from '#pwa'
 

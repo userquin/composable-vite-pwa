@@ -1,4 +1,4 @@
-import type { PwaAppleSplashScreenImageProps } from '#build/pwa-icons/PwaAppleSplashScreenImage.js'
+import type { PwaAppleSplashScreenImageProps } from '#build/pwa-icons/PwaAppleSplashScreenImage'
 import { defineComponent, h } from 'vue'
 import { useApplePwaIcon } from '#pwa'
 
