@@ -15,10 +15,10 @@ export default defineConfig([{
   entry: [
     {
       'node/*': ['./src/node/*.ts'],
+      'node/dev/*': ['./src/node/dev/*.ts'],
       'node/vite/*': ['./src/node/vite/*.ts'],
       'node/vite/dev/*': ['./src/node/vite/dev/*.ts'],
       'node/vite/plugins/*': ['./src/node/vite/plugins/*.ts'],
-      // 'node/vite/plugins/*': ['./src/node/vite/plugins/*.ts', '!./src/node/vite/plugins/inspector.ts'],
       'node/webpack/*': ['./src/node/webpack/*.ts'],
       'node/webpack/dev/*': ['./src/node/webpack/dev/*.ts'],
     },

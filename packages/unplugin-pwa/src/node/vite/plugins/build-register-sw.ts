@@ -32,6 +32,7 @@ export function BuildRegisterSWPlugin<
     name: 'unplugin-pwa:build:register-sw',
     enforce: 'post',
     apply: 'build',
+    sharedDuringBuild: true,
     applyToEnvironment(environment) {
       return environment.config.consumer === 'client'
     },

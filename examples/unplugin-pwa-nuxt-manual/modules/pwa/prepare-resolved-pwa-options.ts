@@ -28,7 +28,13 @@ export async function prepareResolvedPwaOptions<
 
   if (ctx.strategy === 'build-sw') {
     const resolver = createResolver(import.meta.filename)
-    ctx.resolvedOptions.buildSW!.swSrc = await resolver.resolvePath(ctx.resolvedOptions.buildSW!.swSrc)
+    ctx.resolvedOptions.buildSW!.swSrc = await resolver.resolvePath(
+      ctx.resolvedOptions.buildSW!.swSrc,
+      {
+        cwd: nuxt.options.rootDir,
+        alias: nuxt.options.alias,
+      },
+    )
     config = ctx.resolvedOptions.buildSW!
   }
   else if (ctx.strategy === 'generate-sw') {

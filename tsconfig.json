@@ -17,6 +17,12 @@
       "@composable-vite-pwa/astro/types": [
         "./packages/astro/src/types.ts"
       ],
+      "@composable-vite-pwa/nuxt": [
+        "./packages/nuxt/src/module.ts"
+      ],
+      "@composable-vite-pwa/nuxt/types": [
+        "./packages/nuxt/src/types.ts"
+      ],
       "@composable-vite-pwa/sveltekit": [
         "./packages/sveltekit/src/index.ts"
       ],

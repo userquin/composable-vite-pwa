@@ -4,6 +4,10 @@
 import { clientsClaim } from '@composable-vite-pwa/workbox-swkit/core'
 import { cleanupOutdatedCaches, createHandlerBoundToURL, precacheAndRoute } from '@composable-vite-pwa/workbox-swkit/precaching'
 import { NavigationRoute, registerRoute } from '@composable-vite-pwa/workbox-swkit/routing'
+import { hello, sayHello } from './sw-helper'
+
+console.log(hello)
+console.log(sayHello('from SW'))
 
 declare let self: ServiceWorkerGlobalScope
 

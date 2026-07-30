@@ -15,6 +15,7 @@ export function InfoPlugin<
   return {
     name: 'unplugin-pwa:info',
     enforce: 'post',
+    sharedDuringBuild: true,
     resolveId: {
       filter: { id: exactRegex(PWA_INFO_VIRTUAL) },
       handler(id) {

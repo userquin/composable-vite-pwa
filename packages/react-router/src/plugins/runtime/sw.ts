@@ -6,9 +6,9 @@ const VIRTUAL_REACT_ROUTER_SW = 'virtual:vite-pwa/react-router/sw'
 const RESOLVED_VIRTUAL_REACT_ROUTER_SW = `\0${VIRTUAL_REACT_ROUTER_SW}`
 
 /**
- * The react router service worker build plugin.
+ * The react-router service worker build plugin.
  *
- * **NOTE**: this plugin must not be added at vite plugins, only at SW build time plugins.
+ * **NOTE**: this plugin must not be added at vite plugins, only at SW build plugins.
  *
  * @param ctx The react router PWA plugin context.
  */

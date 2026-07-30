@@ -19,6 +19,7 @@ export function BuildPwaAssetsPlugin<
     name: 'unplugin-pwa:build:pwa-assets',
     enforce: 'post',
     apply: 'build',
+    sharedDuringBuild: true,
     applyToEnvironment(environment) {
       return environment.config.consumer === 'client'
     },

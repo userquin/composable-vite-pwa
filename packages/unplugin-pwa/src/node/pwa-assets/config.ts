@@ -8,11 +8,13 @@ import { basename, dirname, relative, resolve } from 'node:path'
 import { instructions } from '@vite-pwa/assets-generator/api/instructions'
 import { loadConfig } from '@vite-pwa/assets-generator/config'
 import pc from 'picocolors'
+import { normalizePath } from '../helpers'
 
+// todo: change logs and error here
 export async function loadAssetsGeneratorContext(
   ctx: PWAPluginContext<any, any, any>,
   assetsGeneratorContext?: AssetsGeneratorContext,
-) {
+): Promise<AssetsGeneratorContext | undefined> {
   const root = ctx.rootDir
   const { config, sources } = await loadConfiguration(root, ctx)
   if (!config.preset) {
@@ -21,7 +23,7 @@ export async function loadAssetsGeneratorContext(
       pc.cyan(`PWA v${ctx.version}`),
       pc.red('ERROR: No preset for assets generator found'),
     ].join('\n'))
-    return
+    return undefined
   }
 
   const {
@@ -60,7 +62,9 @@ export async function loadAssetsGeneratorContext(
 
   const pwaAssets = ctx.resolvedOptions.pwaAssets as ResolvedPWAAssetsOptions
 
-  const useImage = Array.isArray(images) ? images[0] : images
+  const image = await pwaAssets.integration?.resolveImage?.(Array.isArray(images) ? images[0] : images)
+
+  const useImage = image ?? (Array.isArray(images) ? images[0] : images)
   // the image must be relative to the root directory
   // const imageFile = resolve(root, useImage)
   const imageFile = await tryToResolveImage(root, sources, useImage)
@@ -111,7 +115,7 @@ export async function loadAssetsGeneratorContext(
       xhtml,
       includeId,
       // normalize sources
-      sources: sources.map(source => source.replace(/\\/g, '/')),
+      sources: sources.map(source => normalizePath(source)),
       injectThemeColor,
       includeHtmlHeadLinks,
       overrideManifestIcons,
@@ -136,7 +140,7 @@ export async function loadAssetsGeneratorContext(
 async function loadConfiguration(
   root: string,
   ctx: PWAPluginContext<any, any, any>,
-) {
+): Promise<ReturnType<typeof loadConfig<UserConfig>>> {
   const pwaAssets = ctx.resolvedOptions.pwaAssets as ResolvedPWAAssetsOptions
   if (pwaAssets.config === false) {
     return await loadConfig<UserConfig>(root, {

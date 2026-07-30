@@ -1,0 +1,24 @@
+{
+  "name": "unplugin-pwa-nuxt5",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "xpostinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@nuxt/nitro-server": "npm:nuxt-nightly@5x",
+    "@vite-pwa/assets-generator": "^1.0.2",
+    "devframe": "0.7.14",
+    "nitro": "https://pkg.pr.new/nitro@e0582fc",
+    "nuxt": "npm:nuxt-nightly@5x",
+    "rolldown": "^1.1.2",
+    "vite": "^8.1.0",
+    "vue": "^3.5.38",
+    "vue-router": "^5.1.0",
+    "vue-tsc": "^3.3.8"
+  }
+}

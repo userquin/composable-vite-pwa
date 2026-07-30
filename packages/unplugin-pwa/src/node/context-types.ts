@@ -100,6 +100,10 @@ export interface PWABuildDevContext<
     swAssetsPaths: Map<string, string>
     tempFolder: string
     /**
+     * Hook to allow remove prefixes: for example _nuxt/
+     */
+    mapSWSourcemapFile?: (url: string) => string | undefined
+    /**
      * Names and paths to resolve service workers.
      */
     swNames: DevSWNames

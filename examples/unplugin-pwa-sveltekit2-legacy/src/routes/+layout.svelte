@@ -1,5 +1,6 @@
 <script lang='ts'>
   import Header from '$lib/header/Header.svelte'
+  import { browser, dev } from '$app/environment'
   import { pwaInfo } from 'virtual:pwa-info'
   import '../app.css'
 
@@ -8,6 +9,10 @@
   }
 
   const { children }: Props = $props()
+
+  if (browser && dev) {
+    console.log(pwaInfo)
+  }
 
   const webManifest = $derived(pwaInfo ? pwaInfo.webManifest.linkTag : '')
 
