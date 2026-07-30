@@ -16,7 +16,7 @@ export function VirtualMessagePlugin(): Plugin {
       if (id === resolvedVirtual)
         return `export const message = 'Message from Virtual Module Plugin'`
     },
-  } satisfies Plugin
+  }
 }
 
 export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
@@ -177,7 +177,7 @@ export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
         return 'sw-helper'
       }
     },
-    plugins: () => [VirtualMessagePlugin()],
+    plugins: () => [VirtualMessagePlugin()] as Plugin[],
   },
   generateSW: {
     sourcemap: true,

@@ -1,4 +1,5 @@
 import { createResolver } from '@nuxt/kit'
+// import { nitro } from 'nitro/vite'
 
 const resolver = createResolver(import.meta.url)
 
@@ -25,6 +26,9 @@ export default defineNuxtConfig({
   //   baseURL: '/pepe/',
   // },
   vite: {
+    // plugins: [
+    //   nitro(),
+    // ],
     $client: {
       build: {
         minify: false,

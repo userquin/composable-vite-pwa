@@ -53,7 +53,10 @@ export default defineNuxtModule<ModuleOptions>({
     name: '@vite-pwa/nuxt',
     configKey: 'pwa',
     compatibility: {
-      nuxt: '>=3.6.5',
+      nuxt: '>=3.9.0',
+      // eslint-disable-next-line ts/ban-ts-comment
+      // @ts-ignore property removed in Nuxt 4
+      bridge: false,
     },
   },
   defaults: nuxt => ({

@@ -94,12 +94,12 @@ export async function prepareModule<
     name: 'NuxtPwaManifest',
     filePath: resolver.resolve(runtimeDir, 'components/NuxtPwaManifest'),
   })
-  // 6) add bundler stuff: for example, when using vite, will add unplugin-pwa plugins and some middlewares
-  nuxt.hook('build:before', buildBeforeHook<B, UserStrategy, T, NPC>(ctx))
-  // 7) register nuxt hook to call PWA context:ready hook: cannot use build:done since builders hooks not
+  // 6) register nuxt hook to call PWA context:ready hook: cannot use build:done since builders hooks not
   //    being called and nuxt devtools should be ready after server:devHandler; unplugin-pwa devtools plugins
   //    awaiting at vite devtools setup PWA ready, this hook will call the PWA context:ready hook
   nuxt.hook('server:devHandler', serverDevHandlerHook<B, UserStrategy, T, NPC>(ctx, nuxt))
+  // 7) add builders stuff: for example, when using vite, will add unplugin-pwa vite plugins and middlewares
+  nuxt.hook('build:before', buildBeforeHook<B, UserStrategy, T, NPC>(ctx))
 
   // build SW when building/generating
   if (!nuxt.options.dev) {
