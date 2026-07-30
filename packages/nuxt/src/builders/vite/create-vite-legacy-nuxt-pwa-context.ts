@@ -7,7 +7,6 @@ import {
   createCustomVitePWAContext,
 } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
 import { prepareNuxtOptions } from './prepare-nuxt-options'
-import { initPwaConfiguration, loadPwaConfiguration } from './pwa-configuration'
 
 export function createViteLegacyNuxtPwaContext<
   UserStrategy extends VitePWAStrategy,
@@ -22,7 +21,7 @@ export function createViteLegacyNuxtPwaContext<
   const {
     experimental,
     registerWebManifestInRouteRules,
-    writePlugin,
+    writePlugin = false,
     client = {},
     ...pwaOptions
   } = options
@@ -49,8 +48,6 @@ export function createViteLegacyNuxtPwaContext<
     ),
     {
       nuxt: {
-        loadPwaConfiguration: () => loadPwaConfiguration(ctx, nuxt),
-        initPwaConfiguration: () => initPwaConfiguration(ctx, nuxt),
         prepareNuxtOptions: () => prepareNuxtOptions(ctx, nuxt),
         nuxtVersion,
         nitroConfig: undefined!,

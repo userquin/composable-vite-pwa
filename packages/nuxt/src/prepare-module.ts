@@ -9,6 +9,7 @@ import { resolveDefaultConfig } from '@composable-vite-pwa/unplugin-pwa/node/con
 import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 import {
   addComponent,
+  addImports,
   addPlugin,
 } from '@nuxt/kit'
 import { isGreaterOrEqual } from 'verkit'
@@ -18,7 +19,6 @@ import { devtoolsCustomTabsHook } from './internal/devtools-custom-tabs-hook'
 import { nitroConfigHook } from './internal/nitro-config-hook'
 import { nitroInitHook } from './internal/nitro-init-hook'
 import { prepareTypesHook } from './internal/prepare-types-hook'
-import { addPWAIconsPluginTemplate } from './internal/pwa-icons-helper'
 import { serverDevHandlerHook } from './internal/server-dev-handler-hook'
 
 export async function prepareModule<
@@ -72,10 +72,6 @@ export async function prepareModule<
     })
   }
 
-  const pwaAssets = ctx.consumerOptions?.pwaAssets
-
-  addPWAIconsPluginTemplate(!!pwaAssets && pwaAssets.disabled !== true)
-
   // hooks will run in this order
   // 1) configures nitroConfig at ctx.nuxt
   nuxt.hook('nitro:config', nitroConfigHook<B, UserStrategy, T, NPC>(ctx, nuxt))
@@ -86,19 +82,40 @@ export async function prepareModule<
   // 4) prepare devtools tab: this hook runs between prepare:types and component:extend, cannot use build:before hook
   nuxt.hook('devtools:customTabs', devtoolsCustomTabsHook<B, UserStrategy, T, NPC>(ctx))
   // 5) add PWA components (components:extend)
-  addComponent({
-    name: 'NuxtPwaAssets',
-    filePath: resolver.resolve(runtimeDir, 'components/NuxtPwaAssets'),
-  })
-  addComponent({
-    name: 'NuxtPwaManifest',
-    filePath: resolver.resolve(runtimeDir, 'components/NuxtPwaManifest'),
-  })
-  // 6) register nuxt hook to call PWA context:ready hook: cannot use build:done since builders hooks not
+  for (
+    const name of [
+      'NuxtPwaAssets',
+      'NuxtPwaManifest',
+      'PwaAppleImage',
+      'PwaAppleSplashScreenImage',
+      'PwaFaviconImage',
+      'PwaMaskableImage',
+      'PwaTransparentImage',
+    ]
+  ) {
+    addComponent({
+      name,
+      filePath: resolver.resolve(runtimeDir, `components/${name}`),
+    })
+  }
+  // 6) add PWA composables (imports:extend): this will be called twice, but nuxt will dedupe them
+  addImports([
+    'usePWA',
+    'useTransparentPwaIcon',
+    'useMaskablePwaIcon',
+    'useFaviconPwaIcon',
+    'useApplePwaIcon',
+    'useAppleSplashScreenPwaIcon',
+  ].map(key => ({
+    name: key,
+    as: key,
+    from: resolver.resolve(runtimeDir, 'composables/index'),
+  })))
+  // 7) register nuxt hook to call PWA context:ready hook: cannot use build:done since builders hooks not
   //    being called and nuxt devtools should be ready after server:devHandler; unplugin-pwa devtools plugins
   //    awaiting at vite devtools setup PWA ready, this hook will call the PWA context:ready hook
   nuxt.hook('server:devHandler', serverDevHandlerHook<B, UserStrategy, T, NPC>(ctx, nuxt))
-  // 7) add builders stuff: for example, when using vite, will add unplugin-pwa vite plugins and middlewares
+  // 8) add builders stuff: for example, when using vite, will add unplugin-pwa vite plugins and middlewares
   nuxt.hook('build:before', buildBeforeHook<B, UserStrategy, T, NPC>(ctx))
 
   // build SW when building/generating

@@ -22,8 +22,8 @@ export async function registerPwaIconsTypes<
   let dts: DtsInfo | undefined
   if (pwaAssets) {
     try {
-      const { preparePWAIconTypes } = await import('./pwa-icons')
-      dts = await preparePWAIconTypes<B, UserStrategy, T, NPWAC>(nuxt, ctx)
+      const { preparePWAIcons } = await import('./prepare-pwa-icons')
+      dts = await preparePWAIcons<B, UserStrategy, T, NPWAC>(nuxt, ctx)
     }
     catch {
       dts = undefined
@@ -53,11 +53,10 @@ export async function registerPwaIconsTypes<
       getContents: () => pwaIcons(),
     })
   }
+
   addPwaTypeTemplate('PwaTransparentImage', dts?.transparent)
   addPwaTypeTemplate('PwaMaskableImage', dts?.maskable)
   addPwaTypeTemplate('PwaFaviconImage', dts?.favicon)
   addPwaTypeTemplate('PwaAppleImage', dts?.apple)
   addPwaTypeTemplate('PwaAppleSplashScreenImage', dts?.appleSplashScreen)
-
-  return !!dts
 }

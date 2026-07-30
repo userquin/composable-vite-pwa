@@ -3,8 +3,10 @@ import { defineComponent, h } from 'vue'
 import { useMaskablePwaIcon } from '#pwa'
 
 export default defineComponent<PwaMaskableImageProps>({
-  setup(props) {
-    const { icon } = useMaskablePwaIcon(props)
+  name: 'PwaMaskableImage',
+  inheritAttrs: false,
+  setup(_, { attrs = {} }) {
+    const { icon } = useMaskablePwaIcon(attrs as unknown as PwaMaskableImageProps)
     return () => {
       const data = icon.value
       if (!data)

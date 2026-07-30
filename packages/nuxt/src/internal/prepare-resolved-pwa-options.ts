@@ -7,6 +7,11 @@ import { hash } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import { lstat } from 'node:fs/promises'
 import path from 'node:path'
+import process from 'node:process'
+import {
+  normalizeManifest,
+  preparePWAStrategy,
+} from '@composable-vite-pwa/unplugin-pwa/node/helpers'
 import { isGreaterOrEqual } from 'verkit'
 
 export async function prepareResolvedPwaOptions<
@@ -19,6 +24,9 @@ export async function prepareResolvedPwaOptions<
   nuxt: Nuxt,
   outDir: string,
 ) {
+  // prepare manifest
+  normalizeManifest(ctx)
+
   let config: undefined | Partial<
     import('@composable-vite-pwa/workbox-build/types').BasePartial
       & import('@composable-vite-pwa/workbox-build/types').GlobPartial
@@ -33,6 +41,8 @@ export async function prepareResolvedPwaOptions<
         alias: nuxt.options.alias,
       },
     )
+    // add nuxt aliases for build-sw strategy: we can use #app-manifest for example at SW
+    ctx.resolvedOptions.buildSW!.alias = nuxt.options.alias
     config = ctx.resolvedOptions.buildSW!
   }
   else if (ctx.strategy === 'generate-sw') {
@@ -95,6 +105,7 @@ export async function prepareResolvedPwaOptions<
   }
 
   // Vite 5 support: allow override dontCacheBustURLsMatching
+  // remove './' prefix from assetsDir
   if (!('dontCacheBustURLsMatching' in config)) {
     config.dontCacheBustURLsMatching = new RegExp(`^${buildAssetsDir.replace(/^\.*\//, '')}`)
   }
@@ -103,7 +114,13 @@ export async function prepareResolvedPwaOptions<
   if (ctx.nuxt.enableGlobPatterns) {
     config.globPatterns = config.globPatterns ?? []
     config.globPatterns.push('**/_payload.json')
-    if (ctx.resolvedOptions.strategy === 'generate-sw' && ctx.nuxt.experimental?.enableWorkboxPayloadQueryParams) {
+    if (
+      ctx.resolvedOptions.strategy === 'generate-sw'
+      && (
+        ctx.nuxt.experimental?.enableWorkboxPayloadQueryParams === true
+        || ctx.nuxt.experimental?.enableGenerateSWPayloadQueryParams === true
+      )
+    ) {
       const generateSW = ctx.resolvedOptions.generateSW!
 
       generateSW.runtimeCaching = generateSW.runtimeCaching ?? []
@@ -139,13 +156,14 @@ export async function prepareResolvedPwaOptions<
     config.manifestTransforms = [createManifestTransform(ctx.base ?? '/', outDir, appManifestFolder)]
   }
 
-  if (ctx.resolvedOptions.pwaAssets) {
-    ctx.resolvedOptions.pwaAssets.integration = {
-      baseUrl: ctx.base ?? '/',
-      publicDir: ctx.publicDir,
-      outDir,
-    }
-  }
+  // add missing defaults at unplugin-pwa, shouldn't add anything
+  await preparePWAStrategy(
+    ctx,
+    process.cwd(),
+    ctx.outDir,
+    // this won't be applied, will be set at prepareResolvedPwaOptions
+    nuxt.options.app.buildAssetsDir ?? '_nuxt/',
+  )
 }
 
 function createManifestTransform(

@@ -27,6 +27,7 @@ trustPolicy: no-downgrade
 packages:
   - examples/**
   - '!examples/unplugin-pwa-nuxt5/**'
+  - '!examples/unplugin-pwa-nuxt5-pwa-assets/**'
   - packages/astro/**
   - packages/nuxt/**
   - packages/react-router/**
@@ -47,6 +48,7 @@ overrides:
   devframe: ^0.7.5
   postcss-selector-parser: 7.1.4
   rolldown: 1.1.2
+  sharp: 0.35.3
   semver: ^7.8.4
 
 patchedDependencies:
@@ -86,7 +88,7 @@ catalogs:
     '@unocss/reset': ^66.7.5
     '@vitejs/devtools': ^0.4.1
     '@vitejs/devtools-kit': ^0.4.1
-    '@vueuse/core': ^14.3.0
+    '@vueuse/core': ^14.4.0
     devframe: ^0.7.5
     unocss: ^66.7.5
     vue-router: ^5.2.0
@@ -229,7 +231,7 @@ catalogs:
     '@vitejs/plugin-vue': ^6.0.7
     '@vue/tsconfig': ^0.9.1
     vue: ^3.5.38
-    vue-tsc: ^3.3.5
+    vue-tsc: ^3.3.8
   webpack5:
     webpack: 5.107.1
 
@@ -254,3 +256,12 @@ minimumReleaseAgeExclude:
   - '@nuxt/test-utils@4.1.0'
   - '@nuxt/vite-builder@4.5.1'
   - nuxt@4.5.1
+
+supportedArchitectures:
+  os:
+    - win32
+    - darwin
+    - current
+  cpu:
+    - x64
+    - arm64

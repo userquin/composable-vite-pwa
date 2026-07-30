@@ -1,5 +1,5 @@
-import type { PwaModuleOptions } from '@composable-vite-pwa/nuxt/types'
-import type { Plugin } from 'vite'
+import type { PwaModuleOptions } from '@composable-vite-pwa/nuxt'
+import type { Plugin, PluginOption } from 'vite'
 
 const swSrc = '~/sw.ts'
 const swDest = 'sw.js'
@@ -29,7 +29,7 @@ export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
   includeManifest: false,
   registerWebManifestInRouteRules: true,
   client: {
-    registerPlugin: false,
+    registerPlugin: true,
   },
   manifest: {
     icons: [
@@ -177,7 +177,7 @@ export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
         return 'sw-helper'
       }
     },
-    plugins: () => [VirtualMessagePlugin()] as Plugin[],
+    plugins: () => [VirtualMessagePlugin()] as PluginOption[],
   },
   generateSW: {
     sourcemap: true,

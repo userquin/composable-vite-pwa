@@ -4,13 +4,7 @@ import type { Nuxt } from '@nuxt/schema'
 import type { ViteLegacyNuxtPWAContext, ViteNuxtPWAContext } from './internal-types'
 import fs from 'node:fs'
 import path from 'node:path'
-import process from 'node:process'
 import { resolvePwaConfiguration } from '@composable-vite-pwa/unplugin-pwa/node/config'
-import {
-  normalizeManifest,
-  preparePWAAssetsGenerator,
-  preparePWAStrategy,
-} from '@composable-vite-pwa/unplugin-pwa/node/helpers'
 
 export async function loadPwaConfiguration<
   UserStrategy extends VitePWAStrategy,
@@ -29,27 +23,4 @@ export async function loadPwaConfiguration<
     },
   )
   ctx.resolvedOptions = resolvedOptions as unknown as any
-}
-
-export async function initPwaConfiguration<
-  UserStrategy extends VitePWAStrategy,
-  T extends SWType,
->(
-  ctx: ViteNuxtPWAContext<UserStrategy, T> | ViteLegacyNuxtPWAContext<UserStrategy, T>,
-  nuxt: Nuxt,
-) {
-  normalizeManifest(ctx)
-  preparePWAAssetsGenerator(ctx)
-  switch (ctx.strategy) {
-    case 'build-sw':
-      ctx.resolvedOptions.buildSW!.alias = nuxt.options.alias
-      break
-  }
-  await preparePWAStrategy(
-    ctx,
-    process.cwd(),
-    nuxt.options.dev ? ctx.dev.options.tempFolder : ctx.outDir,
-    // this won't be applied, nitro:init will override it before calling initPwaConfiguration
-    nuxt.options.app.buildAssetsDir ?? '_nuxt/',
-  )
 }

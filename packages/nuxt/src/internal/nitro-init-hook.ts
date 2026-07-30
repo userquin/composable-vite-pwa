@@ -6,9 +6,14 @@ import type { NuxtPWAContext } from '../internal-types'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
+import {
+  normalizePath,
+} from '@composable-vite-pwa/unplugin-pwa/node/helpers'
+import { initPwaAssetsGenerator } from './init-pwa-assets-generator'
+import { loadPwaConfiguration } from './load-pwa-configuration.ts'
 import { prepareNitroRoutes } from './prepare-nitro-routes'
 import { prepareResolvedPwaOptions } from './prepare-resolved-pwa-options'
+import { addPWAIconsPluginTemplate } from './pwa-icons-helper'
 import { registerPwaIconsTypes } from './register-pwa-icons-types'
 
 export function nitroInitHook<
@@ -29,7 +34,7 @@ export function nitroInitHook<
 
     ctx.nuxt.publicDirs = [...publicDirs].filter(dir => existsSync(dir))
 
-    await ctx.nuxt.loadPwaConfiguration()
+    await loadPwaConfiguration<B, UserStrategy, T, NPWAC>(ctx, nuxt)
 
     const externalPWAPath = ctx.resolvedOptions.path
     if (externalPWAPath) {
@@ -39,7 +44,7 @@ export function nitroInitHook<
     if (nuxt.options.dev) {
       ctx.devEnvironment = true
       const internalDevOptions = ctx.dev.options!
-      internalDevOptions.tempFolder = path.resolve(nuxt.options.buildDir, 'pwa/.dev-dist')
+      internalDevOptions.tempFolder = path.resolve(nuxt.options.buildDir, 'pwa-dev/.dev-dist')
       ctx.outDir = internalDevOptions.tempFolder
       ctx.rootDir = nuxt.options.rootDir
       ctx.publicDir = nuxt.options.dir.public
@@ -61,12 +66,19 @@ export function nitroInitHook<
     await prepareResolvedPwaOptions<B, UserStrategy, T, NPWAC>(ctx, nuxt, ctx.outDir)
 
     // add custom bundler options
-    await ctx.nuxt.initPwaConfiguration()
+    await ctx.nuxt.preparePwaConfiguration?.()
 
-    // add nitro routes
-    await prepareNitroRoutes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
+    // prepare pwa assets generator
+    await initPwaAssetsGenerator(ctx, nuxt)
 
     // add pwa icons types
     await registerPwaIconsTypes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
+
+    // register pwa icons plugin
+    const pwaAssets = ctx.resolvedOptions.pwaAssets && !ctx.resolvedOptions.pwaAssets.disabled
+    addPWAIconsPluginTemplate(pwaAssets === true)
+
+    // add nitro routes
+    await prepareNitroRoutes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
   }
 }

@@ -95,7 +95,7 @@ declare module '#app' {
      * Example:
      * ```ts
      * const { $pwa } = useNuxtApp()
-     * if ($pwa?.needRefresh) await $pwa.updateServiceWorker(true)
+     * if ($pwa?.needRefresh) await $pwa.updateServiceWorker()
      * ```
      */
     $pwa?: UnwrapNestedRefs<PwaInjection>
@@ -110,7 +110,7 @@ declare module 'vue' {
      * Example:
      * ```ts
      * const { $pwa } = useNuxtApp()
-     * if ($pwa?.needRefresh) await $pwa.updateServiceWorker(true)
+     * if ($pwa?.needRefresh) await $pwa.updateServiceWorker()
      * ```
      */
     $pwa?: UnwrapNestedRefs<PwaInjection>

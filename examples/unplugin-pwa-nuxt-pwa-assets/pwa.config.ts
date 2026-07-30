@@ -1,5 +1,5 @@
+import type { PwaModuleOptions } from '@composable-vite-pwa/nuxt'
 import type { Plugin } from 'vite'
-import type { PwaModuleOptions } from './modules/pwa'
 
 const swSrc = '~/sw.ts'
 const swDest = 'sw.js'
@@ -29,7 +29,10 @@ export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
   includeManifest: false,
   registerWebManifestInRouteRules: true,
   client: {
-    registerPlugin: false,
+    registerPlugin: true,
+  },
+  pwaAssets: {
+    config: '~~/pwa-assets.config.ts',
   },
   manifest: {
     icons: [

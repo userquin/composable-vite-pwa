@@ -5,7 +5,9 @@ import type { HookResult } from '@nuxt/schema'
 
 export interface ClientOptions {
   /**
-   * Exposes the plugin: defaults to true.
+   * Expose the plugin?.
+   *
+   * @default true
    */
   registerPlugin?: boolean
   /**
@@ -13,19 +15,21 @@ export interface ClientOptions {
    */
   periodicSyncForUpdates?: number
   /**
-   * Will prevent showing native PWA install prompt: defaults to false.
+   * Will prevent showing native PWA install prompt.
    *
-   * When set to true or no empty string, the native PWA install prompt will be prevented.
+   * When set to true or non-empty string, the native PWA install prompt will be prevented.
    *
-   * When set to a string, it will be used as the key in `localStorage` to prevent show the PWA install prompt widget.
+   * When set to a string, it will be used as the key in `localStorage` to prevent showing the native PWA install prompt widget.
    *
    * When set to true, the key used will be `vite-pwa:hide-install`.
+   *
+   * @default false
    */
   installPrompt?: boolean | string
 }
 
 export interface PwaModuleOptions<
-  UserStrategy extends VitePWAStrategy = 'generateSW',
+  UserStrategy extends VitePWAStrategy = 'generate-sw',
   T extends SWType = 'classic',
 > extends Partial<VitePWAOptions<UserStrategy, T>> {
   /**
@@ -33,11 +37,10 @@ export interface PwaModuleOptions<
    */
   experimental?: {
     /**
-     * NOTE: this option will be ignored if using the `injectManifest` strategy or when Nuxt experimental payload
+     * NOTE: this option will be ignored if using `build-sw` or inject-manifest` strategies or when Nuxt experimental payload
      * extraction is disabled.
      *
      * Enable custom runtime caching to resolve the payload.json requests with query parameters when offline:
-     * - Workbox doesn't allow to configure `precacheAndRoute` `urlManipulation` option when using the `generateSW` strategy.
      * - Nuxt SSG will generate a payload.json file and will fetch it with a query parameter.
      * - The service worker cannot resolve the payload.json request with query parameters, and you won't get the payload when offline.
      *
@@ -45,7 +48,9 @@ export interface PwaModuleOptions<
      * with query parameters when offline: the runtime caching handler will redirect to the payload.json file without
      * query parameters when the original request fails.
      *
-     * If you're using `injectManifest` strategy, you can fix the issue in your custom service worker adding the
+     * The new `@composable-vite-pwa/workbox-build` allows `urlManipulation` option for `precacheAndRoute` when using `generate-sw` strategy.
+     *
+     * If you're using `build-sw` or `inject-manifest` strategy, you can fix the issue in your custom service worker adding the
      * following `urlManipulation` callback to the `precacheAndRouter` call:
      * ```ts
      * // self.__WB_MANIFEST is the default injection point
@@ -65,11 +70,22 @@ export interface PwaModuleOptions<
      * )
      * ```
      */
+    enableGenerateSWPayloadQueryParams?: true
+    /**
+     * @deprecated use `enableGenerateSWPayloadQueryParams` instead.
+     */
     enableWorkboxPayloadQueryParams?: true
   }
+  /**
+   * Should add nitro route rules for the web manifest?.
+   *
+   * @default false
+   */
   registerWebManifestInRouteRules?: boolean
   /**
-   * Writes the plugin to disk: defaults to false (debug).
+   * Writes the plugin to disk.
+   *
+   * @default false
    */
   writePlugin?: boolean
   /**

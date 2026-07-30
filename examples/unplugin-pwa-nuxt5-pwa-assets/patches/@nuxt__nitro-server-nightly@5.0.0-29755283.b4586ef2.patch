@@ -1,5 +1,5 @@
 diff --git a/dist/index.mjs b/dist/index.mjs
-index e5803f7ba03d7d7b715e5f348a197e2676d7f836..020d137f9c5bcdb21021710c3fcd1c7bd884a674 100644
+index b089a43f9de5bdb433049f1534587780a45a179d..a881012950bdd36a4e08e02de5e1b1208b4e8f0b 100644
 --- a/dist/index.mjs
 +++ b/dist/index.mjs
 @@ -192,7 +192,7 @@ function setupNitroViteEnvironment(nuxt, nitro$1) {

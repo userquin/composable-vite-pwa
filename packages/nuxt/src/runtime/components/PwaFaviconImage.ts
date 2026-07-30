@@ -3,8 +3,10 @@ import { defineComponent, h } from 'vue'
 import { useFaviconPwaIcon } from '#pwa'
 
 export default defineComponent<PwaFaviconImageProps>({
-  setup(props) {
-    const { icon } = useFaviconPwaIcon(props)
+  name: 'PwaFaviconImage',
+  inheritAttrs: false,
+  setup(_, { attrs = {} }) {
+    const { icon } = useFaviconPwaIcon(attrs as unknown as PwaFaviconImageProps)
     return () => {
       const data = icon.value
       if (!data)

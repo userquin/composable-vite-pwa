@@ -18,15 +18,17 @@ allowBuilds:
   vue-demi: false
 
 overrides:
-  '@nuxt/nitro-server-nightly': 5.0.0-29753941.df18c4a8
+  '@devframes/nuxt': 0.7.14
+  '@devframes/plugin-messages': 0.7.14
+  '@nuxt/nitro-server-nightly': npm:nuxt-nightly@5x
   devframe: 0.7.14
   nuxt: npm:nuxt-nightly@5x
 
 minimumReleaseAgeExclude:
   - vite@8.1.0
   - devframe@0.7.14
-  - nuxt@5.0.0-29753224.b118e435
-  - '@nuxt/nitro-server-nightly@5.0.0-29753941.df18c4a8'
+  - '@nuxt/*'
+  - nuxt
 
 patchedDependencies:
-  '@nuxt/nitro-server-nightly@5.0.0-29754058.39aa9974': patches/@nuxt__nitro-server-nightly@5.0.0-29754058.39aa9974.patch
+  '@nuxt/nitro-server-nightly@5.0.0-29755283.b4586ef2': patches/@nuxt__nitro-server-nightly@5.0.0-29755283.b4586ef2.patch

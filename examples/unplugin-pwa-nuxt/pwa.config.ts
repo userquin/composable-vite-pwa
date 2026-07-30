@@ -1,4 +1,4 @@
-import type { PwaModuleOptions } from '@composable-vite-pwa/nuxt/types'
+import type { PwaModuleOptions } from '@composable-vite-pwa/nuxt'
 import type { Plugin } from 'vite'
 
 const swSrc = '~/sw.ts'
