@@ -5,8 +5,14 @@ import type { VitePWAStrategy } from '../types'
 import path from 'node:path'
 import process from 'node:process'
 import { prepareManifest, resolvePwaConfiguration } from '../config'
+import {
+  normalizeManifest,
+  preparePWAAssetsGenerator,
+  preparePWAStrategy,
+  resolveBasePath,
+} from '../helpers'
 import { prepareSwNames } from '../prepare-sw-names'
-import { normalizeManifest, preparePWAAssetsGenerator, preparePWAStrategy, resolveBasePath } from '../vite/helpers'
+// todo: this needs a fully rewrite since we need to handle webpack hmr
 import { pwaAssetsResolver } from '../vite/pwa-assets-resolver'
 
 export async function prepareWebpackPWAContext<
@@ -19,7 +25,20 @@ export async function prepareWebpackPWAContext<
   if (ctx.externalConfigurationLoader)
     return
 
-  ctx.resolvedOptions = await resolvePwaConfiguration<UserStrategy, T>(ctx.consumerOptions)
+  ctx.resolvedOptions = await resolvePwaConfiguration<UserStrategy, T>(
+    ctx.consumerOptions,
+    {
+      isDev: ctx.devEnvironment,
+      isWrongInjectManifest: (_swSrc) => {
+        // todo: replace ctx.viteConfig.publicDir with the corresponding at webpack if any
+        /* const swSrcDir = normalizePath(path.dirname(swSrc))
+        const publicDir = normalizePath(path.resolve(process.cwd(), ctx.viteConfig.publicDir || 'public'))
+
+        return !(swSrcDir === publicDir) */
+        return false
+      },
+    },
+  )
 
   const root = compiler.options.context || process.cwd()
   const outDir = compiler.options.output.path || path.resolve(root, 'dist')

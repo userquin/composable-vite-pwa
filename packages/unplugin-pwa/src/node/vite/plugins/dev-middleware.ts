@@ -5,9 +5,9 @@ import type { ViteBundler, VitePWAPluginContext } from '../vite-context'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { prepareSwBuild } from '@composable-vite-pwa/unplugin-pwa/node/vite/dev/prepare-sw-build'
 import { normalizePath } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 import pc from 'picocolors'
+import { prepareSwBuild } from '../../dev/prepare-sw-build'
 import { generateWebManifest } from '../../generate-web-manifest'
 
 export function DevMiddlewarePlugin<

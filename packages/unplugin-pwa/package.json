@@ -59,6 +59,7 @@
     "./node/prepare-sw-names": "./dist/node/prepare-sw-names.mjs",
     "./node/dev/prepare-sw-names-and-glob-directory": "./dist/node/dev/prepare-sw-names-and-glob-directory.mjs",
     "./node/dev/prepare-temp-folder": "./dist/node/dev/prepare-temp-folder.mjs",
+    "./node/dev/prepare-sw-build": "./dist/node/dev/prepare-sw-build.mjs",
     "./node/vite/legacy": "./dist/node/vite/legacy.mjs",
     "./node/vite/inject-manifest-hook": "./dist/node/vite/inject-manifest-hook.mjs",
     "./node/vite/helpers": "./dist/node/vite/helpers.mjs",
@@ -68,7 +69,6 @@
     "./node/vite/dev/default-service-worker-assets-normalizer": "./dist/node/vite/dev/default-service-worker-assets-normalizer.mjs",
     "./node/vite/dev/inject-hmr-script": "./dist/node/vite/dev/inject-hmr-script.mjs",
     "./node/vite/dev/prepare-register-sw": "./dist/node/vite/dev/prepare-register-sw.mjs",
-    "./node/vite/dev/prepare-sw-build": "./dist/node/vite/dev/prepare-sw-build.mjs",
     "./node/vite/plugins/build-pwa-assets": "./dist/node/vite/plugins/build-pwa-assets.mjs",
     "./node/vite/plugins/build-register-sw": "./dist/node/vite/plugins/build-register-sw.mjs",
     "./node/vite/plugins/build-sw": "./dist/node/vite/plugins/build-sw.mjs",
@@ -80,14 +80,8 @@
     "./node/vite/plugins/inspector": "./dist/node/vite/plugins/inspector.mjs",
     "./node/vite/plugins/main": "./dist/node/vite/plugins/main.mjs",
     "./node/vite/plugins/pwa-assets": "./dist/node/vite/plugins/pwa-assets.mjs",
-    "./webpack": {
-      "types": "./dist/node/webpack/index.d.mts",
-      "import": "./dist/node/webpack/index.mjs"
-    },
-    "./node/webpack/dev": {
-      "types": "./dist/node/webpack/dev/index.d.mts",
-      "import": "./dist/node/webpack/dev/index.mjs"
-    },
+    "./webpack": "./dist/node/webpack/index.mjs",
+    "./node/webpack/dev": "./dist/node/webpack/dev/index.mjs",
     "./types": {
       "types": "./types/index.d.ts"
     },

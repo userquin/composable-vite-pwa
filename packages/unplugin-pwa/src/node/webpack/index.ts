@@ -4,15 +4,16 @@ import type { PWAPluginContext } from '../context-types'
 import type { VitePWAOptions, VitePWAStrategy } from '../types'
 import { FILE_SW_REGISTER } from '../constants'
 import { createWebpackPWAContext } from '../context'
+import { prepareSwBuild } from '../dev/prepare-sw-build'
+import { prepareSwNamesAndGlobDirectory } from '../dev/prepare-sw-names-and-glob-directory'
 import { generateRegisterSW } from '../generate-register-sw'
 import { generateWebManifest } from '../generate-web-manifest'
 import { injectGenerateRegisterSW } from '../inject-generate-register-sw'
 import { injectWebManifestHtmlLink } from '../inject-web-manifest-html-link'
-import { prepareSwBuild } from '../vite/dev/prepare-sw-build'
-import { prepareSwNamesAndGlobDirectory } from '../vite/dev/prepare-sw-names-and-glob-directory'
 import { prepareWebpackPWAContext } from './helpers'
 import { applyVirtualModules } from './virtual-modules'
 
+// todo: move this to types.ts and don't re-export here any type, types.d.mts should be at subpackages exports
 export interface WebpackPWAPlugin extends WebpackPluginInstance {
   /** The shared context can be passed to getDevMiddlewares(). */
   api: PWAPluginContext<'webpack', any, any>
@@ -113,5 +114,6 @@ export function WebpackPWA<
   }
 }
 
-export default WebpackPWA
+// todo: don't use default export
+// todo: move this to subpackage exports
 export { getDevMiddlewares, injectHmrScript } from './dev'
