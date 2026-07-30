@@ -9,10 +9,15 @@ import { extractIcons } from './utils'
 
 export async function loadInstructions(ctx: PWAPluginContext<any, any, any>) {
   const assetsGeneratorContext = await loadAssetsGeneratorContext(ctx)
-  if (!assetsGeneratorContext)
+  if (!assetsGeneratorContext) {
     return
+  }
+
+  // make a copy
+  const sources = Array.from(assetsGeneratorContext.sources)
 
   return {
+    sources: () => sources,
     generate: () => generate(assetsGeneratorContext),
     findIconAsset: (path: string) => findIconAsset(path, assetsGeneratorContext),
     resolveHtmlAssets: () => resolveHtmlAssets(ctx, assetsGeneratorContext),

@@ -21,6 +21,31 @@ import type {
 import type { HtmlLinkPreset } from '@vite-pwa/assets-generator/api'
 import type { BuiltInPreset, Preset } from '@vite-pwa/assets-generator/config'
 
+export interface PWAAssetsIntegrationOptions {
+  /**
+   * The base url for the PWA assets.
+   *
+   * @default `vite.base`
+   */
+  baseUrl?: string
+  /**
+   * The public directory to resolve the image: should be an absolute path.
+   *
+   * @default `vite.root/vite.publicDir`
+   */
+  publicDir?: string
+  /**
+   * The output directory: should be an absolute path.
+   *
+   * @default `vite.root/vite.build.outDir`
+   */
+  outDir?: string
+  /**
+   * Resolves the image: should return absolute path.
+   */
+  resolveImage?: (image: string) => string | Promise<string>
+}
+
 /**
  * PWA assets generation and injection options.
  */
@@ -102,26 +127,7 @@ export interface PWAAssetsOptions {
    *
    * This option should be only used by integrations, it is not meant to be used by end users.
    */
-  integration?: {
-    /**
-     * The base url for the PWA assets.
-     *
-     * @default `vite.base`
-     */
-    baseUrl?: string
-    /**
-     * The public directory to resolve the image: should be an absolute path.
-     *
-     * @default `vite.root/vite.publicDir`
-     */
-    publicDir?: string
-    /**
-     * The output directory: should be an absolute path.
-     *
-     * @default `vite.root/vite.build.outDir`
-     */
-    outDir?: string
-  }
+  integration?: PWAAssetsIntegrationOptions
 }
 
 export interface ResolvedPWAAssetsOptions extends Required<Omit<PWAAssetsOptions, 'image' | 'integration'>> {

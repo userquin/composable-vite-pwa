@@ -41,8 +41,9 @@ export async function checkHotUpdate(
 ) {
   // watch pwa assets configuration file
   const result = assetsGeneratorContext.sources.includes(file)
-  if (result)
+  if (result) {
     await loadAssetsGeneratorContext(ctx, assetsGeneratorContext)
+  }
 
   return result
 }
