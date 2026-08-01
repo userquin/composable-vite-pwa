@@ -1,24 +1,58 @@
+import type { Bundler } from './bundler-types'
 import type { BuildSWResult, DetectorOptions, DetectorResult, GenerateSWDependenciesResult } from './detector-types'
 import { readFileSync } from 'node:fs'
 import { findPackageJSON } from 'node:module'
 import process from 'node:process'
 import { pathToFileURL } from 'node:url'
 import { getMajor, isGreaterOrEqual } from 'verkit'
+import { BundlerNames } from './utils'
 
 const base = pathToFileURL(`${process.cwd()}/`).href
 
 type Specifier = 'magicast' | 'vite' | 'rolldown'
+interface PkgJson {
+  name: string
+  version: string
+  bundledVersions?: {
+    vite: string
+  }
+}
 function readPkgVersion(specifier: Specifier): string | undefined {
   const p = findPackageJSON(specifier, base)
   if (!p) {
     return undefined
   }
 
-  const pkg = JSON.parse(readFileSync(p, 'utf8')) as { version?: unknown }
+  const pkg: PkgJson = JSON.parse(readFileSync(p, 'utf8'))
   if (pkg === undefined) {
     return undefined
   }
+  if (specifier === 'vite' && pkg.name === '@voidzero-dev/vite-plus-core') {
+    return pkg.bundledVersions?.vite
+  }
   return typeof pkg.version === 'string' ? pkg.version : undefined
+}
+
+export function collectVersionInfo(bundler: Bundler, fallback: string): string {
+  try {
+    const p = findPackageJSON(bundler, base)
+    if (!p) {
+      return fallback
+    }
+
+    const pkg: PkgJson = JSON.parse(readFileSync(p, 'utf8'))
+    if (pkg === undefined) {
+      return fallback
+    }
+    if (bundler === 'vite' && pkg.name === '@voidzero-dev/vite-plus-core') {
+      return `${BundlerNames[bundler]} ${pkg.bundledVersions!.vite} via Vite+ ${pkg.version}`
+    }
+
+    return `${BundlerNames[bundler]} ${pkg.version}`
+  }
+  catch {
+    return fallback
+  }
 }
 
 export async function detectRolldown(): Promise<boolean | undefined> {

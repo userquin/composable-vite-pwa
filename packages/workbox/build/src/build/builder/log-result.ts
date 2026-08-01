@@ -9,6 +9,7 @@ import process from 'node:process'
 import pc from 'picocolors'
 import pkg from '../../../package.json' with { type: 'json' }
 import { normalizePath } from '../../utils/resolve-sw-names'
+import { collectVersionInfo } from './detector'
 import { BundlerNames } from './utils'
 
 const version = pkg.version
@@ -30,7 +31,7 @@ export function logPWAWorkboxResult(
 
   const currentBundlerLogLevel = bundlersLogLevel[bundler] || 'info'
 
-  console.info(`\n${pc.cyan(pc.bold(`Vite PWA v${version} [${BundlerNames[bundler]}]`))}`)
+  console.info(`\n${pc.cyan(pc.bold(`Vite PWA v${version} [${collectVersionInfo(bundler, BundlerNames[bundler])}]`))}`)
   console.info(`${pc.dim('strategy')}  ${pc.magenta(strategy)}`)
 
   // Precaching Summary
