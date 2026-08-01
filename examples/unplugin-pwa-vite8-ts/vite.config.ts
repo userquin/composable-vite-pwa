@@ -1,6 +1,6 @@
 import type { Plugin } from 'vite'
 import { VitePWA } from '@composable-vite-pwa/unplugin-pwa'
-import { sentryVitePlugin } from '@sentry/vite-plugin'
+// import { sentryVitePlugin } from '@sentry/vite-plugin'
 import { DevTools } from '@vitejs/devtools'
 import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
@@ -199,7 +199,7 @@ export default defineConfig({
 
           return [
             virtualMessagePlugin(),
-            sentryVitePlugin({
+            /* sentryVitePlugin({
               org: 'dummy-org',
               project: 'dummy-project',
               authToken: 'dummy-token',
@@ -207,7 +207,7 @@ export default defineConfig({
               release: { name: 'repro-release' },
               // Prevent it from trying to upload anything (that would require real authentication)
               sourcemaps: { disable: true },
-            }),
+            }), */
           ]
         },
       },
