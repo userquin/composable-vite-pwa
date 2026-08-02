@@ -27,7 +27,6 @@ export async function initPwaAssetsGenerator(
       baseUrl: ctx.base,
       publicDir: ctx.publicDir,
       outDir: ctx.outDir,
-      // outDir: ctx.outDir,
       resolveImage: resolveImageFactory(ctx, nuxt),
     }
 

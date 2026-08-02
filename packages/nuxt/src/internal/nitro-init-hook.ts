@@ -52,7 +52,7 @@ export function nitroInitHook<
       ctx.rootDir = nuxt.options.rootDir
     }
     else {
-      ctx.outDir = normalizePath(nitro.options.output.publicDir ?? path.resolve(nuxt.options.rootDir, './.output/public'))// ? path.resolve(process.cwd(), publicDir) : path.resolve(process.cwd(), './.output/public')
+      ctx.outDir = normalizePath(nitro.options.output.publicDir ?? path.resolve(nuxt.options.rootDir, './.output/public'))
       ctx.rootDir = ctx.outDir
       ctx.resolvedOptions.outDir = ctx.outDir
     }

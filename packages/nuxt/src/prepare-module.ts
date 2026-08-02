@@ -80,7 +80,7 @@ export async function prepareModule<
   // 2) load configuration and prepare the PWA context: will configure pwa assets icons and runtime stuff
   nuxt.hook('nitro:init', nitroInitHook<B, UserStrategy, T, NPC>(ctx, nuxt))
   // 3) add PWA types and registers composables
-  nuxt.hook('prepare:types', prepareTypesHook<B, UserStrategy, T, NPC>(ctx, nuxt, runtimeDir))
+  nuxt.hook('prepare:types', prepareTypesHook<B, UserStrategy, T, NPC>(ctx))
   // 4) prepare devtools tab: this hook runs between prepare:types and component:extend, cannot use build:before hook
   nuxt.hook('devtools:customTabs', devtoolsCustomTabsHook<B, UserStrategy, T, NPC>(ctx))
   // 5) add PWA components (components:extend)
