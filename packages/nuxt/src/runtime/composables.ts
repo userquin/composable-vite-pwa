@@ -1,36 +1,21 @@
-import type { MaybeRef, UnwrapNestedRefs } from 'vue'
-import type { PwaAppleImageProps } from '#build/pwa-icons/PwaAppleImage'
-import type { PwaAppleSplashScreenImageProps } from '#build/pwa-icons/PwaAppleSplashScreenImage'
-import type { PwaFaviconImageProps } from '#build/pwa-icons/PwaFaviconImage'
-import type { PwaMaskableImageProps } from '#build/pwa-icons/PwaMaskableImage'
-import type { PwaTransparentImageProps } from '#build/pwa-icons/PwaTransparentImage'
-import type { PwaInjection } from '../plugins/types'
+import type { ImgHTMLAttributes, MaybeRef, UnwrapNestedRefs } from 'vue'
+import type { PwaAppleImageProps } from '#build/pwa-icons/PwaAppleImageProps'
+import type { PwaAppleSplashScreenImageProps } from '#build/pwa-icons/PwaAppleSplashScreenImageProps'
+import type { PwaFaviconImageProps } from '#build/pwa-icons/PwaFaviconImageProps'
+import type { PwaMaskableImageProps } from '#build/pwa-icons/PwaMaskableImageProps'
+import type { PwaTransparentImageProps } from '#build/pwa-icons/PwaTransparentImageProps'
+import type { PwaInjection } from './plugins/types'
 import { computed, toValue } from 'vue'
 import { useNuxtApp } from '#imports'
 
-export interface PWAImage {
+export type PWAVueImageType = Omit<ImgHTMLAttributes, 'src'>
+
+export type PWAImage = PWAVueImageType & {
   image: string
-  alt?: string
-  width?: number
-  height?: number
-  crossorigin?: '' | 'anonymous' | 'use-credentials'
-  loading?: 'lazy' | 'eager'
-  decoding?: 'async' | 'auto' | 'sync'
-  nonce?: string
-  [key: string]: any
 }
 
-export interface PWAIcon {
-  src: string
+export type PWAIcon = ImgHTMLAttributes & {
   key: any
-  alt?: string
-  width?: number
-  height?: number
-  crossorigin?: '' | 'anonymous' | 'use-credentials'
-  loading?: 'lazy' | 'eager'
-  decoding?: 'async' | 'auto' | 'sync'
-  nonce?: string
-  [key: string]: any
 }
 
 export type PWAImageType<T> = T extends 'transparent'
@@ -92,25 +77,15 @@ function usePWAIcon(
     }
 
     const {
-      alt,
       width,
       height,
-      crossorigin,
-      loading,
-      decoding,
-      nonce,
       image: _image,
       ...rest
     } = pwaIcon
 
     return <PWAIcon>{
-      alt,
       width: width ?? image.width,
       height: height ?? image.height,
-      crossorigin,
-      loading,
-      decoding,
-      nonce,
       ...rest,
       key: image.key,
       src: image.src,

@@ -1,11 +1,11 @@
-import type { Ref, UnwrapNestedRefs } from 'vue'
+import type { Ref } from 'vue'
 
 /**
  * Result of the native PWA installation prompt.
  */
 export interface UserChoice {
   /**
-   * The user's selection on the install prompt.
+   * The user's selection on the installation prompt.
    */
   outcome: 'accepted' | 'dismissed'
   /**
@@ -23,7 +23,7 @@ export interface UserChoice {
  */
 export type BeforeInstallPromptEvent = Event & {
   /**
-   * Triggers the browser's native install prompt.
+   * Triggers the browser's native installation prompt.
    */
   prompt: () => void
   /**
@@ -42,7 +42,7 @@ export interface PwaInjection {
    */
   isPWAInstalled: Ref<boolean>
   /**
-   * When `true`, your UI should show a custom install prompt. This flag is set
+   * When `true`, your UI should show a custom installation prompt. This flag is set
    * after the `beforeinstallprompt` event is captured and cleared when the user
    * proceeds or cancels.
    */
@@ -53,7 +53,7 @@ export interface PwaInjection {
    */
   cancelInstall: () => void
   /**
-   * Shows the native install prompt if available and returns the user's choice.
+   * Shows the native installation prompt if available and returns the user's choice.
    * Returns `undefined` when the prompt is not available or not currently shown.
    */
   install: () => Promise<UserChoice | undefined>
@@ -86,35 +86,3 @@ export interface PwaInjection {
    */
   cancelPrompt: () => Promise<void>
 }
-
-declare module '#app' {
-  interface NuxtApp {
-    /**
-     * Reactive PWA state and controls provided by @vite-pwa/nuxt.
-     *
-     * Example:
-     * ```ts
-     * const { $pwa } = useNuxtApp()
-     * if ($pwa?.needRefresh) await $pwa.updateServiceWorker()
-     * ```
-     */
-    $pwa?: UnwrapNestedRefs<PwaInjection>
-  }
-}
-
-declare module 'vue' {
-  interface ComponentCustomProperties {
-    /**
-     * Reactive PWA state and controls provided by @vite-pwa/nuxt.
-     *
-     * Example:
-     * ```ts
-     * const { $pwa } = useNuxtApp()
-     * if ($pwa?.needRefresh) await $pwa.updateServiceWorker()
-     * ```
-     */
-    $pwa?: UnwrapNestedRefs<PwaInjection>
-  }
-}
-
-export {}

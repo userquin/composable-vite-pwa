@@ -5,6 +5,7 @@ import type { Plugin } from 'vite'
 import type { ViteLegacyNuxtPWAContext, ViteNuxtPWAContext } from './internal-types'
 import { DevPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev'
 import { DevMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-middleware'
+import { DevAssetsMiddlewarePlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/dev-pwa-assets-middleware'
 import { DevtoolsPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/devtools'
 import { InfoPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/info'
 import { InspectorPlugin } from '@composable-vite-pwa/unplugin-pwa/node/vite/plugins/inspector'
@@ -139,6 +140,7 @@ export async function prepareNuxtOptions<
     InfoPlugin(ctx),
     DevPlugin(ctx),
     DevMiddlewarePlugin(ctx),
+    DevAssetsMiddlewarePlugin(ctx),
     AssetsPlugin(ctx),
     PwaRuntimeConfiguration(ctx),
     InspectorPlugin(ctx),

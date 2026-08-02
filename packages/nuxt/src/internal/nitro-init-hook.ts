@@ -5,7 +5,6 @@ import type { Nuxt } from '@nuxt/schema'
 import type { NuxtPWAContext } from '../internal-types'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
-import process from 'node:process'
 import {
   normalizePath,
 } from '@composable-vite-pwa/unplugin-pwa/node/helpers'
@@ -13,7 +12,6 @@ import { initPwaAssetsGenerator } from './init-pwa-assets-generator'
 import { loadPwaConfiguration } from './load-pwa-configuration.ts'
 import { prepareNitroRoutes } from './prepare-nitro-routes'
 import { prepareResolvedPwaOptions } from './prepare-resolved-pwa-options'
-import { addPWAIconsPluginTemplate } from './pwa-icons-helper'
 import { registerPwaIconsTypes } from './register-pwa-icons-types'
 
 export function nitroInitHook<
@@ -35,24 +33,26 @@ export function nitroInitHook<
     ctx.nuxt.publicDirs = [...publicDirs].filter(dir => existsSync(dir))
 
     await loadPwaConfiguration<B, UserStrategy, T, NPWAC>(ctx, nuxt)
-
     const externalPWAPath = ctx.resolvedOptions.path
     if (externalPWAPath) {
       nuxt.options.watch.push(externalPWAPath)
     }
 
+    ctx.resolvedOptions.includeManifestIcons = false
+    ctx.resolvedOptions.includeManifest = false
+    ctx.resolvedOptions.includeManifestScreenshots = false
+    ctx.resolvedOptions.includeManifestShortcutIcons = false
+
+    ctx.publicDir = nuxt.options.dir.public
     if (nuxt.options.dev) {
       ctx.devEnvironment = true
       const internalDevOptions = ctx.dev.options!
       internalDevOptions.tempFolder = path.resolve(nuxt.options.buildDir, 'pwa-dev/.dev-dist')
       ctx.outDir = internalDevOptions.tempFolder
       ctx.rootDir = nuxt.options.rootDir
-      ctx.publicDir = nuxt.options.dir.public
     }
     else {
-      const publicDir = nitro.options.output.publicDir
-      ctx.outDir = publicDir ? path.resolve(process.cwd(), publicDir) : path.resolve(process.cwd(), './.output/public')
-      ctx.publicDir = ctx.outDir
+      ctx.outDir = normalizePath(nitro.options.output.publicDir ?? path.resolve(nuxt.options.rootDir, './.output/public'))// ? path.resolve(process.cwd(), publicDir) : path.resolve(process.cwd(), './.output/public')
       ctx.rootDir = ctx.outDir
       ctx.resolvedOptions.outDir = ctx.outDir
     }
@@ -71,12 +71,8 @@ export function nitroInitHook<
     // prepare pwa assets generator
     await initPwaAssetsGenerator(ctx, nuxt)
 
-    // add pwa icons types
+    // add pwa icons plugin and types
     await registerPwaIconsTypes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
-
-    // register pwa icons plugin
-    const pwaAssets = ctx.resolvedOptions.pwaAssets && !ctx.resolvedOptions.pwaAssets.disabled
-    addPWAIconsPluginTemplate(pwaAssets === true)
 
     // add nitro routes
     await prepareNitroRoutes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
