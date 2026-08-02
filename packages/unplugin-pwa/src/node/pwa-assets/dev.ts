@@ -2,7 +2,7 @@ import type { PWAPluginContext } from '../context-types'
 import type { AssetsGeneratorContext, ResolvedIconAsset } from './types'
 import { loadAssetsGeneratorContext } from './config'
 
-export async function findIconAsset(
+export function findIconAsset(
   path: string,
   { assetsInstructions, cache, lastModified }: AssetsGeneratorContext,
 ) {
@@ -11,6 +11,8 @@ export async function findIconAsset(
     resolved.age = Date.now() - lastModified
     return resolved
   }
+
+  console.log()
 
   const iconAsset = assetsInstructions.transparent[path]
     ?? assetsInstructions.maskable[path]

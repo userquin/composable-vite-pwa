@@ -34,7 +34,7 @@ export function DevAssetsMiddlewarePlugin<
           return next()
         }
 
-        const icon = await pwaAssetsGenerator.findIconAsset(url)
+        const icon = pwaAssetsGenerator.findIconAsset(url)
         if (!icon) {
           return next()
         }

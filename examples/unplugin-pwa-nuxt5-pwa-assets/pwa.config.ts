@@ -23,10 +23,10 @@ export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
   swType: 'classic-and-module',
   strategies: 'build-sw',
   // includeAssets: ['favicon.ico', 'favicon.svg'],
-  includeManifestIcons: true,
+  // includeManifestIcons: true,
   minify: false,
   disable: false,
-  includeManifest: false,
+  // includeManifest: false,
   registerWebManifestInRouteRules: true,
   client: {
     registerPlugin: true,
@@ -175,15 +175,17 @@ export const config: PwaModuleOptions<'build-sw', 'classic-and-module'> = {
     sourcemap: true,
     manifest: true,
     swSrc,
+    globPatterns: ['**/*.{html,png,js,css,webp,webmanifest,svg,ico}'],
     customChunks: (moduleId, ctx) => {
       if (ctx.getModuleInfo(moduleId)?.id.includes('sw-helper')) {
         return 'sw-helper'
       }
     },
-    plugins: () => [VirtualMessagePlugin()] as Plugin[],
+    plugins: () => [VirtualMessagePlugin()],
   },
   generateSW: {
     sourcemap: true,
+    globPatterns: ['**/*.{html,png,js,css,webp,webmanifest,svg,ico}'],
   },
   devOptions: {
     enabled: true,

@@ -1,12 +1,14 @@
 <script setup lang="ts">
-const icons = useNuxtApp().$pwaIcons
+import { PwaTransparentImage } from '#pwa-components'
+
+const icons = useNuxtApp().$pwaIcons?.transparent?.['pwa-192x192.png']
 
 const { icon } = useTransparentPwaIcon('pwa-64x64.png')
 
 if (import.meta.client) {
-  const pwa = usePWA()
+  const xpwa = usePWA()
   // eslint-disable-next-line no-console
-  console.log(pwa)
+  console.log(xpwa)
 }
 </script>
 
@@ -17,6 +19,7 @@ if (import.meta.client) {
       <ClientOnly>
         <span>
           PWA Installed: {{ $pwa?.isPWAInstalled }}
+          {{ $pwaIcons?.transparent['pwa-64x64.png'] }}
         </span>
       </ClientOnly>
     </div>

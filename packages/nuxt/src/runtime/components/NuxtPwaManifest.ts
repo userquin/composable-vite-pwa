@@ -4,7 +4,7 @@ import { defineComponent, ref } from 'vue'
 import { useHead } from '#imports'
 
 export default defineComponent({
-  async setup() {
+  setup() {
     if (pwaInfo) {
       const meta = ref<MetaObject>({ link: [] })
       useHead(meta)

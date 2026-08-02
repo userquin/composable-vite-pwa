@@ -62,8 +62,10 @@ export async function prepareModule<
   const runtimeDir = resolver.resolve('./runtime')
   nuxt.options.build.transpile.push(runtimeDir)
 
-  nuxt.options.alias['#pwa'] = resolver.resolve(runtimeDir, 'composables/index')
+  nuxt.options.alias['#pwa'] = resolver.resolve(runtimeDir, 'composables')
   nuxt.options.build.transpile.push('#pwa')
+  // nuxt.options.alias['#pwa-components'] = resolver.resolve(runtimeDir, 'components/index')
+  // nuxt.options.build.transpile.push('#pwa-components')
 
   if (ctx.nuxt.client.registerPlugin) {
     addPlugin({
@@ -78,7 +80,7 @@ export async function prepareModule<
   // 2) load configuration and prepare the PWA context: will configure pwa assets icons and runtime stuff
   nuxt.hook('nitro:init', nitroInitHook<B, UserStrategy, T, NPC>(ctx, nuxt))
   // 3) add PWA types and registers composables
-  nuxt.hook('prepare:types', prepareTypesHook<B, UserStrategy, T, NPC>(ctx, runtimeDir))
+  nuxt.hook('prepare:types', prepareTypesHook<B, UserStrategy, T, NPC>(ctx))
   // 4) prepare devtools tab: this hook runs between prepare:types and component:extend, cannot use build:before hook
   nuxt.hook('devtools:customTabs', devtoolsCustomTabsHook<B, UserStrategy, T, NPC>(ctx))
   // 5) add PWA components (components:extend)
@@ -86,15 +88,16 @@ export async function prepareModule<
     const name of [
       'NuxtPwaAssets',
       'NuxtPwaManifest',
-      'PwaAppleImage',
-      'PwaAppleSplashScreenImage',
-      'PwaFaviconImage',
-      'PwaMaskableImage',
-      'PwaTransparentImage',
+      // 'PwaAppleImage',
+      // 'PwaAppleSplashScreenImage',
+      // 'PwaFaviconImage',
+      // 'PwaMaskableImage',
+      // 'PwaTransparentImage',
     ]
   ) {
     addComponent({
       name,
+      global: !nuxt.options.imports.autoImport,
       filePath: resolver.resolve(runtimeDir, `components/${name}`),
     })
   }
@@ -109,7 +112,7 @@ export async function prepareModule<
   ].map(key => ({
     name: key,
     as: key,
-    from: resolver.resolve(runtimeDir, 'composables/index'),
+    from: resolver.resolve(runtimeDir, 'composables'),
   })))
   // 7) register nuxt hook to call PWA context:ready hook: cannot use build:done since builders hooks not
   //    being called and nuxt devtools should be ready after server:devHandler; unplugin-pwa devtools plugins
