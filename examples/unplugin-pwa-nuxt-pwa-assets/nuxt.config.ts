@@ -1,10 +1,23 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-// import { VirtualMessagePlugin } from './pwa.config'
+// import path from 'node:path'
+// import { createResolver } from '@nuxt/kit'
+//
+// const resolver = createResolver(import.meta.url)
+// const nuxtModule = resolver.resolve('.nuxt')
+//
+// const r = (p: string) => path.relative(nuxtModule, resolver.resolve(p))
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@composable-vite-pwa/nuxt'],
+  typescript: {
+    // tsConfig: {
+    //   include: [],
+    // },
+  },
+  alias: {
+    '@composable-vite-pwa/nuxt': `../../packages/nuxt/dist/module.mjs`,
+  },
   // experimental: {
   //   viteEnvironmentApi: true,
   // },
@@ -19,6 +32,11 @@ export default defineNuxtConfig({
   //   baseURL: '/pepe/',
   // },
   vite: {
+    server: {
+      fs: {
+        allow: ['../..'],
+      },
+    },
     $client: {
       build: {
         minify: false,

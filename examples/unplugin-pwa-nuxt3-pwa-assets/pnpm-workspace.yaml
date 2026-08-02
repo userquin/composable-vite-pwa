@@ -1,0 +1,47 @@
+includeWorkspaceRoot: false
+ignoreDepScripts: true
+ignoreWorkspaceRootCheck: false
+autoInstallPeers: true
+shamefullyHoist: true
+shellEmulator: true
+strictPeerDependencies: false
+trustPolicy: no-downgrade
+
+allowBuilds:
+  '@parcel/watcher': false
+  '@sveltejs/kit': true
+  core-js: false
+  esbuild: false
+  sharp: true
+  unrs-resolver: false
+  vue-demi: false
+
+overrides:
+  '@nuxt/kit': 3.21.10
+  '@nuxt/nitro-server': 3.21.10
+  '@nuxt/schema': 3.21.10
+  '@nuxt/test-utils': 4.1.0
+  '@nuxt/vite-builder': 3.21.10
+  '@types/node': 24.12.0
+  nuxt: 3.21.10
+  chokidar: ^5.0.0
+  devframe: ^0.7.5
+  postcss-selector-parser: 7.1.4
+  rolldown: 1.1.2
+  sharp: 0.35.3
+  semver: ^7.8.4
+  vue: 3.5.40
+
+minimumReleaseAgeExclude:
+  - vite@7.3.3
+  - '@nuxt/*'
+  - nuxt
+
+supportedArchitectures:
+  os:
+    - win32
+    - darwin
+    - current
+  cpu:
+    - x64
+    - arm64

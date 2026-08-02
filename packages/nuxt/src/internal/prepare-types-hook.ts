@@ -2,6 +2,7 @@ import type { Bundler } from '@composable-vite-pwa/unplugin-pwa/node/context-typ
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
 import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { NuxtPWAContext } from '../internal-types'
+import { getMajor } from 'verkit'
 
 export function prepareTypesHook<
   B extends Bundler,
@@ -10,13 +11,18 @@ export function prepareTypesHook<
   NPWAC extends NuxtPWAContext<B, UserStrategy, T>,
 >(
   ctx: NPWAC,
-  runtimeDir: string,
 ): import('@nuxt/schema').NuxtHooks['prepare:types'] {
-  return ({ references }) => {
-    references.push({ path: ctx.nuxt.moduleResolver.resolve(runtimeDir, 'plugins/types') })
-    references.push({ types: '@composable-vite-pwa/nuxt/configuration.d.ts' })
+  return (context) => {
+    const { references } = context
+    references.push({ types: '@composable-vite-pwa/nuxt/configuration' })
     references.push({ types: '@composable-vite-pwa/unplugin-pwa/vue' })
     references.push({ types: '@composable-vite-pwa/unplugin-pwa/info' })
     references.push({ types: '@composable-vite-pwa/unplugin-pwa/pwa-assets' })
+    if (getMajor(ctx.nuxt.nuxtVersion) >= 4) {
+      context.nodeReferences.push({ types: '@composable-vite-pwa/nuxt/configuration' })
+      context.nodeReferences.push({ types: '@composable-vite-pwa/unplugin-pwa/vue' })
+      context.nodeReferences.push({ types: '@composable-vite-pwa/unplugin-pwa/info' })
+      context.nodeReferences.push({ types: '@composable-vite-pwa/unplugin-pwa/pwa-assets' })
+    }
   }
 }

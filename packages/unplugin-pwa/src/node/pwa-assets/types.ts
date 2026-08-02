@@ -63,7 +63,7 @@ export interface PWAAssetsIcons {
 export interface PWAAssetsGenerator {
   sources: () => string[]
   generate: () => Promise<void>
-  findIconAsset: (path: string) => Promise<ResolvedIconAsset | undefined>
+  findIconAsset: (path: string) => ResolvedIconAsset | undefined
   resolveHtmlAssets: () => PWAHtmlAssets
   transformIndexHtml: (html: string) => string
   injectManifestIcons: () => void
