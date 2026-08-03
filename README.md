@@ -14,11 +14,10 @@ PWA integrations for Vite and the ecosystem
 
 ---
 
-> **⚠️ IMPORTANT: This project is not yet ready for production.**
+> **⚠️ IMPORTANT: This project is not yet ready for production. 
+> This project will not release anything. Its contents will be moved to the corresponding packages at the Vite PWA organization.**
 >
 > This is a Work-in-Progress fork of Google Workbox, currently under heavy development. APIs may change, documentation is incomplete, and some features may be broken. Please do not use this in production environments yet.
->
-> For a stable, production-ready solution, please use the original [`vite-plugin-pwa`](https://github.com/vite-pwa/vite-plugin-pwa).
 
 ---
 
@@ -29,7 +28,7 @@ PWA integrations for Vite and the ecosystem
 pnpm install --frozen-lockfile
 
 # Build all packages
-nr xbuild
+nr build
 
 # Run all tests
 nr test:ci
@@ -43,15 +42,7 @@ nr test:ci
 
 ## Why this monorepo?
 
-This monorepo exists to unify a modern fork of Google Workbox into a single, composable codebase that works seamlessly across multiple bundlers (Vite, Webpack, Rolldown, rspack) and frameworks (React, Vue, Svelte, Nuxt, Astro, etc.).
-
-Instead of maintaining separate packages with duplicated logic, we share:
-
-- **Core SW runtime** (`workbox-swkit`) – used by every adapter.
-- **Build tooling** (`workbox-build`) – one engine for all bundlers.
-- **Client helpers** (`workbox-window`) – consistent registration across frameworks.
-
-This reduces maintenance, improves consistency, and makes it easier to add support for new bundlers or frameworks in the future.
+This monorepo is for testing all integrations and the Workbox fork.
 
 ---
 
@@ -70,23 +61,6 @@ This reduces maintenance, improves consistency, and makes it easier to add suppo
 | **[@composable-vite-pwa/sveltekit](./packages/sveltekit)** | SvelteKit integration. |
 | **[@composable-vite-pwa/tanstack](./packages/tanstack)** | TanStack Start integration. |
 | **[@composable-vite-pwa/vitepress](./packages/vitepress)** | VitePress integration. |
-
----
-
-## Architecture
-
-The monorepo follows a **two‑layer bundler model**:
-
-1. **Outer bundler** – Vite, Webpack, Rolldown, or rspack builds the user's app.
-2. **Inner bundler** – Always Rolldown, compiles the service worker in isolation.
-
-All adapters share the same core engine via `workbox-build`. The core exposes three strategies:
-
-- **`build-sw`** – bundles your custom SW and injects the manifest via `define`.
-- **`generate-sw`** – writes the SW from scratch using `magicast` (AST).
-- **`inject-manifest`** – string‑splices the manifest into your SW (no bundling).
-
-For detailed architecture, see the [internal repo guide](./repo-guide/00-big-picture.md).
 
 ---
 
@@ -111,14 +85,14 @@ This repository is a **monorepo** using `pnpm workspaces`. The package manager u
    > After this, you can use `ni` (install) and `nr` (run) from [`@antfu/ni`](https://github.com/antfu/ni) for convenience.
 5. **Build all packages**:
    ```bash
-   nr xbuild
+   nr build
    ```
 
 ### Testing changes
 
 The repository includes a set of examples (in the `examples/` folder) where you can test your changes.
 
-> **Note:** Some examples may rely on local packages. Make sure you've built the packages first (`nr xbuild`).
+> **Note:** Some examples may rely on local packages. Make sure you've built the packages first (`nr build`).
 
 To test a specific example:
 
