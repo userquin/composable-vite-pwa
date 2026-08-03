@@ -1,4 +1,3 @@
-```markdown
 # composable-vite-pwa
 
 **Workbox, but composable.** A modular, bundler-agnostic fork of Google Workbox with first‑class support for Vite, Webpack, and other modern bundlers.
@@ -66,4 +65,3 @@ pnpm test:ci
 - 📖 [Documentation](https://vite-pwa-org.netlify.app/)
 - 🐛 [Issues](https://github.com/vite-pwa/unplugin-pwa/issues)
 - 💬 [Discussions](https://github.com/vite-pwa/unplugin-pwa/discussions)
-```
