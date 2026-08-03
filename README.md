@@ -55,7 +55,7 @@ pnpm test:ci
 
 ## License
 
-[MIT](./LICENSE) © 2020-PRESENT [Anthony Fu](https://github.com/antfu) & Contributors
+[MIT](./LICENSE)
 
 ---
 
