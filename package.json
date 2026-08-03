@@ -21,10 +21,9 @@
     "test": "pnpm -r --filter=\"./packages/**/\" run test",
     "test:ci": "pnpm -r --filter=\"./packages/**/\" run test:ci",
     "test:typecheck": "pnpm -r --filter=\"./packages/**/\" run test:typecheck",
-    "build": "pnpm -r --filter=\"./packages/**/\" run build"
+    "xbuild": "pnpm -r --filter=\"./packages/**/\" run build"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "@antfu/eslint-config": "catalog:eslint",
     "@antfu/ni": "catalog:utils",
