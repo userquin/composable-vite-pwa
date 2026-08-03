@@ -3,7 +3,6 @@
 **Workbox, but composable.** A modular, bundler-agnostic fork of Google Workbox with first‑class support for Vite, Webpack, and other modern bundlers.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![npm version](https://img.shields.io/npm/v/@composable-vite-pwa/unplugin-pwa.svg?color=33A6B8)](https://www.npmjs.com/package/@composable-vite-pwa/unplugin-pwa)
 
 ---
 
