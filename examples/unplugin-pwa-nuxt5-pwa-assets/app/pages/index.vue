@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PwaTransparentImage } from '#pwa-components'
+// import { PwaTransparentImage } from '#pwa-components'
 
 const icons = useNuxtApp().$pwaIcons?.transparent?.['pwa-192x192.png']
 
@@ -19,12 +19,14 @@ if (import.meta.client) {
       <ClientOnly>
         <span>
           PWA Installed: {{ $pwa?.isPWAInstalled }}
-          {{ $pwaIcons?.transparent['pwa-64x64.png'] }}
+          {{ $pwaIcons?.transparent["pwa-64x64.png"] }}
         </span>
       </ClientOnly>
     </div>
     <details>
       <summary>some icons</summary>
+      <pre>{{ $router.currentRoute.value.name }}</pre>
+      <pre>{{ $config.app.buildId }}</pre>
       <pre>{{ icon }}</pre>
       <pre>{{ icons }}</pre>
     </details>

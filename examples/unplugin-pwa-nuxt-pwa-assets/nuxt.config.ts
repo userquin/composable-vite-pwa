@@ -10,11 +10,6 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@composable-vite-pwa/nuxt'],
-  typescript: {
-    // tsConfig: {
-    //   include: [],
-    // },
-  },
   alias: {
     '@composable-vite-pwa/nuxt': `../../packages/nuxt/dist/module.mjs`,
   },
