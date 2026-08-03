@@ -39,8 +39,6 @@ All adapters share the same core engine via `workbox-build`. The core exposes th
 - **`generate-sw`** – writes the SW from scratch using `magicast` (AST).
 - **`inject-manifest`** – string‑splices the manifest into your SW (no bundling).
 
-For detailed architecture, see the [internal repo guide](./repo-guide/00-big-picture.md).
-
 ---
 
 ## Quick Start
