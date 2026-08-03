@@ -61,6 +61,4 @@ pnpm test:ci
 
 ## Links
 
-- 📖 [Documentation](https://vite-pwa-org.netlify.app/)
-- 🐛 [Issues](https://github.com/vite-pwa/unplugin-pwa/issues)
-- 💬 [Discussions](https://github.com/vite-pwa/unplugin-pwa/discussions)
+- 🐛 [Issues](https://github.com/userquin/composable-vite-pwa/issues)
