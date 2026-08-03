@@ -30,6 +30,8 @@ const { icon } = useTransparentPwaIcon('pwa-64x64.png')
     </div>
     <details>
       <summary>some icons</summary>
+      <pre>{{ $router.currentRoute.value.name }}</pre>
+      <pre>{{ $config.app.buildId }}</pre>
       <pre>{{ icon }}</pre>
       <pre>{{ icons }}</pre>
     </details>
