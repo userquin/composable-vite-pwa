@@ -91,17 +91,16 @@ This repository is a **monorepo** using `pnpm workspaces`. The package manager u
 
 > **📌 Example status:**
 > - All `unplugin-pwa-*` examples should work, as well as the webpack and rspack ones.
-> - For `unplugin-pwa-nuxt` examples: all `pwa-assets` and `nuxt5` examples **do not require `--frozen`** when running `pnpm install` from inside the example directory.
+> - For `unplugin-pwa-nuxt` examples: all `pwa-assets` and `nuxt5` examples **requires `--frozen`** when running `ni --frozen` or `pnpm install --frozen-lockfile` from inside the example directory. If there is a `pnpm-lock.yaml` inside the example, you need to install dependencies after building all the packages from root.
 
 The repository includes a set of examples (in the `examples/` folder) where you can test your changes.
 
-> **Note:** Some examples may rely on local packages. Make sure you've built the packages first (`nr build`).
+> **Note:** Some examples may rely on local packages. Make sure you've built the packages first (`nr build`) from root.
 
 To test a specific example:
 
 ```bash
 cd examples/<example-name>
-ni          # install dependencies (uses pnpm automatically)
 nr dev      # or nr build, depending on the example
 ```
 
