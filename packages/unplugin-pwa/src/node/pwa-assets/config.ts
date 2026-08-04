@@ -67,8 +67,10 @@ export async function loadAssetsGeneratorContext(
   const useImage = image ?? (Array.isArray(images) ? images[0] : images)
   // the image must be relative to the root directory
   // const imageFile = resolve(root, useImage)
-  const imageFile = await tryToResolveImage(root, sources, useImage)
-  const publicDir = pwaAssets.integration?.publicDir ?? resolve(root, ctx.publicDir)
+  const imageFile = image ?? await tryToResolveImage(root, sources, useImage)
+  const publicDir = image
+    ? dirname(image)
+    : pwaAssets.integration?.publicDir ?? resolve(root, ctx.publicDir)
   const outDir = pwaAssets.integration?.outDir ?? resolve(root, ctx.outDir)
   // image can be inside public subdirectory: public/pwa/icon.svg => pwa/icon.svg
   const imageName = relative(publicDir, imageFile)
