@@ -58,7 +58,12 @@ export async function registerPwaIconsTypes<
   templates.push(addPwaTemplate('PwaAppleSplashScreenImageProps', dts?.appleSplashScreen))
 
   // register pwa icons plugin
-  addPWAIconsPluginTemplate(getMajor(ctx.nuxt.nuxtVersion) >= 4, pwaAssets === true)
+  addPWAIconsPluginTemplate<B, UserStrategy, T, NPWAC>(
+    ctx,
+    nuxt,
+    getMajor(ctx.nuxt.nuxtVersion) >= 4,
+    pwaAssets === true,
+  )
 
   const pwaInjectionPath = normalizePath(path.relative(
     ctx.nuxt.moduleResolver.resolve(nuxt.options.buildDir, 'types'),
