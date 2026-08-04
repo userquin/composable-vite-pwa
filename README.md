@@ -14,8 +14,7 @@ PWA integrations for Vite and the ecosystem
 
 ---
 
-> **⚠️ IMPORTANT: This project is not yet ready for production. 
-> This project will not release anything. Its contents will be moved to the corresponding packages at the Vite PWA organization.**
+> **⚠️ IMPORTANT: This project is not yet ready for production. This project will not release anything. Its contents will be moved to the corresponding packages at the Vite PWA organization.**
 >
 > This is a Work-in-Progress fork of Google Workbox, currently under heavy development. APIs may change, documentation is incomplete, and some features may be broken. Please do not use this in production environments yet.
 
@@ -73,7 +72,7 @@ We are really excited that you are interested in contributing to this project! B
 This repository is a **monorepo** using `pnpm workspaces`. The package manager used to install and link dependencies must be [pnpm](https://pnpm.io/).
 
 1. **Fork** the repository to your own GitHub account and then clone it to your local device.
-2. **Ensure using the latest Node.js (>=22.14.0)** – this project uses pnpm 11.10.0. If you are working on multiple projects with different versions of pnpm, it's recommended to enable [Corepack](https://github.com/nodejs/corepack) by running `corepack enable`.
+2. **Ensure using the latest Node.js (22.x)** – this project uses pnpm 11.10.0. If you are working on multiple projects with different versions of pnpm, it's recommended to enable [Corepack](https://github.com/nodejs/corepack) by running `corepack enable`.
 3. **Check out a branch** where you can work and commit your changes:
    ```bash
    git checkout -b my-new-branch
@@ -90,6 +89,10 @@ This repository is a **monorepo** using `pnpm workspaces`. The package manager u
 
 ### Testing changes
 
+> **📌 Example status:**
+> - All `unplugin-pwa-*` examples should work, as well as the webpack and rspack ones.
+> - For `unplugin-pwa-nuxt` examples: all `pwa-assets` and `nuxt5` examples **do not require `--frozen`** when running `pnpm install` from inside the example directory.
+
 The repository includes a set of examples (in the `examples/` folder) where you can test your changes.
 
 > **Note:** Some examples may rely on local packages. Make sure you've built the packages first (`nr build`).
@@ -101,14 +104,6 @@ cd examples/<example-name>
 ni          # install dependencies (uses pnpm automatically)
 nr dev      # or nr build, depending on the example
 ```
-
-Check your changes against each framework:
-
-- Vue 3 (`examples/unplugin-pwa-vite8-vue-ts`)
-- React (`examples/unplugin-pwa-react-router-v8` or `examples/unplugin-pwa-vite8-ts`)
-- Nuxt (`examples/unplugin-pwa-nuxt`, `examples/unplugin-pwa-nuxt-pwa-assets`)
-- SvelteKit (`examples/unplugin-pwa-sveltekit-manual`)
-- Webpack (`examples/unplugin-pwa-webpack-manual`)
 
 ### Running tests
 
