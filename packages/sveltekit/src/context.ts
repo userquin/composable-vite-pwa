@@ -20,13 +20,13 @@ import type {
 } from '@composable-vite-pwa/workbox-build/types'
 import type { sveltekit } from '@sveltejs/kit/vite'
 import type { KitOptions } from 'unplugin-pwa-sveltekit-manual/sveltekit-pwa-integration'
-import type { ResolvedConfig } from 'vite'
 import type { SvelteKitPWAContext } from './context-types'
 import type { SvelteKitPWAOptions } from './types'
 import { hash } from 'node:crypto'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
+import { normalizePath } from '@composable-vite-pwa/unplugin-pwa/node/helpers'
 import {
   createVitePWAContext,
 } from '@composable-vite-pwa/unplugin-pwa/node/vite/vite-context'
@@ -39,6 +39,7 @@ export function createSvelteKitPWAContext<
 >(
   config: Parameters<typeof sveltekit>[0] = {},
   options: Partial<SvelteKitPWAOptions<UserStrategy, T>> = {},
+  legacyKit = false,
 ): SvelteKitPWAContext<UserStrategy, T> {
   const envApi = getMajor(VERSION) > 2
   const { kit, ...rest } = options || {}
@@ -49,6 +50,7 @@ export function createSvelteKitPWAContext<
       inspectorRequiresViteDevtools: true,
       kitConfig: config,
       kitOptions: kit,
+      legacyKit,
     },
   ) as SvelteKitPWAContext<UserStrategy, T>
 
@@ -196,22 +198,27 @@ async function buildManifestEntry(url: string, path: string): Promise<ManifestEn
   }
 }
 
-function prepareEnv<
+function extractKitInfo<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
 >(
-  forClient: boolean,
-  config: ResolvedConfig,
-  forBuild: boolean,
   ctx: SvelteKitPWAContext<UserStrategy, T>,
 ) {
-  const { kitConfig = {} } = ctx
-  // todo: review this, check log when running dev
-  if (kitConfig.experimental?.explicitEnvironmentVariables === true) {
+  const {
+    kitConfig = {},
+    kitOptions = {},
+  } = ctx
+  const { appDir = '_app/', files } = kitConfig ?? kitOptions ?? {}
 
-  }
-  // console.log(kitConfig)
-  // console.log(config.resolve.alias)
+  return ctx.legacyKit
+    ? {
+        appDir,
+        assets: normalizePath(path.resolve(process.cwd(), kitOptions.assets || 'static')),
+      }
+    : {
+        appDir,
+        assets: normalizePath(path.resolve(process.cwd(), files?.assets || 'static')),
+      }
 }
 
 function createPWAConfigurer<
@@ -221,21 +228,19 @@ function createPWAConfigurer<
   ctx: SvelteKitPWAContext<UserStrategy, T>,
 ): ConfigurePWAOptionsFn {
   const {
-    kitConfig = {},
     kitOptions = {},
   } = ctx
-  return (forClient, config) => {
+  return (_forClient, config) => {
     ctx.resolvedOptions.includeManifestIcons = false
     ctx.resolvedOptions.includeManifest = false
     ctx.resolvedOptions.includeManifestScreenshots = false
     ctx.resolvedOptions.includeManifestShortcutIcons = false
 
     const buildCommand = config.command === 'build'
-    prepareEnv(forClient, config, buildCommand, ctx)
     if (!buildCommand) {
       return undefined
     }
-    const { appDir = '_app/' } = kitConfig ?? {}
+    const { appDir, assets } = extractKitInfo(ctx)
     const sveltekitOutDir = path.resolve(process.cwd(), '.svelte-kit')
 
     let options: Partial<
@@ -291,7 +296,8 @@ function createPWAConfigurer<
     }
 
     const clientOutDir = path.resolve(sveltekitOutDir, 'output/client')
-    ctx.publicDir = clientOutDir
+    ctx.outDir = clientOutDir
+    ctx.publicDir = assets
 
     if (ctx.resolvedOptions.pwaAssets) {
       ctx.resolvedOptions.pwaAssets.integration = {
@@ -305,7 +311,7 @@ function createPWAConfigurer<
       return {
         outDir: clientOutDir,
         cwd: process.cwd(),
-        immutableAssets: `${buildAssetsDir}immutable/`,
+        immutableAssets: normalizePath(`client/${buildAssetsDir}immutable/`),
       }
     }
 
@@ -339,7 +345,7 @@ function createPWAConfigurer<
     return {
       outDir: clientOutDir,
       cwd: process.cwd(),
-      immutableAssets: `${buildAssetsDir}immutable/`,
+      immutableAssets: normalizePath(`client/${buildAssetsDir}immutable/`),
     }
   }
 }

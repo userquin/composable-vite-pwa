@@ -21,11 +21,9 @@ interface RolldownPluginOptions<T extends SWType, B extends Bundler> {
 export function RolldownPlugin<T extends SWType, B extends Bundler>(
   sources: string[],
   {
-    bundler,
     destFolder,
     classicBuild,
     customChunksInfo,
-    sourcemap,
   }: RolldownPluginOptions<T, B>,
   swSrc: string,
 ): BundlerPluginType<B> {
@@ -63,35 +61,18 @@ export function RolldownPlugin<T extends SWType, B extends Bundler>(
         return undefined
       }
 
-      // const name = classicBuild.swNamesPrefix && id.startsWith(classicBuild.swNamesPrefix) ? id.slice(classicBuild.swNamesPrefix.length) : id
-
       return swSrc === id ? id : undefined
     },
     load(id: string) {
       return classicBuild.generateSW && swSrc === id ? classicBuild.generateSWCode : undefined
     },
     async generateBundle(_, bundle) {
-      // rolldown fails to generate sourcemap for importScripts => use writeBundle instead
-      if (bundler === 'rolldown' && classicBuild.swType === 'classic' && sourcemap) {
-        return
-      }
       await prepareSWChunks({
         bundle,
         destFolder,
         customChunksInfo,
         classicBuild,
       })
-    },
-    async writeBundle(_, bundle) {
-      if (bundler === 'rolldown' && classicBuild.swType === 'classic' && sourcemap) {
-        await prepareSWChunks({
-          bundle,
-          destFolder,
-          customChunksInfo,
-          classicBuild,
-          writeFiles: true,
-        })
-      }
     },
   } as BundlerPluginType<B>
 }

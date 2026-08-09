@@ -185,6 +185,7 @@
   "dependencies": {
     "@composable-vite-pwa/workbox-swkit": "workspace:*",
     "@composable-vite-pwa/workbox-window": "workspace:*",
+    "@jridgewell/remapping": "catalog:utils",
     "magic-string": "catalog:utils",
     "picocolors": "catalog:utils",
     "proper-tags": "catalog:utils",

@@ -89,7 +89,7 @@ export async function preparePWAStrategy<
         : normalizePath(path.relative(cwd, resolveFrom(cwd, outputPath))),
     })
     if (!('dontCacheBustURLsMatching' in options)) {
-      let assetsOutputDir = path.relative(outputPath, path.resolve(outputPath, immutableAssets))
+      let assetsOutputDir = normalizePath(path.relative(outputPath, path.resolve(outputPath, immutableAssets)))
       if (assetsOutputDir.at(-1) !== '/')
         assetsOutputDir += '/'
 
@@ -123,7 +123,7 @@ export async function preparePWAStrategy<
     }
     else {
       Object.assign(options, {
-        swDest: resolveFrom(outputPath, 'sw.js'),
+        swDest: resolveFrom(outputPath, options.swDest || 'sw.js'),
       })
     }
   }
@@ -215,7 +215,7 @@ export async function preparePWAContextDefaults<
   ctx.publicDir = config.publicDir
   ctx.outDir = config.build.outDir
   ctx.base = config.base
-  let outDir = 'dist'
+  let outDir = ctx.outDir// 'dist'
   let immutableAssets = config.build.assetsDir ?? 'assets'
   let cwd = config.root
   if (ctx.configurePWAOptions) {

@@ -25,6 +25,7 @@ export function withPwa<
   const ctx = createSvelteKitPWAContext<UserStrategy, T>(
     config,
     options,
+    false,
   )
 
   return [

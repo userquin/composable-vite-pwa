@@ -271,6 +271,9 @@ catalogs:
     '@clack/prompts':
       specifier: ^1.5.1
       version: 1.7.0
+    '@jridgewell/remapping':
+      specifier: ^2.3.5
+      version: 2.3.5
     '@rolldown/pluginutils':
       specifier: ^1.0.1
       version: 1.0.1
@@ -1461,6 +1464,9 @@ importers:
       '@composable-vite-pwa/workbox-window':
         specifier: workspace:*
         version: link:../window
+      '@jridgewell/remapping':
+        specifier: catalog:utils
+        version: 2.3.5
       magic-string:
         specifier: catalog:utils
         version: 0.30.21
