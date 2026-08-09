@@ -1,0 +1,12 @@
+{
+  "name": "unplugin-pwa-webpack-manual",
+  "private": true,
+  "scripts": {
+    "build": "webpack --config webpack.config.mjs"
+  },
+  "devDependencies": {
+    "@composable-vite-pwa/unplugin-pwa": "workspace:*",
+    "webpack": "catalog:webpack5",
+    "webpack-cli": "catalog:webpack5"
+  }
+}
