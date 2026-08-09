@@ -27,6 +27,11 @@ export default defineNuxtConfig({
     // offline support
     '/': { prerender: true },
   },
+  ssr: false,
+  nitro: {
+    static: true,
+    preset: 'netlify-static',
+  },
   // app: {
   //   baseURL: '/pepe/',
   // },

@@ -1,10 +1,16 @@
 import type { Bundler } from '@composable-vite-pwa/unplugin-pwa/node/context-types'
 import type { VitePWAStrategy } from '@composable-vite-pwa/unplugin-pwa/node/types'
-import type { SWType } from '@composable-vite-pwa/workbox-build/types'
+import type {
+  GlobPartial,
+  RequiredSWDestPartial,
+  SWType,
+} from '@composable-vite-pwa/workbox-build/types'
 import type { NuxtPWAContext } from '../internal-types'
 import path from 'node:path'
 import process from 'node:process'
-import { resolveSWNames } from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
+import {
+  resolveSWNames,
+} from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 import { normalizePath } from 'vite'
 
 export function prepareBuildSwNames<
@@ -16,28 +22,29 @@ export function prepareBuildSwNames<
   nitroPublicDir: string,
 ) {
   let swSrc: string | undefined
+  let options: (GlobPartial & RequiredSWDestPartial) | undefined
   switch (ctx.strategy) {
     case 'generate-sw':
       swSrc = 'x'
+      options = ctx.resolvedOptions.generateSW as (GlobPartial & RequiredSWDestPartial)
       break
     case 'inject-manifest':
       swSrc = ctx.resolvedOptions.injectManifest!.swSrc
+      options = ctx.resolvedOptions.injectManifest as (GlobPartial & RequiredSWDestPartial)
       break
     case 'build-sw':
       swSrc = ctx.resolvedOptions.buildSW!.swSrc
+      options = ctx.resolvedOptions.buildSW as (GlobPartial & RequiredSWDestPartial)
       break
   }
 
-  if (swSrc) {
-    const {
-      filename = 'sw.js',
-    } = ctx.consumerOptions
+  if (options) {
     const {
       swDest,
       classicSWDest,
       moduleSWDest,
     } = resolveSWNames(
-      normalizePath(path.relative(process.cwd(), path.resolve(nitroPublicDir, filename))),
+      normalizePath(path.relative(process.cwd(), path.resolve(nitroPublicDir, options.swDest as string))),
       swSrc as string,
       ctx.strategy === 'generate-sw',
     )

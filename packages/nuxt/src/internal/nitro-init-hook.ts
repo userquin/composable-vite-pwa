@@ -73,7 +73,18 @@ export function nitroInitHook<
     // add pwa icons plugin and types
     await registerPwaIconsTypes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
 
-    // add nitro routes
+    // add nitro routes to the context
     await prepareNitroRoutes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
+
+    // update routeRules
+    const routeRules = ctx.nuxt.nitroPWAOptions.routeRules
+    if (Object.entries(routeRules).length > 0) {
+      await nitro.updateConfig({
+        routeRules: {
+          ...nitro.options.routeRules,
+          ...ctx.nuxt.nitroPWAOptions.routeRules,
+        },
+      })
+    }
   }
 }

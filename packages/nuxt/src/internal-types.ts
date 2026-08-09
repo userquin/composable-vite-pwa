@@ -4,6 +4,16 @@ import type { SWType } from '@composable-vite-pwa/workbox-build/types'
 import type { NitroConfig } from 'nitropack'
 import type { ClientOptions } from './types'
 
+export interface NitroPWAOptions {
+  publicAssets: {
+    baseURL?: string
+    fallthrough?: boolean
+    maxAge: number
+    dir: string
+  }[]
+  routeRules: Record<string, Record<string, any>>
+}
+
 export interface NuxtPWAContext<
   B extends Bundler,
   UserStrategy extends VitePWAStrategy,
@@ -12,6 +22,7 @@ export interface NuxtPWAContext<
   nuxt: {
     nuxtVersion: string
     nitroConfig: NitroConfig
+    nitroPWAOptions: NitroPWAOptions
     publicDirs: string[]
     buildAssetsDir: string
     enableGlobPatterns?: boolean

@@ -33,7 +33,6 @@ export interface BundlerOptions {
   chunkNames?: 'dash' | 'dot'
   manifest?: boolean
   sources: string[]
-  swNamesPrefix: string
 }
 
 export interface PrepareBundlerOptions {
@@ -62,14 +61,8 @@ export interface PrepareBundlerOptions {
   swNamesPrefix: string
 }
 
-export interface ClassicRegionReplacement {
-  search: string
-  replacement: string
-}
-
 export interface ClassicBuild {
   swType: 'classic' | 'module'
-  region: ClassicRegionReplacement
   swChunkName: string
   filePaths: string[]
   generateSW: boolean

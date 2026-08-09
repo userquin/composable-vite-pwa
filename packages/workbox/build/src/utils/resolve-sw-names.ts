@@ -9,6 +9,12 @@ export function normalizePath(path: string): string {
   return path.replace(normalizePathRegexp, '/')
 }
 
+export function extractSwDestNameFromSource(
+  swSrc: string,
+): string {
+  return path.basename(swSrc.replace(anyJsRegexp, '.js'))
+}
+
 /**
  * This method resolves the names for the SW source and destination files, as well as the globIgnores to exclude the
  * relevant files from the precache manifest.

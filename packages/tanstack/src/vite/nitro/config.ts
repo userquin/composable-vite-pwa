@@ -16,6 +16,8 @@ import type { TanStackNitroPWAContext } from '../../create-nitro-pwa-context'
 import path from 'node:path'
 import process from 'node:process'
 
+type OptionsType = Partial<BasePartial & GlobPartial & OptionalGlobDirectoryPartial> & RequiredSWDestPartial
+
 /**
  * Vite plugin to generate the service workers with Nitro v3.
  *
@@ -135,6 +137,7 @@ function prepareNitroModule<
           createManifestTransform,
           normalizeManifest,
           {
+            extractSwDestNameFromSource,
             normalizePath,
             resolveSWNames,
           },
@@ -145,9 +148,11 @@ function prepareNitroModule<
             normalizeManifest,
           }) => (normalizeManifest)),
           import('@composable-vite-pwa/workbox-build/utils/resolve-sw-names').then(({
+            extractSwDestNameFromSource,
             normalizePath,
             resolveSWNames,
           }) => ({
+            extractSwDestNameFromSource,
             normalizePath,
             resolveSWNames,
           })),
@@ -183,27 +188,32 @@ function prepareNitroModule<
         if (!ctx.resolvedOptions.disable) {
           // init nitro build options
           let swSrc: string | undefined
-          let options: Partial<BasePartial & GlobPartial & OptionalGlobDirectoryPartial & RequiredSWDestPartial> | undefined
+          let options: OptionsType | undefined
+          let filename: string | undefined
 
           switch (ctx.strategy) {
             case 'generate-sw':
               ctx.resolvedOptions.generateSW ??= {} as ResolvedGenerateSW<any, any>
-              options = ctx.resolvedOptions.generateSW
+              options = ctx.resolvedOptions.generateSW as OptionsType
               swSrc = 'x'
+              filename = ctx.resolvedOptions.generateSW!.swDest as string
               break
             case 'inject-manifest':
               ctx.resolvedOptions.injectManifest ??= {} as ResolvedInjectManifest<any, any>
-              options = ctx.resolvedOptions.injectManifest
+              options = ctx.resolvedOptions.injectManifest as OptionsType
               swSrc = ctx.resolvedOptions.injectManifest!.swSrc
+              filename = ctx.consumerOptions.filename || extractSwDestNameFromSource(swSrc as string)
+              ctx.resolvedOptions.injectManifest!.swDest = filename
               break
             case 'build-sw':
               ctx.resolvedOptions.buildSW ??= {} as ResolvedBuildSW<any, any>
-              options = ctx.resolvedOptions.buildSW
+              options = ctx.resolvedOptions.buildSW as OptionsType
               swSrc = ctx.resolvedOptions.buildSW!.swSrc
+              filename = ctx.consumerOptions.filename || extractSwDestNameFromSource(swSrc as string)
+              ctx.resolvedOptions.buildSW!.swDest = filename
               break
           }
 
-          const { filename = 'sw.js' } = ctx.consumerOptions
           nitro.options.routeRules = nitro.options.routeRules || {}
           nitro.options.routes = nitro.options.routes || {}
           if (options) {
@@ -212,13 +222,14 @@ function prepareNitroModule<
             options.manifestTransforms.push(createManifestTransform(ctx.base || '/'))
           }
 
-          if (swSrc) {
+          if (options) {
             const {
               swDest,
               classicSWDest,
               moduleSWDest,
             } = resolveSWNames(
-              path.resolve(ctx.outDir, filename),
+              filename as string,
+              // path.resolve(ctx.outDir, filename),
               swSrc as string,
               ctx.strategy === 'generate-sw',
             )

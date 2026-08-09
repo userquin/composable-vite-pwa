@@ -10,8 +10,12 @@ import path from 'node:path'
 import process from 'node:process'
 import {
   normalizeManifest,
+  normalizePath,
   preparePWAStrategy,
 } from '@composable-vite-pwa/unplugin-pwa/node/helpers'
+import {
+  extractSwDestNameFromSource,
+} from '@composable-vite-pwa/workbox-build/utils/resolve-sw-names'
 import { isGreaterOrEqual } from 'verkit'
 
 export async function prepareResolvedPwaOptions<
@@ -41,6 +45,10 @@ export async function prepareResolvedPwaOptions<
         alias: nuxt.options.alias,
       },
     )
+    ctx.consumerOptions.filename = ctx.consumerOptions.filename ?? normalizePath(
+      path.resolve(ctx.outDir, extractSwDestNameFromSource(ctx.resolvedOptions.buildSW!.swSrc)),
+    )
+    ctx.resolvedOptions.buildSW!.swDest = ctx.consumerOptions.filename
     // add nuxt aliases for build-sw strategy: we can use #app-manifest for example at SW
     ctx.resolvedOptions.buildSW!.alias = nuxt.options.alias
     config = ctx.resolvedOptions.buildSW!
@@ -80,7 +88,19 @@ export async function prepareResolvedPwaOptions<
     config = generateSW
   }
   else if (ctx.strategy === 'inject-manifest') {
+    // todo: review this
     ctx.resolvedOptions.injectManifest ??= {}
+    ctx.resolvedOptions.injectManifest!.swSrc = await ctx.nuxt.moduleResolver.resolvePath(
+      ctx.resolvedOptions.injectManifest!.swSrc as string,
+      {
+        cwd: nuxt.options.rootDir,
+        alias: nuxt.options.alias,
+      },
+    )
+    ctx.consumerOptions.filename = ctx.consumerOptions.filename ?? normalizePath(
+      path.resolve(ctx.outDir, extractSwDestNameFromSource(ctx.resolvedOptions.injectManifest!.swSrc)),
+    )
+    ctx.resolvedOptions.injectManifest!.swDest = ctx.consumerOptions.filename
     config = ctx.resolvedOptions.injectManifest
   }
 

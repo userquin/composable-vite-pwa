@@ -95,7 +95,6 @@ export async function internalGenerateSW<
     originalEnvironmentData: context.originalEnvironmentData,
     chunkNames,
     manifest,
-    swNamesPrefix: prefix,
   })
 
   context.builds = builds
