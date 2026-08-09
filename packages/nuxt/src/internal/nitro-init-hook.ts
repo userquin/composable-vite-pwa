@@ -44,19 +44,18 @@ export function nitroInitHook<
     ctx.resolvedOptions.includeManifestShortcutIcons = false
 
     ctx.publicDir = nuxt.options.dir.public
+    ctx.rootDir = nuxt.options.rootDir
     if (nuxt.options.dev) {
       ctx.devEnvironment = true
       const internalDevOptions = ctx.dev.options!
       internalDevOptions.tempFolder = path.resolve(nuxt.options.buildDir, 'pwa-dev/.dev-dist')
       ctx.outDir = internalDevOptions.tempFolder
-      ctx.rootDir = nuxt.options.rootDir
     }
     else {
       ctx.outDir = normalizePath(nitro.options.output.publicDir ?? path.resolve(nuxt.options.rootDir, './.output/public'))
-      ctx.rootDir = ctx.outDir
-      ctx.resolvedOptions.outDir = ctx.outDir
     }
 
+    ctx.resolvedOptions.outDir = ctx.outDir
     ctx.strategy = ctx.resolvedOptions.strategy!
     ctx.resolvedOptions.base ??= ctx.base
     ctx.resolvedOptions.buildBase ??= ctx.base
@@ -74,7 +73,18 @@ export function nitroInitHook<
     // add pwa icons plugin and types
     await registerPwaIconsTypes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
 
-    // add nitro routes
+    // add nitro routes to the context
     await prepareNitroRoutes<B, UserStrategy, T, NPWAC>(ctx, nuxt)
+
+    // update routeRules
+    const routeRules = ctx.nuxt.nitroPWAOptions.routeRules
+    if (Object.entries(routeRules).length > 0) {
+      await nitro.updateConfig({
+        routeRules: {
+          ...nitro.options.routeRules,
+          ...ctx.nuxt.nitroPWAOptions.routeRules,
+        },
+      })
+    }
   }
 }

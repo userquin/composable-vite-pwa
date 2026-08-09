@@ -41,9 +41,9 @@
     "node": ">=22.14.0"
   },
   "scripts": {
-    "build": "node gen.mjs",
+    "xbuild": "node gen.mjs",
     "docs:api": "node gen.mjs",
-    "prepack": "pnpm run docs:api"
+    "xprepack": "pnpm run docs:api"
   },
   "devDependencies": {
     "@composable-vite-pwa/unplugin-pwa": "workspace:*",

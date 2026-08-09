@@ -5,16 +5,16 @@ import type { VitePWAPluginContext } from '@composable-vite-pwa/unplugin-pwa/nod
 import type {
   SWType,
 } from '@composable-vite-pwa/workbox-build/types'
-
+import type { sveltekit } from '@sveltejs/kit/vite'
 import type {
   KitOptions,
-  SvelteKitConfig,
 } from './types'
 
 export interface SvelteKitPWAContext<
   UserStrategy extends VitePWAStrategy,
   T extends SWType,
 > extends VitePWAPluginContext<'vite', UserStrategy, T> {
-  kitConfig?: SvelteKitConfig
+  kitConfig?: Parameters<typeof sveltekit>[0]
   kitOptions?: KitOptions
+  legacyKit: boolean
 }

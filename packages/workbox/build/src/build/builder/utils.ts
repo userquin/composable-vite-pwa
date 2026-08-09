@@ -1,4 +1,3 @@
-import type MagicString from 'magic-string'
 import type {
   GlobPartial,
   RequiredSWDestPartial,
@@ -12,7 +11,6 @@ import type {
 } from '../types'
 import type {
   Bundler,
-  ClassicRegionReplacement,
   OriginalEnvironmentData,
   ResolvedSWTargets,
 } from './bundler-types'
@@ -54,16 +52,6 @@ export function extractOriginalEnvironmentData<
   }
 
   return data
-}
-
-export function restoreClassicGenerateSWRegions(
-  { search, replacement }: ClassicRegionReplacement,
-  magicString: MagicString,
-) {
-  magicString.replace(
-    `//#region ${search}`,
-    `//#region ${replacement}`,
-  )
 }
 
 export function camelize(str: string): string {

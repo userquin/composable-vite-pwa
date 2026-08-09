@@ -1,36 +1,9 @@
 import type {
-  ClassicRegionReplacement,
   CustomChunksInfo,
 } from './bundler-types'
 import MagicString from 'magic-string'
-import { restoreClassicGenerateSWRegions } from './utils'
 
 const asRegexp = /\s+as\s+/
-
-/**
- * GLOBAL TRANSFORMATION: ES6 to Classic (let/const to var).
- *
- * Since Rolldown/Vite only supports ES2015+ targets, we must manually
- * transform variable declarations for classic Service Workers to avoid
- * syntax errors on re-evaluation (Redeclaration Error).
- *
- * Replaced with Rolldown output `topLevelVar` enabled when using Rolldown:
- * - [vite 8 enables this flag](https://github.com/vitejs/vite/blob/main/packages/vite/src/node/build.ts#L774)
- * - check prepare-rolldown-output-options.ts module
- */
-/* function replaceLetConstWithVar(magicString: MagicString) {
-  const currentCode = magicString.original
-  const varRegex = /\b(?:const|let)(?=\s+[_$a-zA-Z])/g
-  let varMatch: RegExpExecArray | null = null
-
-  // eslint-disable-next-line no-cond-assign
-  while ((varMatch = varRegex.exec(currentCode)) !== null) {
-    const start = varMatch.index
-    const end = start + varMatch[0].length
-    // Overwrite keeping the source map positions intact
-    magicString.overwrite(start, end, 'var')
-  }
-} */
 
 /**
  * Replace `import {} from '<chunk-name>-<hash>.js'` with the corresponding `self.workbox.<chunk-name>`
@@ -80,8 +53,6 @@ type ChunkNameType = 'sw' | string
 export async function transformClassicChunk(
   name: ChunkNameType,
   code: string,
-  generateSW: boolean,
-  region: ClassicRegionReplacement,
   customChunksInfo: CustomChunksInfo,
 ) {
   const magicString = new MagicString(code)
@@ -97,13 +68,6 @@ export async function transformClassicChunk(
           customChunksInfo,
         )
       }
-    }
-
-    // replace const/let with var: rolldown only supports ES6
-    // replaceLetConstWithVar(magicString)
-    // replace regions with temp SW name
-    if (generateSW) {
-      restoreClassicGenerateSWRegions(region, magicString)
     }
 
     return magicString
@@ -135,7 +99,6 @@ export async function transformClassicChunk(
       throw new Error(`${name} chunk has more than 1 export, which is not supported in classic mode.`)
     }
     const [fullMatch, content] = match
-    // const members = content.split(',').map(e => e.trim().split(asRegexp)[0].trim()).join(', ')
     const members = content.split(',')
       .map((part) => {
         const tokens = part.trim().split(asRegexp)
@@ -167,10 +130,6 @@ export async function transformClassicChunk(
       )
     }
   }
-
-  // Transform const/let to var inside the Workbox chunk to avoid Redeclaration Errors
-  // in classic Service Workers when the script is re-evaluated.
-  // replaceLetConstWithVar(magicString)
 
   magicString.append('\n})();')
 

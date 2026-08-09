@@ -49,6 +49,10 @@ export function createViteNuxtPwaContext<
         prepareNuxtOptions: () => prepareNuxtOptions(ctx, nuxt),
         nuxtVersion,
         nitroConfig: undefined!,
+        nitroPWAOptions: {
+          publicAssets: [],
+          routeRules: {},
+        },
         buildAssetsDir,
         client: useClient,
         experimental,

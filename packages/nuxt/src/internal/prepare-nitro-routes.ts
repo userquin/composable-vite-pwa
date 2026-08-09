@@ -53,41 +53,46 @@ export async function prepareNitroRoutes<
   // prepare nitro public assets
   if (isDev) {
     if (!swDisabled) {
-      // todo: move this module outside vite at unplugin-pwa
-      await prepareSwNamesAndGlobDirectory<B, UserStrategy, T>(ctx as unknown as any)
+      await prepareSwNamesAndGlobDirectory<B, UserStrategy, T>(ctx)
       swNames = ctx.dev.options!.swNames
       const outDir = ctx.outDir
 
       await fs.mkdir(outDir, { recursive: true })
-      nitroConfig.publicAssets = nitroConfig.publicAssets || []
-      nitroConfig.publicAssets.push({
+      ctx.nuxt.nitroPWAOptions.publicAssets.push({
         dir: outDir,
         fallthrough: true,
         baseURL: ctx.base,
         maxAge: 0,
       })
+      // nitroConfig.publicAssets = nitroConfig.publicAssets || []
+      // nitroConfig.publicAssets.push({
+      //   dir: outDir,
+      //   fallthrough: true,
+      //   baseURL: ctx.base,
+      //   maxAge: 0,
+      // })
     }
   }
   else {
     swNames = ctx.swNames
   }
 
-  nitroConfig.routeRules = nitroConfig.routeRules || {}
+  const routeRules = ctx.nuxt.nitroPWAOptions.routeRules
   if (swNames?.hasNames) {
     if (ctx.resolvedOptions.swType === 'classic-and-module') {
-      nitroConfig.routeRules[`${ctx.base}${path.basename(swNames.classic)}`] = {
+      routeRules[`${ctx.base}${path.basename(swNames.classic)}`] = {
         headers: {
           'Cache-Control': 'public, max-age=0, must-revalidate',
         },
       }
-      nitroConfig.routeRules[`${ctx.base}${path.basename(swNames.module)}`] = {
+      routeRules[`${ctx.base}${path.basename(swNames.module)}`] = {
         headers: {
           'Cache-Control': 'public, max-age=0, must-revalidate',
         },
       }
     }
     else {
-      nitroConfig.routeRules[`${ctx.base}${path.basename(swNames.name)}`] = {
+      routeRules[`${ctx.base}${path.basename(swNames.name)}`] = {
         headers: {
           'Cache-Control': 'public, max-age=0, must-revalidate',
         },
@@ -96,7 +101,7 @@ export async function prepareNitroRoutes<
   }
 
   if ((nuxt.options.dev || ctx.nuxt.registerWebManifestInRouteRules) && webManifest) {
-    nitroConfig.routeRules[`${ctx.base}${ctx.resolvedOptions.manifestFilename ?? 'manifest.webmanifest'}`] = {
+    routeRules[`${ctx.base}${ctx.resolvedOptions.manifestFilename ?? 'manifest.webmanifest'}`] = {
       headers: {
         'Content-Type': 'application/manifest+json',
         'Cache-Control': 'public, max-age=0, must-revalidate',

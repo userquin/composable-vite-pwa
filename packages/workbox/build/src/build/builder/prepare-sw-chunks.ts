@@ -1,13 +1,10 @@
+import type MagicString from 'magic-string'
 import type { ManifestEntry } from '../../types'
 import type { Bundler, ClassicBuild, CustomChunksInfo } from './bundler-types'
-import fsp from 'node:fs/promises'
 import path from 'node:path'
-import MagicString from 'magic-string'
+import remapping from '@jridgewell/remapping'
 import pc from 'picocolors'
 import { transformClassicChunk } from './transform-classic-chunk'
-import {
-  restoreClassicGenerateSWRegions,
-} from './utils'
 
 interface CheckManifestOptions {
   manifestEntries: ManifestEntry[]
@@ -68,13 +65,10 @@ export async function prepareSWChunks<T extends Bundler>({
   customChunksInfo,
   classicBuild: {
     swType,
-    region,
     swChunkName,
     filePaths,
-    generateSW,
     manifestEntries,
   },
-  writeFiles,
 }: PrepareSWChunksOptions<T>) {
   for (const chunk of Object.values(bundle)) {
     filePaths.push(path.resolve(destFolder, chunk.fileName))
@@ -119,8 +113,6 @@ export async function prepareSWChunks<T extends Bundler>({
         magicString = await transformClassicChunk(
           'sw',
           chunk.code,
-          generateSW,
-          region,
           customChunksInfo,
         ).then(ms => ms)
       }
@@ -129,51 +121,40 @@ export async function prepareSWChunks<T extends Bundler>({
         magicString = await transformClassicChunk(
           chunk.name,
           chunk.code,
-          generateSW,
-          region,
           customChunksInfo,
         ).then(ms => ms)
       }
-    }
-    else if (generateSW && chunk.name === swChunkName) {
-      magicString = new MagicString(chunk.code)
-      restoreClassicGenerateSWRegions(region, magicString)
     }
 
     if (magicString?.hasChanged()) {
       chunk.code = magicString.toString()
       if (chunk.map) {
-        Object.assign(
-          chunk.map,
-          magicString.generateMap({
-            source: chunk.fileName,
-            includeContent: true,
-            hires: true,
-          }),
-        )
-      }
-    }
-  }
+        // `hires: true` is required, or the composed map comes back empty.
+        const step = magicString.generateMap({
+          source: chunk.fileName,
+          includeContent: true,
+          hires: true,
+        })
 
-  if (writeFiles) {
-    const promises: Promise<void>[] = []
-    const chunks = new Map<string, string | undefined>()
-    for (const chunk of Object.values(bundle)) {
-      if (chunk.type === 'chunk') {
-        chunks.set(chunk.fileName, chunk.map?.toString())
-        promises.push(fsp.writeFile(path.resolve(destFolder, chunk.fileName), chunk.code, 'utf-8'))
-      }
-    }
-    for (const chunk of Object.values(bundle)) {
-      if (chunk.type === 'asset' && chunk.fileName.endsWith('.map')) {
-        const mapFileName = path.basename(chunk.fileName.replace(/\.map$/, ''))
-        const map = chunks.get(mapFileName)
-        if (map) {
-          promises.push(fsp.writeFile(path.resolve(destFolder, chunk.fileName), map, 'utf-8'))
+        // Casts to `any`: @jridgewell/remapping has its own SourceMap type
+        // (RawSourceMap | DecodedSourceMap) that doesn't have a 1:1 match with either the output
+        // of magic-string or the native SourceMap of rolldown. Runtime-compatible,
+        // only type friction between 3 different libraries.
+        const composedMap = remapping(
+          [step as any, chunk.map as any],
+          () => null,
+        )
+
+        // Assign the composed map, do not spread it. `toString()` lives on its
+        // prototype, and spreading would leave you with `[object Object]`.
+        chunk.map = composedMap as any
+
+        // The emitted file comes from this asset, not from `chunk.map`.
+        const asset = bundle[`${chunk.fileName}.map`]
+        if (asset && asset.type === 'asset') {
+          asset.source = composedMap.toString()
         }
       }
     }
-
-    await Promise.all(promises)
   }
 }

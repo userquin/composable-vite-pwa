@@ -36,6 +36,7 @@ export function LegacySvelteKitPWA<
   const ctx = createSvelteKitPWAContext<UserStrategy, T>(
     {},
     options,
+    true,
   )
 
   if (ctx.consumerOptions.devOptions?.inspector === 'vite-devtools') {

@@ -8,6 +8,22 @@ import type {
 
 export interface KitOptions {
   /**
+   * The directory where SvelteKit keeps its stuff, including static assets (such as JS and CSS) and internally-used routes.
+   *
+   * Required if you are using legacy SvelteKit and changing the appDir option.
+   *
+   * @default _app
+   * @see https://svelte.dev/docs/kit/configuration#appDir
+   */
+  appDir?: string
+  /**
+   * The directory where SvelteKit keeps its static assets (such as JS and CSS).
+   *
+   * @default static
+   * @see https://svelte.dev/docs/kit/configuration#assets
+   */
+  assets?: string
+  /**
    * @see https://kit.svelte.dev/docs/adapter-static#options-fallback
    */
   adapterFallback?: string

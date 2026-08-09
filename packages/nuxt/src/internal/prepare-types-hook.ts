@@ -18,11 +18,15 @@ export function prepareTypesHook<
     references.push({ types: '@composable-vite-pwa/unplugin-pwa/vue' })
     references.push({ types: '@composable-vite-pwa/unplugin-pwa/info' })
     references.push({ types: '@composable-vite-pwa/unplugin-pwa/pwa-assets' })
+    // check registerPwaIconsTypes
+    references.push({ path: 'types/pwa-augments.d.ts' })
     if (getMajor(ctx.nuxt.nuxtVersion) >= 4) {
       context.nodeReferences.push({ types: '@composable-vite-pwa/nuxt/configuration' })
       context.nodeReferences.push({ types: '@composable-vite-pwa/unplugin-pwa/vue' })
       context.nodeReferences.push({ types: '@composable-vite-pwa/unplugin-pwa/info' })
       context.nodeReferences.push({ types: '@composable-vite-pwa/unplugin-pwa/pwa-assets' })
+      // check registerPwaIconsTypes
+      context.nodeReferences.push({ path: 'types/pwa-augments.d.ts' })
     }
   }
 }
