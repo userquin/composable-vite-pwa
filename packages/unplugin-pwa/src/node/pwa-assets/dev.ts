@@ -12,8 +12,6 @@ export function findIconAsset(
     return resolved
   }
 
-  console.log()
-
   const iconAsset = assetsInstructions.transparent[path]
     ?? assetsInstructions.maskable[path]
     ?? assetsInstructions.apple[path]

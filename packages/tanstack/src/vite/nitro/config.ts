@@ -43,8 +43,9 @@ export function NitroConfigurationPlugin<
       // at this point nitro has configured most of the entries from its hooks, we only need:
       // - add publicDir from vite
       // - use vite config.build.assetsDir for assetsDir: dontCacheBurst
+      // @ts-expect-error TS2322: Argument of type multiple vite versions
       ctx.viteConfig = config
-      console.log('configResolved:build')
+      // console.log('configResolved:build')
       ctx.publicDir = config.publicDir || 'public'
       if (ctx.resolvedOptions.pwaAssets) {
         ctx.resolvedOptions.pwaAssets.integration = {
@@ -90,8 +91,9 @@ export function NitroConfigurationPlugin<
       if (!ctx.tanstack.nitro || !ctx.tanstack.nitro.options.dev) {
         return
       }
-      console.log('configResolved:dev')
+      // console.log('configResolved:dev')
       // won't be used
+      // @ts-expect-error TS2322: Argument of type multiple vite versions
       ctx.viteConfig = config
     },
     // eslint-disable-next-line ts/ban-ts-comment
@@ -116,7 +118,7 @@ function prepareNitroModule<
         }
         // await the rest of modules to invoke the build:before hook before configuring nitro aliases
         nitro.hooks.hook('rollup:before', () => {
-          console.log('rollup:before')
+          // console.log('rollup:before')
           ctx.tanstack.buildSWAlias = nitro.options.alias
         })
         ctx.tanstack.nitro = nitro
@@ -131,7 +133,7 @@ function prepareNitroModule<
       ctx.externalConfigurationLoader = true
       ctx.tanstack.nitro = nitro
       nitro.hooks.hook('build:before', async () => {
-        console.log('build:before')
+        // console.log('build:before')
         const [
           loadExternalConfiguration,
           createManifestTransform,

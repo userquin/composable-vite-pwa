@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "jsx": "react",
-    "lib": ["ES2020", "DOM", "WebWorker", "DOM.Iterable"],
+    "lib": ["ESNext", "DOM", "WebWorker", "DOM.Iterable"],
     "types": [
       "node",
       "vite/client",

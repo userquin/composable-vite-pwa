@@ -34,7 +34,6 @@ export function prepareBundlerOptions(
     manifestEntries,
     chunkNames,
     manifest,
-    swNamesPrefix,
   } = options
 
   const builds: BundlerOptions[] = []
@@ -78,7 +77,6 @@ export function prepareBundlerOptions(
       chunkNames,
       manifest,
       sources: classicSources,
-      swNamesPrefix,
     })
   }
 
@@ -115,7 +113,6 @@ export function prepareBundlerOptions(
       chunkNames,
       manifest,
       sources: moduleSources,
-      swNamesPrefix,
     })
   }
 

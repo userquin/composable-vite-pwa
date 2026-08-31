@@ -50,6 +50,9 @@ export function extractOriginalEnvironmentData<
   if ('injectionPoint' in options) {
     data.injectionPoint = typeof options.injectionPoint === 'string' && options.injectionPoint ? options.injectionPoint : false
   }
+  else {
+    data.injectionPoint = 'self.__WB_MANIFEST'
+  }
 
   return data
 }

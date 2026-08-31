@@ -19,6 +19,7 @@ export function LegacySvelteKitMainPlugin<
     sharedDuringBuild: true,
     configResolved(config) {
       ctx.envApi = false
+      // @ts-expect-error TS2322: Argument of type multiple vite versions
       ctx.viteConfig = config
     },
   }

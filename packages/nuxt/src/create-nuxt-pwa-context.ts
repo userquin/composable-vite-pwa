@@ -29,7 +29,7 @@ export async function createNuxtPwaContext<
 
   if (nuxt.options.builder === '@nuxt/vite-builder') {
     const enableEnvApi = getMajor(nuxtVersion) === 4 && nuxt.options.experimental.viteEnvironmentApi
-    if (enableEnvApi) {
+    /* if (enableEnvApi) {
       console.log(
         await Promise.all([
           import('vite').then(({ version }) => version).catch(() => undefined),
@@ -40,7 +40,7 @@ export async function createNuxtPwaContext<
           }).then(({ vite }) => (vite))),
         ]),
       )
-    }
+    } */
     if (getMajor(nuxtVersion) >= 5 || enableEnvApi) {
       return await import('./builders/vite/create-vite-nuxt-pwa-context').then(({
         createViteNuxtPwaContext,

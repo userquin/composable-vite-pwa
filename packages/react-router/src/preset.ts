@@ -11,6 +11,7 @@ export function ReactRouterPWAPreset(): Preset {
           reactRouterConfig,
           viteConfig,
         }) => {
+          // @ts-expect-error TS2345: Argument of type multiple vite versions
           const ctx = lookupReactRouterPWAContext(viteConfig)
           if (!ctx) {
             throw new Error(

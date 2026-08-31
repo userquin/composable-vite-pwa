@@ -58,7 +58,6 @@ export interface PrepareBundlerOptions {
   originalEnvironmentData: OriginalEnvironmentData
   chunkNames?: 'dash' | 'dot'
   manifest?: boolean
-  swNamesPrefix: string
 }
 
 export interface ClassicBuild {

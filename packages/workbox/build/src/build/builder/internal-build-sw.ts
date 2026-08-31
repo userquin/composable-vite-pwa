@@ -56,7 +56,6 @@ export async function internalBuildSW<
     swDest,
     classicSWDest,
     moduleSWDest,
-    prefix,
   } = resolveSWNamesAndGlobIgnores(
     injectManifest,
     injectManifest.swSrc,
@@ -70,7 +69,8 @@ export async function internalBuildSW<
     size,
   } = await generateManifestEntries(
     injectManifest,
-    injectManifest.globDirectory!,
+    // prevent manifest build when there is no injection point
+    context.originalEnvironmentData.injectionPoint ? injectManifest.globDirectory! : undefined,
   )
 
   const {
@@ -100,7 +100,6 @@ export async function internalBuildSW<
     originalEnvironmentData: context.originalEnvironmentData,
     chunkNames,
     manifest,
-    swNamesPrefix: prefix,
   })
 
   context.builds = builds

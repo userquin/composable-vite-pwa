@@ -144,7 +144,6 @@ describe('common bundler options are correctly generated', () => {
         workboxRuntimeCompatible: false,
         generateSW: { swCode: 'console.log("sw")' },
         originalEnvironmentData: undefined!,
-        swNamesPrefix: '',
       } satisfies PrepareBundlerOptions
 
       const {
@@ -186,7 +185,6 @@ describe('common bundler options are correctly generated', () => {
         workboxRuntimeCompatible: false,
         generateSW: { swCode: 'console.log("sw")' },
         originalEnvironmentData: undefined!,
-        swNamesPrefix: '',
       } satisfies PrepareBundlerOptions
 
       const {

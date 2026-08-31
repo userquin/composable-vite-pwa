@@ -98,13 +98,18 @@ export function createReactRouterPWAContext<
       if (!rrPluginConfig) {
         break
       }
-      hijackHook(p, 'config', async (fn, pluginContext, args) => {
-        const result = await fn.apply(pluginContext, args)
-        if (result && '__reactRouterPluginContext' in result) {
-          ctx.reactRouter.context = result as ReactRouterPluginContext
-        }
-        return result
-      })
+      hijackHook(
+        // @ts-expect-error TS2345: Argument of type multiple vite versions
+        p,
+        'config',
+        async (fn, pluginContext, args) => {
+          const result = await fn.apply(pluginContext, args)
+          if (result && '__reactRouterPluginContext' in result) {
+            ctx.reactRouter.context = result as ReactRouterPluginContext
+          }
+          return result
+        },
+      )
       break
     }
   }

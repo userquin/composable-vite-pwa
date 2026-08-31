@@ -126,6 +126,7 @@ function createPWAConfigurer<
   ctx: AstroPWAContext<UserStrategy, T>,
 ): ConfigurePWAOptionsFn {
   return async (_forClient, config) => {
+    // @ts-expect-error TS2345: Argument of type multiple vite versions
     prepareEnvironment(ctx, config)
     if (ctx.astro.devEnvironment) {
       ctx.devEnvironment = true
@@ -134,6 +135,10 @@ function createPWAConfigurer<
 
     return await import('./prepare-build-context').then(({
       prepareBuildContext,
-    }) => prepareBuildContext(ctx, config))
+    }) => prepareBuildContext(
+      ctx,
+      // @ts-expect-error TS2345: Argument of type multiple vite versions
+      config,
+    ))
   }
 }

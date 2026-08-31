@@ -42,7 +42,6 @@ export async function internalGenerateSW<
     swDest,
     classicSWDest,
     moduleSWDest,
-    prefix,
   } = resolveSWNamesAndGlobIgnores(
     context.options,
     '',
