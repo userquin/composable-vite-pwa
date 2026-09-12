@@ -91,4 +91,60 @@ describe('inject-manifest', () => {
       logLevel: 'silent',
     })).rejects.toThrow(errors['invalid-sw-src'])
   })
+  testInjectManifest('copies relative importScripts assets to dest directory', async ({ sandbox }) => {
+    // Create a chunk file that the SW references via importScripts
+    const chunkPath = path.resolve(sandbox, 'chunk.js')
+    await fs.writeFile(chunkPath, 'self.addEventListener("fetch", () => {})', 'utf-8')
+
+    // Create SW source with importScripts referencing the chunk
+    const swSrc = normalizePath(path.resolve(sandbox, 'sw.js'))
+    await fs.writeFile(swSrc, [
+      'importScripts(\'./chunk.js\')',
+      'self.__WB_MANIFEST',
+    ].join('\n'), 'utf-8')
+
+    const swDest = normalizePath(path.resolve(sandbox, 'dist', 'sw.js'))
+    const globDirectory = normalizePath(sandbox)
+
+    const result = await injectManifest({
+      swSrc,
+      swDest,
+      globDirectory,
+      globPatterns: ['**/*.js'],
+      injectionPoint: 'self.__WB_MANIFEST',
+      logLevel: 'silent',
+    })
+
+    // The chunk file should have been copied to the dest directory
+    const destChunk = path.resolve(sandbox, 'dist', 'chunk.js')
+    const chunkContent = await fs.readFile(destChunk, 'utf-8')
+    expect(chunkContent).toContain('fetch')
+
+    // The copied file should be included in filePaths
+    expect(result.filePaths).toContain(normalizePath(destChunk))
+  })
+
+  testInjectManifest('skips missing importScripts assets without error', async ({ sandbox }) => {
+    // SW references a chunk that doesn't exist on disk
+    const swSrc = normalizePath(path.resolve(sandbox, 'sw.js'))
+    await fs.writeFile(swSrc, [
+      'importScripts(\'./missing-chunk.js\')',
+      'self.__WB_MANIFEST',
+    ].join('\n'), 'utf-8')
+
+    const swDest = normalizePath(path.resolve(sandbox, 'dist', 'sw.js'))
+    const globDirectory = normalizePath(sandbox)
+
+    // Should not throw
+    const result = await injectManifest({
+      swSrc,
+      swDest,
+      globDirectory,
+      globPatterns: ['**/*.js'],
+      injectionPoint: 'self.__WB_MANIFEST',
+      logLevel: 'silent',
+    })
+
+    expect(result.filePaths).not.toContain('missing-chunk.js')
+  })
 })
