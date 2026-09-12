@@ -128,6 +128,15 @@ export async function buildInjectManifest(
     await fsp.writeFile(destPath, finalCode, 'utf-8')
   }
 
+  // Copy files referenced by importScripts() in the SW source
+  const swSrcDir = path.dirname(path.resolve(process.cwd(), options.swSrc))
+  const copiedImportScripts = await copyImportScriptsAssets(
+    cleanCode,
+    swSrcDir,
+    destDir,
+  )
+  filePaths.push(...copiedImportScripts)
+
   logInjectManifestResult(
     { count, size, warnings, filePaths },
     performance.now() - buildStart,
@@ -174,4 +183,72 @@ function extractSourceMap(code: string): { code: string, mapComment?: string } {
   const cleanCode = code.replace(workboxSourcemapRegex, '').trimEnd()
 
   return { code: cleanCode, mapComment }
+}
+
+/**
+ * Matches importScripts() calls with string arguments.
+ * Handles single and double quotes, multiple arguments.
+ * Examples:
+ *   importScripts('./chunk.js')
+ *   importScripts("./a.js", "./b.js")
+ *   importScripts('./chunk.js', './helper.js')
+ */
+const IMPORT_SCRIPTS_REGEX = /importScripts\s*\(\s*((?:['"][^'"]+['"]\s*(?:,\s*)?)+)\)/g
+const IMPORT_SCRIPTS_ARG_REGEX = /['"]([^'"]+)['"]/g
+
+/**
+ * Parse importScripts() calls in SW source code and return
+ * relative file paths (those starting with './' or '../').
+ */
+export function parseImportScriptsRelativePaths(code: string): string[] {
+  const paths: string[] = []
+  let match: RegExpExecArray | null
+  // eslint-disable-next-line no-cond-assign
+  while ((match = IMPORT_SCRIPTS_REGEX.exec(code)) !== null) {
+    const argsStr = match[1]!
+    let argMatch: RegExpExecArray | null
+    IMPORT_SCRIPTS_ARG_REGEX.lastIndex = 0
+    // eslint-disable-next-line no-cond-assign
+    while ((argMatch = IMPORT_SCRIPTS_ARG_REGEX.exec(argsStr)) !== null) {
+      const arg = argMatch[1]!
+      if (arg.startsWith('./') || arg.startsWith('../')) {
+        paths.push(arg)
+      }
+    }
+  }
+
+  return paths
+}
+
+/**
++ * Copy files referenced by importScripts() from the SW source
+ * directory to the SW destination directory.
+ */
+export async function copyImportScriptsAssets(
+  code: string,
+  swSrcDir: string,
+  swDestDir: string,
+): Promise<string[]> {
+  const relativePaths = parseImportScriptsRelativePaths(code)
+  if (!relativePaths.length)
+    return []
+  const copied: string[] = []
+  for (const relPath of relativePaths) {
+    const srcFile = path.resolve(swSrcDir, relPath)
+    const destFile = path.resolve(swDestDir, path.basename(relPath))
+
+    try {
+      await fsp.access(srcFile, fs.constants.F_OK)
+    }
+    catch {
+      // Source file doesn't exist, skip silently
+      continue
+    }
+
+    await fsp.mkdir(path.dirname(destFile), { recursive: true })
+    await fsp.copyFile(srcFile, destFile)
+    copied.push(destFile)
+  }
+
+  return copied
 }
